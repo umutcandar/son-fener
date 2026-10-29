@@ -2,7 +2,7 @@
 // Toplu akış (batch) sunucu koordinatlarını sağladığında: window.__sfWorld.setAdapter({me(),islands(),marches(),forts(),ruins(),attack?(id)})
 // Şekil: island {id,x,y,lv,name,clan,clanColor,shield(bool|ms),me?} · march {id,from:[x,y],to:[x,y],t0,t1,mine?,rally?}
 // fort {id,x,y,lv,clan,clanColor,hp(0..1),attacked(bool),r} · ruin {id,x,y,owner?} · koordinatlar 0..1000 dünya birimi.
-let AD=null,C=null;
+let AD=null,C=null;const WIM={};const wimg=n=>{if(!WIM[n]){const i=new Image();i.decoding='async';i.src='img/a/'+n+'.webp';WIM[n]=i}return WIM[n]};const wok=i=>i.complete&&i.naturalWidth>0;
 function rng(s){return()=>(s=(s*16807)%2147483647)/2147483647}
 // Canlı adaptör: __online.world (world_me + world_view). Hücre → dünya birimi ×10. Kamplar kendi türüyle çizilir.
 export function liveAdapter(){const O=window.__online,WA=O.world,CS=10,D={me:null,isl:[],camps:[],mar:[],size:1200};let ok=false;
@@ -43,7 +43,7 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
   else h=`<b>🗼 ${tx('ui.w_ruin')}</b><small>${tx('ui.w_ruin_d')}</small><button id="watk">⛵ ${tx('ui.w_send')}</button>`;
   cd.innerHTML=h;cd.classList.add('on');const bt=$('watk');if(bt)bt.onclick=()=>{close();if(O.world.state){const st=O.world.state();st.sel={x:(o.x-5)/10,y:(o.y-5)/10}}ctx.after&&ctx.after()}}
  // çizim yardımcıları
- function keep(px,py,s,o,t){const g=x;const c=o.clanColor||'#999';g.save();g.translate(px,py);
+ function keep(px,py,s,o,t){const g=x;const c=o.clanColor||'#999';const im=wimg('wm'+(o.lv>=20?3:o.lv>=10?2:1));if(wok(im)){const w=s*3.4,h=w*im.naturalHeight/im.naturalWidth;g.save();g.translate(px,py);g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(0,s*.55,w*.45,w*.14,0,0,7);g.fill();g.strokeStyle=c;g.lineWidth=o.me?3:2;g.globalAlpha=o.me?.95:.7;g.beginPath();g.ellipse(0,s*.45,w*.5,w*.17,0,0,7);g.stroke();g.globalAlpha=1;g.drawImage(im,-w/2,s*.7-h,w,h);if(o.shield){g.strokeStyle='rgba(120,200,255,.8)';g.fillStyle='rgba(120,200,255,.12)';g.lineWidth=2;g.beginPath();g.arc(0,-h*.3,w*.6,0,7);g.fill();g.stroke()}g.restore();return}g.save();g.translate(px,py);
   g.fillStyle='rgba(0,0,0,.18)';g.beginPath();g.ellipse(0,s*.55,s*1.25,s*.42,0,0,7);g.fill();
   g.fillStyle='#e8d29a';g.beginPath();g.ellipse(0,s*.35,s*1.15,s*.5,0,0,7);g.fill();g.fillStyle='#5aa04a';g.beginPath();g.ellipse(0,s*.25,s*.95,s*.38,0,0,7);g.fill();
   const tw=o.lv>=10?3:o.lv>=5?2:1;g.fillStyle='#b8b0a0';g.fillRect(-s*.45,-s*.2,s*.9,s*.5);g.fillStyle='#8a8070';for(let i=-2;i<=2;i++)g.fillRect(i*s*.18-s*.06,-s*.32,s*.12,s*.14);
@@ -75,17 +75,17 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
   x.fillStyle='#b04040';x.fillRect(-s*.24,-s*.45,s*.48,s*.12);x.fillRect(-s*.22,-s*.05,s*.44,s*.1);
   x.fillStyle='#9a9488';x.fillRect(s*.45,s*.1,s*.25,s*.15);x.fillRect(-s*.7,s*.18,s*.2,s*.12);
   const g=x.createRadialGradient(0,-s*1.05,0,0,-s*1.05,s*.9);g.addColorStop(0,`rgba(255,230,140,${.35+.2*Math.sin(t*2)})`);g.addColorStop(1,'rgba(255,230,140,0)');x.fillStyle=g;x.beginPath();x.arc(0,-s*1.05,s*.9,0,7);x.fill();x.restore()}
- function camp(px,py,s,o,t){x.save();x.translate(px,py);x.fillStyle='rgba(0,0,0,.2)';x.beginPath();x.ellipse(0,s*.5,s*1.1,s*.35,0,0,7);x.fill();
+ function camp(px,py,s,o,t){{const im=wimg('wm4');if(wok(im)){const w=s*2.6,h=w*im.naturalHeight/im.naturalWidth;x.drawImage(im,px-w/2,py+s*.6-h,w,h);return}}x.save();x.translate(px,py);x.fillStyle='rgba(0,0,0,.2)';x.beginPath();x.ellipse(0,s*.5,s*1.1,s*.35,0,0,7);x.fill();
   if(o.kind==='pirate'){x.fillStyle='#3a2416';x.beginPath();x.moveTo(s,0);x.lineTo(s*.5,s*.4);x.lineTo(-s,s*.4);x.lineTo(-s*1.1,0);x.fill();x.strokeStyle='#2a1a0e';x.lineWidth=1.2;x.beginPath();x.moveTo(0,s*.1);x.lineTo(0,-s*1.2);x.stroke();x.fillStyle='#111';x.beginPath();x.moveTo(0,-s*1.15);x.lineTo(s*.75,-s*.95+Math.sin(t*4)*s*.06);x.lineTo(0,-s*.7);x.fill();x.fillStyle='#eee';x.beginPath();x.arc(s*.28,-s*.92,s*.1,0,7);x.fill()}
   else{const g=x.createRadialGradient(0,-s*.3,0,0,-s*.3,s*1.2);g.addColorStop(0,'rgba(190,160,255,.75)');g.addColorStop(1,'rgba(120,90,200,0)');x.fillStyle=g;x.beginPath();x.arc(0,-s*.3,s*1.2,0,7);x.fill();x.fillStyle='#dfe';x.globalAlpha=.85;x.beginPath();x.arc(0,-s*.4+Math.sin(t*2)*s*.1,s*.4,3.14,0);x.lineTo(s*.4,s*.1);x.lineTo(-s*.4,s*.1);x.fill();x.globalAlpha=1;x.fillStyle='#226';x.fillRect(-s*.18,-s*.5,s*.1,s*.1);x.fillRect(s*.08,-s*.5,s*.1,s*.1)}
   if(s>8){x.font='800 9px system-ui';x.fillStyle='#ffe38a';x.textAlign='center';x.fillText(tx('ui.w_lv',[o.lv]),0,s*.95)}x.restore()}
- function ship(px,py,s,ang,col,t){x.save();x.translate(px,py+Math.sin(t*3+px)*1);x.rotate(ang);x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.moveTo(-s*1.6,0);x.lineTo(-s*.4,-s*.35);x.lineTo(-s*.4,s*.35);x.fill();
+ function ship(px,py,s,ang,col,t){{const im=wimg('t_cav2');if(wok(im)){const w=s*2.6,h=w*im.naturalHeight/im.naturalWidth;x.save();x.translate(px,py);if(Math.cos(ang)<0)x.scale(-1,1);x.fillStyle=col+'66';x.beginPath();x.ellipse(0,h*.35,w*.45,w*.12,0,0,7);x.fill();x.drawImage(im,-w/2,h*.45-h,w,h);x.restore();return}}x.save();x.translate(px,py+Math.sin(t*3+px)*1);x.rotate(ang);x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.moveTo(-s*1.6,0);x.lineTo(-s*.4,-s*.35);x.lineTo(-s*.4,s*.35);x.fill();
   x.fillStyle='#6b4423';x.beginPath();x.moveTo(s*.9,0);x.lineTo(s*.3,-s*.38);x.lineTo(-s*.7,-s*.32);x.lineTo(-s*.7,s*.32);x.lineTo(s*.3,s*.38);x.fill();x.fillStyle='#f4ecd8';x.fillRect(-s*.15,-s*.55,s*.3,s*1.1);x.fillStyle=col;x.fillRect(-s*.15,-s*.12,s*.3,s*.24);x.restore()}
  let last=performance.now();
  function frame(nw){if(!alive)return;const dt=Math.min(.05,(nw-last)/1e3);last=nw;const t=RM?0:nw/1e3,k0=1-Math.pow(.02,dt);cz+=(tz-cz)*k0*.9;cx+=(tcx-cx)*k0;cy+=(tcy-cy)*k0;
-  x.setTransform(dpr,0,0,dpr,0,0);const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1b5f86');g.addColorStop(1,'#0f3d5e');x.fillStyle=g;x.fillRect(0,0,W,H);const k=fit()*cz;
+  x.setTransform(dpr,0,0,dpr,0,0);const k=fit()*cz;const tI=wimg('world_tile');let land=false;if(wok(tI)){if(!frame.pt)frame.pt=x.createPattern(tI,'repeat');const[o0,o1]=w2s(0,0),ts=240*k/tI.naturalWidth;frame.pt.setTransform(new DOMMatrix([ts,0,0,ts,o0,o1]));x.fillStyle='#2c3a22';x.fillRect(0,0,W,H);x.fillStyle=frame.pt;x.fillRect(0,0,W,H);x.fillStyle='rgba(10,8,4,.28)';x.fillRect(0,0,W,H);land=true}else{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#3a4a2a');g.addColorStop(1,'#22301a');x.fillStyle=g;x.fillRect(0,0,W,H)}
   // dalga ızgarası (LOD: yakında daha sık)
-  x.strokeStyle='rgba(255,255,255,.07)';x.lineWidth=1;const st=cz>3?40:80;const[a0,b0]=s2w(0,0),[a1,b1]=s2w(W,H);for(let wy=Math.floor(b0/st)*st;wy<b1;wy+=st)for(let wx=Math.floor(a0/st)*st;wx<a1;wx+=st){const[p,q]=w2s(wx+((wy/st)%2)*st/2,wy);const o=Math.sin(t+wx*.03+wy*.02)*3;x.beginPath();x.moveTo(p-6,q+o);x.quadraticCurveTo(p,q-3+o,p+6,q+o);x.stroke()}
+  if(!land){x.strokeStyle='rgba(255,255,255,.05)';x.lineWidth=1;}const st=cz>3?40:80;const[a0,b0]=s2w(0,0),[a1,b1]=s2w(W,H);if(!land)for(let wy=Math.floor(b0/st)*st;wy<b1;wy+=st)for(let wx=Math.floor(a0/st)*st;wx<a1;wx+=st){const[p,q]=w2s(wx+((wy/st)%2)*st/2,wy);const o=Math.sin(t+wx*.03+wy*.02)*3;x.beginPath();x.moveTo(p-6,q+o);x.quadraticCurveTo(p,q-3+o,p+6,q+o);x.stroke()}
   // dünya sınırı
   {const[p,q]=w2s(0,0);x.strokeStyle='rgba(255,255,255,.12)';x.setLineDash([6,8]);x.strokeRect(p,q,(AD.size||1000)*k,(AD.size||1000)*k);x.setLineDash([])}
   const fs=AD.forts(),is=AD.islands(),rs_=AD.ruins(),ms=AD.marches(),now=Date.now();
