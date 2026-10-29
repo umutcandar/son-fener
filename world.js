@@ -4,20 +4,22 @@
 // fort {id,x,y,lv,clan,clanColor,hp(0..1),attacked(bool),r} · ruin {id,x,y,owner?} · koordinatlar 0..1000 dünya birimi.
 let AD=null,C=null;
 function rng(s){return()=>(s=(s*16807)%2147483647)/2147483647}
-export function mockAdapter(S){const r=rng(7331),NM=['Kara Martı','Tuzlu Rüzgar','Gümüş Yelken','Sisli Koy','Demir Çapa','Mercan','Fırtına Kuşu','Mavi Yunus','Altın Pusula','Gece Kartalı','Köpük','Deniz Feneri','Yıldız Koyu','Poyraz','Lodos','Kehribar'];
- const CL=[['KRK','#e05252'],['AYD','#4fa3e0'],['ZMR','#3fbf7f'],['GÜN','#e0b040']];const I=[];
- I.push({id:'me',x:500,y:520,lv:Math.max(1,(S&&S.lv)||3),name:(S&&S.name)||'Fener',clan:'AYD',clanColor:'#4fa3e0',shield:true,me:true});
- for(let i=0;i<34;i++){const c=CL[i%4],a=r()*6.283,d=90+r()*400;I.push({id:'p'+i,x:500+Math.cos(a)*d,y:500+Math.sin(a)*d*.9,lv:1+Math.floor(r()*r()*25),name:NM[i%NM.length]+(i>15?' '+(i-15):''),clan:r()<.8?c[0]:'',clanColor:c[1],shield:r()<.25})}
- const F=[{id:'f0',x:300,y:320,lv:4,clan:'KRK',clanColor:'#e05252',hp:.45,attacked:true,r:120},{id:'f1',x:575,y:600,lv:6,clan:'AYD',clanColor:'#4fa3e0',hp:1,attacked:false,r:150},{id:'f2',x:760,y:330,lv:2,clan:'ZMR',clanColor:'#3fbf7f',hp:.8,attacked:false,r:95},{id:'f3',x:700,y:790,lv:8,clan:'GÜN',clanColor:'#e0b040',hp:.2,attacked:true,r:170}];
- for(const p of I){if(!p.clan)continue;}
- const R=[{id:'r0',x:420,y:180},{id:'r1',x:880,y:560},{id:'r2',x:180,y:640},{id:'r3',x:560,y:900}];
- const now=Date.now(),M=[{id:'m0',from:[500,520],to:[420,180],t0:now-20e3,t1:now+70e3,mine:true},{id:'m1',from:[600,700],to:[300,320],t0:now-50e3,t1:now+40e3,rally:true},{id:'m2',from:[150,420],to:[300,320],t0:now-10e3,t1:now+60e3,rally:true},{id:'m3',from:[420,250],to:[300,320],t0:now-30e3,t1:now+25e3,rally:true},{id:'m4',from:[880,450],to:[700,790],t0:now-5e3,t1:now+95e3},{id:'m5',from:[500,520],to:[760,330],t0:now-40e3,t1:now+50e3,mine:true}];
- return{me:()=>I[0],islands:()=>I,forts:()=>F,ruins:()=>R,marches:()=>M,mock:true}}
+// Canlı adaptör: __online.world (world_me + world_view). Hücre → dünya birimi ×10. Kamplar kendi türüyle çizilir.
+export function liveAdapter(){const O=window.__online,WA=O.world,CS=10,D={me:null,isl:[],camps:[],mar:[],size:1200};let ok=false;
+ const map=(v,me)=>{D.size=(me.n||120)*CS;D.isl=(v.isl||[]).map(i=>({id:i.id,x:i.x*CS+5,y:i.y*CS+5,lv:i.lv||1,name:i.nick||'?',clan:i.tag||'',clanColor:i.me||i.mate?'#4fa3e0':i.cid?`hsl(${(parseInt(String(i.cid).replace(/\D/g,'').slice(0,6)||'0')*47)%360} 70% 55%)`:'#bbb',shield:!!i.sh,me:!!i.me,mate:!!i.mate}));
+  D.camps=(v.camps||[]).map(c=>({id:'c'+c.x+'_'+c.y,x:c.x*CS+5,y:c.y*CS+5,lv:c.lvl,kind:c.k,pw:c.pw}));
+  const ms=[...(v.marches||[]),...((me.marches||[]).filter(m=>!m.done).map(m=>({fx:me.x,fy:me.y,tx:m.tx,ty:m.ty,t0:m.t0||m.sent||Date.now()-1e3,t1:m.arrive,me:1})))];const seen=new Set();
+  D.mar=ms.filter(m=>{const k=[m.fx,m.fy,m.tx,m.ty,m.t1].join();if(seen.has(k))return false;seen.add(k);return true}).map((m,i)=>({id:'m'+i,from:[m.fx*CS+5,m.fy*CS+5],to:[m.tx*CS+5,m.ty*CS+5],t0:m.t0,t1:m.t1,mine:!!m.me}));
+  const mi=D.isl.find(i=>i.me);D.me=mi||{id:'me',x:me.x*CS+5,y:me.y*CS+5,lv:1,name:'',me:true};ok=true};
+ const load=async()=>{try{const me=await WA.me(),R=15,v=await WA.view(me.x-R,me.y-R,2*R+1,2*R+1);map(v||{},me||{})}catch(e){console.warn('world live',e)}};
+ const A={live:true,ready:load(),me:()=>D.me||{x:600,y:600,lv:1,name:'',me:true},islands:()=>D.isl,camps:()=>D.camps,forts:()=>[],ruins:()=>[],marches:()=>D.mar,get size(){return D.size},refresh:load,
+  attack:o=>{}};
+ WA.on&&WA.on(t=>{if(t==='march'||t==='battle'||t==='view')load()});return A}
 const $=i=>document.getElementById(i);
 function fmtT(ms){ms=Math.max(0,ms/1e3|0);const m=ms/60|0,s=ms%60;return m+':'+String(s).padStart(2,'0')}
-export function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!AD)AD=mockAdapter(ctx.S);
+export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-reduced-motion: reduce)').matches;const O=window.__online;if(!(O&&O.on&&O.world))return null;if(!AD)AD=liveAdapter();if(AD.ready)await AD.ready;let rt=AD.live?setInterval(()=>AD.refresh(),5000):0;
  let el=$('world');if(!el){el=document.createElement('div');el.id='world';el.innerHTML='<canvas id="wcv"></canvas><div id="wtop"><b id="wtt"></b><small id="wmock"></small><button id="wcl">✕</button></div><div id="wcard"></div><button id="whome">🏠</button>';document.body.appendChild(el)}
- $('wtt').textContent='🌊 '+tx('ui.w_title');$('wmock').textContent=AD.mock?tx('ui.w_mock'):'';el.classList.add('on');
+ $('wtt').textContent='🌊 '+tx('ui.w_title');$('wmock').textContent='';el.classList.add('on');
  const cv=$('wcv'),x=cv.getContext('2d'),dpr=Math.min(1.5,devicePixelRatio||1);let W=0,H=0,alive=true,sel=null;
  const me=AD.me();let cz=1,cx=me.x,cy=me.y,tz=1,tcx=me.x,tcy=me.y;const fit=()=>Math.min(W,H)/1000;
  function rs(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px'}rs();addEventListener('resize',rs);
@@ -32,13 +34,14 @@ export function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-red
  cv.onpointerup=cv.onpointercancel=e=>{pts.delete(e.pointerId);pd=0;if(moved<8&&e.type==='pointerup')tap(e.clientX,e.clientY)};
  cv.onwheel=e=>{e.preventDefault();tz=Math.max(.7,Math.min(8,tz*(e.deltaY<0?1.15:.87)))};
  $('wcl').onclick=close;$('whome').onclick=()=>{tcx=me.x;tcy=me.y;tz=3};
- function close(){alive=false;el.classList.remove('on');removeEventListener('resize',rs);ctx.SFX&&ctx.SFX.tap()}
- function hit(a,b){const all=[...AD.forts().map(o=>({...o,k:'f',rr:16+o.lv*2})),...AD.islands().map(o=>({...o,k:'i',rr:10+o.lv*.6})),...AD.ruins().map(o=>({...o,k:'r',rr:12}))];const[wx,wy]=s2w(a,b),k=fit()*cz;let best=null,bd=1e9;for(const o of all){const d=Math.hypot(o.x-wx,o.y-wy)*k;if(d<Math.max(22,o.rr*k)&&d<bd){bd=d;best=o}}return best}
+ function close(){alive=false;clearInterval(rt);el.classList.remove('on');removeEventListener('resize',rs);ctx.SFX&&ctx.SFX.tap()}
+ function hit(a,b){const all=[...AD.forts().map(o=>({...o,k:'f',rr:16+o.lv*2})),...AD.islands().map(o=>({...o,k:'i',rr:10+o.lv*.6})),...AD.ruins().map(o=>({...o,k:'r',rr:12})),...(AD.camps?AD.camps():[]).map(o=>({...o,k:'c',rr:12}))];const[wx,wy]=s2w(a,b),k=fit()*cz;let best=null,bd=1e9;for(const o of all){const d=Math.hypot(o.x-wx,o.y-wy)*k;if(d<Math.max(22,o.rr*k)&&d<bd){bd=d;best=o}}return best}
  function tap(a,b){const o=hit(a,b);sel=o;const cd=$('wcard');if(!o){cd.classList.remove('on');return}ctx.SFX&&ctx.SFX.tap();tcx=o.x;tcy=o.y;tz=Math.max(tz,4);
   let h='';if(o.k==='i')h=`<b>${o.me?'🏠 ':''}${o.name}</b><small>${o.clan?'['+o.clan+'] · ':''}${tx('ui.w_lv',[o.lv])}${o.shield?' · 🛡️ '+tx('ui.w_shield'):''}</small>`+(o.me?'':`<button id="watk" ${o.shield?'disabled':''}>⚔️ ${tx('ui.w_attack')}</button>`);
   else if(o.k==='f')h=`<b>🏰 ${tx('ui.w_fort')} [${o.clan}]</b><small>${tx('ui.w_lv',[o.lv])} · ❤️ ${Math.round(o.hp*100)}%${o.attacked?' · 🔥 '+tx('ui.w_under'):''}</small><button id="watk">⚔️ ${tx('ui.w_rally')}</button>`;
+  else if(o.k==='c')h=`<b>${o.kind==='pirate'?'🏴‍☠️':'👾'} ${tx('ui.w_lv',[o.lv])}</b><small>⚔️ ${o.pw||'?'}</small><button id="watk">⛵ ${tx('ui.w_send')}</button>`;
   else h=`<b>🗼 ${tx('ui.w_ruin')}</b><small>${tx('ui.w_ruin_d')}</small><button id="watk">⛵ ${tx('ui.w_send')}</button>`;
-  cd.innerHTML=h;cd.classList.add('on');const bt=$('watk');if(bt)bt.onclick=()=>{if(AD.attack)return AD.attack(o);close();ctx.fight()}}
+  cd.innerHTML=h;cd.classList.add('on');const bt=$('watk');if(bt)bt.onclick=()=>{close();if(O.world.state){const st=O.world.state();st.sel={x:(o.x-5)/10,y:(o.y-5)/10}}ctx.after&&ctx.after()}}
  // çizim yardımcıları
  function keep(px,py,s,o,t){const g=x;const c=o.clanColor||'#999';g.save();g.translate(px,py);
   g.fillStyle='rgba(0,0,0,.18)';g.beginPath();g.ellipse(0,s*.55,s*1.25,s*.42,0,0,7);g.fill();
@@ -72,6 +75,10 @@ export function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-red
   x.fillStyle='#b04040';x.fillRect(-s*.24,-s*.45,s*.48,s*.12);x.fillRect(-s*.22,-s*.05,s*.44,s*.1);
   x.fillStyle='#9a9488';x.fillRect(s*.45,s*.1,s*.25,s*.15);x.fillRect(-s*.7,s*.18,s*.2,s*.12);
   const g=x.createRadialGradient(0,-s*1.05,0,0,-s*1.05,s*.9);g.addColorStop(0,`rgba(255,230,140,${.35+.2*Math.sin(t*2)})`);g.addColorStop(1,'rgba(255,230,140,0)');x.fillStyle=g;x.beginPath();x.arc(0,-s*1.05,s*.9,0,7);x.fill();x.restore()}
+ function camp(px,py,s,o,t){x.save();x.translate(px,py);x.fillStyle='rgba(0,0,0,.2)';x.beginPath();x.ellipse(0,s*.5,s*1.1,s*.35,0,0,7);x.fill();
+  if(o.kind==='pirate'){x.fillStyle='#3a2416';x.beginPath();x.moveTo(s,0);x.lineTo(s*.5,s*.4);x.lineTo(-s,s*.4);x.lineTo(-s*1.1,0);x.fill();x.strokeStyle='#2a1a0e';x.lineWidth=1.2;x.beginPath();x.moveTo(0,s*.1);x.lineTo(0,-s*1.2);x.stroke();x.fillStyle='#111';x.beginPath();x.moveTo(0,-s*1.15);x.lineTo(s*.75,-s*.95+Math.sin(t*4)*s*.06);x.lineTo(0,-s*.7);x.fill();x.fillStyle='#eee';x.beginPath();x.arc(s*.28,-s*.92,s*.1,0,7);x.fill()}
+  else{const g=x.createRadialGradient(0,-s*.3,0,0,-s*.3,s*1.2);g.addColorStop(0,'rgba(190,160,255,.75)');g.addColorStop(1,'rgba(120,90,200,0)');x.fillStyle=g;x.beginPath();x.arc(0,-s*.3,s*1.2,0,7);x.fill();x.fillStyle='#dfe';x.globalAlpha=.85;x.beginPath();x.arc(0,-s*.4+Math.sin(t*2)*s*.1,s*.4,3.14,0);x.lineTo(s*.4,s*.1);x.lineTo(-s*.4,s*.1);x.fill();x.globalAlpha=1;x.fillStyle='#226';x.fillRect(-s*.18,-s*.5,s*.1,s*.1);x.fillRect(s*.08,-s*.5,s*.1,s*.1)}
+  if(s>8){x.font='800 9px system-ui';x.fillStyle='#ffe38a';x.textAlign='center';x.fillText(tx('ui.w_lv',[o.lv]),0,s*.95)}x.restore()}
  function ship(px,py,s,ang,col,t){x.save();x.translate(px,py+Math.sin(t*3+px)*1);x.rotate(ang);x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.moveTo(-s*1.6,0);x.lineTo(-s*.4,-s*.35);x.lineTo(-s*.4,s*.35);x.fill();
   x.fillStyle='#6b4423';x.beginPath();x.moveTo(s*.9,0);x.lineTo(s*.3,-s*.38);x.lineTo(-s*.7,-s*.32);x.lineTo(-s*.7,s*.32);x.lineTo(s*.3,s*.38);x.fill();x.fillStyle='#f4ecd8';x.fillRect(-s*.15,-s*.55,s*.3,s*1.1);x.fillStyle=col;x.fillRect(-s*.15,-s*.12,s*.3,s*.24);x.restore()}
  let last=performance.now();
@@ -80,7 +87,7 @@ export function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-red
   // dalga ızgarası (LOD: yakında daha sık)
   x.strokeStyle='rgba(255,255,255,.07)';x.lineWidth=1;const st=cz>3?40:80;const[a0,b0]=s2w(0,0),[a1,b1]=s2w(W,H);for(let wy=Math.floor(b0/st)*st;wy<b1;wy+=st)for(let wx=Math.floor(a0/st)*st;wx<a1;wx+=st){const[p,q]=w2s(wx+((wy/st)%2)*st/2,wy);const o=Math.sin(t+wx*.03+wy*.02)*3;x.beginPath();x.moveTo(p-6,q+o);x.quadraticCurveTo(p,q-3+o,p+6,q+o);x.stroke()}
   // dünya sınırı
-  {const[p,q]=w2s(0,0);x.strokeStyle='rgba(255,255,255,.12)';x.setLineDash([6,8]);x.strokeRect(p,q,1000*k,1000*k);x.setLineDash([])}
+  {const[p,q]=w2s(0,0);x.strokeStyle='rgba(255,255,255,.12)';x.setLineDash([6,8]);x.strokeRect(p,q,(AD.size||1000)*k,(AD.size||1000)*k);x.setLineDash([])}
   const fs=AD.forts(),is=AD.islands(),rs_=AD.ruins(),ms=AD.marches(),now=Date.now();
   // klan bölgesi tonu
   for(const f of fs){const[p,q]=w2s(f.x,f.y),r=f.r*k,gr=x.createRadialGradient(p,q,r*.2,p,q,r);gr.addColorStop(0,f.clanColor+'38');gr.addColorStop(.85,f.clanColor+'22');gr.addColorStop(1,f.clanColor+'00');x.fillStyle=gr;x.beginPath();x.arc(p,q,r,0,7);x.fill();
@@ -91,12 +98,13 @@ export function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-red
    const sx=p0+(p1-p0)*u,sy=q0+(q1-q0)*u,ss=Math.max(8,Math.min(14,5*k));ship(sx,sy,ss,Math.atan2(q1-q0,p1-p0),col,t);
    if(k>.5){const lb='⏱ '+fmtT(m.t1-now);x.font='700 10px system-ui';const w=x.measureText(lb).width+10;x.fillStyle='rgba(10,20,30,.75)';x.beginPath();x.roundRect(sx-w/2,sy-ss-18,w,14,7);x.fill();x.fillStyle=col;x.textAlign='center';x.textBaseline='middle';x.fillText(lb,sx,sy-ss-11)}}
   // varlıklar (y'ye göre sırala)
-  const ents=[...fs.map(o=>['f',o]),...is.map(o=>['i',o]),...rs_.map(o=>['r',o])].sort((a,b)=>a[1].y-b[1].y);
+  const ents=[...fs.map(o=>['f',o]),...is.map(o=>['i',o]),...rs_.map(o=>['r',o]),...(AD.camps?AD.camps():[]).map(o=>['c',o])].sort((a,b)=>a[1].y-b[1].y);
   for(const[ty,o]of ents){const[p,q]=w2s(o.x,o.y);if(p<-80||q<-80||p>W+80||q>H+80)continue;
    if(ty==='i'){const s=Math.max(4,(5+o.lv*.35)*k*1.3);if(k<.45&&!o.me){x.fillStyle=o.clanColor||'#ccc';x.beginPath();x.arc(p,q,3,0,7);x.fill();continue}keep(p,q,s,o,t);banner(p,q+s*.75,o,k)}
    else if(ty==='f'){const s=(9+o.lv*1.3)*k*.9;fort(p,q,s,o,t);if(o.attacked){const ph=(t*1.2)%1;x.strokeStyle=`rgba(255,60,40,${1-ph})`;x.lineWidth=3;x.beginPath();x.arc(p,q,s*(1.4+ph*1.2),0,7);x.stroke();
      x.font='800 12px system-ui';x.textAlign='center';x.fillStyle='#fff';x.strokeStyle='#a00';x.lineWidth=3;const lb='⚠️ '+tx('ui.w_under');x.strokeText(lb,p,q-s*2.1);x.fillText(lb,p,q-s*2.1)}
      if(k>1.1){x.font='800 11px system-ui';x.fillStyle=o.clanColor;x.textAlign='center';x.fillText('🏰 ['+o.clan+'] '+tx('ui.w_lv',[o.lv]),p,q+s*1.15)}}
+   else if(ty==='c'){const s=Math.max(8,9*k);camp(p,q,s,o,t)}
    else{const s=8*k*.9;ruin(p,q,s,t);if(k>1.3){x.font='700 10px system-ui';x.fillStyle='#ffe9a8';x.textAlign='center';x.fillText('🗼 '+tx('ui.w_ruin'),p,q+s*.9)}}
    if(sel&&sel.id===o.id){x.strokeStyle='#ffe38a';x.lineWidth=2;x.beginPath();x.arc(p,q,22+3*Math.sin(t*6),0,7);x.stroke()}}
   requestAnimationFrame(frame)}

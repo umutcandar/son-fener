@@ -8,7 +8,7 @@ async def m():
   await pg.add_init_script("localStorage.setItem('sf_intro','1')");await pg.goto(U);await pg.wait_for_timeout(6000)
   await pg.evaluate("()=>{const b=document.getElementById('startBtn');b&&b.click()}");await pg.wait_for_timeout(3000)
   await pg.evaluate("()=>{const g=__g;g.S.tut=99;g.ui();document.getElementById('modal').classList.remove('on');document.getElementById('warBtn').click()}")
-  await pg.wait_for_timeout(400);await pg.screenshot(path=D+'-w0zoom.png');await pg.wait_for_timeout(4000);await pg.screenshot(path=D+'-w1home.png')
+  await pg.wait_for_timeout(2500);print('on',await pg.evaluate('()=>[!!(window.__online&&__online.on),!!document.querySelector("#world.on")]'));await pg.screenshot(path=D+'-w0zoom.png');await pg.wait_for_timeout(4000);await pg.screenshot(path=D+'-w1home.png')
   await pg.mouse.move(236,500)
   for i in range(8): await pg.mouse.wheel(0,200);await pg.wait_for_timeout(120)
   await pg.wait_for_timeout(2500);await pg.screenshot(path=D+'-w2world.png')
