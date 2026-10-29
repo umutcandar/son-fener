@@ -122,10 +122,20 @@ html,body,button{font-family:Fredoka,system-ui,-apple-system,"Segoe UI",Roboto,s
 @keyframes gbo{to{transform:rotateY(-90deg)}}@keyframes gfi{to{transform:rotateY(0)}}@keyframes pulse{50%{opacity:.35}}
 .pill{font-weight:600}#prof b,#night{font-weight:700}.big{font-weight:700;font-size:11.5px}
 .dot{animation:dotp 1.6s infinite}@keyframes dotp{50%{transform:scale(1.18)}}
+
+i[data-k]{font-style:normal}
+.langs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.langs .btn{width:100%}
+html.L-zh-CN body,html.L-zh-CN .btn{font-family:Fredoka,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif}
+html.L-zh-TW body,html.L-zh-TW .btn{font-family:Fredoka,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+html.L-zh-CN *,html.L-zh-TW *{word-break:break-all;line-break:strict;letter-spacing:0}
+html.L-ar body{font-family:Fredoka,"Noto Sans Arabic","Segoe UI",Tahoma,sans-serif}
+html.L-ru .btn,html.L-de .btn,html.L-fr .btn,html.L-es .btn,html.L-pt-BR .btn,html.L-id .btn{white-space:normal;overflow-wrap:anywhere}
+[dir=rtl] .card,[dir=rtl] #sheet h3{direction:rtl;text-align:right}
+[dir=rtl] #hud,[dir=rtl] #bar{direction:ltr}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">
- <div class="row"><div id="prof"><div class="av"><img src="img/cap_yusuf.webp" alt=""></div><div><b>Fener Sv<span id="flv">1</span></b><small>⚔️ Güç <span id="pow">0</span></small></div></div>
+ <div class="row"><div id="prof"><div class="av"><img src="img/cap_yusuf.webp" alt=""></div><div><b><i data-k>Fener Sv</i><span id="flv">1</span></b><small><i data-k>⚔️ Güç</i> <span id="pow">0</span></small></div></div>
   <div id="night"><span id="nval"></span><small id="nsub"></small></div></div>
  <div class="row"><div class="pill"><img class="ri" src="img/i_fish.webp" alt=""><span id="r_fish"></span></div><div class="pill"><img class="ri" src="img/i_wood.webp" alt=""><span id="r_wood"></span></div><div class="pill"><img class="ri" src="img/i_crys.webp" alt=""><span id="r_crys"></span></div><div class="pill" id="pGem" style="margin-left:auto"><img class="ri" src="img/i_gems.webp" alt=""><span id="r_gems"></span><span class="plus">+</span></div></div>
  <div id="stat" class="row"><div class="pill" id="pSurv"><img class="ri" src="img/i_surv.webp" alt=""><span id="surv"></span></div><div class="pill"><img class="ri" src="img/i_bld.webp" alt=""><span id="bld"></span></div><div class="pill" id="pIsl"><i>🏝️</i><span id="isl"></span></div><div class="pill" id="bClan" style="margin-left:auto">🛡️ Klan</div><div class="pill" id="bChat">💬 Sohbet</div></div>
