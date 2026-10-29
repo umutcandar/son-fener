@@ -1549,5 +1549,7 @@
  "o.tour_e_fought": "Tu as déjà affronté cet adversaire",
  "mail.tour_t": "Tournoi hebdo terminé",
  "mail.tour": "Tournoi {0} : tu termines #{1} sur {2}. Ta récompense est jointe.",
- "o.cr_est": "Encore ≈{0} coups du clan pour le vaincre (moy. {1})"
+ "o.cr_est": "Encore ≈{0} coups du clan pour le vaincre (moy. {1})",
+ "mail.refund_t": "Remboursement de gemmes",
+ "mail.refund": "Un bug a débité tes gemmes deux fois lors des invocations de capitaines. Les {0} 💎 en trop sont remboursées. Désolé !"
 }

@@ -1549,5 +1549,7 @@
  "o.tour_e_fought": "You already fought this opponent",
  "mail.tour_t": "Weekly tournament ended",
  "mail.tour": "Tournament {0}: you placed #{1} in a group of {2}. Your reward is attached.",
- "o.cr_est": "≈{0} more clan hits to slay it (avg {1})"
+ "o.cr_est": "≈{0} more clan hits to slay it (avg {1})",
+ "mail.refund_t": "Gem refund",
+ "mail.refund": "A bug charged your gems twice when summoning captains. The extra {0} 💎 is refunded. Sorry!"
 }

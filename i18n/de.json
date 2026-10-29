@@ -1549,5 +1549,7 @@
  "o.tour_e_fought": "Gegen diesen Gegner hast du schon gekämpft",
  "mail.tour_t": "Wochenturnier beendet",
  "mail.tour": "Turnier {0}: Platz {1} in einer {2}er-Gruppe. Deine Belohnung ist angehängt.",
- "o.cr_est": "Noch ≈{0} Clan-Treffer bis zum Sieg (Ø {1})"
+ "o.cr_est": "Noch ≈{0} Clan-Treffer bis zum Sieg (Ø {1})",
+ "mail.refund_t": "Edelstein-Erstattung",
+ "mail.refund": "Ein Fehler hat beim Beschwören von Kapitänen deine Edelsteine doppelt abgezogen. Die zusätzlichen {0} 💎 werden erstattet. Entschuldigung!"
 }

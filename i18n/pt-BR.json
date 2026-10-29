@@ -1549,5 +1549,7 @@
  "o.tour_e_fought": "Você já enfrentou este rival",
  "mail.tour_t": "Torneio semanal encerrado",
  "mail.tour": "Torneio {0}: você ficou em #{1} num grupo de {2}. Seu prêmio está anexado.",
- "o.cr_est": "Faltam ≈{0} golpes do clã (média {1})"
+ "o.cr_est": "Faltam ≈{0} golpes do clã (média {1})",
+ "mail.refund_t": "Reembolso de gemas",
+ "mail.refund": "Um erro cobrou suas gemas duas vezes ao invocar capitães. As {0} 💎 extras foram reembolsadas. Desculpe!"
 }
