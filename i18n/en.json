@@ -1428,5 +1428,12 @@
  "ui.bn_convoy": "Double Convoy Loot",
  "ui.bn_convoy_d": "2× wood and crystals from pirate convoys (Wednesday)",
  "ui.bn_fog": "Fog Night",
- "ui.bn_fog_d": "Fog cleansing at half price (daily 20:00–23:00)"
+ "ui.bn_fog_d": "Fog cleansing at half price (daily 20:00–23:00)",
+ "ui.fb_t": "Your fleet is ready!",
+ "ui.fb_d": "Your fleet power is ⚔️{0} and the first island's fog is ⚔️{1}. Time to free the first island!",
+ "ui.fb_go": "Open the map",
+ "ui.fb_later": "Later",
+ "e.srv_pve_unv": "Too far ahead of your verified progress",
+ "ui.loot": "Loot:",
+ "ui.loot_resc": "{0} survivors"
 }

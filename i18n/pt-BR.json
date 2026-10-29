@@ -1428,5 +1428,12 @@
  "ui.bn_convoy": "Saque de comboio em dobro",
  "ui.bn_convoy_d": "2× madeira e cristais dos comboios piratas (quarta)",
  "ui.bn_fog": "Noite de névoa",
- "ui.bn_fog_d": "Limpar névoa pela metade do preço (diariamente 20:00–23:00)"
+ "ui.bn_fog_d": "Limpar névoa pela metade do preço (diariamente 20:00–23:00)",
+ "ui.fb_t": "Sua frota está pronta!",
+ "ui.fb_d": "Sua frota tem ⚔️{0} e a névoa da primeira ilha ⚔️{1}. Hora de libertar a primeira ilha!",
+ "ui.fb_go": "Abrir o mapa",
+ "ui.fb_later": "Depois",
+ "e.srv_pve_unv": "Muito à frente do seu progresso verificado",
+ "ui.loot": "Saque:",
+ "ui.loot_resc": "{0} sobreviventes"
 }

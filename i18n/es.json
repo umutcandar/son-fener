@@ -1428,5 +1428,12 @@
  "ui.bn_convoy": "Botín de convoy doble",
  "ui.bn_convoy_d": "2× madera y cristales de convoyes piratas (miércoles)",
  "ui.bn_fog": "Noche de niebla",
- "ui.bn_fog_d": "Limpiar niebla a mitad de precio (a diario 20:00–23:00)"
+ "ui.bn_fog_d": "Limpiar niebla a mitad de precio (a diario 20:00–23:00)",
+ "ui.fb_t": "¡Tu flota está lista!",
+ "ui.fb_d": "Tu flota tiene ⚔️{0} y la niebla de la primera isla ⚔️{1}. ¡Hora de liberar la primera isla!",
+ "ui.fb_go": "Abrir el mapa",
+ "ui.fb_later": "Más tarde",
+ "e.srv_pve_unv": "Demasiado adelantado respecto a tu progreso verificado",
+ "ui.loot": "Botín:",
+ "ui.loot_resc": "{0} supervivientes"
 }

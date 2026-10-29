@@ -1428,5 +1428,12 @@
  "ui.bn_convoy": "Butin de convoi doublé",
  "ui.bn_convoy_d": "2× bois et cristaux des convois pirates (mercredi)",
  "ui.bn_fog": "Nuit de brume",
- "ui.bn_fog_d": "Purification de la brume à moitié prix (chaque jour 20h–23h)"
+ "ui.bn_fog_d": "Purification de la brume à moitié prix (chaque jour 20h–23h)",
+ "ui.fb_t": "Ta flotte est prête !",
+ "ui.fb_d": "Ta flotte a une puissance de ⚔️{0}, le brouillard de la première île ⚔️{1}. Il est temps de libérer la première île !",
+ "ui.fb_go": "Ouvrir la carte",
+ "ui.fb_later": "Plus tard",
+ "e.srv_pve_unv": "Trop en avance sur ta progression vérifiée",
+ "ui.loot": "Butin :",
+ "ui.loot_resc": "{0} survivants"
 }

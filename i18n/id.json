@@ -1428,5 +1428,12 @@
  "ui.bn_convoy": "Jarahan Konvoi Ganda",
  "ui.bn_convoy_d": "2× kayu dan kristal dari konvoi bajak laut (Rabu)",
  "ui.bn_fog": "Malam Kabut",
- "ui.bn_fog_d": "Pembersihan kabut setengah harga (setiap hari 20.00–23.00)"
+ "ui.bn_fog_d": "Pembersihan kabut setengah harga (setiap hari 20.00–23.00)",
+ "ui.fb_t": "Armadamu siap!",
+ "ui.fb_d": "Kekuatan armadamu ⚔️{0}, kabut pulau pertama ⚔️{1}. Saatnya membebaskan pulau pertama!",
+ "ui.fb_go": "Buka peta",
+ "ui.fb_later": "Nanti",
+ "e.srv_pve_unv": "Terlalu jauh dari kemajuan terverifikasimu",
+ "ui.loot": "Rampasan:",
+ "ui.loot_resc": "{0} penyintas"
 }

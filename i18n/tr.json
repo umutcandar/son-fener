@@ -1428,5 +1428,12 @@
  "ui.bn_convoy": "Çift Konvoy Ganimeti",
  "ui.bn_convoy_d": "Korsan konvoylarından 2 kat odun ve kristal (Çarşamba)",
  "ui.bn_fog": "Sis Gecesi",
- "ui.bn_fog_d": "Sisten arındırma yarı fiyatına (her gün 20:00–23:00)"
+ "ui.bn_fog_d": "Sisten arındırma yarı fiyatına (her gün 20:00–23:00)",
+ "ui.fb_t": "Filon hazır!",
+ "ui.fb_d": "Filo gücün ⚔️{0}, ilk adanın sisi ⚔️{1}. İlk adayı sisten kurtarma zamanı!",
+ "ui.fb_go": "Haritaya git",
+ "ui.fb_later": "Sonra",
+ "e.srv_pve_unv": "Doğrulanmış ilerlemeden ileride",
+ "ui.loot": "Ganimet:",
+ "ui.loot_resc": "{0} kurtulan"
 }

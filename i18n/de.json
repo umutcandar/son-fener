@@ -1428,5 +1428,12 @@
  "ui.bn_convoy": "Doppelte Konvoi-Beute",
  "ui.bn_convoy_d": "2× Holz und Kristalle aus Piratenkonvois (Mittwoch)",
  "ui.bn_fog": "Nebelnacht",
- "ui.bn_fog_d": "Nebelreinigung zum halben Preis (täglich 20:00–23:00)"
+ "ui.bn_fog_d": "Nebelreinigung zum halben Preis (täglich 20:00–23:00)",
+ "ui.fb_t": "Deine Flotte ist bereit!",
+ "ui.fb_d": "Deine Flottenstärke ist ⚔️{0}, der Nebel der ersten Insel ⚔️{1}. Zeit, die erste Insel zu befreien!",
+ "ui.fb_go": "Zur Karte",
+ "ui.fb_later": "Später",
+ "e.srv_pve_unv": "Zu weit vor deinem bestätigten Fortschritt",
+ "ui.loot": "Beute:",
+ "ui.loot_resc": "{0} Überlebende"
 }
