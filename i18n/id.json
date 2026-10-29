@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "Konvoi lolos",
  "ui.cv_lose_d": "Bajak laut memukul mundurmu. Perkuat armada dan coba lagi dalam 4 jam.",
  "ui.cv_locked": "Terbuka di Pulau 3",
- "ui.cv_wait": "Belum ada konvoi terlihat"
+ "ui.cv_wait": "Belum ada konvoi terlihat",
+ "ui.quest_go": "Tunjukkan ›",
+ "ui.guide_no_tile": "Tidak ada petak aman kosong — tingkatkan mercusuar atau gabungkan bangunan",
+ "ui.guide_collect": "Saat sumber daya terkumpul, ketuk gelembung di atas bangunan",
+ "ui.guide_merge": "Bangun 2 bangunan dengan jenis dan level sama, lalu seret satu ke yang lain",
+ "ui.guide_drag": "🔀 Seret bangunan ke kembarannya: GABUNG!",
+ "o.fw_btn_s": "Perang",
+ "o.fw_ph_prep": "Persiapan",
+ "o.fw_ph_clash": "Bentrok",
+ "o.fw_ph_reward": "Hadiah",
+ "o.fw_gain": "🏮 +{0} poin Perang Mercusuar",
+ "o.err.fw_clash_only": "Serangan hanya dibuka Jumat–Sabtu",
+ "o.err.fw_no_attacks": "Jatah serangan hari ini habis (3/3)",
+ "o.err.fw_no_match": "Tidak ada wilayah lawan minggu ini",
+ "o.err.no_region": "Belum ada wilayah — coba lagi sebentar",
+ "ui.yak_btn": "💡 Nyalakan",
+ "ui.sec_s": "{0}d"
 }

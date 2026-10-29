@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "The convoy escaped",
  "ui.cv_lose_d": "The pirates fought you off. Strengthen your fleet and try again in 4 hours.",
  "ui.cv_locked": "Unlocks at Island 3",
- "ui.cv_wait": "No convoy in sight yet"
+ "ui.cv_wait": "No convoy in sight yet",
+ "ui.quest_go": "Show ›",
+ "ui.guide_no_tile": "No free safe tile — upgrade the lighthouse or merge buildings",
+ "ui.guide_collect": "When resources pile up, tap the bubble above the building",
+ "ui.guide_merge": "Build 2 buildings of the same type and level, then drag one onto the other",
+ "ui.guide_drag": "🔀 Drag a building onto its twin: MERGE!",
+ "o.fw_btn_s": "War",
+ "o.fw_ph_prep": "Prep",
+ "o.fw_ph_clash": "Clash",
+ "o.fw_ph_reward": "Reward",
+ "o.fw_gain": "🏮 +{0} Lighthouse War points",
+ "o.err.fw_clash_only": "Attacks are only open Friday–Saturday",
+ "o.err.fw_no_attacks": "No attacks left today (3/3)",
+ "o.err.fw_no_match": "No rival region this week",
+ "o.err.no_region": "No region yet — try again shortly",
+ "ui.yak_btn": "💡 Light",
+ "ui.sec_s": "{0}s"
 }

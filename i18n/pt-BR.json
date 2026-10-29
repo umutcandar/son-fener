@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "O comboio escapou",
  "ui.cv_lose_d": "Os piratas te repeliram. Fortaleça sua frota e tente de novo em 4 horas.",
  "ui.cv_locked": "Libera na ilha 3",
- "ui.cv_wait": "Nenhum comboio à vista"
+ "ui.cv_wait": "Nenhum comboio à vista",
+ "ui.quest_go": "Mostrar ›",
+ "ui.guide_no_tile": "Nenhum espaço seguro livre — melhore o farol ou funda construções",
+ "ui.guide_collect": "Quando os recursos acumularem, toque na bolha acima da construção",
+ "ui.guide_merge": "Construa 2 construções do mesmo tipo e nível e arraste uma sobre a outra",
+ "ui.guide_drag": "🔀 Arraste uma construção sobre a gêmea: FUNDIR!",
+ "o.fw_btn_s": "Guerra",
+ "o.fw_ph_prep": "Prep.",
+ "o.fw_ph_clash": "Combate",
+ "o.fw_ph_reward": "Prêmio",
+ "o.fw_gain": "🏮 +{0} pontos da Guerra dos Faróis",
+ "o.err.fw_clash_only": "Ataques abertos apenas sexta–sábado",
+ "o.err.fw_no_attacks": "Sem ataques restantes hoje (3/3)",
+ "o.err.fw_no_match": "Nenhuma região rival nesta semana",
+ "o.err.no_region": "Ainda sem região — tente novamente em breve",
+ "ui.yak_btn": "💡 Acender",
+ "ui.sec_s": "{0}s"
 }

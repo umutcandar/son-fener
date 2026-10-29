@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "船队逃走了",
  "ui.cv_lose_d": "海盗击退了你。强化舰队，4 小时后再试。",
  "ui.cv_locked": "到达第 3 岛解锁",
- "ui.cv_wait": "尚未发现船队"
+ "ui.cv_wait": "尚未发现船队",
+ "ui.quest_go": "指引 ›",
+ "ui.guide_no_tile": "没有空闲的安全地块——升级灯塔或合并建筑",
+ "ui.guide_collect": "资源积累后，点击建筑上方的气泡",
+ "ui.guide_merge": "建造2座同类型同等级的建筑，然后把一座拖到另一座上",
+ "ui.guide_drag": "🔀 把建筑拖到相同的建筑上：合并！",
+ "o.fw_btn_s": "灯塔战",
+ "o.fw_ph_prep": "备战",
+ "o.fw_ph_clash": "交战",
+ "o.fw_ph_reward": "奖励",
+ "o.fw_gain": "🏮 +{0} 灯塔战积分",
+ "o.err.fw_clash_only": "仅周五至周六可以进攻",
+ "o.err.fw_no_attacks": "今天的进攻次数已用完 (3/3)",
+ "o.err.fw_no_match": "本周没有对手区域",
+ "o.err.no_region": "尚无区域——请稍后再试",
+ "ui.yak_btn": "💡 点亮",
+ "ui.sec_s": "{0}秒"
 }

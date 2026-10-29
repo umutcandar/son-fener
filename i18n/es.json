@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "El convoy escapó",
  "ui.cv_lose_d": "Los piratas te repelieron. Refuerza tu flota y vuelve a intentarlo en 4 horas.",
  "ui.cv_locked": "Se desbloquea en la isla 3",
- "ui.cv_wait": "Aún no hay convoy a la vista"
+ "ui.cv_wait": "Aún no hay convoy a la vista",
+ "ui.quest_go": "Mostrar ›",
+ "ui.guide_no_tile": "No hay casillas seguras libres: mejora el faro o fusiona edificios",
+ "ui.guide_collect": "Cuando se acumulen recursos, toca la burbuja sobre el edificio",
+ "ui.guide_merge": "Construye 2 edificios del mismo tipo y nivel y arrastra uno sobre el otro",
+ "ui.guide_drag": "🔀 Arrastra un edificio sobre su gemelo: ¡FUSIONA!",
+ "o.fw_btn_s": "Guerra",
+ "o.fw_ph_prep": "Prep.",
+ "o.fw_ph_clash": "Choque",
+ "o.fw_ph_reward": "Premio",
+ "o.fw_gain": "🏮 +{0} puntos de Guerra de Faros",
+ "o.err.fw_clash_only": "Los ataques solo están abiertos viernes–sábado",
+ "o.err.fw_no_attacks": "No te quedan ataques hoy (3/3)",
+ "o.err.fw_no_match": "No hay región rival esta semana",
+ "o.err.no_region": "Aún sin región: inténtalo en breve",
+ "ui.yak_btn": "💡 Encender",
+ "ui.sec_s": "{0}s"
 }

@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "Le convoi s'est échappé",
  "ui.cv_lose_d": "Les pirates t'ont repoussé. Renforce ta flotte et réessaie dans 4 heures.",
  "ui.cv_locked": "Débloqué à l'île 3",
- "ui.cv_wait": "Aucun convoi en vue"
+ "ui.cv_wait": "Aucun convoi en vue",
+ "ui.quest_go": "Montrer ›",
+ "ui.guide_no_tile": "Aucune case sûre libre — améliore le phare ou fusionne des bâtiments",
+ "ui.guide_collect": "Quand les ressources s’accumulent, touche la bulle au-dessus du bâtiment",
+ "ui.guide_merge": "Construis 2 bâtiments du même type et niveau, puis glisse l’un sur l’autre",
+ "ui.guide_drag": "🔀 Glisse un bâtiment sur son jumeau : FUSIONNE !",
+ "o.fw_btn_s": "Guerre",
+ "o.fw_ph_prep": "Prépa",
+ "o.fw_ph_clash": "Combat",
+ "o.fw_ph_reward": "Récomp.",
+ "o.fw_gain": "🏮 +{0} points de Guerre des Phares",
+ "o.err.fw_clash_only": "Attaques ouvertes seulement vendredi–samedi",
+ "o.err.fw_no_attacks": "Plus d’attaques aujourd’hui (3/3)",
+ "o.err.fw_no_match": "Pas de région rivale cette semaine",
+ "o.err.no_region": "Pas encore de région — réessaie bientôt",
+ "ui.yak_btn": "💡 Allumer",
+ "ui.sec_s": "{0}s"
 }

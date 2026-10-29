@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "Der Konvoi ist entkommen",
  "ui.cv_lose_d": "Die Piraten haben dich abgewehrt. Stärke deine Flotte und versuche es in 4 Stunden erneut.",
  "ui.cv_locked": "Ab Insel 3",
- "ui.cv_wait": "Noch kein Konvoi in Sicht"
+ "ui.cv_wait": "Noch kein Konvoi in Sicht",
+ "ui.quest_go": "Zeigen ›",
+ "ui.guide_no_tile": "Kein freies sicheres Feld – Leuchtturm verbessern oder Gebäude verschmelzen",
+ "ui.guide_collect": "Wenn sich Ressourcen sammeln, tippe auf die Blase über dem Gebäude",
+ "ui.guide_merge": "Baue 2 Gebäude gleichen Typs und Levels und ziehe eins auf das andere",
+ "ui.guide_drag": "🔀 Ziehe ein Gebäude auf sein Gegenstück: VERSCHMELZEN!",
+ "o.fw_btn_s": "Krieg",
+ "o.fw_ph_prep": "Vorber.",
+ "o.fw_ph_clash": "Kampf",
+ "o.fw_ph_reward": "Belohn.",
+ "o.fw_gain": "🏮 +{0} Leuchtturmkrieg-Punkte",
+ "o.err.fw_clash_only": "Angriffe nur Freitag–Samstag",
+ "o.err.fw_no_attacks": "Heute keine Angriffe mehr (3/3)",
+ "o.err.fw_no_match": "Diese Woche keine gegnerische Region",
+ "o.err.no_region": "Noch keine Region – versuche es gleich erneut",
+ "ui.yak_btn": "💡 Anzünden",
+ "ui.sec_s": "{0}s"
 }

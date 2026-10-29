@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "Konvoy kaçtı",
  "ui.cv_lose_d": "Korsanlar püskürttü. Filonu güçlendirip 4 saat sonra tekrar dene.",
  "ui.cv_locked": "Ada 3'e ulaşınca açılır",
- "ui.cv_wait": "Konvoy henüz görünmedi"
+ "ui.cv_wait": "Konvoy henüz görünmedi",
+ "ui.quest_go": "Göster ›",
+ "ui.guide_no_tile": "Boş güvenli karo yok — feneri yükselt ya da binaları birleştir",
+ "ui.guide_collect": "Kaynaklar birikince binanın üstündeki baloncuğa dokun",
+ "ui.guide_merge": "Aynı tür ve seviyede 2 bina kur, sonra birini diğerinin üstüne sürükle",
+ "ui.guide_drag": "🔀 Binayı aynısının üstüne sürükle: BİRLEŞTİR!",
+ "o.fw_btn_s": "Fener",
+ "o.fw_ph_prep": "Hazırlık",
+ "o.fw_ph_clash": "Çatışma",
+ "o.fw_ph_reward": "Ödül",
+ "o.fw_gain": "🏮 +{0} Fener Savaşı puanı",
+ "o.err.fw_clash_only": "Saldırılar yalnızca Cuma–Cumartesi açık",
+ "o.err.fw_no_attacks": "Bugünkü saldırı hakların bitti (3/3)",
+ "o.err.fw_no_match": "Bu hafta için rakip bölge yok",
+ "o.err.no_region": "Bölgen yok — biraz sonra tekrar dene",
+ "ui.yak_btn": "💡 Yak",
+ "ui.sec_s": "{0}sn"
 }

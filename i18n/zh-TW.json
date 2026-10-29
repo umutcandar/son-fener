@@ -1103,5 +1103,21 @@
  "ui.cv_lose": "船隊逃走了",
  "ui.cv_lose_d": "海盜擊退了你。強化艦隊，4 小時後再試。",
  "ui.cv_locked": "到達第 3 島解鎖",
- "ui.cv_wait": "尚未發現船隊"
+ "ui.cv_wait": "尚未發現船隊",
+ "ui.quest_go": "指引 ›",
+ "ui.guide_no_tile": "沒有空閒的安全地塊——升級燈塔或合併建築",
+ "ui.guide_collect": "資源累積後，點擊建築上方的氣泡",
+ "ui.guide_merge": "建造2座同類型同等級的建築，然後把一座拖到另一座上",
+ "ui.guide_drag": "🔀 把建築拖到相同的建築上：合併！",
+ "o.fw_btn_s": "燈塔戰",
+ "o.fw_ph_prep": "備戰",
+ "o.fw_ph_clash": "交戰",
+ "o.fw_ph_reward": "獎勵",
+ "o.fw_gain": "🏮 +{0} 燈塔戰積分",
+ "o.err.fw_clash_only": "僅週五至週六可以進攻",
+ "o.err.fw_no_attacks": "今天的進攻次數已用完 (3/3)",
+ "o.err.fw_no_match": "本週沒有對手區域",
+ "o.err.no_region": "尚無區域——請稍後再試",
+ "ui.yak_btn": "💡 點亮",
+ "ui.sec_s": "{0}秒"
 }
