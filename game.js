@@ -18,7 +18,7 @@ function applyQ(){QL=QS==='auto'?QA():QS;renderer.setPixelRatio(Math.min(deviceP
 function setQ(v){QS=v;localStorage.setItem('sf_q',v);applyQ()}
 // three.js kaynaklarını serbest bırak (dokular önbellekte paylaşıldığı için korunur; paylaşılan geometri/malzeme yeniden kullanılırsa three yeniden yükler)
 function disposeObj(o){if(!o)return;o.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)(Array.isArray(n.material)?n.material:[n.material]).forEach(x=>x.dispose())})}
-window.__perf=()=>{const i=renderer.info,m=performance.memory;return{q:QS,ql:QL,pr:renderer.getPixelRatio(),calls:i.render.calls,tris:i.render.triangles,geo:i.memory.geometries,tex:i.memory.textures,prog:(i.programs||[]).length,heapMB:m?Math.round(m.usedJSHeapSize/1048576*10)/10:null,objs:(()=>{let n=0;scene.traverse(()=>n++);return n})()}};
+window.__sc=()=>scene;window.__rn=()=>renderer;window.__perf=()=>{const i=renderer.info,m=performance.memory;return{q:QS,ql:QL,pr:renderer.getPixelRatio(),calls:i.render.calls,tris:i.render.triangles,geo:i.memory.geometries,tex:i.memory.textures,prog:(i.programs||[]).length,heapMB:m?Math.round(m.usedJSHeapSize/1048576*10)/10:null,objs:(()=>{let n=0;scene.traverse(()=>n++);return n})()}};
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene();
 const gradTex=(stops)=>{const cv=document.createElement('canvas');cv.width=2;cv.height=256;const x=cv.getContext('2d');const g=x.createLinearGradient(0,0,0,256);stops.forEach(([o,c])=>g.addColorStop(o,c));x.fillStyle=g;x.fillRect(0,0,2,256);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t};
@@ -81,9 +81,18 @@ const fogTex=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=
 let fogs=[];
 function fogMat(o){const m=new THREE.SpriteMaterial({map:fogTex,transparent:true,depthWrite:false,opacity:o,color:0xffffff});const ph=Math.random()*50;m.onBeforeCompile=sh=>{sh.uniforms.uT=UT;sh.uniforms.uP={value:ph};sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uT,uP;'+NOISE).replace('#include <alphatest_fragment>',`float fn=fbm(vMapUv*3.+vec2(uT*.06+uP,uT*.035));float fn2=fbm(vMapUv*6.-vec2(uT*.09,uP));diffuseColor.a*=.45+.85*fn*fn2*1.6;diffuseColor.rgb*=.9+.18*fn;
 #include <alphatest_fragment>`)};m.customProgramCacheKey=()=>'fogn';return m}
-function buildFog(){fogs.forEach(f=>scene.remove(f.m));fogs=[];const R=L.safeR(S);const add=(x,z,s,o,y=.6)=>{const m=new THREE.Sprite(fogMat(o));m.position.set(x,y,z);m.scale.set(s,s*.6,1);scene.add(m);fogs.push({m,b:new THREE.Vector3(x,y,z),o,ph:Math.random()*6})};
+// Sis: ~100 ayrı Sprite yerine tek InstancedMesh (kameraya dönük dörtgen, örnek başı faz/opaklık) → tek çizim çağrısı
+let fogIM=null,fogIMat=null;const fUN={value:0};
+function mkFogIMat(){const m=new THREE.MeshBasicMaterial({map:fogTex,transparent:true,depthWrite:false,color:0xffffff});m.onBeforeCompile=sh=>{sh.uniforms.uT=UT;sh.uniforms.uNf=fUN;
+ sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float aO,aP;varying float vO,vP;').replace('#include <project_vertex>','vec4 mvPosition=modelViewMatrix*vec4(instanceMatrix[3].xyz,1.);mvPosition.xy+=position.xy*vec2(length(instanceMatrix[0].xyz),length(instanceMatrix[1].xyz));gl_Position=projectionMatrix*mvPosition;vO=aO;vP=aP;');
+ sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uT,uNf;varying float vO,vP;'+NOISE).replace('#include <alphatest_fragment>',`float fn=fbm(vMapUv*3.+vec2(uT*.06+vP,uT*.035));float fn2=fbm(vMapUv*6.-vec2(uT*.09,vP));diffuseColor.a*=(.45+.85*fn*fn2*1.6)*min(.95,vO+uNf*.3);diffuseColor.rgb*=.9+.18*fn;
+#include <alphatest_fragment>`)};m.customProgramCacheKey=()=>'fogi';return m}
+const _fm=new THREE.Matrix4(),_fq=new THREE.Quaternion(),_fv=new THREE.Vector3(),_fs=new THREE.Vector3();
+function buildFog(){if(fogIM){scene.remove(fogIM);fogIM.geometry.dispose();fogIM.dispose()}fogs=[];const R=L.safeR(S);const add=(x,z,s,o,y=.6)=>{fogs.push({b:new THREE.Vector3(x,y,z),p:new THREE.Vector3(x,y,z),s,o,ph:Math.random()*6,up:Math.random()*50,d:0})};
  for(let i=-GR;i<=GR;i++)for(let j=-GR;j<=GR;j++){if(Math.max(Math.abs(i),Math.abs(j))>R)add(i*TS+(rnd(i*9+j)-.5)*.5,j*TS+(rnd(i+j*7)-.5)*.5,2.8,.55)}
- for(let k=0;k<34;k++){const a=k/34*6.28,r=8.6+rnd(k)*2.2;add(Math.cos(a)*r,Math.sin(a)*r,5+rnd(k+5)*2,.6,.9)}}
+ for(let k=0;k<34;k++){const a=k/34*6.28,r=8.6+rnd(k)*2.2;add(Math.cos(a)*r,Math.sin(a)*r,5+rnd(k+5)*2,.6,.9)}
+ const n=fogs.length,geo=new THREE.PlaneGeometry(1,1);geo.setAttribute('aO',new THREE.InstancedBufferAttribute(new Float32Array(n),1));geo.setAttribute('aP',new THREE.InstancedBufferAttribute(new Float32Array(n),1));
+ if(!fogIMat)fogIMat=mkFogIMat();fogIM=new THREE.InstancedMesh(geo,fogIMat,Math.max(1,n));fogIM.count=n;fogIM.frustumCulled=false;fogIM.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(fogIM)}
 // ---------- MODELLER ----------
 function hut(g,w,h,d,wall,roof=0xc0533a){P(g,'box',wall,w,h,d,0,h/2,0);P(g,'prism',roof,w*1.18,h*.6,d*1.12,0,h,0);P(g,'box',0x4a2e1c,w*.22,h*.55,.02,0,h*.27,d/2+.01);}
 const win=(g,x,y,z)=>P(g,'box',0xffd27a,.12,.12,.02,x,y,z,0,0,0,false,1);
@@ -588,7 +597,9 @@ let fN=0;function frame(){if(document.hidden){last=performance.now();setTimeout(
  const oa=OC.attributes.position.array;for(let i=0;i<oa.length;i+=3){const x=ocB[i],z=ocB[i+2];oa[i+1]=Math.sin(x*.5+T*1.2)*.12+Math.cos(z*.6+T*.9)*.1}OC.attributes.position.needsUpdate=true;
  foam.material.opacity=.25+Math.sin(T*1.5)*.12;for(const[,o]of meshes){const u=o.g.children[0]&&o.g.children[0].userData;if(!u)continue;const ph=o.g.position.x*1.7+o.g.position.z;if(u.flag)u.flag.rotation.y=Math.sin(T*3+ph)*.35;if(u.smoke)u.smoke.forEach((m,k)=>{const q=(T*.45+k/3+ph*.1)%1;m.position.set(-.3+q*.18,.85+q*.75,-.25-q*.08);m.scale.setScalar(.06+q*.16)});if(u.glow)u.glow.scale.setScalar(.13+Math.sin(T*4+ph)*.02)}foam.scale.setScalar(1+Math.sin(T*1.5)*.015);
  nf+=((L.night(S,t)?1:0)-nf)*dt*.8;if(fogR!==L.safeR(S)){fogR=L.safeR(S);buildFog();buildTiles()}
- for(const f of fogs){const sh=1-nf*.14;f.m.position.set(f.b.x*sh+Math.sin(T*.3+f.ph)*.3,f.b.y+Math.sin(T*.5+f.ph)*.08,f.b.z*sh+Math.cos(T*.25+f.ph)*.3);f.m.material.opacity=Math.min(.95,f.o+nf*.3);f.m.material.color.setRGB(1-nf*.35,1-nf*.4,1-nf*.2)}
+ if(fogIM&&fogs.length){const sh=1-nf*.14,cp=camera.position;for(const f of fogs){f.p.set(f.b.x*sh+Math.sin(T*.3+f.ph)*.3,f.b.y+Math.sin(T*.5+f.ph)*.08,f.b.z*sh+Math.cos(T*.25+f.ph)*.3);f.d=f.p.distanceToSquared(cp)}
+  const so=fogs.slice().sort((a,b)=>b.d-a.d),aO=fogIM.geometry.attributes.aO,aP=fogIM.geometry.attributes.aP;so.forEach((f,i)=>{_fm.compose(f.p,_fq,_fs.set(f.s,f.s*.6,1));fogIM.setMatrixAt(i,_fm);aO.array[i]=f.o;aP.array[i]=f.up});
+  fogIM.instanceMatrix.needsUpdate=true;aO.needsUpdate=true;aP.needsUpdate=true;fUN.value=nf;fogIMat.color.setRGB(1-nf*.35,1-nf*.4,1-nf*.2)}
  const ph=L.nightPhase(S,t);const dk=S.tut<9?.3:ph<.06?(1-ph/.06)*.7:ph<.28?0:ph<.46?(ph-.28)/.18:ph<.81?1-Math.min(1,(ph-.46)/.12)*.55:.45;duskK+=(dk-duskK)*dt*.6;
  const ev=S.tut<9?0:ph>.5&&ph<.82?Math.min(1,(ph-.5)/.1)*.72:0;eveK+=(ev-eveK)*dt*.6;const vN=Math.max(nf,eveK);
  skyU.uT.value=duskK;skyU.uN.value=vN*.9;stars.material.opacity=vN*.95;ambFx(T,dt,vN);
