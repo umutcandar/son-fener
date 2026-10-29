@@ -3,6 +3,7 @@ import * as THREE from './lib/three.module.js';
 import * as L from './logic.js';
 import {t as tx,tl,lang,LANGS,setLang,localizeData,applyDom,locale,RTL} from './i18n.js';
 import {openGuide} from './guide.js';
+import {openWorld as openWorldView} from './world.js';
 localizeData(L);applyDom();for(const id of ['bClan','bChat']){const e=document.getElementById(id);if(!e)continue;const m=e.textContent.trim().match(/^([\p{Extended_Pictographic}\uFE0F\u200D]+)\s*(.+)$/u);if(m){e.title=m[2];e.innerHTML=m[1]+'<span class="lb"> '+m[2]+'</span>'}}const LV=tx('ui.lv'),DEC=(1.5).toLocaleString(locale)[1];
 const {KINDS,RIC,TROOPS,HEROES,TECH,FOES,RARITY,GR}=L;
 const $=id=>document.getElementById(id);const now=()=>Date.now();
@@ -736,7 +737,7 @@ function battleScene(bt,res,B,tm,icons,done){const RM=matchMedia('(prefers-reduc
  addEventListener('resize',rs,{once:true});draw.raf=requestAnimationFrame(draw)}
 // ---------- HUD ----------
 {const qe=document.getElementById('quest');if(localStorage.getItem('sf_qmin')!=='0')qe.classList.add('qmin');qe.addEventListener('click',e=>{if(e.target.id==='qtg'){e.stopPropagation();e.preventDefault();const m=qe.classList.toggle('qmin');localStorage.setItem('sf_qmin',m?'1':'0')}},true)}
-function warGo(){SFX.tap();vib(15);const tr=Object.values(S.troops).reduce((a,b)=>a+b,0);if(window.__g.openWorld)return window.__g.openWorld();if(tr+Object.keys(S.heroes).length&&S.cur==='home')battle(S.stage);else openMap()}
+function warGo(){SFX.tap();vib(15);const tr=Object.values(S.troops).reduce((a,b)=>a+b,0);const fight=()=>{if(tr+Object.keys(S.heroes).length&&S.cur==='home')battle(S.stage);else openMap()};if(window.__g.openWorld)return window.__g.openWorld();openWorldView({S,tx,SFX,toast,fight})}
 function ui(){{const wb=$('warBtn');if(wb){wb.style.display=S.tut>=9&&!document.body.classList.contains('intro')?'':'none';if(!wb.onclick)wb.onclick=warGo;const pw=L.armyPower(S),nd=L.stagePower(S.stage);wb.classList.toggle('rdy',pw>=nd*.9);$('warT').textContent=tx('ui.war_btn');$('warSt').textContent=tx('ui.isl_n',[S.stage,L.islandName(S.stage)])}}for(const r of L.RES)$('r_'+r).textContent=fmt(S.res[r]);$('r_gems').textContent=fmt(S.gems);$('flv').textContent=S.fener.lv;$('pow').textContent=fmt(L.armyPower(S));
  const t=now(),nt=L.night(S,t),ni=L.nightIn(S,t);$('nval').textContent=nt?tx('ui.sis_gecesi'):L.lit(S)?tx('ui.fener_yaniyor'):tx('ui.fener_sonuk');
  $('nsub').textContent=S.tut<9?tx('ui.egitim_2'):nt?`${tx('ui.bitise',[fmtT(-ni)])}`:`${tx('ui.sis_gecesine',[fmtT(ni),L.nightNeed(S)])}`;$('night').className=nt?'storm':L.lit(S)?'':'dark';

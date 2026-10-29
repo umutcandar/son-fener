@@ -1672,5 +1672,16 @@
  "o.w_tap": "Tap an island, camp or open sea",
  "mail.camp_t": "Camp loot",
  "mail.camp": "Your fleet cleared a Lv {0} camp. Loot attached.",
- "o.w_you": "You"
+ "o.w_you": "You",
+ "ui.w_title": "Sea Map",
+ "ui.w_mock": "Preview data",
+ "ui.w_lv": "Lv {0}",
+ "ui.w_shield": "Shield",
+ "ui.w_attack": "Attack",
+ "ui.w_fort": "Clan Fortress",
+ "ui.w_under": "Under attack",
+ "ui.w_rally": "Rally",
+ "ui.w_ruin": "Lighthouse Ruin",
+ "ui.w_ruin_d": "Neutral objective — capture it",
+ "ui.w_send": "Send fleet"
 }

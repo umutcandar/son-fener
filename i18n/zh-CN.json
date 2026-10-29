@@ -1672,5 +1672,16 @@
  "o.w_tap": "点击岛屿、营地或海域",
  "mail.camp_t": "营地战利品",
  "mail.camp": "你的舰队清除了一个 {0} 级营地。战利品已附上。",
- "o.w_you": "你"
+ "o.w_you": "你",
+ "ui.w_title": "海图",
+ "ui.w_mock": "预览数据",
+ "ui.w_lv": "{0}级",
+ "ui.w_shield": "护盾",
+ "ui.w_attack": "进攻",
+ "ui.w_fort": "部落要塞",
+ "ui.w_under": "遭受攻击",
+ "ui.w_rally": "集结",
+ "ui.w_ruin": "灯塔遗迹",
+ "ui.w_ruin_d": "中立目标——占领它",
+ "ui.w_send": "派遣舰队"
 }

@@ -1672,5 +1672,16 @@
  "o.w_tap": "Ketuk pulau, kamp, atau laut",
  "mail.camp_t": "Jarahan kamp",
  "mail.camp": "Armadamu membersihkan kamp Lv {0}. Jarahan terlampir.",
- "o.w_you": "Kamu"
+ "o.w_you": "Kamu",
+ "ui.w_title": "Peta Laut",
+ "ui.w_mock": "Data pratinjau",
+ "ui.w_lv": "Lv {0}",
+ "ui.w_shield": "Perisai",
+ "ui.w_attack": "Serang",
+ "ui.w_fort": "Benteng Klan",
+ "ui.w_under": "Sedang diserang",
+ "ui.w_rally": "Serbuan",
+ "ui.w_ruin": "Reruntuhan Mercusuar",
+ "ui.w_ruin_d": "Target netral — rebut",
+ "ui.w_send": "Kirim armada"
 }

@@ -1672,5 +1672,16 @@
  "o.w_tap": "Bir adaya, kampa ya da denize dokun",
  "mail.camp_t": "Kamp ganimeti",
  "mail.camp": "Filon Sv {0} kampı temizledi. Ganimet ekte.",
- "o.w_you": "Sen"
+ "o.w_you": "Sen",
+ "ui.w_title": "Deniz Haritası",
+ "ui.w_mock": "Önizleme verisi",
+ "ui.w_lv": "Sv {0}",
+ "ui.w_shield": "Kalkan",
+ "ui.w_attack": "Saldır",
+ "ui.w_fort": "Klan Kalesi",
+ "ui.w_under": "Saldırı altında",
+ "ui.w_rally": "Toplu saldırı",
+ "ui.w_ruin": "Fener Harabesi",
+ "ui.w_ruin_d": "Tarafsız hedef — ele geçir",
+ "ui.w_send": "Filo gönder"
 }

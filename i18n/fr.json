@@ -1672,5 +1672,16 @@
  "o.w_tap": "Touche une île, un camp ou la mer",
  "mail.camp_t": "Butin du camp",
  "mail.camp": "Ta flotte a nettoyé un camp niv {0}. Butin joint.",
- "o.w_you": "Toi"
+ "o.w_you": "Toi",
+ "ui.w_title": "Carte marine",
+ "ui.w_mock": "Données d’aperçu",
+ "ui.w_lv": "Niv. {0}",
+ "ui.w_shield": "Bouclier",
+ "ui.w_attack": "Attaquer",
+ "ui.w_fort": "Forteresse de clan",
+ "ui.w_under": "Sous attaque",
+ "ui.w_rally": "Ralliement",
+ "ui.w_ruin": "Ruine de phare",
+ "ui.w_ruin_d": "Objectif neutre — capturez-le",
+ "ui.w_send": "Envoyer la flotte"
 }

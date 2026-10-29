@@ -1672,5 +1672,16 @@
  "o.w_tap": "Toque numa ilha, acampamento ou mar",
  "mail.camp_t": "Saque do acampamento",
  "mail.camp": "Sua frota limpou um acampamento nv {0}. Saque anexo.",
- "o.w_you": "Você"
+ "o.w_you": "Você",
+ "ui.w_title": "Mapa do mar",
+ "ui.w_mock": "Dados de prévia",
+ "ui.w_lv": "Nv {0}",
+ "ui.w_shield": "Escudo",
+ "ui.w_attack": "Atacar",
+ "ui.w_fort": "Fortaleza do clã",
+ "ui.w_under": "Sob ataque",
+ "ui.w_rally": "Reunião",
+ "ui.w_ruin": "Ruína do farol",
+ "ui.w_ruin_d": "Objetivo neutro — capture-o",
+ "ui.w_send": "Enviar frota"
 }

@@ -1672,5 +1672,16 @@
  "o.w_tap": "Tippe auf Insel, Lager oder Meer",
  "mail.camp_t": "Lagerbeute",
  "mail.camp": "Deine Flotte hat ein Lager St. {0} geräumt. Beute anbei.",
- "o.w_you": "Du"
+ "o.w_you": "Du",
+ "ui.w_title": "Seekarte",
+ "ui.w_mock": "Vorschaudaten",
+ "ui.w_lv": "St. {0}",
+ "ui.w_shield": "Schild",
+ "ui.w_attack": "Angreifen",
+ "ui.w_fort": "Clanfestung",
+ "ui.w_under": "Wird angegriffen",
+ "ui.w_rally": "Sammelangriff",
+ "ui.w_ruin": "Leuchtturmruine",
+ "ui.w_ruin_d": "Neutrales Ziel — erobere es",
+ "ui.w_send": "Flotte senden"
 }

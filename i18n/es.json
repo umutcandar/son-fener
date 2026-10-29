@@ -1672,5 +1672,16 @@
  "o.w_tap": "Toca una isla, campamento o mar",
  "mail.camp_t": "Botín del campamento",
  "mail.camp": "Tu flota limpió un campamento niv {0}. Botín adjunto.",
- "o.w_you": "Tú"
+ "o.w_you": "Tú",
+ "ui.w_title": "Mapa marino",
+ "ui.w_mock": "Datos de vista previa",
+ "ui.w_lv": "Nv {0}",
+ "ui.w_shield": "Escudo",
+ "ui.w_attack": "Atacar",
+ "ui.w_fort": "Fortaleza del clan",
+ "ui.w_under": "Bajo ataque",
+ "ui.w_rally": "Reunión",
+ "ui.w_ruin": "Ruina del faro",
+ "ui.w_ruin_d": "Objetivo neutral: captúralo",
+ "ui.w_send": "Enviar flota"
 }
