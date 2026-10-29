@@ -26,7 +26,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(200)
   J("document.getElementById('modal').classList.remove('on')")
   pg.wait_for_timeout(3000);pg.screenshot(path=f'{OUT}/{pre}-1-gunduz.png')
-  perf=J('__perf()');print('perf day',json.dumps(perf));print('dc',json.dumps(J('__dc()')))
+  perf=J('__perf()');print('perf day',json.dumps(perf));print('dc',json.dumps(J('__dc2()')))
   J("__g.cam.dist=__g.cam.dist*.5");pg.wait_for_timeout(1500);pg.screenshot(path=f'{OUT}/{pre}-2-yakin.png')
   J("__g.cam.az+=1.6");pg.wait_for_timeout(1500);pg.screenshot(path=f'{OUT}/{pre}-3-yakin-donuk.png');J("__g.cam.az-=1.6;__g.cam.dist=__g.cam.dist*2")
   J('__g.S.t0=Date.now()-(__g.L.NIGHT_EVERY-__g.L.NIGHT_LEN+3)*1000;__g.S.nightN=0');pg.wait_for_timeout(6000);pg.screenshot(path=f'{OUT}/{pre}-4-sis-gecesi.png')
