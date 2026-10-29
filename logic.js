@@ -269,7 +269,7 @@ export function rate(S,k,id=S.cur){const g=gridOf(S,id),b=g[k];if(!b||!KINDS[b.k
 export const storeCap=(S,k,id)=>{const b=gridOf(S,id||S.cur)[k];if(b&&KINDS[b.k].res==='gems')return Math.max(5,rate(S,k,id)*900);return capN(S,k,id)};const capN=(S,k,id)=>Math.max(30,rate(S,k,id)*120*(1+T_(S,'store')*.25+clanB.store));
 export function canAfford(S,c){return Object.entries(c).every(([r,v])=>(r==='gems'?S.gems:r==='ticket'?S.tickets:S.res[r])>=v)}
 export function pay(S,c){for(const r in c)r==='gems'?S.gems-=c[r]:r==='ticket'?S.tickets-=c[r]:S.res[r]-=c[r]}
-export function addRes(S,c){for(const r in c){if(r==='gems')S.gems+=c[r];else if(r==='ticket')S.tickets+=c[r];else if(r in S.res)S.res[r]+=c[r]}}
+export function addRes(S,c){for(const r in c){if(r==='gems')S.gems+=c[r];else if(r==='ticket')S.tickets+=c[r];else if(r==='ush')S.ush=(S.ush||0)+c[r];else if(r in S.res)S.res[r]+=c[r]}}
 export const busyBuilders=S=>allB(S).filter(b=>b.end).length+(S.fener.end?1:0);
 // --- inşa / birleştir / yükselt
 export function checkBuild(S,k,kind){const[i,j]=unkey(k);if(!tileOK(i,j))return'Buraya kurulamaz';if(S.g[k])return'Dolu';if(!isSafe(S,k))return S.cur==='home'?'Sisli bölge — Feneri yükselt':'Işık Direğini yükselt';
