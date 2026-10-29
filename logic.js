@@ -285,7 +285,14 @@ export const techTime=lv=>30*(lv+1)**2;
 export function checkTech(S,id){const T=TECH.find(t=>t.id===id),lv=T_(S,id);if(!labLv(S))return'Gözlemevi yok';if(lv>=T.max)return'En üst seviye';if(!techReqOK(S,T))return'Önceki düğüm gerekli';if(lv>=labLv(S))return`Gözlemevi Sv${lv+1} gerekli`;return null}
 export function startResearch(S,id,now){if(S.research)return'Zaten araştırılıyor';const e=checkTech(S,id);if(e)return e;const lv=T_(S,id);const c=techCost(id,lv);if(!canAfford(S,c))return'RES';
  pay(S,c);S.research={id,end:now+techTime(lv)*1000,dur:techTime(lv)};return null}
-export const heroPower=(h,st)=>Math.round(h.p*(1+.5*(st.star-1))*(1+.1*((st.lv||1)-1)));
+export const HGEAR=[{k:'k',i:'🧭',r:'wood'},{k:'s',i:'🔭',r:'fish'},{k:'c',i:'🪬',r:'crys'}],TAL_MAX=5,EQ_MAX=5;
+export const eqSum=st=>HGEAR.reduce((a,g)=>a+Math.min(EQ_MAX,st.eq?.[g.k]||0),0);
+export const heroMul=st=>(1+.06*Math.min(TAL_MAX,st.tal||0))*(1+.03*eqSum(st));
+export const heroPower=(h,st)=>Math.round(h.p*(1+.5*(st.star-1))*(1+.1*((st.lv||1)-1))*heroMul(st));
+export const talCost=st=>({sh:15*((st.tal||0)+1),crys:40*((st.tal||0)+1)});
+export const eqCost=(st,g)=>{const l=st.eq?.[g.k]||0,G=HGEAR.find(x=>x.k===g.k);return{[G.r]:(G.r==='crys'?60:250)*(l+1)*(l+1)}};
+export function talUp(S,id){const st=S.heroes[id];if(!st)return'NO';if((st.tal||0)>=TAL_MAX)return'MAX';const c=talCost(st);if(st.sh<c.sh)return'SH';if(S.res.crys<c.crys)return'RES';st.sh-=c.sh;S.res.crys-=c.crys;st.tal=(st.tal||0)+1;return null}
+export function eqUp(S,id,k){const st=S.heroes[id],g=HGEAR.find(x=>x.k===k);if(!st||!g)return'NO';st.eq=st.eq||{};if((st.eq[k]||0)>=EQ_MAX)return'MAX';const c=eqCost(st,g);if(!canAfford(S,c))return'RES';pay(S,c);st.eq[k]=(st.eq[k]||0)+1;return null}
 export const team=S=>HEROES.filter(h=>S.heroes[h.id]).sort((a,b)=>heroPower(b,S.heroes[b.id])-heroPower(a,S.heroes[a.id])).slice(0,3);
 const gearM=(S,st)=>1+Object.entries(GEAR).filter(([,G])=>G.st===st).reduce((a,[id,G])=>a+(S.gear[id]||0)*G.v,0);
 export const towerLv=S=>allB(S).filter(b=>b.k==='tower').reduce((a,b)=>a+b.lv,0);

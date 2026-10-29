@@ -286,6 +286,8 @@ const ACT={
  ach:id=>{if(resErr(L.claimAch(S,id)))return;SFX.done();fly('gems',innerWidth/2,innerHeight/2,3);renderSheet();ui();save()},
  hero:id=>openHero(id),heroes:()=>openHeroes(),
  hlv:id=>{const e=L.heroUp(S,id);if(resErr(e))return;SFX.merge(2);vib(15);renderSheet();ui();save()},
+ htal:id=>{const e=L.talUp(S,id);if(e==='SH'){SFX.err();toast(tx('ui.need_shards'));return}if(resErr(e)||e)return;SFX.gacha(2);vib(20);toast('🌟 '+tx('ui.talent_up'));renderSheet();ui();save()},
+ heq:v=>{const[id,k]=v.split(':');const e=L.eqUp(S,id,k);if(resErr(e)||e)return;SFX.merge(2);vib(15);renderSheet();ui();save()},
  hstar:id=>{const e=L.starUp(S,id);if(resErr(e))return;SFX.gacha(3);vib([30,30,60]);toast(tx('ui.yildiz_yukseldi'));renderSheet();ui();save()},
  gear:id=>{const e=L.upGear(S,id);if(resErr(e))return;SFX.build();vib(15);renderSheet();ui();save()},
  boss:()=>bossFight(),pass:v=>{const[i,p]=v.split(':');if(resErr(L.claimPass(S,+i,+p)))return;SFX.coin();renderSheet();ui();save()},
@@ -345,6 +347,8 @@ function openHero(id){sheet(()=>{const H=HEROES.find(x=>x.id===id),st=S.heroes[i
  if(!st)return h+`<div class="sub">${H.season?tx('m.season_hint',[L.SEASON.need]):tx('ui.kaptan_cagir_ile_bulabilirsin')}</div>`;
  const need=st.star*10;h+=`<div class="card"><div class="ic">⬆️</div><div class="mid"><div class="nm">${tx('ui.seviye_atla')}</div><div class="sub">${st.lv>=L.heroCap(st)?tx('ui.yildiz_sinirina_ulasti'):costStr(L.heroLvCost(st.lv))}</div></div><button class="btn" data-a="hlv" data-v="${id}" ${st.lv>=L.heroCap(st)?'disabled':''}>${tx('ui.yukselt')}</button></div>`;
  h+=`<div class="card"><div class="ic">⭐</div><div class="mid"><div class="nm">${tx('ui.yildiz_5',[st.star])}</div><div class="pbar"><i style="width:${Math.min(1,st.sh/need)*100}%"></i></div><div class="sub">${tx('ui.parca_yetenek_25_sinir',[st.sh,need])}</div></div><button class="btn g" data-a="hstar" data-v="${id}" ${st.sh>=need&&st.star<5?'':'disabled'}>${tx('ui.yildizla')}</button></div>`;
+ const tc=L.talCost(st),tl=st.tal||0;h+=`<div class="sec">🌟 ${tx('ui.talent')}</div><div class="card"><div class="ic">🌟</div><div class="mid"><div class="nm">${tx('ui.talent_lv',[tl,L.TAL_MAX])}</div><div class="sub">${tx('ui.talent_d',[tl*6,Math.min(L.TAL_MAX,tl+1)*6])}</div><div class="sub">${tl>=L.TAL_MAX?tx('ui.maxed'):`⭐ ${st.sh}/${tc.sh} · ${costStr({crys:tc.crys})}`}</div></div><button class="btn g" data-a="htal" data-v="${id}" ${tl<L.TAL_MAX&&st.sh>=tc.sh&&S.res.crys>=tc.crys?'':'disabled'}>${tx('ui.yukselt')}</button></div>`;
+ h+=`<div class="sec">🎒 ${tx('ui.gear_t')} · +${Math.round((L.heroMul(st)-1)*100)}% ⚔️</div>`;for(const G of L.HGEAR){const l=st.eq?.[G.k]||0;h+=`<div class="card"><div class="ic">${G.i}</div><div class="mid"><div class="nm">${tx('ui.gear_'+G.k)} · ${tx('ui.talent_lv',[l,L.EQ_MAX])}</div><div class="sub">${tx('ui.gear_d')} · ${l>=L.EQ_MAX?tx('ui.maxed'):costStr(L.eqCost(st,G))}</div></div><button class="btn" data-a="heq" data-v="${id}:${G.k}" ${l>=L.EQ_MAX?'disabled':''}>${tx('ui.yukselt')}</button></div>`}
  return h})}
 function recruitN(n){const go=k=>{const out=[];for(let i=0;i<k;i++)out.push(L.recruit(S,Math.random));L.dailyInc(S,'recruit',k,now());showGacha(out);ui();save();renderSheet()};
  if(n==='t'){if(S.tickets<1)return;oddsThen('🎟️ ×1',()=>{if(S.tickets<1)return;S.tickets--;go(1)})}else if(+n===0){S.freeCall=L.day(now());go(1)}else{const c=+n===1?30:270;oddsThen(`${n}× · ${c}💎`,()=>spendGems(c,`${tx('ui.kaptan_cagir_2',[n])}`,()=>go(+n)))}}
