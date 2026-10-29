@@ -1560,5 +1560,21 @@
  "o.cs_left": "Bu hafta kalan: {0}/{1}",
  "o.cs_e_lim": "Bu ürünün haftalık limiti doldu",
  "o.cs_e_pts": "Yeterli klan puanın yok",
- "o.cs_e_noclan": "Önce bir klana katıl"
+ "o.cs_e_noclan": "Önce bir klana katıl",
+ "d.TECH.15.br": "Harp Akademisi",
+ "d.TECH.16.br": "Harp Akademisi",
+ "d.TECH.17.br": "Harp Akademisi",
+ "d.TECH.18.br": "Harp Akademisi",
+ "d.TECH.15.n": "Sis Taktikleri",
+ "d.TECH.15.d": "Tüm savaşlarda saldırı +5%/sv",
+ "d.TECH.16.n": "Demir Siper",
+ "d.TECH.16.d": "Tüm savaşlarda dayanıklılık +5%/sv",
+ "d.TECH.17.n": "Kışla Kuyruğu",
+ "d.TECH.17.d": "Eğitim kuyruğuna +1 sıra/sv",
+ "d.TECH.18.n": "Seferberlik",
+ "d.TECH.18.d": "Eğitim maliyeti −5%/sv",
+ "e.kuyruk_dolu": "Kuyruk dolu",
+ "ui.tq_t": "Eğitim kuyruğu {0}/{1}",
+ "ui.tq_empty": "Sıra boş — sonraki eğitimi şimdi ekle",
+ "ui.tq_added": "Kuyruğa eklendi"
 }

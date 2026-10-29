@@ -1560,5 +1560,21 @@
  "o.cs_left": "Left this week: {0}/{1}",
  "o.cs_e_lim": "Weekly limit reached for this item",
  "o.cs_e_pts": "Not enough clan points",
- "o.cs_e_noclan": "Join a clan first"
+ "o.cs_e_noclan": "Join a clan first",
+ "d.TECH.15.br": "War Academy",
+ "d.TECH.16.br": "War Academy",
+ "d.TECH.17.br": "War Academy",
+ "d.TECH.18.br": "War Academy",
+ "d.TECH.15.n": "Fog Tactics",
+ "d.TECH.15.d": "Attack in all battles +5%/lv",
+ "d.TECH.16.n": "Iron Bulwark",
+ "d.TECH.16.d": "HP in all battles +5%/lv",
+ "d.TECH.17.n": "Barracks Queue",
+ "d.TECH.17.d": "Training queue +1 slot/lv",
+ "d.TECH.18.n": "Mobilization",
+ "d.TECH.18.d": "Training cost −5%/lv",
+ "e.kuyruk_dolu": "Queue is full",
+ "ui.tq_t": "Training queue {0}/{1}",
+ "ui.tq_empty": "Slot free — queue the next batch now",
+ "ui.tq_added": "Added to queue"
 }

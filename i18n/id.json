@@ -1560,5 +1560,21 @@
  "o.cs_left": "Sisa minggu ini: {0}/{1}",
  "o.cs_e_lim": "Batas mingguan item ini tercapai",
  "o.cs_e_pts": "Poin klan tidak cukup",
- "o.cs_e_noclan": "Gabung klan dulu"
+ "o.cs_e_noclan": "Gabung klan dulu",
+ "d.TECH.15.br": "Akademi Perang",
+ "d.TECH.16.br": "Akademi Perang",
+ "d.TECH.17.br": "Akademi Perang",
+ "d.TECH.18.br": "Akademi Perang",
+ "d.TECH.15.n": "Taktik Kabut",
+ "d.TECH.15.d": "Serangan di semua pertempuran +5%/lv",
+ "d.TECH.16.n": "Benteng Besi",
+ "d.TECH.16.d": "HP di semua pertempuran +5%/lv",
+ "d.TECH.17.n": "Antrean Barak",
+ "d.TECH.17.d": "Antrean latihan +1 slot/lv",
+ "d.TECH.18.n": "Mobilisasi",
+ "d.TECH.18.d": "Biaya latihan −5%/lv",
+ "e.kuyruk_dolu": "Antrean penuh",
+ "ui.tq_t": "Antrean latihan {0}/{1}",
+ "ui.tq_empty": "Slot kosong — antrekan berikutnya",
+ "ui.tq_added": "Ditambahkan ke antrean"
 }
