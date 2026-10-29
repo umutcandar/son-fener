@@ -652,12 +652,23 @@ applyQ();requestAnimationFrame(frame);setInterval(save,5000);addEventListener('v
 // ---------- FENER TAKVİMİ (haftalık tema günleri, günlük 3 sandık) ----------
 const EVA={merge:'🔀',upgrade:'🔨',build:'🏗️',train:'⚓',collect:'✋',recruit:'🧑‍✈️',heroup:'⬆️',research:'🔬',battle:'⛵',raid:'🏴‍☠️',arena:'🏟️',boss:'🦑'},EVI=['🎁','🧰','👑'];
 const evDayN=i=>{try{return new Intl.DateTimeFormat(locale,{weekday:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9,26+i)))}catch(e){return ''+(i+1)}};
+// Canlı bonuslar (Fener Takvimi içinde): Kraken hafta sonu, çift konvoy günü, sis gecesi — İstanbul saati
+const BNN={kraken:['ui.bn_kraken','ui.bn_kraken_d'],convoy:['ui.bn_convoy','ui.bn_convoy_d'],fog:['ui.bn_fog','ui.bn_fog_d']};
+const istF=o=>new Intl.DateTimeFormat(locale,{timeZone:'Europe/Istanbul',...o});
+function bonusHtml(){const t=Date.now(),sc=L.bonusSched(t,7),seen=new Set();let h=`<div class="nm" style="margin:12px 2px 2px">⚡ ${tx('ui.bn_t')}</div><div class="sub" style="margin:0 2px 6px">🕒 ${tx('ui.bn_tz')}</div>`;
+ const left=ms=>{const m=Math.max(0,Math.round(ms/6e4));return m>=60?tx('ui.bn_left_hm',[Math.floor(m/60),m%60]):tx('ui.bn_left_m',[m])};
+ const tm=(x)=>x.end-x.start>=864e5?istF({weekday:'short',hour:'2-digit',minute:'2-digit'}).format(x.start)+' – '+istF({weekday:'short',hour:'2-digit',minute:'2-digit'}).format(x.end):istF({weekday:'short',day:'numeric',month:'short'}).format(x.start)+' · '+istF({hour:'2-digit',minute:'2-digit'}).format(x.start)+'–'+istF({hour:'2-digit',minute:'2-digit'}).format(x.end);
+ for(const x of sc){if(seen.has(x.id))continue;seen.add(x.id);const live=x.start<=t;
+  h+=`<div class="card"${live?' style="background:linear-gradient(135deg,#1f6f8b,#3a1c40);border-color:#ffd84a"':''}><div class="ic" style="font-size:28px">${x.ic}</div><div class="mid"><div class="nm">${tx(BNN[x.id][0])} ${live?`<span class="tag">${tx('ui.bn_live')}</span>`:''}</div><div class="sub">${tx(BNN[x.id][1])}</div><div class="sub">${live?'⏳ '+left(x.end-t):'📅 '+tm(x)}</div></div></div>`}
+ return h}
+window.__bonusOn=()=>L.bonusOn();
 function openEvent(){sheet(()=>{const t=now();L.evReset(S,t);const di=L.evDow(t),D=L.EVDAYS[di],p=S.ev.p,top=L.EVCH[L.EVCH.length-1].n,left=(Math.floor((t+108e5)/864e5)+1)*864e5-108e5-t;
  let h=hdr('🗓️ '+tx('ui.ev_t'))+`<div class="card evHero"><div class="evIc">${D.ic}</div><div class="mid"><div class="sub">${tx('ui.ev_today')}</div><div class="nm" style="font-size:18px">${tx('ui.ev_d_'+D.id)}</div><div class="sub">⏳ ${tx('ui.ev_left',[fmtT(left/1000)])}</div></div></div>`;
  h+=`<div class="evBar"><div class="pbar"><i style="width:${Math.min(100,p/top*100)}%"></i></div>${L.EVCH.map((c,i)=>`<span class="evMk${S.ev.c.includes(i)?' done':p>=c.n?' rdy':''}" style="left:${c.n/top*100}%">${S.ev.c.includes(i)?'✅':EVI[i]}</span>`).join('')}</div><div class="sub" style="text-align:center;margin:4px 0 8px">⭐ ${fmt(p)} / ${fmt(top)}</div>`;
  L.EVCH.forEach((c,i)=>{const dn=S.ev.c.includes(i),ok=p>=c.n;h+=`<div class="card"${dn?' style="opacity:.6"':''}><div class="ic">${dn?'✅':EVI[i]}</div><div class="mid"><div class="nm">${tx('ui.ev_chest',[i+1])} · ⭐${fmt(c.n)}</div><div class="sub">${rwStr(c.r)}</div>${dn?'':`<div class="pbar"><i style="width:${Math.min(100,p/c.n*100)}%"></i></div>`}</div>${!dn&&ok?`<button class="btn o" data-a="evc" data-v="${i}">${tx('ui.al')}</button>`:''}</div>`});
  h+=`<div class="nm" style="margin:10px 2px 6px">${tx('ui.ev_how')}</div><div class="evAct">${Object.entries(D.w).map(([k,v])=>`<span>${EVA[k]} ${tx('ui.eva_'+k)} <b>+${v}</b></span>`).join('')}</div>`;
  const go={capt:'heroes',sea:'map',kraken:'boss'}[D.id];if(go)h+=`<button class="btn o" style="width:100%;margin-top:8px" data-a="evgo" data-v="${go}">${tx('ui.quest_go')}</button>`;
+ h+=bonusHtml();
  h+=`<div class="nm" style="margin:12px 2px 6px">${tx('ui.ev_week')}</div><div class="evWeek">${L.EVDAYS.map((d,i)=>`<div class="${i===di?'on':i<di?'past':''}"><small>${evDayN(i)}</small><b>${d.ic}</b><small>${tx('ui.ev_d_'+d.id)}</small></div>`).join('')}</div><div class="sub" style="margin-top:8px">${tx('ui.ev_note')}</div>`;
  return h})}
 ACT.evc=v=>{const i=+v,r=L.EVCH[i]&&L.EVCH[i].r;if(resErr(L.claimEv(S,i,now())))return;SFX.claim();vib([20,30,40]);closeSheet();reward(tx('ui.ev_chest',[i+1]),r,{icon:EVI[i],sub:L.EVDAYS[L.evDow(now())].ic+' '+tx('ui.ev_d_'+L.EVDAYS[L.evDow(now())].id),cb:()=>{ui();setTimeout(openEvent,350)}});ui();save()};

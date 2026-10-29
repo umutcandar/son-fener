@@ -88,6 +88,18 @@ export const ISL=['Martı Kayası','Tuz Adası','Batık Liman','Mercan Koyu','Ku
 export const islandName=n=>ISL[(n-1)%ISL.length]+(n>ISL.length?' '+(Math.floor((n-1)/ISL.length)+1):'');
 export const stageFoe=n=>n%5===0?'kraken':n%3===0?'crab':n%2?'ghost':'octo';
 export const stagePower=n=>Math.round(260*Math.pow(1.32,n-1));
+
+// ---------- Canlı etkinlikler: haftalık dönen takvim (İstanbul saati, UTC+3 sabit) ----------
+const IST=3*36e5;
+export const BONUS=[{id:'kraken',ic:'🦑',days:[6,0],h:[0,24],mul:1.5},{id:'convoy',ic:'🏴‍☠️',days:[3],h:[0,24],mul:2},{id:'fog',ic:'🌫️',days:[0,1,2,3,4,5,6],h:[20,23],mul:.5}];
+// t anında (ms) aktif etkinlik id kümesi
+export function bonusOn(t=Date.now()){const d=new Date(t+IST),w=d.getUTCDay(),h=d.getUTCHours();const o={};for(const e of BONUS)if(e.days.includes(w)&&h>=e.h[0]&&h<e.h[1])o[e.id]=1;return o}
+// önümüzdeki n gün için oturumlar [{id,ic,start,end}] (ms, gerçek UTC zaman damgası)
+export function bonusSched(t=Date.now(),n=7){const d0=new Date(t+IST);const day0=Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate())-IST;const out=[];
+ for(let i=0;i<n;i++){const ds=day0+i*864e5,w=new Date(ds+IST).getUTCDay();for(const e of BONUS)if(e.days.includes(w)){const st=ds+e.h[0]*36e5,en=ds+e.h[1]*36e5;if(en>t)out.push({id:e.id,ic:e.ic,start:st,end:en,day:i})}}
+ // ardışık günleri birleştir (Kraken hafta sonu)
+ const m=[];for(const x of out.sort((a,b)=>a.start-b.start)){const p=m.find(y=>y.id===x.id&&y.end===x.start);if(p)p.end=x.end;else m.push({...x})}return m.sort((a,b)=>a.start-b.start)}
+const bonusMul=(id,t)=>bonusOn(t)[id]?BONUS.find(e=>e.id===id).mul:1;
 export const stageReward=n=>({fish:40*n,wood:40*n,crys:12*n,gems:n%5===0?30:5});
 export const stageRescue=n=>1+Math.floor(n/3);
 // ---------- Mercan Resifleri: yan bölge (4 aşama + mini boss), gelgit mekaniği ----------
@@ -277,7 +289,7 @@ export function checkUp(S,k){const b=k==='fener'?S.fener:S.g[k];if(!b)return'Yok
  if(busyBuilders(S)>=builderCount(S))return'BUILDERS';if(!canAfford(S,k==='fener'?fenerCost(b.lv):upCost(b.k,b.lv)))return'RES';return null}
 export function startUp(S,k,now){const e=checkUp(S,k);if(e)return e;const b=k==='fener'?S.fener:S.g[k];const c=k==='fener'?fenerCost(b.lv):upCost(b.k,b.lv);const t=k==='fener'?fenerTime(b.lv,S):upTime(b.lv,S);
  pay(S,c);b.end=now+t*1000;b.dur=t;dailyInc(S,'upgrade',1,now);return null}
-export const cleanseCost=(b,S)=>({crys:Math.max(1,Math.round(8*b.lv*(1-(S?T_(S,'beam'):0)*.15)))});
+export const cleanseCost=(b,S)=>({crys:Math.max(1,Math.round(8*b.lv*(1-(S?T_(S,'beam'):0)*.15)*bonusMul('fog')))});
 export function cleanse(S,k){const b=S.g[k];if(!b||!b.fog)return'Sis yok';const c=cleanseCost(b,S);if(!canAfford(S,c))return'RES';pay(S,c);b.fog=0;return null}
 export function assign(S,k,d){const b=S.g[k];if(!b||!hasJob(b.k)||b.fog)return false;const nw=(b.w||0)+d;if(nw<0||nw>maxW(b.lv)||(d>0&&idle(S)<=0))return false;b.w=nw;return true}
 export function collect(S,k,now){const b=S.g[k];const a=Math.floor(b.stored||0);if(a<1)return 0;addRes(S,{[KINDS[b.k].res]:a});b.stored-=a;S.st.collect++;dailyInc(S,'collect',1,now);return a}
@@ -328,7 +340,7 @@ export function simulate(S,stage,rng,epo){const ta=atkM(S),th=hpM(S);const hb=te
  for(let i=0;i<10&&hp>0&&eHp>0;i++){const d1=Math.round(atk*(.85+rng()*.3));eHp=Math.max(0,eHp-d1);let d2=0;if(eHp>0){d2=Math.round(eAtk*(.85+rng()*.3));hp=Math.max(0,hp-d2)}rounds.push({d1,d2,hp,eHp})}
  const win=eHp<=0;const lossFrac=myMax?Math.min(1,(myMax-hp)/myMax)*.5:0;return{win,rounds,myMax,eMax,lossFrac}}
 export function applyBattle(S,res,stage,now){const lost={};for(const t in TROOPS){lost[t]=Math.floor(S.troops[t]*res.lossFrac);S.troops[t]-=lost[t]}
- let rw=null,saved=0;if(res.win){const lm=(1+T_(S,'loot')*.1+(S.gear.sail||0)*.03)*(1+skill(S,'loot'));rw=stageReward(stage);for(const r in rw)if(r!=='gems')rw[r]=Math.round(rw[r]*lm);addRes(S,rw);
+ let rw=null,saved=0;if(res.win){const lm=(1+T_(S,'loot')*.1+(S.gear.sail||0)*.03)*(1+skill(S,'loot'));rw=stageReward(stage);const km=stageFoe(stage)==='kraken'?bonusMul('kraken'):1;for(const r in rw)if(r!=='gems')rw[r]=Math.round(rw[r]*lm*km);addRes(S,rw);
   if(stage===S.stage){S.stage++;saved=Math.min(stageRescue(stage),Math.max(0,cap(S)-S.surv));S.surv+=saved}S.st.wins++;dailyInc(S,'battle',1,now);addXP(S,20)}return{lost,rw,saved}}
 export function dailyReset(S,now){const d=day(now);if(S.daily.date!==d)S.daily={date:d,p:{},c:{}}}
 export const weekIst=now=>{const d=new Date(now+108e5);d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)};
@@ -387,7 +399,7 @@ export function spendOf(S,now){const m=monthKey(now);if(!S.spend)S.spend={on:1,l
 // ---------- Korsan Konvoyu (deniz haritası PvE olayı) ----------
 export const CONVOY_CD=4*3600e3;
 export const convoyPower=S=>Math.round(stagePower(Math.max(1,S.stage-1))*1.15);
-export const convoyReward=S=>{const n=Math.max(1,S.stage-1),m=1+towerLv(S)*.08;return{wood:Math.round(70*n*m),crys:Math.round(22*n*m),gems:15}};
+export const convoyReward=S=>{const n=Math.max(1,S.stage-1),m=(1+towerLv(S)*.08)*bonusMul('convoy');return{wood:Math.round(70*n*m),crys:Math.round(22*n*m),gems:15}};
 export function convoyState(S,now){S.conv=S.conv||{next:0,n:0,w:0};return{ready:S.tut>=9&&S.stage>=3&&now>=S.conv.next,left:Math.max(0,S.conv.next-now),open:S.stage>=3&&S.tut>=9}}
 export function convoyFight(S,now,rng){const c=convoyState(S,now);if(!c.open)return{err:'Ada 3 gerekli'};if(!c.ready)return{err:'Konvoy henüz görünmedi'};
  const res=simulate(S,S.stage,rng,convoyPower(S));const lost={};for(const t in TROOPS){lost[t]=Math.floor(S.troops[t]*res.lossFrac*.6);S.troops[t]-=lost[t]}
