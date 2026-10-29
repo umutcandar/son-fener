@@ -59,3 +59,10 @@ D1 ≥ %40, D7 ≥ %15, D30 ≥ %6; ödeyen dönüşümü ≥ %3; ARPDAU 0,30–
 - **2 hafta**: hesap + bulut kayıt + kullanıcı adı, dünya/klan sohbeti + çeviri, klan kurma/yardım, Arena v1 (asenkron), ada baskını v1 (kalkan, koruma), oran ekranı, analitik olayları.
 - **1 ay**: Deniz Bölgeleri, Sis Cephesi klan savaşı, haftalık etkinlik takvimi, Fener Bileti sezon 1, ilk premium kaptan (ücretsiz yol ile).
 - **3 ay**: Fener Savaşı (bölge vs bölge), 8 haftalık sezonlar, Vali seçimi, Capacitor ile Android/iOS + gerçek IAP, yaş derecelendirmesi, moderasyon araçları, A/B testleri.
+
+## Uygulanan: Faz D (b39)
+- VIP puanı sunucuda (pay_state.vip_pts); VIP 0–10 eşikleri 100…30000. VIP7 +1 Kale sırası, VIP8 revir elmas −%25, VIP9 kalkan −%20, VIP10 Kale hızlandırma −%20. VIP2 veya 500💎 kalıcı 2. sıra.
+- DEMO satın alma: shop_buy_demo (gerçek ödeme yok); her alım pay_log'a yazılır. İlk alım ×2 elmas + 1000 her kaynak. Fiyat/içerik birebir; sahte indirim/sayaç yok; harcama limiti yok (mevcut öz-denetim uyarısı istemcide kalır).
+- Günlük etkinlik (00:00 UTC sıfırlama) 20/40/60/80/100 sandık; toplam harcama sandıkları ₺100…6000.
+- Sunucu kayda yazınca data.saved damgalanır; istemci sf_ssv ile sunucunun yeni olduğunu anlar ve benimser (eski sekme satın almayı ezemez).
+- Kalan: günlük teklif ve sezon rotası hâlâ istemci tarafı; VIP puanı max(istemci,sunucu).
