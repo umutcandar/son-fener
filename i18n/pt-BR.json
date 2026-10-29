@@ -1683,5 +1683,18 @@
  "ui.w_rally": "Reunião",
  "ui.w_ruin": "Ruína do farol",
  "ui.w_ruin_d": "Objetivo neutro — capture-o",
- "ui.w_send": "Enviar frota"
+ "ui.w_send": "Enviar frota",
+ "ui.sg_skip": "Pular",
+ "ui.sg_l0": "A Cidadela do Último Farol está sob cerco!",
+ "ui.sg_cap": "Capitão Yusuf",
+ "ui.sg_cap_d": "Comandante lendário",
+ "ui.sg_tap_ult": "⚡ TOQUE: Fúria do Farol!",
+ "ui.sg_ult": "FÚRIA DO FAROL!",
+ "ui.sg_lev": "Um Leviatã surge das profundezas…",
+ "ui.sg_fall": "O capitão caiu… Reconstrua e vingue-se!",
+ "ui.sg_rb": "A cidadela está em ruínas. Seus soldados aguardam.",
+ "ui.sg_tap_wall": "🔨 TOQUE: Repare a muralha!",
+ "ui.sg_rb_ok": "A muralha resiste! Os soldados comemoram!",
+ "ui.sg_world": "Castelos rivais aguardam. A guerra começa!",
+ "ui.sg_total": "DANO TOTAL"
 }

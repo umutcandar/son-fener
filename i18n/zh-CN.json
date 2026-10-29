@@ -1683,5 +1683,18 @@
  "ui.w_rally": "集结",
  "ui.w_ruin": "灯塔遗迹",
  "ui.w_ruin_d": "中立目标——占领它",
- "ui.w_send": "派遣舰队"
+ "ui.w_send": "派遣舰队",
+ "ui.sg_skip": "跳过",
+ "ui.sg_l0": "最后灯塔要塞遭到围攻！",
+ "ui.sg_cap": "尤素福船长",
+ "ui.sg_cap_d": "传奇指挥官",
+ "ui.sg_tap_ult": "⚡ 点击：灯塔之怒！",
+ "ui.sg_ult": "灯塔之怒！",
+ "ui.sg_lev": "利维坦从深渊升起……",
+ "ui.sg_fall": "船长倒下了……重建并复仇！",
+ "ui.sg_rb": "要塞已成废墟。士兵们在等你。",
+ "ui.sg_tap_wall": "🔨 点击：修复城墙！",
+ "ui.sg_rb_ok": "城墙屹立！士兵欢呼！",
+ "ui.sg_world": "敌对城堡在等待。战争开始！",
+ "ui.sg_total": "总伤害"
 }

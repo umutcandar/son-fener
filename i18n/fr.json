@@ -1683,5 +1683,18 @@
  "ui.w_rally": "Ralliement",
  "ui.w_ruin": "Ruine de phare",
  "ui.w_ruin_d": "Objectif neutre — capturez-le",
- "ui.w_send": "Envoyer la flotte"
+ "ui.w_send": "Envoyer la flotte",
+ "ui.sg_skip": "Passer",
+ "ui.sg_l0": "La Citadelle du Dernier Phare est assiégée !",
+ "ui.sg_cap": "Capitaine Yusuf",
+ "ui.sg_cap_d": "Commandant légendaire",
+ "ui.sg_tap_ult": "⚡ TOUCHE : Fureur du Phare !",
+ "ui.sg_ult": "FUREUR DU PHARE !",
+ "ui.sg_lev": "Un Léviathan surgit des profondeurs…",
+ "ui.sg_fall": "Le capitaine est tombé… Reconstruis et venge-toi !",
+ "ui.sg_rb": "La citadelle est en ruines. Tes soldats t’attendent.",
+ "ui.sg_tap_wall": "🔨 TOUCHE : Répare le rempart !",
+ "ui.sg_rb_ok": "Le rempart tient ! Les soldats acclament !",
+ "ui.sg_world": "Des châteaux rivaux t’attendent. La guerre commence !",
+ "ui.sg_total": "DÉGÂTS TOTAUX"
 }

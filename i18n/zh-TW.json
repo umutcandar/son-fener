@@ -1683,5 +1683,18 @@
  "ui.w_rally": "集結",
  "ui.w_ruin": "燈塔遺跡",
  "ui.w_ruin_d": "中立目標——佔領它",
- "ui.w_send": "派遣艦隊"
+ "ui.w_send": "派遣艦隊",
+ "ui.sg_skip": "跳過",
+ "ui.sg_l0": "最後燈塔要塞遭到圍攻！",
+ "ui.sg_cap": "尤素福船長",
+ "ui.sg_cap_d": "傳奇指揮官",
+ "ui.sg_tap_ult": "⚡ 點擊：燈塔之怒！",
+ "ui.sg_ult": "燈塔之怒！",
+ "ui.sg_lev": "利維坦從深淵升起……",
+ "ui.sg_fall": "船長倒下了……重建並復仇！",
+ "ui.sg_rb": "要塞已成廢墟。士兵們在等你。",
+ "ui.sg_tap_wall": "🔨 點擊：修復城牆！",
+ "ui.sg_rb_ok": "城牆屹立！士兵歡呼！",
+ "ui.sg_world": "敵對城堡在等待。戰爭開始！",
+ "ui.sg_total": "總傷害"
 }

@@ -1683,5 +1683,18 @@
  "ui.w_rally": "Serbuan",
  "ui.w_ruin": "Reruntuhan Mercusuar",
  "ui.w_ruin_d": "Target netral — rebut",
- "ui.w_send": "Kirim armada"
+ "ui.w_send": "Kirim armada",
+ "ui.sg_skip": "Lewati",
+ "ui.sg_l0": "Benteng Mercusuar Terakhir dikepung!",
+ "ui.sg_cap": "Kapten Yusuf",
+ "ui.sg_cap_d": "Komandan Legendaris",
+ "ui.sg_tap_ult": "⚡ KETUK: Amarah Mercusuar!",
+ "ui.sg_ult": "AMARAH MERCUSUAR!",
+ "ui.sg_lev": "Leviathan bangkit dari kedalaman…",
+ "ui.sg_fall": "Kapten gugur… Bangun kembali dan balas dendam!",
+ "ui.sg_rb": "Benteng hancur. Prajuritmu menunggu.",
+ "ui.sg_tap_wall": "🔨 KETUK: Perbaiki tembok!",
+ "ui.sg_rb_ok": "Tembok berdiri! Prajurit bersorak!",
+ "ui.sg_world": "Kastel saingan menunggu. Perang dimulai!",
+ "ui.sg_total": "TOTAL KERUSAKAN"
 }

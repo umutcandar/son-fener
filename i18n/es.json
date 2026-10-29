@@ -1683,5 +1683,18 @@
  "ui.w_rally": "Reunión",
  "ui.w_ruin": "Ruina del faro",
  "ui.w_ruin_d": "Objetivo neutral: captúralo",
- "ui.w_send": "Enviar flota"
+ "ui.w_send": "Enviar flota",
+ "ui.sg_skip": "Saltar",
+ "ui.sg_l0": "¡La Ciudadela del Último Faro está sitiada!",
+ "ui.sg_cap": "Capitán Yusuf",
+ "ui.sg_cap_d": "Comandante legendario",
+ "ui.sg_tap_ult": "⚡ TOCA: ¡Furia del Faro!",
+ "ui.sg_ult": "¡FURIA DEL FARO!",
+ "ui.sg_lev": "Un Leviatán surge de las profundidades…",
+ "ui.sg_fall": "El capitán ha caído… ¡Reconstruye y véngate!",
+ "ui.sg_rb": "La ciudadela está en ruinas. Tus soldados te esperan.",
+ "ui.sg_tap_wall": "🔨 TOCA: ¡Repara la muralla!",
+ "ui.sg_rb_ok": "¡La muralla resiste! ¡Los soldados vitorean!",
+ "ui.sg_world": "Castillos rivales te esperan. ¡Empieza la guerra!",
+ "ui.sg_total": "DAÑO TOTAL"
 }

@@ -1683,5 +1683,18 @@
  "ui.w_rally": "Sammelangriff",
  "ui.w_ruin": "Leuchtturmruine",
  "ui.w_ruin_d": "Neutrales Ziel — erobere es",
- "ui.w_send": "Flotte senden"
+ "ui.w_send": "Flotte senden",
+ "ui.sg_skip": "Überspringen",
+ "ui.sg_l0": "Die Letzte Leuchtturm-Zitadelle wird belagert!",
+ "ui.sg_cap": "Kapitän Yusuf",
+ "ui.sg_cap_d": "Legendärer Kommandant",
+ "ui.sg_tap_ult": "⚡ TIPPEN: Leuchtfeuer-Zorn!",
+ "ui.sg_ult": "LEUCHTFEUER-ZORN!",
+ "ui.sg_lev": "Ein Leviathan steigt aus der Tiefe…",
+ "ui.sg_fall": "Der Kapitän ist gefallen… Baue wieder auf und räche dich!",
+ "ui.sg_rb": "Die Zitadelle liegt in Trümmern. Deine Soldaten warten.",
+ "ui.sg_tap_wall": "🔨 TIPPEN: Mauer reparieren!",
+ "ui.sg_rb_ok": "Die Mauer steht! Die Soldaten jubeln!",
+ "ui.sg_world": "Rivalisierende Burgen warten. Der Krieg beginnt!",
+ "ui.sg_total": "GESAMTSCHADEN"
 }

@@ -1683,5 +1683,18 @@
  "ui.w_rally": "Rally",
  "ui.w_ruin": "Lighthouse Ruin",
  "ui.w_ruin_d": "Neutral objective — capture it",
- "ui.w_send": "Send fleet"
+ "ui.w_send": "Send fleet",
+ "ui.sg_skip": "Skip",
+ "ui.sg_l0": "The Last Lighthouse Citadel is under siege!",
+ "ui.sg_cap": "Captain Yusuf",
+ "ui.sg_cap_d": "Legendary Commander",
+ "ui.sg_tap_ult": "⚡ TAP: Beacon Fury!",
+ "ui.sg_ult": "BEACON FURY!",
+ "ui.sg_lev": "A Leviathan rises from the deep…",
+ "ui.sg_fall": "The captain has fallen… Rebuild and take revenge!",
+ "ui.sg_rb": "The citadel lies in ruins. Your soldiers await.",
+ "ui.sg_tap_wall": "🔨 TAP: Repair the wall!",
+ "ui.sg_rb_ok": "The wall stands! The soldiers cheer!",
+ "ui.sg_world": "Rival castles await. The war begins!",
+ "ui.sg_total": "TOTAL DAMAGE"
 }

@@ -1683,5 +1683,18 @@
  "ui.w_rally": "Toplu saldırı",
  "ui.w_ruin": "Fener Harabesi",
  "ui.w_ruin_d": "Tarafsız hedef — ele geçir",
- "ui.w_send": "Filo gönder"
+ "ui.w_send": "Filo gönder",
+ "ui.sg_skip": "Geç",
+ "ui.sg_l0": "Son Fener Kalesi kuşatma altında!",
+ "ui.sg_cap": "Kaptan Yusuf",
+ "ui.sg_cap_d": "Efsanevi Komutan",
+ "ui.sg_tap_ult": "⚡ DOKUN: Fener Öfkesi!",
+ "ui.sg_ult": "FENER ÖFKESİ!",
+ "ui.sg_lev": "Derinlerden bir Leviathan yükseliyor…",
+ "ui.sg_fall": "Kaptan düştü… Yeniden inşa et, intikamını al!",
+ "ui.sg_rb": "Kale harap. Askerlerin seni bekliyor.",
+ "ui.sg_tap_wall": "🔨 DOKUN: Suru onar!",
+ "ui.sg_rb_ok": "Sur ayakta! Askerler coştu!",
+ "ui.sg_world": "Rakip kaleler seni bekliyor. Savaş başlıyor!",
+ "ui.sg_total": "TOPLAM HASAR"
 }

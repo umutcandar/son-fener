@@ -3,6 +3,7 @@ import * as THREE from './lib/three.module.js';
 import * as L from './logic.js';
 import {t as tx,tl,lang,LANGS,setLang,localizeData,applyDom,locale,RTL} from './i18n.js';
 import {openGuide} from './guide.js';
+import {playSiege} from './siege.js';
 import {openWorld as openWorldView} from './world.js';
 localizeData(L);applyDom();for(const id of ['bClan','bChat']){const e=document.getElementById(id);if(!e)continue;const m=e.textContent.trim().match(/^([\p{Extended_Pictographic}\uFE0F\u200D]+)\s*(.+)$/u);if(m){e.title=m[2];e.innerHTML=m[1]+'<span class="lb"> '+m[2]+'</span>'}}const LV=tx('ui.lv'),DEC=(1.5).toLocaleString(locale)[1];
 const {KINDS,RIC,TROOPS,HEROES,TECH,FOES,RARITY,GR}=L;
@@ -925,9 +926,9 @@ function intro(cb){const RMi=matchMedia('(prefers-reduced-motion: reduce)').matc
  const ov=document.createElement('div');ov.id='intro';ov.innerHTML='<i></i><i></i><button class="btn x" id="introSkip">⏭</button>';document.body.appendChild(ov);document.body.classList.add('intro');
  const fin=()=>{if(done)return;done=true;cam.az=A.az;cam.dist=A.d;cam.pol=A.p;ov.classList.add('out');document.body.classList.remove('intro');setTimeout(()=>ov.remove(),400);cb()};ov.onpointerdown=fin;
  (function st(){if(done)return;const k=Math.min(1,(performance.now()-t0)/D),e=1-Math.pow(1-k,3);cam.az=A.az+2.2*(1-e);cam.dist=A.d*(.55+.45*e);cam.pol=A.p-.32*(1-e);if(k>=1)fin();else requestAnimationFrame(st)})()}
-window.__intro=intro;
+window.__intro=intro;window.__siege=()=>playSiege({tx});
 sb.disabled=false;sb.textContent='▶ '+tx('ui.play');sb.onclick=()=>{ac();if(S.set.mus)startMusic();setVol();{const ld=$('loading');sb.onclick=null;ld.classList.add('out');document.body.classList.add('fadeIn');setTimeout(()=>ld.remove(),620)}
- if(isNew){S.seen.ch0=1;intro(()=>setTimeout(()=>talk(L.CHAPTERS[0].say),300))}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>{if(!retPend)openLogin(1)},1200)};
+ if(isNew||new URLSearchParams(location.search).has('siege')){S.seen.ch0=1;playSiege({tx,mute:()=>S.set.snd===false,done:()=>intro(()=>setTimeout(()=>talk(L.CHAPTERS[0].say),300))})}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>{if(!retPend)openLogin(1)},1200)};
 if(new URLSearchParams(location.search).has('skip'))sb.onclick();
 applyQ();requestAnimationFrame(frame);setInterval(save,5000);addEventListener('visibilitychange',()=>document.hidden&&save());
 // ---------- FENER TAKVİMİ (haftalık tema günleri, günlük 3 sandık) ----------
