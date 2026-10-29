@@ -23,7 +23,7 @@ begin if auth.uid() is null then raise exception 'giriş gerekli'; end if;
   while i<jsonb_array_length(cur) loop x:=cur->i; y:=cur->(i+1);
    select * into R from public.sf_duel(jsonb_build_object('atk',(x->>'atk')::numeric,'hp',(x->>'hp')::numeric),jsonb_build_object('atk',(y->>'atk')::numeric,'hp',(y->>'hp')::numeric));
    w:=case when R.win then x else y end; nxt:=nxt||jsonb_build_array(w);
-   ms:=ms||jsonb_build_array(jsonb_build_object('a',x-'atk'-'hp','b',y-'atk'-'hp','w',case when R.win then 0 else 1 end));
+   ms:=ms||jsonb_build_array(jsonb_build_object('a',x-'atk'-'hp','b',y-'atk'-'hp','w',case when R.win then 0 else 1 end,'r',R.rounds,'am',R.amax,'bm',R.bmax));
    if out_r=0 and ((x->>'id')=auth.uid()::text or (y->>'id')=auth.uid()::text) and (w->>'id') is distinct from auth.uid()::text then out_r:=rn; end if;
    i:=i+2; end loop;
   rounds:=rounds||jsonb_build_array(ms); cur:=nxt; end loop;
