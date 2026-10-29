@@ -1,46 +1,46 @@
-# 🗼 Son Fener: Sis Denizi
+# Son Fener — Barut Çağı
 
-Sular yükseldi, dünyayı zehirli bir Sis kapladı. Adan, ışık kristaliyle beslenen bir Fenerin ışığı sayesinde ayakta.
+Tarayıcıda (mobil öncelikli, PWA) oynanan bir **barut çağı kale-şehir strateji oyunu**. 1600–1800'ler: surlarla çevrili bir şehri büyüt, mızrakçı, tüfekçi, süvari ve topçu birlikleri yetiştir, kara haritasında komşu kasabaları fethet ve klanınla birlikte savaş.
 
-- **Fener**: seviyesi güvenli inşa alanını ve diğer binaların en yüksek seviyesini belirler.
-- **Sürükle-birleştir**: aynı tür ve seviyedeki iki binayı üst üste bırak, bir üst seviyeyi al. Süreli yükseltme ve 💎 hızlandırma da var.
-- **Sis Gecesi**: belirli aralıklarla gelir. Yeterli 🔮 yoksa ya da Fener sönükse kenardaki binalar sislenir.
-- Kurtulanlar sal ve batıklarla gelir. Meslekler: balıkçı, oduncu, kristal madencisi, gemi ustası.
-- Tersanede tayfa eğit, kaptan çağır, sisli adalara filo gönder.
+**Canlı:** https://umutcandar.github.io/son-fener/
 
-Mağaza DEMO'dur, gerçek ödeme alınmaz. Kayıt sadece tarayıcıda (localStorage) tutulur. Mantık (`logic.js`) çizimden (`game.js`) ayrıdır ve ileride çevrimiçi sisteme hazırdır.
+| Şehir | Sefer haritası | Klan | Komutanlar |
+|---|---|---|---|
+| ![Şehir](img/readme/r1_main.webp) | ![Harita](img/readme/r2_map.webp) | ![Klan](img/readme/r3_clan.webp) | ![Komutanlar](img/readme/r4_hero.webp) |
 
-## v2 — Büyük güncelleme
-- Yeni sanat: kaptan portreleri, düşman kartları, kaynak ikonları, başlık ekranı, logo, PWA ikonu
-- Detaylı fener (seviyeye göre gelişir), bina süsleri, tekneler, martılar, köpük, gün–gece döngüsü
-- 7 kaptan (seviye/yıldız/parça/yetenek, gerçek oranlar + 40'ta garanti), gemi teçhizatı, 15 düğümlü araştırma ağacı
-- 6 bölüm Fenerci Yusuf hikâyesi, 40 görev, günlük görevler, 14 başarım, 7 günlük giriş takvimi
-- Haftalık Kraken boss + bot sıralaması, 3 ada (Fener, Mercan Atolü, Kül Adası)
-- WebAudio ambiyans müziği, yeni efektler, Ayarlar (ses, müzik, titreşim, sıfırla, dil)
-- DEMO monetizasyon (Fener Bileti, aylık kart, VIP, teklifler) — gerçek ödeme YOK
-- Klan önizlemesi (bot klanlar, açıkça etiketli); Sohbet yakında
+## Ana döngü: savaş
+1. **Üret** — Şehir binaları tahıl, kereste ve barut/kristal üretir.
+2. **Yetiştir** — Kışla, Tüfek Kulesi, Top Dökümhanesi ve Süvari Ahırı'nda birlik eğit.
+3. **Sefere çık** — Haritada kasaba kurtar, haydut konvoylarını vur, ganimet topla.
+4. **Güçlen** — Komutanları ve araştırmayı yükselt, ön/arka hat dizilişini kur, tekrar saldır.
 
-## 🌐 Çok dil / i18n
+## Dünya haritası
+Kara haritası bölgelere ayrılır. Kasabalar, haydut kampları ve bölge valiliği için diğer oyuncularla ve klanlarla rekabet edilir; kalkan, yürüyüş ve iyileşme sunucu tarafında doğrulanır.
 
-Diller: tr (varsayılan), en, de, fr, es, pt-BR, ru, ar (RTL), id, zh-CN, zh-TW — `i18n/<kod>.json`.
-Dil seçimi: `?lang=xx` → `localStorage.sf_lang` → `navigator.languages` → `tr`. Ayarlar ▸ Dil ile değişir (sayfa yenilenir).
+## Klanlar
+Klan sohbeti, yardım isteme/hızlandırma, bağış ve klan dükkanı, haftalık ortak savaş lordu (boss) ve klan baskınları, bölge sıralaması.
 
-```js
-import {t as tx, fmtNum, fmtDate, lang} from './i18n.js';
-tx('ui.tamam')                  // "Tamam" / "OK"
-tx('ui.yakinda', ['Klan'])      // "{0}" yer tutucuları dizi ile
-tx('some.key', {name:'Ali'})    // "{name}" nesne ile
+## Şehir binaları
+Kale (merkez), Ambar, Kışla, Tüfek Kulesi, Top Dökümhanesi, Süvari Ahırı, Akademi (araştırma), Revir (yaralı iyileştirme), Sur ve Kuleler.
+
+## Birlik hatları
+| Hat | Rol |
+|---|---|
+| 🛡️ Mızrakçılar | Ön hat, dayanıklı yakın dövüş |
+| 🎯 Tüfekçiler | Menzilli ana hasar |
+| 🐎 Süvari | Hızlı kanat, baskın |
+| 💣 Topçular | Kuşatma, sur ve kule hasarı |
+
+(Sunucu kimlikleri geriye dönük uyum için değişmedi: `tayfa`, `zipkin`, `topcu`…; yalnız görünen adlar değişti.)
+
+## Teknik
+- Saf JS + three.js, derleme adımı yok; service worker ile çevrimdışı.
+- Supabase (Postgres + RLS + RPC): hesap, kayıt (çakışmada en yeni `saved` kazanır), savaş, klan, sohbet.
+- 11 dil (tr, en, de, es, fr, pt-BR, ru, zh-CN, zh-TW, ar, id); kontrol: `python3 tools/check_i18n.py`.
+- **Ödemeler DEMO'dur:** gerçek para alınmaz. Oranlar dürüst gösterilir, ücretsiz oyun tam oynanabilir.
+
+## Yerel çalıştırma
+```bash
+python3 -m http.server 8770
+# http://localhost:8770/
 ```
-- Yeni metin: anahtarı **önce `i18n/tr.json`**'a ekle (eksik çeviri → tr → anahtarın kendisi gösterilir).
-- Anahtar önekleri: `ui.*` arayüz (game.js), `html.*` statik index metinleri (`applyDom` ile), `e.*` logic.js mesajları (toast'ta `tl()` ile ters çevrilir), `d.<EXPORT>.<yol>` logic.js veri tabloları (`localizeData(L)` yerinde çevirir).
-- `logic.js` saf kalır; içinde `t()` çağrılmaz. game.js'te yerel `t` değişkenleri olduğu için import adı `tx`.
-- Sayılar/tarihler: `fmtNum`, `fmtDec`, `fmtDate` (Intl, aktif yerel ayar).
-
-## 🎨 Sanat yönü / UI kiti (v3)
-
-- **Palet:** derin deniz `#0e2838` → teal panel `#1b4a5e / #22566f`, çizgi `#7fd8e8`, vurgu altın `#ffd27a`, pirinç `#d8a84a → #9a6a22`, ahşap `#6e4425 → #b98250`, uyarı mercan `#d8433a`.
-- **Tipografi:** Fredoka (700 başlık, 500–600 gövde); CJK için PingFang/Noto Sans SC-TC, Arapça için Noto Sans Arabic yedeği.
-- **Paneller:** ahşap çerçeve (`--wood`) + iç pirinç çizgi + köşe perçinleri; başlıklar kırlangıç kuyruklu teal kurdele (`#modal h2`); alt sayfalar pirinç + ahşap üst kenar.
-- **Butonlar:** `.btn` + renk sınıfı (`o` turuncu ana eylem, `g` yeşil/onay, `x` ikincil), üst parlama + alt gölge.
-- **3B:** tüm Lambert malzemelerde toon bant + rim ışık + yumuşak AO (`toon()`); okyanus derinlik rengi + parıltı + kıyı halkası (`waterMat()`); sis sprite'larında animasyonlu fbm gürültüsü (`fogMat()`).
-- **Seviye detayı:** Sv2 fıçı, Sv3 dalgalanan bayrak, Sv4 baca + duman, Sv6 taş/altın kaide, Sv8 parlayan fener.
