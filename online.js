@@ -12,7 +12,7 @@ const fmt=n=>G.fmt?G.fmt(n):String(n);const toast=t=>G.toast(t);
 const HERO_IDS=['kaan','mei','tunc','deniz','nene','ela','ali','selin','lale','baris'];
 const av=(id,s=34)=>`<img src="img/cap_${HERO_IDS.includes(id)?id:'ali'}.webp" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;border:2px solid #ffd27a;flex:none" alt="">`;
 // sunucu hata mesajları Türkçe gelir -> sözlükten çevrilir (o.err.*), yoksa olduğu gibi
-const SERR={};const srvErr=m=>{const k=SERR[m];return k?T(k):tl(m)};
+const SERR={'Elmas yetersiz':'srv_gems','Bilet yok':'srv_ticket','Bugünkü ücretsiz çağrı kullanıldı':'srv_free','Seçim hakkın yok':'srv_sel','Geçersiz çağrı':'srv_bad','Geçersiz kaptan':'srv_hero','Kayıt bulunamadı':'srv_nosave'};const srvErr=m=>{const k=SERR[m];return k?T(k):tl(m)};
 const err=e=>{const m=((e&&(e.message||e.msg))||String(e)).replace(/^.*?:\s*/,'');toast('⚠️ '+srvErr(m).slice(0,90));G.SFX?.err?.()};
 const wk=()=>String(G.L.weekId(Date.now()));
 const ROLE={lider:'role_leader','yardımcı':'role_officer','üye':'role_member'};const RIC={lider:'👑','yardımcı':'⭐','üye':'⚓'};const role=r=>(RIC[r]||'⚓')+' '+T(ROLE[r]||'role_member');
@@ -28,7 +28,7 @@ export const nickOK=n=>/^[\p{L}\p{N}_ ]{3,16}$/u.test(n.trim());
 
 async function rpcS(fn,args){const{data,error}=await sb.rpc(fn+'_s',args||{});if(error)throw error;if(data&&typeof data==='object'&&!Array.isArray(data)&&data.err)throw{message:data.err,soft:1};return data}
 async function rpc(fn,args){const{data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
-export async function start(g){G=g;window.__online={pass:{sync:()=>passSync(),claim:(i,p)=>rpc('pass_claim',{p_i:i,p_prem:!!p}),prem:async()=>passAdopt(await rpc('pass_prem_demo'))},openMail:()=>openMail(),get mails(){return mails},pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,test:{dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},open:{craid:openCraid,clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
+export async function start(g){G=g;window.__online={summon:{sync:()=>summonSync(),call:(n,pay)=>sumCall('summon',{p_n:n,p_pay:pay}),pick:id=>sumCall('summon_pick',{p_id:id})},pass:{sync:()=>passSync(),claim:(i,p)=>rpc('pass_claim',{p_i:i,p_prem:!!p}),prem:async()=>passAdopt(await rpc('pass_prem_demo'))},openMail:()=>openMail(),get mails(){return mails},pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,test:{dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},open:{craid:openCraid,clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
  initErr();addButtons();if(!window.supabase){setStatus();return}
  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'sf_auth',autoRefreshToken:true}});
  try{await signIn();await afterLogin()}catch(e){console.warn('offline:',e?.message||e);online=false;setStatus()}
@@ -38,7 +38,7 @@ async function signIn(){let{data:{session}}=await sb.auth.getSession();if(sessio
  let cred=JSON.parse(localStorage.getItem('sf_guest')||'null');
  if(!cred){const r=await fetch(SB_URL+'/functions/v1/guest',{method:'POST',headers:{apikey:SB_KEY,'content-type':'application/json'}});if(!r.ok)throw new Error('guest');cred=await r.json();localStorage.setItem('sf_guest',JSON.stringify(cred))}
  const{data,error}=await sb.auth.signInWithPassword(cred);if(error)throw error;uid=data.user.id}
-async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();craidLoad();mailBtn();mailLoad();passSync();setInterval(mailLoad,90000);
+async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();summonSync();craidLoad();mailBtn();mailLoad();passSync();setInterval(mailLoad,90000);
  const{data:sv}=await sb.from('saves').select('data,rev,updated_at').eq('user_id',uid).maybeSingle();const S=G.S;
  if(sv&&sv.data&&(sv.data.saved||0)>(S.saved||0)+10000&&!sessionStorage.getItem('sf_adopted')){adopt(sv);return}
  if(sv)rev=sv.rev;await push();
@@ -318,6 +318,11 @@ function finish(r){const bt=$('battle');const loot=Object.entries(r.loot||{}).fi
  const close=()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war');if(r.kind==='fw')OA.fw();if(r.kind==='cup')open('eqcup',cupHtml)};G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.kind==='cup'?esc(r.cupT||''):r.spect?esc(r.att_nick)+' ⚔️ '+esc(r.def_nick):r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>${r.kind==='duel'?`<p class="sub">⚔️ ${fmt(r.att_power)} vs ${fmt(r.def_power)} · ${T('duel_rounds',[(r.rounds||[]).length])}</p>`:''}`,r.kind==='duel'&&lastDuel?[[T('ok'),'x',close],['🔁 '+T('rematch'),'o',()=>{bt.classList.remove('on');setTimeout(()=>OA.duelGo(lastDuel),1600)}]]:[[T('ok'),'o',close]])}
 // ---------- eylemler ----------
 const val=id=>($(id)?.value||'').trim();
+// ---------- Sunucu tarafı kaptan çağırma ----------
+function sumAdopt(r){const S=G.S;if(r.rev!=null){rev=r.rev;localStorage.setItem('sf_rev',rev)}for(const k of ['gems','tickets','ush','pity','pity2'])if(r[k]!=null)S[k]=+r[k];if(r.sel!=null)S.selTok=+r.sel;if(r.heroes)S.heroes=r.heroes;if(r.free!=null)S.srvFree=!!r.free;G.save();G.ui()}
+const sumOut=r=>(r.out||[]).map(o=>({h:G.L.HEROES.find(h=>h.id===o.id),isNew:!!o.new}));
+async function sumCall(f,a){await push();try{const r=await rpc(f,a);sumAdopt(r);return sumOut(r)}catch(e){throw new Error(srvErr(e.message||String(e)))}}
+async function summonSync(){try{sumAdopt(await rpc('summon_me'))}catch(e){console.warn('summon',e.message)}}
 // ---------- Klan Baskın Canavarı (Derin Yılan) ----------
 let craid=null;
 let cfeed=null,crTimer=null;async function craidLoad(){try{[craid,cfeed]=await Promise.all([rpc('craid_me'),rpc('craid_feed').catch(()=>null)])}catch(e){craid=null}craidDot()}
