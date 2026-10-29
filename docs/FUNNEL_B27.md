@@ -21,3 +21,27 @@ Simulated with `node tools/sim_funnel.mjs ../logic.js 3600`. It's a greedy bot f
 - "Build a shipyard" rewards 80 wood + 40 fish (was 80 fish). Wood was the bottleneck and fish was piling up.
 - Captain level cost is now fish 30·lv, wood 18·lv, crys 12·lv (was 30/30/8). Crystals were piling up and wood stalled "Captain Lv5".
 - Raid/arena (online only): a one-time nudge once a captain has been summoned and stage≥3 (~4 min in the sim). The War button pulses and a toast points to the daily raid/arena task. PvP isn't a story-quest gate, so offline players aren't blocked.
+
+## Batch 28: 2-hour run with island quests (Coral Atoll onward)
+
+`node tools/sim_funnel.mjs ../logic.js 7200` (run inside `tools/`). The bot now plays every island it owns: it switches to the island, collects, assigns workers, builds that island's kinds, merges, upgrades and levels up the outpost. It also claims Mercan/Volkan when a quest asks, saves resources for quest-target builds and Lighthouse levels, attacks the Kraken boss, stars up captains, upgrades gear and research, and claims achievements and dailies. Gems are only spent from gems earned in play (no purchases). Gaps are counted as story-quest gaps, and as "reward moments" (any quest, daily, achievement, island win or star-up).
+
+Tuning (client-side only; server-verified stage power `260·1.32^(n-1)` is unchanged):
+- `fenerTime(lv) = min(12·(lv+1)², 60+40·lv)`, so late Lighthouse waits are 3.7–5 min instead of 5–10 min.
+- Woodcutter `perW` 3 → 3.6. This was the chronic wood shortage, and it fixes "Captain Lv5" (#17), which now has 0 min of waiting.
+- `gearCost` wood 120 → 90 per step (same curve).
+- `heroLvCost` crystal 12·lv → 8·lv.
+
+| same bot, 120 min | before (b27 logic) | after (b28) |
+|---|---|---|
+| Captain Lv5 (#17) gap | wood-starved in b27 (6.3 min) | 0 min |
+| Lighthouse Sv5 (#29) | 14.3 min | 7.2 min |
+| Lighthouse Sv6 (#35) | 12.8 min | 9.2 min |
+| Lighthouse Sv7 (#39) | 11.8 min | 6.6 min |
+| max gap between reward moments | 13.7 min | 9.8 min |
+| all 40 quests done | 120 min | 113 min |
+
+There are no dead ends: every quest completes in 2 h without paying. There is still one long gap: "Free 20 islands" (#38) takes about 20 min. The cause is the stage power curve, which the server checks in `pve*.sql`. It was left alone on purpose; changing it needs a server migration. Mid-game Lighthouse quests are still gated by build timers and resources (gaps of 4–9 min). During those waits, dailies, island wins and the return screen fill in. Next steps could be side quests during Lighthouse waits, or a softer stage curve on the server.
+
+## Return screen (batch 28)
+After ≥1 min away the screen shows: idle production at 50% speed (+10% per Offline research level), capped at 8 h (the cap is shown, with "limit reached" when hit), and an optional demo ad (3 s) for ×2. After ≥1 h away it also shows today's goals: dailies done/ready, login reward, free summon, and the next quest with its progress. Fix: the daily-login popup used to replace this screen. Login now opens after you collect.
