@@ -1548,5 +1548,6 @@
  "o.tour_e_not_group": "Bu oyuncu grubunda değil",
  "o.tour_e_fought": "Bu rakiple zaten savaştın",
  "mail.tour_t": "Haftalık turnuva bitti",
- "mail.tour": "Turnuva {0}: {2} kişilik grupta #{1} oldun. Ödülün ekte."
+ "mail.tour": "Turnuva {0}: {2} kişilik grupta #{1} oldun. Ödülün ekte.",
+ "o.cr_est": "Klanın ≈{0} vuruşu daha kaldı (ort. {1})"
 }

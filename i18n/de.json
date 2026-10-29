@@ -1548,5 +1548,6 @@
  "o.tour_e_not_group": "Dieser Spieler ist nicht in deiner Gruppe",
  "o.tour_e_fought": "Gegen diesen Gegner hast du schon gekämpft",
  "mail.tour_t": "Wochenturnier beendet",
- "mail.tour": "Turnier {0}: Platz {1} in einer {2}er-Gruppe. Deine Belohnung ist angehängt."
+ "mail.tour": "Turnier {0}: Platz {1} in einer {2}er-Gruppe. Deine Belohnung ist angehängt.",
+ "o.cr_est": "Noch ≈{0} Clan-Treffer bis zum Sieg (Ø {1})"
 }

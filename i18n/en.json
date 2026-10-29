@@ -1548,5 +1548,6 @@
  "o.tour_e_not_group": "This player is not in your group",
  "o.tour_e_fought": "You already fought this opponent",
  "mail.tour_t": "Weekly tournament ended",
- "mail.tour": "Tournament {0}: you placed #{1} in a group of {2}. Your reward is attached."
+ "mail.tour": "Tournament {0}: you placed #{1} in a group of {2}. Your reward is attached.",
+ "o.cr_est": "≈{0} more clan hits to slay it (avg {1})"
 }

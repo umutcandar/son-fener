@@ -1548,5 +1548,6 @@
  "o.tour_e_not_group": "Pemain ini tidak di grupmu",
  "o.tour_e_fought": "Kamu sudah melawan lawan ini",
  "mail.tour_t": "Turnamen mingguan selesai",
- "mail.tour": "Turnamen {0}: kamu peringkat #{1} dari {2}. Hadiah terlampir."
+ "mail.tour": "Turnamen {0}: kamu peringkat #{1} dari {2}. Hadiah terlampir.",
+ "o.cr_est": "≈{0} serangan klan lagi untuk menumbangkannya (rata-rata {1})"
 }

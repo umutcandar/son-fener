@@ -1548,5 +1548,6 @@
  "o.tour_e_not_group": "Este jugador no está en tu grupo",
  "o.tour_e_fought": "Ya luchaste contra este rival",
  "mail.tour_t": "Torneo semanal terminado",
- "mail.tour": "Torneo {0}: quedaste #{1} en un grupo de {2}. Tu premio va adjunto."
+ "mail.tour": "Torneo {0}: quedaste #{1} en un grupo de {2}. Tu premio va adjunto.",
+ "o.cr_est": "Faltan ≈{0} golpes del clan (prom. {1})"
 }
