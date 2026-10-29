@@ -15,7 +15,10 @@ const av=(id,s=34)=>`<img src="img/cap_${HERO_IDS.includes(id)?id:'ali'}.webp" s
 const SERR={};const srvErr=m=>{const k=SERR[m];return k?T(k):m};
 const err=e=>{const m=((e&&(e.message||e.msg))||String(e)).replace(/^.*?:\s*/,'');toast('⚠️ '+srvErr(m).slice(0,90));G.SFX?.err?.()};
 const wk=()=>String(G.L.weekId(Date.now()));
-const ROLE={lider:'role_leader','yardımcı':'role_officer','üye':'role_member'};const role=r=>T(ROLE[r]||'role_member');
+const ROLE={lider:'role_leader','yardımcı':'role_officer','üye':'role_member'};const RIC={lider:'👑','yardımcı':'⭐','üye':'⚓'};const role=r=>(RIC[r]||'⚓')+' '+T(ROLE[r]||'role_member');
+const TECH=[['prod','⚙️',2],['store','📦',5],['help','🤝',15]],TLV=[0,2000,6000,15000,35000,80000],tlv=p=>{let l=0;for(let i=1;i<TLV.length;i++)if(p>=TLV[i])l=i;return l};
+const inc=(k,n=1)=>{try{G.L.dailyInc(G.S,k,n,Date.now());G.ui?.();G.save?.()}catch(e){}};
+function applyTech(){const t=clan?.tech||{};G.L.clanB.prod=tlv(t.prod||0)*.02;G.L.clanB.store=tlv(t.store||0)*.05;G.L.clanB.help=tlv(t.help||0)*15}
 const TIER_K={Bronz:'tier_bronze',Gümüş:'tier_silver',Altın:'tier_gold',Elmas:'tier_diamond',Efsane:'tier_legend'};const tierN=x=>T(TIER_K[x]||'tier_bronze');
 const hm=d=>new Date(d).toLocaleTimeString(locale,{hour:'2-digit',minute:'2-digit'});
 // dil algılama (mesaja etiket) — çeviri sunucuda otomatik algılanır
@@ -71,7 +74,7 @@ function subscribe(){sb.channel('sf-'+uid).on('postgres_changes',{event:'INSERT'
  .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},p=>onMsg(p.new))
  .on('postgres_changes',{event:'*',schema:'public',table:'help_requests'},()=>{if(sheetIs('clan'))refreshClan().then(rerender)}).subscribe()}
 function bossWatch(){const b=G.S.boss;if(!lastBoss||b.w!==lastBoss.w){lastBoss={w:b.w,d:b.dmg};return}const dd=b.dmg-lastBoss.d;if(dd>0){lastBoss.d=b.dmg;rpc('boss_hit',{p_dmg:Math.round(dd),p_wk:wk()}).then(()=>refreshClan()).catch(e=>console.warn(e.message))}}
-async function refreshClan(){if(!online)return;try{clan=await rpc('clan_info')}catch(e){clan=null}if(clan)await loadHelps().catch(()=>{})}
+async function refreshClan(){if(!online)return;try{clan=await rpc('clan_info')}catch(e){clan=null}applyTech();if(clan)await loadHelps().catch(()=>{})}
 // ---------- arayüz yardımcıları ----------
 let cur='';const sheetIs=n=>cur===n&&$('sheet').classList.contains('on');const rerender=()=>G.renderSheet?.();
 function open(name,fn){const nw=cur!==name;cur=name;G.sheet(fn);if(nw)requestAnimationFrame(()=>{const e=document.querySelector('#sheet .body')||$('sheet');e.scrollTop=0})}
@@ -99,9 +102,13 @@ function clanHtml(){if(!online)return hdr(T('clan_t'))+offline();
  h+=`<div class="card war-cta" data-o="pvpTab" data-v="war" style="cursor:pointer;background:linear-gradient(135deg,#1c3550,#3a1c40);border-color:#9fd3ff"><div class="ic" style="font-size:34px">🌫️</div><div class="mid"><div class="nm">${T('war_t')}</div><div class="sub">${T('war_cta')}</div></div><button class="btn o" data-o="pvpTab" data-v="war">${T('open')}</button></div>`;
  h+=`<div class="card" style="background:linear-gradient(135deg,#3a1a5a,#0a1a30)"><img src="img/f_kraken.webp" style="width:60px"><div class="mid"><div class="nm">${T('kraken_week')}</div><div class="sub">${T('kraken_shared',[fmt(boss)])}</div></div><button class="btn o" data-o="boss">${T('attack')}</button></div>`;
  h+=`<div class="sec">${T('help')}</div><div class="card"><div class="mid"><div class="sub">${T('help_desc')}</div></div><button class="btn" data-o="ask">${T('ask_help')}</button><button class="btn o" data-o="helpAll">${T('help_all')}</button></div><div id="helpList">${helpHtml()}</div>`;
- h+=`<div class="sec">${T('members')}</div>`;for(const m of ms){const can=mine?.role==='lider'&&m.id!==uid,kick=can||(mine?.role==='yardımcı'&&m.role==='üye');
-  h+=`<div class="card">${av(m.avatar)}<div class="mid"><div class="nm">${esc(m.nick)}${m.id===uid?' '+T('you_paren'):''} <span class="tag">${role(m.role)}</span></div><div class="sub">⚔️ ${fmt(m.power)} · 🦑 ${fmt(m.kraken)}</div></div>
-  ${can?`<button class="btn sm" data-o="role" data-v="${m.id}:${m.role==='üye'?'yardımcı':'üye'}">${m.role==='üye'?'⬆️':'⬇️'}</button><button class="btn sm" data-o="role" data-v="${m.id}:lider">👑</button>`:''}${kick?`<button class="btn sm r" data-o="kick" data-v="${m.id}">✖</button>`:''}${m.id!==uid?`<button class="btn sm x" data-o="prof" data-v="${m.id}">👤</button>`:''}</div>`}
+ {const t=clan.tech||{};h+=`<div class="sec">🔬 ${T('tech_t')}</div><div class="sub">${T('tech_desc',[clan.don_left??10])}</div>`;
+  for(const[id,ic,per]of TECH){const p=t[id]||0,l=tlv(p),nx=TLV[l+1];h+=`<div class="card" style="flex-wrap:wrap"><div class="ic">${ic}</div><div class="mid"><div class="nm">${T('tech_'+id)} · ${T('lv')} ${l}/5</div><div class="sub">${T('tech_'+id+'_d',[l*per,(Math.min(5,l+1))*per])}</div><div class="pbar"><i style="width:${nx?(p-TLV[l])/(nx-TLV[l])*100:100}%"></i></div><div class="sub">${fmt(p)}${nx?' / '+fmt(nx):' · MAX'}</div></div>
+   <div style="display:flex;gap:4px;width:100%;justify-content:flex-end">${[['fish',500],['wood',500],['crys',100]].map(([r,a])=>`<button class="btn sm ${l>=5?'x':'o'}" data-o="donate" data-v="${id}:${r}:${a}" ${l>=5?'disabled':''}>${{fish:'🐟',wood:'🪵',crys:'🔮'}[r]} ${a}</button>`).join('')}</div></div>`}
+  const top=[...ms].filter(m=>m.don>0).sort((a,b)=>b.don-a.don).slice(0,3);if(top.length)h+=`<div class="sub">🏅 ${T('top_donors')}: ${top.map(m=>esc(m.nick)+' '+fmt(m.don)).join(' · ')}</div>`}
+ h+=`<div class="sec">${T('members')}</div><div class="sub">${T('roles_desc')}</div>`;for(const m of ms){const can=mine?.role==='lider'&&m.id!==uid,kick=can||(mine?.role==='yardımcı'&&m.role==='üye');
+  h+=`<div class="card">${av(m.avatar)}<div class="mid"><div class="nm">${esc(m.nick)}${m.id===uid?' '+T('you_paren'):''} <span class="tag">${role(m.role)}</span></div><div class="sub">⚔️ ${fmt(m.power)} · 🦑 ${fmt(m.kraken)}${m.don?' · 🔬 '+fmt(m.don):''}</div></div>
+  ${can?`<button class="btn sm" data-o="role" data-v="${m.id}:${m.role==='üye'?'yardımcı':'üye'}" title="${T(m.role==='üye'?'promote':'demote')}">${m.role==='üye'?'⬆️⭐':'⬇️⚓'}</button><button class="btn sm" data-o="role" data-v="${m.id}:lider">👑</button>`:''}${kick?`<button class="btn sm r" data-o="kick" data-v="${m.id}">✖</button>`:''}${m.id!==uid?`<button class="btn sm x" data-o="prof" data-v="${m.id}">👤</button>`:''}</div>`}
  return h+`<button class="btn r" data-o="leave" style="width:100%;margin-top:10px">${T('leave_clan')}</button>`}
 let helps=[];function helpHtml(){return helps.length?helps.map(r=>`<div class="card"><div class="mid"><div class="nm">${esc(r.nick)}: ${esc(r.label)}</div><div class="pbar"><i style="width:${r.helps/r.max_helps*100}%"></i></div></div>${r.user_id!==uid&&!r.mine?`<button class="btn sm o" data-o="help" data-v="${r.id}">🤝</button>`:''}</div>`).join(''):`<div class="sub">${T('no_help')}</div>`}
 async function loadHelps(){const{data}=await sb.from('help_requests').select('id,user_id,label,helps,max_helps,created_at').lt('helps',5).order('id',{ascending:false}).limit(20);const nm=Object.fromEntries((clan?.members||[]).map(m=>[m.id,m.nick]));
@@ -245,12 +252,13 @@ const OA={
  search:async()=>{clanQ=val('cQ');openClan()},
  join:async v=>{try{await rpc('join_clan',{p_clan:v});toast(T('joined'));openClan()}catch(e){err(e)}},
  leave:()=>G.modal(`<h2>${T('leave_q')}</h2>`,[[T('cancel'),'x'],[T('leave'),'r',async()=>{try{await rpc('leave_clan');clan=null;openClan()}catch(e){err(e)}}]]),
- role:async v=>{const[id,r]=v.split(':');try{await rpc('set_role',{p_user:id,p_role:r});openClan()}catch(e){err(e)}},
- kick:async v=>{try{await rpc('kick_member',{p_user:v});openClan()}catch(e){err(e)}},
+  role:v=>{const[id,r]=v.split(':'),m=(clan?.members||[]).find(x=>x.id===id);G.modal(`<h2>${RIC[r]} ${T(r==='lider'?'make_leader_q':r==='yardımcı'?'promote_q':'demote_q',[esc(m?.nick||'?')])}</h2>${r==='lider'?`<p class="sub">${T('make_leader_d')}</p>`:''}`,[[T('cancel'),'x'],[T('confirm'),'o',async()=>{try{await rpc('set_role',{p_user:id,p_role:r});G.SFX?.done?.();toast(T('role_set'));openClan()}catch(e){err(e)}}]])},
+ kick:v=>{const m=(clan?.members||[]).find(x=>x.id===v);G.modal(`<h2>✖ ${T('kick_q',[esc(m?.nick||'?')])}</h2>`,[[T('cancel'),'x'],[T('kick'),'r',async()=>{try{await rpc('kick_member',{p_user:v});openClan()}catch(e){err(e)}}]])},
+ donate:async v=>{const[t,r,a]=v.split(':');const S=G.S;if((S.res[r]||0)<+a)return toast('⚠️ '+T('err.no_res'));try{await push();const o=await rpc('clan_donate',{p_tech:t,p_res:r,p_amt:+a});S.res[r]=Math.max(0,S.res[r]-a);if(o.rev!=null){rev=o.rev;localStorage.setItem('sf_rev',rev)}inc('donate');G.SFX?.coin?.();toast(T('donated',[o.pts]));G.ui?.();await refreshClan();rerender()}catch(e){err(e)}},
  // yardım etiketi sunucuda saklanır; herkes kendi dilinde okusun diye anahtar değil kısa emoji+metin gönderilir
  ask:async()=>{const S=G.S;const x=S.train?T('h_train'):S.research?T('h_research'):S.fener?.end?T('h_fener'):Object.values(S.g).some(b=>b.end)?T('h_build'):null;if(!x)return toast(T('no_timer'));try{await rpc('ask_help',{p_label:x});toast(T('help_asked'));openClan()}catch(e){err(e)}},
- help:async v=>{try{await rpc('give_help',{p_req:+v});toast(T('you_helped'));openClan()}catch(e){err(e)}},
- helpAll:async()=>{try{const n=await rpc('help_all');toast(T('n_helps',[n]));openClan()}catch(e){err(e)}},
+ help:async v=>{try{await rpc('give_help',{p_req:+v});inc('help');toast(T('you_helped'));openClan()}catch(e){err(e)}},
+ helpAll:async()=>{try{const n=await rpc('help_all');if(n)inc('help',n);toast(T('n_helps',[n]));openClan()}catch(e){err(e)}},
  boss:()=>{G.closeSheet?.();G.openBoss()},chatClan:()=>openChat('clan'),
  send:async()=>{const x=val('chIn');if(!x)return;if(x.length>200)return toast(T('max200'));
   try{await rpc('send_chat',{p_channel:chanOf(chTab),p_body:x,p_lang:detectLang(x)});$('chIn').value='';await loadMsgs(chTab);keepRender();scrollChat()}catch(e){err(e)}},
@@ -264,15 +272,15 @@ const OA={
   const{error}=await sb.auth.updateUser({email:em,password:pw});if(error)return err(error);toast(T('email_sent'))},
  duel:v=>{const me=prof?.power||0;sb.from('profiles').select('nick,avatar,power').eq('id',v).single().then(({data:o})=>{if(!o)return;
   G.modal(`<div style="font-size:46px">🤺</div><h2>${T('duel_t')}</h2><div style="display:flex;justify-content:space-around;align-items:center;margin:8px 0"><div>${av(prof?.avatar,52)}<div class="sub">${T('you')}</div><b>⚔️ ${fmt(me)}</b></div><b style="font-size:20px">VS</b><div>${av(o.avatar,52)}<div class="sub">${esc(o.nick)}</div><b>⚔️ ${fmt(o.power)}</b></div></div><p class="sub">${T('duel_rules')}</p>`,[[T('cancel'),'x'],['🤺 '+T('duel_go'),'o',()=>OA.duelGo(v)]])})},
- duelGo:async v=>{try{lastDuel=v;const r=await rpc('duel',{p_target:v});replay(r,'🤺 '+T('duel_t'))}catch(e){err(e)}},
+ duelGo:async v=>{try{lastDuel=v;const r=await rpc('duel',{p_target:v});inc('arena');replay(r,'🤺 '+T('duel_t'))}catch(e){err(e)}},
  league:()=>open('league',leagueHtml),
  fwAtk:async()=>{try{const r=await rpc('fw_attack');if(r.def_avatar==='🌫️')r.def_avatar='sisnur';r.def_nick=r.def_nick==='Sis Filosu'?T('fw_npc'):r.def_nick;replay(r,'🏮 '+T('fw_t'))}catch(e){err(e)}},
  fw:async()=>{try{fwData=await rpc('fener_war_me');fwMark()}catch(e){fwData=null}open('fw',fwHtml)},
  unprotect:async()=>{try{await rpc('drop_protection');prof.has_attacked=true;toast(T('prot_removed'))}catch(e){err(e)}},
  eqArena:()=>{window.__eqArena=!window.__eqArena;openPvp()},
- raid:async v=>{try{await push();const r=await rpc('raid',{p_target:v});prof&&(prof.has_attacked=true);r.kind='raid';replay(r,'🏴‍☠️ '+T('t_raid'))}catch(e){err(e)}},
- revenge:async v=>{try{await push();const r=await rpc('revenge',{p_battle:+v});r.kind='raid';replay(r,'🔥 '+T('revenge_t'))}catch(e){err(e)}},
- arena:async v=>{try{await push();const r=await rpc('arena_fight',{p_target:v,p_equal:!!window.__eqArena});arena=r.arena;replay(r,'🏟️ '+T('arena_t'))}catch(e){err(e)}},
+ raid:async v=>{try{await push();const r=await rpc('raid',{p_target:v});inc('raid');prof&&(prof.has_attacked=true);r.kind='raid';replay(r,'🏴‍☠️ '+T('t_raid'))}catch(e){err(e)}},
+ revenge:async v=>{try{await push();const r=await rpc('revenge',{p_battle:+v});inc('raid');r.kind='raid';replay(r,'🔥 '+T('revenge_t'))}catch(e){err(e)}},
+ arena:async v=>{try{await push();const r=await rpc('arena_fight',{p_target:v,p_equal:!!window.__eqArena});inc('arena');arena=r.arena;replay(r,'🏟️ '+T('arena_t'))}catch(e){err(e)}},
  fJoin:async()=>{try{war=await rpc('front_join');war._t=Date.now();toast(war.phase==='queue'?T('war_queued'):T('war_matched'));openPvp('war')}catch(e){err(e)}},
  fLeave:async()=>{try{await rpc('front_leave_queue');openPvp('war')}catch(e){err(e)}},
  fAtk:async v=>{try{await push();const r=await rpc('front_attack',{p_target:v});war=r.status;war._t=Date.now();replay(r,'🌫️ '+T('war_t'))}catch(e){err(e)}},
@@ -284,7 +292,7 @@ const OA={
   replay(r,'▶️ '+T('replay_t'))},
 };
 // sunucu (Türkçe) hata metinleri -> anahtar
-function initErr(){Object.assign(SERR,{'Önce bir klana katıl':'err.need_clan','Sadece lider/yardımcı savaşa kaydolabilir':'err.officer','Klanın zaten bir savaşta':'err.in_war','Savaş henüz başlamadı':'err.not_started','Savaş bitti':'err.war_over',
+function initErr(){Object.assign(SERR,{'Geçersiz bağış':'err.don_bad','Bugünkü bağış hakkın bitti':'err.don_limit','Yeterli kaynak yok':'err.no_res','Önce oyunu kaydet':'err.save_first','Önce bir klana katıl':'err.need_clan','Sadece lider/yardımcı savaşa kaydolabilir':'err.officer','Klanın zaten bir savaşta':'err.in_war','Savaş henüz başlamadı':'err.not_started','Savaş bitti':'err.war_over',
  'Savaş başladıktan sonra katıldın':'err.late','Hedef rakip klanda değil':'err.not_foe','3 saldırı hakkın bitti':'err.no_attacks','Biraz bekle':'err.wait','Kayıt yok':'err.no_save','Filon boş — önce tayfa eğit':'err.empty_fleet',
  'Kendine saldıramazsın':'err.self','Filo hâlâ dönüyor, biraz bekle':'err.fleet_back','Bugünkü baskın hakkın bitti':'err.raid_limit','Hedef kalkan altında':'err.shield','Yeni kaptan koruması (7 gün)':'err.newbie','Başka bölgede':'err.region',
  'Klan arkadaşına saldıramazsın':'err.clanmate','Bugünkü arena biletin bitti':'err.tickets','Kaptanın yok':'err.no_caps','Sohbetten geçici olarak susturuldun':'err.chat_muted','Mesaj 1-200 karakter olmalı':'err.msg_len','Çok hızlı yazıyorsun':'err.too_fast',
