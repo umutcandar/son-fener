@@ -1,6 +1,6 @@
 <!doctype html><html lang="tr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#14304a"><title>Son Fener: Sis Denizi</title>
+<meta name="theme-color" content="#14304a"><title>Son Fener: Sis Denizi</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="img/icon-192.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png"><link rel="preload" as="image" href="img/title.webp">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 html,body{margin:0;height:100%;overflow:hidden;background:#14304a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#e8f1ff}
@@ -62,16 +62,38 @@ html,body{margin:0;height:100%;overflow:hidden;background:#14304a;font-family:sy
 .port small{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-size:9px;color:#ffd700;text-shadow:0 0 2px #000;white-space:nowrap}
 .flip{animation:flip .7s ease-out}@keyframes flip{0%{transform:rotateY(90deg) scale(.5)}60%{transform:rotateY(0) scale(1.2)}100%{transform:scale(1)}}
 #loading{position:fixed;inset:0;background:linear-gradient(#14304a,#3b5a8a);display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:60;font-weight:900;font-size:28px;color:#ffd27a}
+img.ri{width:16px;height:16px;vertical-align:-3px;object-fit:contain}.pill img.ri{width:19px;height:19px}.cs{white-space:nowrap}
+.fly img.ri{width:26px;height:26px}
+.port{overflow:visible}.port img{width:100%;height:100%;object-fit:cover;border-radius:9px;display:block}.port .lv{position:absolute;top:-7px;left:-7px;background:#0a2030;border:2px solid #fff;border-radius:10px;font-size:10px;padding:0 5px;color:#fff}
+#prof .av{overflow:hidden;padding:0}#prof .av img{width:100%;height:100%;object-fit:cover}
+#side{position:fixed;right:6px;top:calc(env(safe-area-inset-top) + 176px);z-index:6;display:flex;flex-direction:column;gap:8px}
+.sb{width:46px;height:46px;border-radius:13px;border:2px solid #7fd8e8;background:linear-gradient(#2a7a95,#164a62);color:#fff;font-size:21px;position:relative;box-shadow:0 3px 0 #0008;padding:0;display:grid;place-items:center}.sb small{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);font-size:8.5px;font-weight:900;background:#0a2030;border-radius:5px;padding:0 3px;white-space:nowrap}
+.sb.hot{background:linear-gradient(#ffb347,#e0592a);border-color:#ffd27a}.sb .dot{right:-4px;top:-4px}
+#collect{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 92px);transform:translateX(-50%);z-index:6;display:none}
+#talk{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 14px);z-index:48;display:none;gap:10px;align-items:flex-end}#talk.on{display:flex}
+#talk img{width:96px;height:96px;border-radius:16px;border:3px solid #ffd27a;object-fit:cover;flex:none;box-shadow:0 4px 12px #0008}
+#talk .bub{flex:1;background:#fff8e6;color:#3a2410;border-radius:16px;padding:10px 13px;font-weight:700;font-size:14px;border:3px solid #ffb347;line-height:1.35}#talk .bub b{display:block;color:#c0592a;font-size:12px}#talk .bub small{display:block;text-align:right;color:#a07050;font-size:11px;margin-top:4px}
+.cal{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}.cal div{background:#ffffff14;border:2px solid #ffffff22;border-radius:12px;padding:6px 2px;font-size:11px;font-weight:800}.cal .ok{opacity:.45}.cal .now{border-color:#ffd27a;background:#ffb34733;animation:bob 1s infinite}.cal .d7{grid-column:span 2}
+.prev{background:#3fa7e022;border:1px dashed #7fd8e8;border-radius:10px;padding:7px 9px;font-size:12px;font-weight:800;margin-bottom:9px;color:#bfe9ff}
+.tier{display:grid;grid-template-columns:34px 1fr 1fr;gap:6px;align-items:center;margin-bottom:5px}.tier>b{text-align:center;font-size:13px}.tier .c{background:#ffffff12;border-radius:10px;padding:5px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:800;min-height:38px}.tier .c.p{background:#ffcf3a1c;border:1px solid #ffcf3a55}.tier .c.lk{opacity:.45}
+.board .card{padding:6px 9px;margin-bottom:4px}.board .me{background:#ffb34733;border-color:#ffd27a}
+.bot{font-size:9px;background:#46597a;border-radius:4px;padding:0 4px;margin-left:4px}
+.foeimg{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 6px 10px #0008)}
+.tgl{width:52px;height:30px;border-radius:15px;border:0;background:#46597a;position:relative}.tgl:after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}.tgl.on{background:#3fb950}.tgl.on:after{left:25px}
+#loading{background:#0a1a2a url(img/title.webp) center/cover;justify-content:flex-end;padding-bottom:calc(env(safe-area-inset-bottom) + 70px);gap:14px}
+#loading img{width:min(80vw,380px);filter:drop-shadow(0 6px 14px #000c)}#loading .btn{font-size:22px;padding:14px 46px}#loading small{font-size:12px;color:#fff;opacity:.8;font-weight:700;text-shadow:0 1px 3px #000}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">
- <div class="row"><div id="prof"><div class="av">🗼</div><div><b>Fener Sv<span id="flv">1</span></b><small>⚔️ Güç <span id="pow">0</span></small></div></div>
+ <div class="row"><div id="prof"><div class="av"><img src="img/cap_yusuf.webp" alt=""></div><div><b>Fener Sv<span id="flv">1</span></b><small>⚔️ Güç <span id="pow">0</span></small></div></div>
   <div id="night"><span id="nval"></span><small id="nsub"></small></div></div>
- <div class="row"><div class="pill"><i>🐟</i><span id="r_fish"></span></div><div class="pill"><i>🪵</i><span id="r_wood"></span></div><div class="pill"><i>🔮</i><span id="r_crys"></span></div><div class="pill" id="pGem" style="margin-left:auto"><i>💎</i><span id="r_gems"></span><span class="plus">+</span></div></div>
- <div id="stat" class="row"><div class="pill" id="pSurv"><i>👥</i><span id="surv"></span></div><div class="pill"><i>👷</i><span id="bld"></span></div><div class="pill"><i>🏝️</i><span id="isl"></span></div><div class="pill" id="bClan" style="margin-left:auto">🛡️ Klan</div><div class="pill" id="bChat">💬 Sohbet</div></div>
+ <div class="row"><div class="pill"><img class="ri" src="img/i_fish.webp" alt=""><span id="r_fish"></span></div><div class="pill"><img class="ri" src="img/i_wood.webp" alt=""><span id="r_wood"></span></div><div class="pill"><img class="ri" src="img/i_crys.webp" alt=""><span id="r_crys"></span></div><div class="pill" id="pGem" style="margin-left:auto"><img class="ri" src="img/i_gems.webp" alt=""><span id="r_gems"></span><span class="plus">+</span></div></div>
+ <div id="stat" class="row"><div class="pill" id="pSurv"><img class="ri" src="img/i_surv.webp" alt=""><span id="surv"></span></div><div class="pill"><img class="ri" src="img/i_bld.webp" alt=""><span id="bld"></span></div><div class="pill" id="pIsl"><i>🏝️</i><span id="isl"></span></div><div class="pill" id="bClan" style="margin-left:auto">🛡️ Klan</div><div class="pill" id="bChat">💬 Sohbet</div></div>
  <div id="warn"></div>
  <div id="quest"></div>
 </div>
+<div id="side"><button class="sb hot" id="sPass">🎫<small>Bilet</small><i class="dot" id="pdot"></i></button><button class="sb" id="sBoss">🦑<small>Kraken</small><i class="dot" id="kdot"></i></button><button class="sb" id="sLogin">📅<small>Giriş</small><i class="dot" id="ldot"></i></button><button class="sb" id="sSet">⚙️<small>Ayarlar</small></button></div>
+<button class="btn o" id="collect">✋ Hepsini topla</button><div id="talk"><img src="img/cap_yusuf.webp" alt=""><div class="bub" id="talkT"></div></div>
 <div id="fx"></div>
 <div id="bottom"><button class="big" id="bWork"><span>👷</span>İşçiler</button><button class="big" id="bHero"><span>🧑‍✈️</span>Kaptanlar<i class="dot" id="hdot"></i></button><button class="big hot" id="bMap"><span>⛵</span>Deniz</button><button class="big" id="bTask"><span>📋</span>Görevler<i class="dot" id="tdot"></i></button><button class="big" id="bShop"><span>🛒</span>Mağaza</button></div>
 <div id="sheet"></div>
@@ -79,6 +101,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#14304a;font-family:sy
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div><div id="hand">👆</div><div id="tip"></div>
 <div id="ad"><div style="font-size:14px;opacity:.7">DEMO REKLAM</div><div style="font-size:40px">📺</div><div id="adt"></div></div>
-<div id="loading">🗼 Son Fener</div>
+<div id="loading"><img src="img/logo.webp" alt="Son Fener"><button class="btn o" id="startBtn" disabled>Yükleniyor…</button><small>v2 · Demo — tüm satın alımlar sahte</small></div>
 <script type="module" src="game.js"></script>
 </body></html>
