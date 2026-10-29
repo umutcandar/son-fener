@@ -1881,5 +1881,7 @@
  "d.VIP_PERKS.6": "VIP 7: +1 Bauschlange",
  "d.VIP_PERKS.7": "VIP 8: Edelsteinkosten fürs Heilen −25 %",
  "d.VIP_PERKS.8": "VIP 9: Edelsteinkosten für Schilde −20 %",
- "d.VIP_PERKS.9": "VIP 10: Edelsteinkosten für Baubeschleunigung −20 %"
+ "d.VIP_PERKS.9": "VIP 10: Edelsteinkosten für Baubeschleunigung −20 %",
+ "ui.tut_fort": "🏰 Tippe auf die Zitadelle und stärke deine Verteidigung – der Feind naht!",
+ "ui.tut_war": "⚔️ Drück den Kampf-Knopf und schlag den ersten Feind zurück!"
 }

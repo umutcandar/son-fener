@@ -1881,5 +1881,7 @@
  "d.VIP_PERKS.6": "VIP 7: +1 fila de construção",
  "d.VIP_PERKS.7": "VIP 8: custo em gemas da cura −25%",
  "d.VIP_PERKS.8": "VIP 9: custo em gemas do escudo −20%",
- "d.VIP_PERKS.9": "VIP 10: custo em gemas para acelerar construção −20%"
+ "d.VIP_PERKS.9": "VIP 10: custo em gemas para acelerar construção −20%",
+ "ui.tut_fort": "🏰 Toque na Cidadela e reforce suas defesas — o inimigo se aproxima!",
+ "ui.tut_war": "⚔️ Toque no botão Guerra e repila o primeiro inimigo!"
 }

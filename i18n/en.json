@@ -1881,5 +1881,7 @@
  "d.VIP_PERKS.6": "VIP 7: +1 build queue",
  "d.VIP_PERKS.7": "VIP 8: healing gem cost −25%",
  "d.VIP_PERKS.8": "VIP 9: shield gem cost −20%",
- "d.VIP_PERKS.9": "VIP 10: construction speed-up gem cost −20%"
+ "d.VIP_PERKS.9": "VIP 10: construction speed-up gem cost −20%",
+ "ui.tut_fort": "🏰 Tap the Citadel and strengthen your defenses — the enemy approaches!",
+ "ui.tut_war": "⚔️ Press the War button and repel the first enemy!"
 }

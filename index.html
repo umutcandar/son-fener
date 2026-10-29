@@ -254,6 +254,13 @@ body.intro #warBtn{display:none!important}
 .port.skb{position:relative;cursor:pointer}.port .chg{position:absolute;inset:-4px;border-radius:inherit;pointer-events:none;background:conic-gradient(#9be7ff var(--chg,0%),#0000 0);-webkit-mask:radial-gradient(closest-side,#0000 calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(closest-side,#0000 calc(100% - 4px),#000 calc(100% - 3px));border-radius:50%}
 .port.skr{animation:skR .7s ease-in-out infinite;box-shadow:0 0 14px #9be7ff}.port.skr::after{content:'⚡';position:absolute;top:-10px;right:-6px;font-size:16px;filter:drop-shadow(0 0 4px #9be7ff)}@keyframes skR{50%{transform:scale(1.1)}}
 @media (prefers-reduced-motion:reduce){#warBtn.rdy,.port.skr{animation:none}}
+#battle .cutin{position:absolute;left:0;right:0;top:34%;height:96px;z-index:20;pointer-events:none;display:flex;align-items:center;gap:10px;padding-left:12px;background:linear-gradient(90deg,#000d,#5a1a08cc 55%,#0000);border-top:2px solid #ffb347;border-bottom:2px solid #ffb347;animation:cutin 1.3s ease-out forwards}
+#battle .cutin img{width:92px;height:92px;border-radius:10px;border:2px solid #ffd27a;object-fit:cover;box-shadow:0 0 18px #ff8a2a}
+#battle .cutin b{font:900 20px/1.1 system-ui;color:#fff4d6;text-shadow:0 2px 0 #7a2a00,0 0 12px #ff8a2a;letter-spacing:.5px}
+#battle .cutin.foe{flex-direction:row-reverse;padding:0 12px 0 0;background:linear-gradient(270deg,#000d,#2a0a1acc 55%,#0000);border-color:#c0392b;animation-name:cutinR}
+@keyframes cutin{0%{transform:translateX(-100%);opacity:0}15%{transform:translateX(0);opacity:1}80%{transform:translateX(4%);opacity:1}100%{transform:translateX(30%);opacity:0}}
+@keyframes cutinR{0%{transform:translateX(100%);opacity:0}15%{transform:none;opacity:1}80%{transform:translateX(-4%);opacity:1}100%{transform:translateX(-30%);opacity:0}}
+#battle{background:#140c08!important}
 img.wen{filter:brightness(.6) sepia(.6) hue-rotate(-30deg)}
 #world{position:fixed;inset:0;z-index:60;display:none;background:#2c3a22;touch-action:none}#world.on{display:block}#wcv{display:block;touch-action:none}
 #wtop{position:absolute;top:calc(env(safe-area-inset-top) + 8px);left:8px;right:8px;display:flex;align-items:center;gap:8px;background:linear-gradient(#3a2a1a,#24180c);border:2px solid #c9a24a;border-radius:12px;padding:6px 10px;color:#ffe9a8}#wtop b{font-size:16px}#wtop small{opacity:.7;font-size:11px;flex:1}#wcl{background:#a33;color:#fff;border:0;border-radius:8px;width:32px;height:32px;font-size:16px}

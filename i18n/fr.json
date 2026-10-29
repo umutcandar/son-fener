@@ -1881,5 +1881,7 @@
  "d.VIP_PERKS.6": "VIP 7 : +1 file de construction",
  "d.VIP_PERKS.7": "VIP 8 : coût en gemmes des soins −25 %",
  "d.VIP_PERKS.8": "VIP 9 : coût en gemmes du bouclier −20 %",
- "d.VIP_PERKS.9": "VIP 10 : coût en gemmes de l'accélération −20 %"
+ "d.VIP_PERKS.9": "VIP 10 : coût en gemmes de l'accélération −20 %",
+ "ui.tut_fort": "🏰 Touche la Citadelle et renforce tes défenses — l'ennemi approche !",
+ "ui.tut_war": "⚔️ Appuie sur le bouton Guerre et repousse le premier ennemi !"
 }

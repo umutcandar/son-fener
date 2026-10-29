@@ -1881,5 +1881,7 @@
  "d.VIP_PERKS.6": "VIP 7: +1 antrean bangun",
  "d.VIP_PERKS.7": "VIP 8: biaya permata penyembuhan −25%",
  "d.VIP_PERKS.8": "VIP 9: biaya permata perisai −20%",
- "d.VIP_PERKS.9": "VIP 10: biaya permata percepatan bangun −20%"
+ "d.VIP_PERKS.9": "VIP 10: biaya permata percepatan bangun −20%",
+ "ui.tut_fort": "🏰 Ketuk Benteng dan perkuat pertahanan — musuh mendekat!",
+ "ui.tut_war": "⚔️ Tekan tombol Perang dan pukul mundur musuh pertama!"
 }

@@ -1881,5 +1881,7 @@
  "d.VIP_PERKS.6": "VIP 7: +1 Kale inşaat sırası",
  "d.VIP_PERKS.7": "VIP 8: Revir elmas maliyeti −%25",
  "d.VIP_PERKS.8": "VIP 9: Kalkan elmas maliyeti −%20",
- "d.VIP_PERKS.9": "VIP 10: Kale hızlandırma elmas maliyeti −%20"
+ "d.VIP_PERKS.9": "VIP 10: Kale hızlandırma elmas maliyeti −%20",
+ "ui.tut_fort": "🏰 Kaleye dokun ve savunmayı güçlendir — düşman yaklaşıyor!",
+ "ui.tut_war": "⚔️ Savaş düğmesine bas, ilk düşmanı püskürt!"
 }

@@ -3,7 +3,7 @@ import * as THREE from './lib/three.module.js';
 import * as L from './logic.js';
 import {t as tx,tl,lang,LANGS,setLang,localizeData,applyDom,locale,RTL} from './i18n.js';
 import {openGuide} from './guide.js';
-import {playSiege} from './siege.js';
+const playSiege=o=>import('./siege.js').then(m=>m.playSiege(o));
 import {openWorld as openWorldView} from './world.js';
 localizeData(L);applyDom();for(const id of ['bClan','bChat']){const e=document.getElementById(id);if(!e)continue;const m=e.textContent.trim().match(/^([\p{Extended_Pictographic}\uFE0F\u200D]+)\s*(.+)$/u);if(m){e.title=m[2];e.innerHTML=m[1]+'<span class="lb"> '+m[2]+'</span>'}}const LV=tx('ui.lv'),DEC=(1.5).toLocaleString(locale)[1];
 const {KINDS,RIC,TROOPS,HEROES,TECH,FOES,RARITY,GR}=L;
@@ -521,7 +521,7 @@ function openWork(){sheet(()=>{let h=hdr(tx('ui.isci_atamasi'))+`<div class="car
  const ks=Object.keys(S.g).filter(k=>L.hasJob(S.g[k].k)).sort((a,b)=>S.g[a].k.localeCompare(S.g[b].k));
  for(const k of ks){const b=S.g[k],T=KINDS[b.k];const[i,j]=L.unkey(k);h+=`<div class="card" ${b.fog?'style="opacity:.5"':''}><div class="ic">${T.ic}</div><div class="mid"><div class="nm">${T.n} ${LV}${b.lv} · ${L.JOB[b.k]} ${b.w||0}/${L.maxW(b.lv)}</div><div class="sub">${b.fog?tx('ui.sisli'):T.res?L.rate(S,k).toFixed(1).replace('.',DEC)+' '+RIC[T.res]+'/dk':tx('ui.egitim')+((b.w||0)*25)+'%'}</div></div><button class="btn sm r" data-a="w" data-v="${i}:${j}:-1">−</button><button class="btn sm" data-a="w" data-v="${i}:${j}:1">+</button></div>`}
  return h})}
-const port=(h,st,big)=>`<div class="port r${h.r}" style="${big?'width:84px;height:84px':''}"><img src="img/cap_${h.img}.webp" loading="lazy" alt="${h.n}">${st?`<b class="lv">${st.lv||1}</b>`:''}<small>${'★'.repeat(st?st.star:0)}</small></div>`;
+const port=(h,st,big)=>`<div class="port r${h.r}" style="${big?'width:84px;height:84px':''}"><img src="${big?hPic(h.img):'img/cap_'+h.img+'.webp'}" loading="lazy" alt="${h.n}">${st?`<b class="lv">${st.lv||1}</b>`:''}<small>${'★'.repeat(st?st.star:0)}</small></div>`;
 // kaptan kırmızı noktası: çubuktaki nokta ile sayfa içi işaretler aynı nedenlerden hesaplanır
 function heroLvQ(){const q=L.QUESTS[S.q];return q&&q.go==='heroes'&&/Sv\d/.test(q.t)&&q.f(S)<q.n?q.n:0}
 function heroBest(){const ids=Object.keys(S.heroes);if(!ids.length)return null;const tm=L.team(S).map(h=>h.id);return ids.filter(id=>S.heroes[id].lv<L.heroCap(S.heroes[id])).sort((a,b)=>S.heroes[b].lv-S.heroes[a].lv||tm.indexOf(b)-tm.indexOf(a))[0]||null}
@@ -644,13 +644,13 @@ function goIsland(id){if(resErr(L.switchIsland(S,id)))return;closeSheet();for(co
 // ---------- SAVAŞ ----------
 function pveCheck(kind,stage,rw,prog){const O=window.__online;if(!O||!O.on||!O.pve)return;O.pve(kind,stage).then(r=>{if(!r||r.ok)return;
    const neg={};for(const k in rw)neg[k]=-rw[k];L.addRes(S,neg);for(const k in S.res)S.res[k]=Math.max(0,S.res[k]);S.gems=Math.max(0,S.gems);S.tickets=Math.max(0,S.tickets||0);if(typeof prog==='function')prog();else if(prog&&S.stage>1)S.stage--;ui();save();toast('⚠️ '+tx('ui.pve_rej')+' '+tl(r.err||''))}).catch(()=>{})}
-function battle(stage,camp,cv){closeSheet();const res=cv?cv.res:L.simulate(S,stage,Math.random);const B=cv?(cv.foe||{n:tx('ui.cv_foe'),img:'pirate'}):FOES[L.stageFoe(stage)];const tm=L.team(S);const bt=$('battle');
+function battle(stage,camp,cv){closeSheet();if(window.__art2d&&S.tut===5)S.tut=6;const res=cv?cv.res:L.simulate(S,stage,Math.random);const B=cv?(cv.foe||{n:tx('ui.cv_foe'),img:'pirate'}):FOES[L.stageFoe(stage)];const tm=L.team(S);const bt=$('battle');
  const icons=Object.entries(S.troops).flatMap(([t,n])=>Array(Math.min(4,Math.ceil(n/10))).fill(TROOPS[t].ic));
  const ttl=cv?(cv.ttl||'🏴‍☠️ '+tx('ui.cv_t')):'⛵ '+tx('ui.isl_n',[stage,L.islandName(stage)]);
  bt.innerHTML=bsHtml(ttl,B,fmt(cv?(cv.pw||L.convoyPower(S)):L.stagePower(stage)),tm);
  bt.classList.toggle('reefB',!!(cv&&cv.reef));bt.classList.add('on');SFX.horn();setTimeout(SFX.roar,500);
  battleScene(bt,res,B,tm,icons,()=>finish());
- function finish(){if(cv)return cvFinish();const st0=S.stage,out=L.applyBattle(S,res,stage,now());if(out.rw)pveCheck('stage',stage,out.rw,S.stage>st0);ui();save();syncPeople();const lost=Object.entries(out.lost).filter(([t,n])=>n).map(([t,n])=>`${TROOPS[t].ic}${n}`).join(' ');
+ function finish(){if(S.tut===6)setTimeout(tutCheck,600);if(cv)return cvFinish();const st0=S.stage,out=L.applyBattle(S,res,stage,now());if(out.rw)pveCheck('stage',stage,out.rw,S.stage>st0);ui();save();syncPeople();const lost=Object.entries(out.lost).filter(([t,n])=>n).map(([t,n])=>`${TROOPS[t].ic}${n}`).join(' ');
   if(res.win){SFX.done();vib([30,40,60]);if(camp)camp.g.userData.vis=false,setTimeout(()=>camp.g.userData.vis=true,90000);for(let k=0;k<Math.min(out.saved,3);k++)setTimeout(()=>sendRaft(true),k*700)}else SFX.err();
   modal(starsH(res)+(res.win?`<div style="font-size:54px">🏝️</div><h2>${tx('ui.ada_sisten_kurtuldu')}</h2><p>${tx('ui.loot')}<br><b>${costStr(out.rw)}</b>${out.saved?`<br>${tx('ui.kurtulan_filona_katildi',[out.saved])}`:''}${lost?`<br><span class="sub">${tx('ui.yarali')} `+lost+'</span>':''}</p>`:`<div style="font-size:54px">🌫️</div><h2>${tx('ui.sis_galip_geldi')}</h2><p>${tx('ui.yaratiklar_cok_gucluydu_daha')}${lost?`<br><span class="sub">${tx('ui.kayip')} `+lost+'</span>':''}</p>`),[[tx('ui.devam'),res.win?'o':'x',()=>{bt.classList.remove('on');tutCheck()}]])}
  function cvFinish(){ui();save();syncPeople();const lost=Object.entries(cv.lost).filter(([t,n])=>n).map(([t,n])=>`${TROOPS[t].ic}${n}`).join(' ');if(res.win){SFX.done();vib([30,40,60]);cam.shake=.15}else SFX.err();
@@ -658,7 +658,9 @@ function battle(stage,camp,cv){closeSheet();const res=cv?cv.res:L.simulate(S,sta
 
 // ---------- Savaş sahnesi (2.5D canvas; yalnızca sunum — sonuç L.simulate/sunucudan gelir, değişmez) ----------
 function starsH(r){const n=r.win?(r.hp0>.66?3:r.hp0>.33?2:1):0;return `<div class="stars">${[0,1,2].map(k=>`<b class="${k<n?'on':''}" style="animation-delay:${k*.18}s">★</b>`).join('')}</div>`}
-const _imgC={};function cimg(src){if(!_imgC[src]){const i=new Image();i.src=src;_imgC[src]=i}return _imgC[src]}
+const _imgC={};const HCROP={yusuf:1,kaan:3,tunc:4,deniz:11,ali:10,baris:9,mei:2,ela:8},RIV=[5,6,7,12];const hPic=im=>HCROP[im]?'img/a/h'+HCROP[im]+'.webp':'img/cap_'+im+'.webp';
+function cutIn(bt,src,txt,foe){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const d=document.createElement('div');d.className='cutin'+(foe?' foe':'');d.innerHTML=`<img src="${src}" alt=""><b></b>`;d.lastChild.textContent=txt;bt.appendChild(d);setTimeout(()=>d.remove(),1300)}
+function cimg(src){if(!_imgC[src]){const i=new Image();i.src=src;_imgC[src]=i}return _imgC[src]}
 const TI={};for(const t in TROOPS)TI[TROOPS[t].ic]=t;
 // birlik görünümleri: abordajcı (yakın), zıpkıncı (menzilli), topçu (kuşatma) — yalnızca sunum
 const TSP={tayfa:'pike',zipkin:'musk',topcu:'art'};function tSprite(ty){const tr=+(window.__online?.city?.state?.()?.tier?.[ty]||1),b=tr>=4?3:tr>=2?2:1;return cimg('img/a/t_'+(TSP[ty]||'pike')+b+'.webp')}
@@ -681,16 +683,17 @@ function troopDraw(x,ty,s,T,RM){{const im=tSprite(ty);if(im.complete&&im.natural
 function battleScene(bt,res,B,tm,icons,done){const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;const cv=$('bsc'),x=cv.getContext('2d'),dpr=Math.min(1.5,devicePixelRatio||1);let W=0,H=0;
  const rs=()=>{const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr};rs();
  const last=res.rounds[res.rounds.length-1]||{hp:res.myMax,eHp:res.eMax};res.hp0=res.myMax?last.hp/res.myMax:0;
- const bgI=cimg('img/a/battle_bg.webp'),eSp=[cimg('img/a/t_musk1.webp'),cimg('img/a/t_pike1.webp')],boss=cimg('img/f_'+B.img+'.webp'),hs=tm.map(h=>({h,im:cimg('img/cap_'+h.img+'.webp')}));
+ const bgI=cimg('img/a/battle_bg.webp'),eSp=[cimg('img/a/t_musk1.webp'),cimg('img/a/t_pike1.webp')],boss=cimg('img/f_'+B.img+'.webp'),hs=tm.map(h=>({h,im:cimg(hPic(h.img))}));
  const my=[];hs.forEach((o,k)=>my.push({t:'h',o,k}));my.push({t:'s'});icons.slice(0,9).forEach(ic=>my.push({t:'u',ic}));my.push({t:'s'});
  const KD={ghost:'gh',octo:'tn',kraken:'tn',crab:'cr',reef:'co'}[B.img]||'pi';const nE=res.boss?4:Math.min(5,2+Math.floor(res.eMax/2000));const en=[{t:'b'}];for(let k=0;k<nE;k++)en.push({t:'m',kd:KD});
  const BG=[];for(let k=0;k<6;k++)BG.push({x:Math.random(),y:.03+Math.random()*.07,w:.08+Math.random()*.12,isl:k%3===0});const SM=[],EP=[];
  const lay=(arr,row)=>arr.forEach((u,k)=>{const n=arr.length,c=(k-(n-1)/2);u.bx=.5+c*(row?.11:.13)*(row?1:Math.min(1,6/n));u.by=row?.8+((k%2)*.05):(u.t==='b'?.2:.28+(k%2)*.05);u.die=row?(k+1)/(n+1)*.9:(k/(n+1));u.ph=Math.random()*6});
  lay(my,1);lay(en,0);en[0].bx=.5;en[0].die=0;
  let spd=1,skip=false,t0=performance.now(),ri=0,rt=0,mHp=1,eHp=1,mS=1,eS=1,shake=0,fl=0,sk=null;const P=[],F=[];
+ if(!B.boss&&!res.boss)setTimeout(()=>cutIn(bt,'img/a/h'+RIV[Math.abs((B.n||'').length)%4]+'.webp',B.n||'',1),200);
  const SKC=hs.map(()=>({v:0,at:0})),pEl=[...bt.querySelectorAll('.bpf.me .port')];
  function skUI(){pEl.forEach((p,k)=>{const c=SKC[k];if(!c)return;p.style.setProperty('--chg',(c.v*100|0)+'%');p.classList.toggle('skr',c.v>=1)})}
- function fire(k,auto){const c=SKC[k];if(!c||c.v<1||ended)return;c.v=0;const o=hs[k],pB=en[0];sk={o,l:1};fl=RM?0:1;shake=RM?0:10;sp(pB.x,pB.y,'#9be7ff',34,true);ft(W*.5,H*.42,tx('ui.skill_fire',[o.h.n||'']),'#9be7ff');SFX.light&&SFX.light();vib([15,30,25]);skUI();
+ function fire(k,auto){const c=SKC[k];if(!c||c.v<1||ended)return;c.v=0;const o=hs[k],pB=en[0];sk={o,l:1};fl=RM?0:1;shake=RM?0:10;sp(pB.x,pB.y,'#9be7ff',34,true);cutIn(bt,hPic(o.h.img),tx('ui.skill_fire',[o.h.n||'']));SFX.light&&SFX.light();vib([15,30,25]);skUI();
   const ev={type:'skill',hero:o.h.id,k,auto:!!auto,round:ri};(window.__bev=window.__bev||[]).forEach(f=>{try{f(ev)}catch(e){}});if(res.onSkill)res.onSkill(ev)}
  pEl.forEach((p,k)=>{if(!SKC[k])return;p.classList.add('skb');p.insertAdjacentHTML('beforeend','<i class="chg"></i>');p.onclick=e=>{e.stopPropagation();fire(k)}});skUI();
  const bS=$('bSpd'),bK=$('bSkip');bS.onclick=()=>{spd=spd===1?2:1;bS.textContent='▶ x'+spd};bK.onclick=()=>{skip=true};
@@ -741,8 +744,8 @@ function battleScene(bt,res,B,tm,icons,done){const RM=matchMedia('(prefers-reduc
  addEventListener('resize',rs,{once:true});draw.raf=requestAnimationFrame(draw)}
 // ---------- HUD ----------
 {const qe=document.getElementById('quest');if(localStorage.getItem('sf_qmin')!=='0')qe.classList.add('qmin');qe.addEventListener('click',e=>{if(e.target.id==='qtg'){e.stopPropagation();e.preventDefault();const m=qe.classList.toggle('qmin');localStorage.setItem('sf_qmin',m?'1':'0')}},true)}
-function warGo(){SFX.tap();vib(15);const tr=Object.values(S.troops).reduce((a,b)=>a+b,0);const fight=()=>{if(tr+Object.keys(S.heroes).length&&S.cur==='home')battle(S.stage);else openMap()};const O=window.__online;if(O&&O.open&&O.open.world){O.open.world();if(O.on)openWorldView({S,tx,SFX,toast,fight,after:()=>window.__g.renderSheet&&renderSheet()});return}fight()}
-function ui(){{const wb=$('warBtn');if(wb){wb.style.display=S.tut>=9&&!document.body.classList.contains('intro')?'':'none';if(!wb.onclick)wb.onclick=warGo;const pw=L.armyPower(S),nd=L.stagePower(S.stage);wb.classList.toggle('rdy',pw>=nd*.9);$('warT').textContent=tx('ui.war_btn');$('warSt').textContent=tx('ui.isl_n',[S.stage,L.islandName(S.stage)])}}for(const r of L.RES)$('r_'+r).textContent=fmt(S.res[r]);$('r_gems').textContent=fmt(S.gems);$('flv').textContent=S.fener.lv;$('pow').textContent=fmt(L.armyPower(S));
+function warGo(){SFX.tap();vib(15);if(window.__art2d&&S.tut===5){battle(S.stage);return}const tr=Object.values(S.troops).reduce((a,b)=>a+b,0);const fight=()=>{if(tr+Object.keys(S.heroes).length&&S.cur==='home')battle(S.stage);else openMap()};const O=window.__online;if(O&&O.open&&O.open.world){O.open.world();if(O.on)openWorldView({S,tx,SFX,toast,fight,after:()=>window.__g.renderSheet&&renderSheet()});return}fight()}
+function ui(){{const wb=$('warBtn');if(wb){wb.style.display=(S.tut>=9||(window.__art2d&&S.tut===5))&&!document.body.classList.contains('intro')?'':'none';if(!wb.onclick)wb.onclick=warGo;const pw=L.armyPower(S),nd=L.stagePower(S.stage);wb.classList.toggle('rdy',pw>=nd*.9);$('warT').textContent=tx('ui.war_btn');$('warSt').textContent=tx('ui.isl_n',[S.stage,L.islandName(S.stage)])}}for(const r of L.RES)$('r_'+r).textContent=fmt(S.res[r]);$('r_gems').textContent=fmt(S.gems);$('flv').textContent=S.fener.lv;$('pow').textContent=fmt(L.armyPower(S));
  const t=now(),nt=L.night(S,t),ni=L.nightIn(S,t);$('nval').textContent=nt?tx('ui.sis_gecesi'):L.lit(S)?tx('ui.fener_yaniyor'):tx('ui.fener_sonuk');
  $('nsub').textContent=S.tut<9?tx('ui.egitim_2'):nt?`${tx('ui.bitise',[fmtT(-ni)])}`:`${tx('ui.sis_gecesine',[fmtT(ni),L.nightNeed(S)])}`;$('night').className=nt?'storm':L.lit(S)?'':'dark';
  {const id=L.idle(S),h=`${S.surv}/${L.cap(S)}`+(id>0?`<b class="idle" title="${tx('ui.bosta_2',[id])}">${id}</b>`:'');if($('surv').dataset.h!==h){$('surv').innerHTML=h;$('surv').dataset.h=h}}$('bld').textContent=`${L.busyBuilders(S)}/${L.builderCount(S)}`;$('isl').textContent=S.stage-1;
@@ -786,7 +789,7 @@ function tutCheck(){if(S.tut>=9)return;
  if(S.tut===1&&(S.g['1,0']?.w||0)>=2){S.tut=2;closeSheet();S.g['1,0'].stored=Math.max(S.g['1,0'].stored,25)}
  if(S.tut===2&&S.st.collect>=1)S.tut=3;
  if(S.tut===3&&L.count(S,'hut')>=2){S.tut=4;closeSheet()}
- if(S.tut===4&&S.st.merge>=1){S.tut=9;S.t0=now();S.nightN=0;const g={gems:50,ticket:1,wood:150};L.addRes(S,g);save();setTimeout(()=>reward(tx('ui.egitim_tamamlandi'),g,{icon:'🎓',sub:tx('ui.harika_is_bekci_fener'),btn:tx('ui.devam'),cb:()=>talk([tx('ui.aferin_evlat_isik_yaniyor'),tx('ui.sis_her_gece_yoklar'),tx('ui.gorevleri_takip_et_her')])}),700)}
+ if((S.tut===4&&S.st.merge>=1)||S.tut===6){S.tut=9;S.t0=now();S.nightN=0;const g={gems:50,ticket:1,wood:150};L.addRes(S,g);save();setTimeout(()=>reward(tx('ui.egitim_tamamlandi'),g,{icon:'🎓',sub:tx('ui.harika_is_bekci_fener'),btn:tx('ui.devam'),cb:()=>talk([tx('ui.aferin_evlat_isik_yaniyor'),tx('ui.sis_her_gece_yoklar'),tx('ui.gorevleri_takip_et_her')])}),700)}
  while(S.tut<9||S.q<4){const q=L.QUESTS[S.q];if(!q||q.f(S)<q.n||S.q>=4)break;claimQuest(true)}}
 // ---------- GÖREV REHBERİ (eğitim sonrası "Göster") ----------
 let guide=null;const guideAt=(o,txt)=>{guide={...o,txt,q:S.q,until:performance.now()+8000}};
@@ -815,7 +818,8 @@ function guideFrame(T){const g=guide;if(!g||g.q!==S.q||performance.now()>g.until
  if(pos){hand.style.display='block';hand.style.left=pos.x+'px';hand.style.top=pos.y+'px'}else hand.style.display='none'}
 function tutFrame(T){if(S.tut>=9)return guideFrame(T);if($('modal').classList.contains('on')||$('talk').classList.contains('on')||$('battle').classList.contains('on')){hand.style.display=tip.style.display='none';return}
  const so=$('sheet').classList.contains('on');let txt='',pos=null,el=null;
- if(S.tut===0){txt=tx('ui.fenere_dokun_ve_isigi');el=so&&$('lightBtn');if(!so)pos=scr(new THREE.Vector3(0,1.4,0))}
+ if(window.__art2d&&(S.tut===0||S.tut===5)){if(so){hand.style.display=tip.style.display='none';return}if(S.tut===0){txt=tx('ui.tut_fort');el=document.querySelector('#city2d .bd[data-k=kale]')}else{txt=tx('ui.tut_war');el=$('warBtn')}}
+ else if(S.tut===0){txt=tx('ui.fenere_dokun_ve_isigi');el=so&&$('lightBtn');if(!so)pos=scr(new THREE.Vector3(0,1.4,0))}
  else if(S.tut===1){txt=`${tx('ui.kristal_madenine_2_madenci',[S.g['1,0']?.w||0])}`;el=so&&$('wplus');if(!so)pos=tileScr('1,0',.5)}
  else if(S.tut===2){txt=tx('ui.baloncuga_dokun_kristali_topla');if(!so)pos=tileScr('1,0',1.3)}
  else if(S.tut===3){txt=tx('ui.bos_bir_karoya_dokun');el=so&&$('bk_hut');if(!so)pos=tileScr(TUT_TILE,.1)}
@@ -996,7 +1000,7 @@ const fx7=(()=>{const gal=new THREE.Group(),lan=[];
   if(fl_>0){fl_=Math.max(0,fl_-dt*2.6);const fk=fl_*(Math.sin(T*55)>0?1:.55);hemi.intensity+=fk*3.2;ov.style.opacity=RM?0:(fl_*.5).toFixed(3);bm.opacity=Math.min(1,fl_*1.6)}else if(bm.opacity){bm.opacity=0;ov.style.opacity=0}
   window.__strike=strike;
   const th=beam.rotation.y;spots.forEach((m,i)=>{const s=i?-1:1;m.visible=on;m.position.set(Math.cos(th)*9.5*s,.02,-Math.sin(th)*9.5*s);sm.opacity=.07+vN*.15+Math.sin(T*4)*.03})}})();
-window.__g={get S(){return S},toast,openEvent,mHint,ushArena:()=>{if(!L.ushArena(S,Date.now())){toast('+1 ✨ '+tx('ui.ush_arena'));ui();save()}},sheet,modal,toast,hdr,closeSheet,renderSheet,fmt,fmtT,rwStr,SFX,KEY,L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,lostScr:()=>LOST.on?scr(LOST.g.position.clone().setY(.6)):null,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,levelUp,reward,get FIT(){return FIT}};
+window.__g={get S(){return S},tx,artTut:k=>{if(S.tut===0&&k==='kale'){S.tut=5;ui();save()}},toast,openEvent,mHint,ushArena:()=>{if(!L.ushArena(S,Date.now())){toast('+1 ✨ '+tx('ui.ush_arena'));ui();save()}},sheet,modal,toast,hdr,closeSheet,renderSheet,fmt,fmtT,rwStr,SFX,KEY,L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,lostScr:()=>LOST.on?scr(LOST.g.position.clone().setY(.6)):null,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,levelUp,reward,get FIT(){return FIT}};
 
 // çevrimiçi katman (Supabase) — yüklenemezse oyun çevrimdışı devam eder
 // PWA: servis çalışanı + ana ekrana ekle
@@ -1005,4 +1009,4 @@ function instBtn(){if(standalone||localStorage.getItem('sf_instNo')==='1')return
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e;instBtn()});addEventListener('appinstalled',()=>$('sInst')?.remove());
 if(isIOS&&!standalone)setTimeout(instBtn,1500);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){navigator.serviceWorker?.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update?.();setInterval(()=>r.update().catch(()=>{}),30*60e3)}).catch(e=>console.warn('sw',e));let had=!!navigator.serviceWorker?.controller;navigator.serviceWorker?.addEventListener('controllerchange',()=>{if(had)toast('🔄 '+tx('ui.updated'));had=true})}
-import('./online.js').then(m=>m.start(window.__g)).then(()=>import('./art.js')).then(a=>a.start()).catch(e=>console.warn('çevrimdışı mod',e));
+import('./art.js').then(a=>a.start()).catch(e=>console.warn('art',e));import('./online.js').then(m=>m.start(window.__g)).catch(e=>console.warn('çevrimdışı mod',e));
