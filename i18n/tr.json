@@ -1339,5 +1339,21 @@
  "e.srv_cok_hizli_yaziyorsun": "Çok hızlı yazıyorsun",
  "e.srv_once_bir_klana_katil": "Önce bir klana katıl",
  "e.srv_once_oyunu_kaydet": "Önce oyunu kaydet",
- "e.srv_intikam_alinamaz": "İntikam alınamaz"
+ "e.srv_intikam_alinamaz": "İntikam alınamaz",
+ "o.cup_btn": "Haftalık Eşit Kupa",
+ "o.cup_t": "Eşit Kupa · {0}",
+ "o.cup_desc": "8 kaptan, herkes eşit güçte (1★ Sv10, teçhizatsız). 3 tur eleme sunucuda oynanır. Haftada bir kez.",
+ "o.cup_play": "Kupaya katıl",
+ "o.cup_done": "Bu haftanın kupası oynandı — gelecek hafta yine gel!",
+ "o.cup_r1": "Çeyrek final",
+ "o.cup_r2": "Yarı final",
+ "o.cup_r3": "Final",
+ "o.cup_ghost": "Sis Gölgesi",
+ "o.cup_rw": "Sıralama ödülleri",
+ "o.cup_p1": "Şampiyon",
+ "o.cup_p2": "Finalist",
+ "o.cup_p3": "Yarı finalist",
+ "o.cup_p5": "Çeyrek finalist",
+ "o.cup_you": "Sonucun: {0}",
+ "e.srv_cup_done": "Bu haftanın kupası zaten oynandı"
 }

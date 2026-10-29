@@ -1339,5 +1339,21 @@
  "e.srv_cok_hizli_yaziyorsun": "Tu écris trop vite",
  "e.srv_once_bir_klana_katil": "Rejoins d'abord un clan",
  "e.srv_once_oyunu_kaydet": "Sauvegarde d’abord la partie",
- "e.srv_intikam_alinamaz": "Vengeance impossible"
+ "e.srv_intikam_alinamaz": "Vengeance impossible",
+ "o.cup_btn": "Coupe Égale hebdo",
+ "o.cup_t": "Coupe Égale · {0}",
+ "o.cup_desc": "8 capitaines, tous à puissance égale (1★ Niv.10, sans équipement). 3 tours à élimination joués sur le serveur. Une fois par semaine.",
+ "o.cup_play": "Participer à la coupe",
+ "o.cup_done": "La coupe de la semaine est jouée — reviens la semaine prochaine !",
+ "o.cup_r1": "Quart de finale",
+ "o.cup_r2": "Demi-finale",
+ "o.cup_r3": "Finale",
+ "o.cup_ghost": "Ombre de brume",
+ "o.cup_rw": "Récompenses de classement",
+ "o.cup_p1": "Champion",
+ "o.cup_p2": "Finaliste",
+ "o.cup_p3": "Demi-finaliste",
+ "o.cup_p5": "Quart-de-finaliste",
+ "o.cup_you": "Ton résultat : {0}",
+ "e.srv_cup_done": "Tu as déjà joué la coupe de cette semaine"
 }

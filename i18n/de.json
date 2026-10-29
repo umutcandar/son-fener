@@ -1339,5 +1339,21 @@
  "e.srv_cok_hizli_yaziyorsun": "Du schreibst zu schnell",
  "e.srv_once_bir_klana_katil": "Tritt zuerst einem Clan bei",
  "e.srv_once_oyunu_kaydet": "Speichere zuerst das Spiel",
- "e.srv_intikam_alinamaz": "Rache nicht möglich"
+ "e.srv_intikam_alinamaz": "Rache nicht möglich",
+ "o.cup_btn": "Wöchentlicher Gleichheits-Pokal",
+ "o.cup_t": "Gleichheits-Pokal · {0}",
+ "o.cup_desc": "8 Kapitäne, alle gleich stark (1★ St.10, keine Ausrüstung). 3 K.-o.-Runden auf dem Server. Einmal pro Woche.",
+ "o.cup_play": "Am Pokal teilnehmen",
+ "o.cup_done": "Der Pokal dieser Woche ist gespielt – komm nächste Woche wieder!",
+ "o.cup_r1": "Viertelfinale",
+ "o.cup_r2": "Halbfinale",
+ "o.cup_r3": "Finale",
+ "o.cup_ghost": "Nebelschatten",
+ "o.cup_rw": "Platzierungsprämien",
+ "o.cup_p1": "Champion",
+ "o.cup_p2": "Finalist",
+ "o.cup_p3": "Halbfinalist",
+ "o.cup_p5": "Viertelfinalist",
+ "o.cup_you": "Dein Ergebnis: {0}",
+ "e.srv_cup_done": "Du hast den Pokal dieser Woche schon gespielt"
 }

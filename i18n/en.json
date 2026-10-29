@@ -1339,5 +1339,21 @@
  "e.srv_cok_hizli_yaziyorsun": "You're typing too fast",
  "e.srv_once_bir_klana_katil": "Join a clan first",
  "e.srv_once_oyunu_kaydet": "Save the game first",
- "e.srv_intikam_alinamaz": "Revenge isn't possible"
+ "e.srv_intikam_alinamaz": "Revenge isn't possible",
+ "o.cup_btn": "Weekly Equal Cup",
+ "o.cup_t": "Equal Cup · {0}",
+ "o.cup_desc": "8 captains, everyone at equal power (1★ Lv10, no gear). 3 knockout rounds played on the server. Once per week.",
+ "o.cup_play": "Enter the cup",
+ "o.cup_done": "This week's cup is done — come back next week!",
+ "o.cup_r1": "Quarterfinal",
+ "o.cup_r2": "Semifinal",
+ "o.cup_r3": "Final",
+ "o.cup_ghost": "Fog Shade",
+ "o.cup_rw": "Placement rewards",
+ "o.cup_p1": "Champion",
+ "o.cup_p2": "Finalist",
+ "o.cup_p3": "Semifinalist",
+ "o.cup_p5": "Quarterfinalist",
+ "o.cup_you": "Your result: {0}",
+ "e.srv_cup_done": "You've already played this week's cup"
 }

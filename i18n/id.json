@@ -1339,5 +1339,21 @@
  "e.srv_cok_hizli_yaziyorsun": "Kamu mengetik terlalu cepat",
  "e.srv_once_bir_klana_katil": "Gabung klan dulu",
  "e.srv_once_oyunu_kaydet": "Simpan permainan dulu",
- "e.srv_intikam_alinamaz": "Balas dendam tidak bisa"
+ "e.srv_intikam_alinamaz": "Balas dendam tidak bisa",
+ "o.cup_btn": "Piala Setara Mingguan",
+ "o.cup_t": "Piala Setara · {0}",
+ "o.cup_desc": "8 kapten, semua berkekuatan setara (1★ Lv10, tanpa perlengkapan). 3 babak gugur dimainkan di server. Sekali seminggu.",
+ "o.cup_play": "Ikut piala",
+ "o.cup_done": "Piala minggu ini sudah dimainkan — kembali minggu depan!",
+ "o.cup_r1": "Perempat final",
+ "o.cup_r2": "Semifinal",
+ "o.cup_r3": "Final",
+ "o.cup_ghost": "Bayangan Kabut",
+ "o.cup_rw": "Hadiah peringkat",
+ "o.cup_p1": "Juara",
+ "o.cup_p2": "Finalis",
+ "o.cup_p3": "Semifinalis",
+ "o.cup_p5": "Perempat finalis",
+ "o.cup_you": "Hasilmu: {0}",
+ "e.srv_cup_done": "Kamu sudah memainkan piala minggu ini"
 }

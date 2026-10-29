@@ -1339,5 +1339,21 @@
  "e.srv_cok_hizli_yaziyorsun": "你打字太快了",
  "e.srv_once_bir_klana_katil": "請先加入公會",
  "e.srv_once_oyunu_kaydet": "請先儲存遊戲",
- "e.srv_intikam_alinamaz": "無法復仇"
+ "e.srv_intikam_alinamaz": "無法復仇",
+ "o.cup_btn": "每週平等杯",
+ "o.cup_t": "平等杯 · {0}",
+ "o.cup_desc": "8名船長，戰力完全相同（1★ 10級，無裝備）。3輪淘汰賽在伺服器上進行。每週一次。",
+ "o.cup_play": "參加盃賽",
+ "o.cup_done": "本週盃賽已結束——下週再來！",
+ "o.cup_r1": "四分之一決賽",
+ "o.cup_r2": "半決賽",
+ "o.cup_r3": "決賽",
+ "o.cup_ghost": "霧影",
+ "o.cup_rw": "名次獎勵",
+ "o.cup_p1": "冠軍",
+ "o.cup_p2": "亞軍",
+ "o.cup_p3": "四強",
+ "o.cup_p5": "八強",
+ "o.cup_you": "你的成績：{0}",
+ "e.srv_cup_done": "你已參加過本週盃賽"
 }
