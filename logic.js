@@ -80,7 +80,11 @@ export const TECH=[
  {id:'hull',br:'Donanma',n:'Meşe Gövde',ic:'🪵',d:'Filo dayanıklılığı +10%/sv',max:5,req:{harp:1}},
  {id:'drill',br:'Donanma',n:'Talim',ic:'🥁',d:'Eğitim süresi −10%/sv',max:3,req:{hull:1}},
  {id:'loot',br:'Donanma',n:'Ganimet Ağları',ic:'🪙',d:'Savaş ganimeti +10%/sv',max:3,req:{harp:2}},
- {id:'krak',br:'Donanma',n:'Kraken Avcısı',ic:'🦑',d:'Kraken Avı hasarı +10%/sv',max:5,req:{hull:3}}];
+ {id:'krak',br:'Donanma',n:'Kraken Avcısı',ic:'🦑',d:'Kraken Avı hasarı +10%/sv',max:5,req:{hull:3}},
+ {id:'tact',br:'Harp Akademisi',n:'Sis Taktikleri',ic:'🗺️',d:'Tüm savaşlarda saldırı +5%/sv',max:5,req:{harp:3}},
+ {id:'bulw',br:'Harp Akademisi',n:'Demir Siper',ic:'🧱',d:'Tüm savaşlarda dayanıklılık +5%/sv',max:5,req:{hull:3}},
+ {id:'quar',br:'Harp Akademisi',n:'Kışla Kuyruğu',ic:'📋',d:'Eğitim kuyruğuna +1 sıra/sv',max:2,req:{drill:1}},
+ {id:'mob',br:'Harp Akademisi',n:'Seferberlik',ic:'📯',d:'Eğitim maliyeti −5%/sv',max:3,req:{quar:1}}];
 const T_=(S,id)=>S.tech[id]||0;
 export const techReqOK=(S,T)=>!T.req||Object.entries(T.req).every(([id,l])=>T_(S,id)>=l);
 export const FOES={ghost:{n:'Sis Hayaletleri',ic:'👻',img:'ghost'},octo:{n:'Sis Ahtapotu',ic:'🐙',img:'octo'},crab:{n:'Kabuklu Dev',ic:'🦀',img:'crab'},reef:{n:'Mercan Muhafızı',ic:'🪸',img:'reef'},kraken:{n:'Derin Kraken',ic:'🦑',img:'kraken'}};
@@ -298,10 +302,12 @@ export function setLight(S,on){if(on&&S.res.crys<=0)return'Kristal yok';S.fener.
 const hb_=S=>Object.values(homeG(S));
 export const yardLv=S=>Math.max(0,...hb_(S).filter(b=>b.k==='yard'&&!b.fog).map(b=>b.lv));
 export const yardW=S=>hb_(S).filter(b=>b.k==='yard').reduce((a,b)=>a+(b.w||0),0);
-export function trainCost(t,n){const c={};for(const r in TROOPS[t].cost)c[r]=TROOPS[t].cost[r]*n;return c}
+export function trainCost(t,n,S){const m=S?1-T_(S,'mob')*.05:1,c={};for(const r in TROOPS[t].cost)c[r]=Math.ceil(TROOPS[t].cost[r]*n*m);return c}
+export const tqMax=S=>1+T_(S,'quar');
 export const trainTime=(S,t,n)=>Math.ceil(TROOPS[t].t*n/((1+.15*(yardLv(S)-1))*(1+.25*yardW(S)))*(1-T_(S,'drill')*.1)*(1-Math.min(.5,skill(S,'train'))));
-export function startTrain(S,t,n,now){if(!yardLv(S))return'Tersane yok';if(S.train)return'Tersane meşgul';const c=trainCost(t,n);if(!canAfford(S,c))return'RES';
- pay(S,c);const sec=trainTime(S,t,n);S.train={t,n,end:now+sec*1000,dur:sec};return null}
+export function startTrain(S,t,n,now){if(!yardLv(S))return'Tersane yok';if(S.train&&(S.tq||[]).length>=tqMax(S))return'Kuyruk dolu';const c=trainCost(t,n,S);if(!canAfford(S,c))return'RES';
+ pay(S,c);const sec=trainTime(S,t,n);if(S.train){(S.tq=S.tq||[]).push({t,n,dur:sec,c});return null}S.train={t,n,end:now+sec*1000,dur:sec};return null}
+export function tqCancel(S,i){const q=S.tq||[];const x=q[i];if(!x)return'NO';q.splice(i,1);addRes(S,x.c||{});return null}
 export const labLv=S=>Math.max(0,...hb_(S).filter(b=>b.k==='lab'&&!b.fog).map(b=>b.lv));
 export const techCost=(id,lv)=>({wood:60*(lv+1)**2,fish:30*(lv+1)**2,crys:15*(lv+1)**2});
 export const techTime=lv=>30*(lv+1)**2;
@@ -325,8 +331,8 @@ export function eqUp(S,id,k){const st=S.heroes[id],g=HGEAR.find(x=>x.k===k);if(!
 export const team=S=>HEROES.filter(h=>S.heroes[h.id]).sort((a,b)=>heroPower(b,S.heroes[b.id])-heroPower(a,S.heroes[a.id])).slice(0,3);
 const gearM=(S,st)=>1+Object.entries(GEAR).filter(([,G])=>G.st===st).reduce((a,[id,G])=>a+(S.gear[id]||0)*G.v,0);
 export const towerLv=S=>allB(S).filter(b=>b.k==='tower').reduce((a,b)=>a+b.lv,0);
-export const atkM=S=>(1+T_(S,'harp')*.1)*gearM(S,'atk')*(1+skill(S,'atk'))*(1+towerLv(S)*.03);
-export const hpM=S=>(1+T_(S,'hull')*.1)*gearM(S,'hp')*(1+skill(S,'hp'));
+export const atkM=S=>(1+T_(S,'harp')*.1)*(1+T_(S,'tact')*.05)*gearM(S,'atk')*(1+skill(S,'atk'))*(1+towerLv(S)*.03);
+export const hpM=S=>(1+T_(S,'hull')*.1)*(1+T_(S,'bulw')*.05)*gearM(S,'hp')*(1+skill(S,'hp'));
 export function armyPower(S){const ta=atkM(S),th=hpM(S);let p=0;for(const t in TROOPS)p+=S.troops[t]*(TROOPS[t].atk*ta+TROOPS[t].hp*th*.25);
  for(const h of team(S))p+=heroPower(h,S.heroes[h.id])*2;return Math.round(p*(1+forgeLv(S)*.03))}
 export const forgeLv=S=>allB(S).filter(b=>b.k==='forge').reduce((a,b)=>a+b.lv,0);
@@ -376,7 +382,7 @@ export function step(S,dt,now,rng=Math.random){const ev=[];const m=dt/60;
  const auto=vipLv(S)>=6;
  for(const[id,g]of grids(S))for(const k in g){const b=g[k];if(b.end&&now>=b.end){b.end=0;b.lv++;ev.push({e:'built',k,lv:b.lv,isl:id})}
   if(KINDS[b.k].res){b.stored=Math.min(storeCap(S,k,id),(b.stored||0)+rate(S,k,id)*m);if(auto&&b.stored>=1){const a=Math.floor(b.stored);addRes(S,{[KINDS[b.k].res]:a});b.stored-=a}}}
- if(S.train&&now>=S.train.end){S.troops[S.train.t]+=S.train.n;S.st.trained+=S.train.n;dailyInc(S,'train',S.train.n,now);ev.push({e:'trained',...S.train});S.train=null}
+ while(S.train&&now>=S.train.end){S.troops[S.train.t]+=S.train.n;S.st.trained+=S.train.n;dailyInc(S,'train',S.train.n,now);ev.push({e:'trained',...S.train});const e0=S.train.end;S.train=null;const nx=(S.tq||[]).shift();if(nx)S.train={t:nx.t,n:nx.n,end:e0+nx.dur*1000,dur:nx.dur}}
  if(S.research&&now>=S.research.end){S.tech[S.research.id]=(S.tech[S.research.id]||0)+1;ev.push({e:'researched',id:S.research.id});S.research=null}
  S.raftT+=dt;if(S.raftT>=(S.surv<8?25:RAFT_EVERY)*(1-T_(S,'raft')*.1)){S.raftT=0;if(S.surv<cap(S)&&S.res.fish>0){S.surv++;ev.push({e:'raft'})}}
  if(S.tut>=9){S.rescueT+=dt;if(S.rescueT>200){S.rescueT=0;ev.push({e:'wreck',n:2+Math.floor(rng()*3)})}
