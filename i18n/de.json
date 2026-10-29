@@ -1234,7 +1234,7 @@
  "o.err.blocked": "Nicht möglich: einer von euch hat den anderen blockiert",
  "o.err.bad_target": "Ungültiger Spieler",
  "ui.ush_t": "Sternenstaub ✨ {0}",
- "ui.ush_d": "Zählt als Splitter für jeden Kapitän. Aus täglichen (+2) und wöchentlichen (+10) Aufgaben, Konvoi-Siegen (+3) und doppelten Kapitänen (+2).",
+ "ui.ush_d": "Zählt als Splitter für jeden Kapitän. Aus täglichen (+2) und wöchentlichen (+10) Aufgaben, Konvoi-Siegen (+3) und doppelten Kapitänen (+2). Arenasiege geben ebenfalls +1 (5 pro Tag).",
  "ui.ush_x": "Tausch: {0} 🔮 → 1 ✨ · heute {1}/{2}",
  "ui.ush_max": "Tauschlimit für heute erreicht",
  "o.mod_t": "Moderation",
@@ -1256,5 +1256,17 @@
  "ui.ltip3": "Tritt einem Clan bei: gemeinsam forschen und an der Front kämpfen.",
  "ui.ltip4": "Der Fair-Modus in der Arena gleicht Machtunterschiede aus.",
  "ui.ltip5": "Dein Spielstand wird automatisch in der Cloud gesichert.",
- "o.mod_log": "Prüfprotokoll"
+ "o.mod_log": "Prüfprotokoll",
+ "ui.reef_t": "Korallenriffe",
+ "ui.reef_locked": "Wird nach {0} geretteten Inseln freigeschaltet",
+ "ui.reef_d": "Die Gezeiten wechseln alle 2 Stunden: Bei Flut sind Riffkreaturen 25 % schwächer, bei Ebbe 15 % stärker. Timing ist alles!",
+ "ui.reef_hi": "Flut (−25 %)",
+ "ui.reef_lo": "Ebbe (+15 %)",
+ "ui.reef_done": "Riffe befreit – der Wächter ist gefallen!",
+ "ui.reef_go": "Zum Riff segeln",
+ "ui.reef_win": "Riff vom Nebel befreit!",
+ "ui.reef_boss_win": "Der Korallenwächter ist besiegt!",
+ "ui.reef_boss_d": "Yusuf: „Das Herz der Riffe schlägt wieder. Die Korallen erinnern sich an unser Licht.“",
+ "ui.reef_lose_d": "Der Riffnebel war zu dicht. Warte auf die Flut oder stärke deine Flotte.",
+ "d.FOES.reef.n": "Korallenwächter"
 }

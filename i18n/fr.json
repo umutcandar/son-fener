@@ -1234,7 +1234,7 @@
  "o.err.blocked": "Impossible : l’un de vous a bloqué l’autre",
  "o.err.bad_target": "Joueur invalide",
  "ui.ush_t": "Poussière d’étoile ✨ {0}",
- "ui.ush_d": "Sert d’éclats pour n’importe quel capitaine. Gagnée via quêtes quotidiennes (+2) et hebdo (+10), victoires de convoi (+3) et capitaines en double (+2).",
+ "ui.ush_d": "Sert d’éclats pour n’importe quel capitaine. Gagnée via quêtes quotidiennes (+2) et hebdo (+10), victoires de convoi (+3) et capitaines en double (+2). Les victoires en arène donnent aussi +1 (5 par jour).",
  "ui.ush_x": "Échange : {0} 🔮 → 1 ✨ · aujourd’hui {1}/{2}",
  "ui.ush_max": "Limite d’échange du jour atteinte",
  "o.mod_t": "Modération",
@@ -1256,5 +1256,17 @@
  "ui.ltip3": "Rejoins un clan : recherchez ensemble et combattez sur le front.",
  "ui.ltip4": "Le mode équitable de l’arène compense les écarts de puissance.",
  "ui.ltip5": "Ta sauvegarde est copiée automatiquement dans le cloud.",
- "o.mod_log": "Journal d’audit"
+ "o.mod_log": "Journal d’audit",
+ "ui.reef_t": "Récifs coralliens",
+ "ui.reef_locked": "Se débloque après {0} îles sauvées",
+ "ui.reef_d": "La marée change toutes les 2 heures : à marée haute, les créatures du récif sont 25 % plus faibles, à marée basse 15 % plus fortes. Choisis ton moment !",
+ "ui.reef_hi": "Marée haute (−25 %)",
+ "ui.reef_lo": "Marée basse (+15 %)",
+ "ui.reef_done": "Récifs libérés — le Gardien est tombé !",
+ "ui.reef_go": "Cap sur le récif",
+ "ui.reef_win": "Récif purifié du brouillard !",
+ "ui.reef_boss_win": "Le Gardien de corail est vaincu !",
+ "ui.reef_boss_d": "Yusuf : « Le cœur des récifs bat à nouveau. Les coraux se souviennent de notre lumière. »",
+ "ui.reef_lose_d": "Le brouillard du récif était trop dense. Attends la marée haute ou renforce ta flotte.",
+ "d.FOES.reef.n": "Gardien de corail"
 }

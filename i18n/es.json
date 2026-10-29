@@ -1234,7 +1234,7 @@
  "o.err.blocked": "No es posible: uno de los dos ha bloqueado al otro",
  "o.err.bad_target": "Jugador no válido",
  "ui.ush_t": "Polvo estelar ✨ {0}",
- "ui.ush_d": "Sirve como fragmentos para cualquier capitán. Se gana con misiones diarias (+2) y semanales (+10), victorias de convoy (+3) y capitanes repetidos (+2).",
+ "ui.ush_d": "Sirve como fragmentos para cualquier capitán. Se gana con misiones diarias (+2) y semanales (+10), victorias de convoy (+3) y capitanes repetidos (+2). Las victorias en la arena también dan +1 (5 al día).",
  "ui.ush_x": "Cambio: {0} 🔮 → 1 ✨ · hoy {1}/{2}",
  "ui.ush_max": "Límite de cambio diario alcanzado",
  "o.mod_t": "Moderación",
@@ -1256,5 +1256,17 @@
  "ui.ltip3": "Únete a un clan: investigad juntos y luchad en el frente.",
  "ui.ltip4": "El modo justo de la arena iguala las diferencias de poder.",
  "ui.ltip5": "Tu partida se guarda automáticamente en la nube.",
- "o.mod_log": "Registro de auditoría"
+ "o.mod_log": "Registro de auditoría",
+ "ui.reef_t": "Arrecifes de coral",
+ "ui.reef_locked": "Se desbloquea tras rescatar {0} islas",
+ "ui.reef_d": "La marea cambia cada 2 horas: en marea alta las criaturas del arrecife son un 25 % más débiles y en marea baja un 15 % más fuertes. ¡Elige el momento!",
+ "ui.reef_hi": "Marea alta (−25 %)",
+ "ui.reef_lo": "Marea baja (+15 %)",
+ "ui.reef_done": "Arrecifes liberados: ¡el Guardián ha caído!",
+ "ui.reef_go": "Navegar al arrecife",
+ "ui.reef_win": "¡Arrecife libre de niebla!",
+ "ui.reef_boss_win": "¡El Guardián de Coral ha sido derrotado!",
+ "ui.reef_boss_d": "Yusuf: «El corazón de los arrecifes late de nuevo. Los corales recuerdan nuestra luz».",
+ "ui.reef_lose_d": "La niebla del arrecife era muy densa. Espera la marea alta o refuerza tu flota.",
+ "d.FOES.reef.n": "Guardián de Coral"
 }

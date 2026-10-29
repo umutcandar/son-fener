@@ -83,13 +83,24 @@ export const TECH=[
  {id:'krak',br:'Donanma',n:'Kraken Avcısı',ic:'🦑',d:'Kraken Avı hasarı +10%/sv',max:5,req:{hull:3}}];
 const T_=(S,id)=>S.tech[id]||0;
 export const techReqOK=(S,T)=>!T.req||Object.entries(T.req).every(([id,l])=>T_(S,id)>=l);
-export const FOES={ghost:{n:'Sis Hayaletleri',ic:'👻',img:'ghost'},octo:{n:'Sis Ahtapotu',ic:'🐙',img:'octo'},crab:{n:'Kabuklu Dev',ic:'🦀',img:'crab'},kraken:{n:'Derin Kraken',ic:'🦑',img:'kraken'}};
+export const FOES={ghost:{n:'Sis Hayaletleri',ic:'👻',img:'ghost'},octo:{n:'Sis Ahtapotu',ic:'🐙',img:'octo'},crab:{n:'Kabuklu Dev',ic:'🦀',img:'crab'},reef:{n:'Mercan Muhafızı',ic:'🪸',img:'reef'},kraken:{n:'Derin Kraken',ic:'🦑',img:'kraken'}};
 export const ISL=['Martı Kayası','Tuz Adası','Batık Liman','Mercan Koyu','Kurukafa Burnu','Fırtına Tepesi','Yosun Adası','Sessiz Körfez','Kırık Direk','Eski Fener'];
 export const islandName=n=>ISL[(n-1)%ISL.length]+(n>ISL.length?' '+(Math.floor((n-1)/ISL.length)+1):'');
 export const stageFoe=n=>n%5===0?'kraken':n%3===0?'crab':n%2?'ghost':'octo';
 export const stagePower=n=>Math.round(260*Math.pow(1.32,n-1));
 export const stageReward=n=>({fish:40*n,wood:40*n,crys:12*n,gems:n%5===0?30:5});
 export const stageRescue=n=>1+Math.floor(n/3);
+// ---------- Mercan Resifleri: yan bölge (4 aşama + mini boss), gelgit mekaniği ----------
+// Gelgit 2 saatte bir döner (İstanbul saati çift saat = alçak). Yüksek gelgitte resif yaratıkları %25 zayıf, alçakta %15 güçlü.
+export const REEF={unlock:7,tideH:2,hi:.75,lo:1.15,st:[{foe:'ghost',p:6.5,rw:{fish:500,wood:500,crys:120,gems:15}},{foe:'octo',p:7.5,rw:{fish:700,wood:700,crys:160,gems:15}},{foe:'crab',p:8.5,rw:{fish:900,wood:900,crys:220,gems:20}},{foe:'reef',p:10,boss:1,rw:{crys:400,gems:60,ticket:1,ush:10}}]};
+export const reefTide=now=>Math.floor((now+108e5)/(REEF.tideH*36e5))%2?'hi':'lo';
+export const reefTideLeft=now=>REEF.tideH*36e5-((now+108e5)%(REEF.tideH*36e5));
+export const reefOpen=S=>S.stage-1>=REEF.unlock;
+export const reefIdx=S=>(S.reef&&S.reef.n)||0;
+export const reefPower=(i,now)=>Math.round(stagePower(REEF.st[i].p)*(reefTide(now)==='hi'?REEF.hi:REEF.lo));
+export function reefFight(S,now,rng){if(!reefOpen(S))return{err:'locked'};const i=reefIdx(S);if(i>=REEF.st.length)return{err:'done'};
+ const res=simulate(S,S.stage,rng,reefPower(i,now));const lost={};for(const t in TROOPS){lost[t]=Math.floor(S.troops[t]*res.lossFrac*.7);S.troops[t]-=lost[t]}
+ let rw=null;if(res.win){rw={...REEF.st[i].rw};const u=rw.ush||0;delete rw.ush;addRes(S,rw);if(u){S.ush=(S.ush||0)+u;rw.ush=u}S.reef={n:i+1};S.st.wins++;dailyInc(S,'battle',1,now);addXP(S,REEF.st[i].boss?80:30)}return{res,rw,lost,i,boss:!!REEF.st[i].boss}}
 // ---------- bölümler + hikâye + görevler ----------
 export const CHAPTERS=[
  {n:'İlk Işık',say:['Uyan evlat! Sis bu gece yine geldi. Ben Fenerci Yusuf — kırk yıldır bu feneri yakarım.','Feneri yak, kristal çıkar, insanları doyur. Işık sönerse sis her şeyi yutar.']},

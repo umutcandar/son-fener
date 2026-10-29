@@ -1234,7 +1234,7 @@
  "o.err.blocked": "Tidak bisa: salah satu dari kalian memblokir",
  "o.err.bad_target": "Pemain tidak valid",
  "ui.ush_t": "Debu bintang ✨ {0}",
- "ui.ush_d": "Berlaku sebagai pecahan kapten mana pun. Didapat dari misi harian (+2), mingguan (+10), kemenangan konvoi (+3) dan kapten duplikat (+2).",
+ "ui.ush_d": "Berlaku sebagai pecahan kapten mana pun. Didapat dari misi harian (+2), mingguan (+10), kemenangan konvoi (+3) dan kapten duplikat (+2). Kemenangan arena juga memberi +1 (5 per hari).",
  "ui.ush_x": "Tukar: {0} 🔮 → 1 ✨ · hari ini {1}/{2}",
  "ui.ush_max": "Batas tukar hari ini tercapai",
  "o.mod_t": "Moderasi",
@@ -1256,5 +1256,17 @@
  "ui.ltip3": "Gabung klan: riset teknologi bersama dan bertarung di garis depan.",
  "ui.ltip4": "Mode adil di arena menyeimbangkan selisih kekuatan.",
  "ui.ltip5": "Simpananmu otomatis dicadangkan ke cloud.",
- "o.mod_log": "Log audit"
+ "o.mod_log": "Log audit",
+ "ui.reef_t": "Terumbu Karang",
+ "ui.reef_locked": "Terbuka setelah menyelamatkan {0} pulau",
+ "ui.reef_d": "Pasang surut berganti tiap 2 jam: saat pasang, makhluk karang 25% lebih lemah; saat surut 15% lebih kuat. Atur waktu seranganmu!",
+ "ui.reef_hi": "Pasang (−25%)",
+ "ui.reef_lo": "Surut (+15%)",
+ "ui.reef_done": "Terumbu bersih — Penjaga telah tumbang!",
+ "ui.reef_go": "Berlayar ke karang",
+ "ui.reef_win": "Karang bersih dari kabut!",
+ "ui.reef_boss_win": "Penjaga Karang dikalahkan!",
+ "ui.reef_boss_d": "Yusuf: “Jantung terumbu berdetak lagi. Karang mengingat cahaya kita.”",
+ "ui.reef_lose_d": "Kabut karang terlalu tebal. Tunggu pasang atau perkuat armadamu.",
+ "d.FOES.reef.n": "Penjaga Karang"
 }

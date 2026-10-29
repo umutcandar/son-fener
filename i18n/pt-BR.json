@@ -1234,7 +1234,7 @@
  "o.err.blocked": "Não é possível: um de vocês bloqueou o outro",
  "o.err.bad_target": "Jogador inválido",
  "ui.ush_t": "Poeira estelar ✨ {0}",
- "ui.ush_d": "Vale como fragmentos de qualquer capitão. Ganha em missões diárias (+2) e semanais (+10), vitórias de comboio (+3) e capitães repetidos (+2).",
+ "ui.ush_d": "Vale como fragmentos de qualquer capitão. Ganha em missões diárias (+2) e semanais (+10), vitórias de comboio (+3) e capitães repetidos (+2). Vitórias na arena também dão +1 (5 por dia).",
  "ui.ush_x": "Troca: {0} 🔮 → 1 ✨ · hoje {1}/{2}",
  "ui.ush_max": "Limite de troca de hoje atingido",
  "o.mod_t": "Moderação",
@@ -1256,5 +1256,17 @@
  "ui.ltip3": "Entre em um clã: pesquisem juntos e lutem no front.",
  "ui.ltip4": "O modo justo da arena equilibra diferenças de poder.",
  "ui.ltip5": "Seu progresso é salvo automaticamente na nuvem.",
- "o.mod_log": "Registro de auditoria"
+ "o.mod_log": "Registro de auditoria",
+ "ui.reef_t": "Recifes de coral",
+ "ui.reef_locked": "Libera após resgatar {0} ilhas",
+ "ui.reef_d": "A maré muda a cada 2 horas: na maré alta as criaturas do recife ficam 25% mais fracas, na maré baixa 15% mais fortes. Escolha a hora certa!",
+ "ui.reef_hi": "Maré alta (−25%)",
+ "ui.reef_lo": "Maré baixa (+15%)",
+ "ui.reef_done": "Recifes libertados — o Guardião caiu!",
+ "ui.reef_go": "Navegar ao recife",
+ "ui.reef_win": "Recife livre da névoa!",
+ "ui.reef_boss_win": "O Guardião de Coral foi derrotado!",
+ "ui.reef_boss_d": "Yusuf: “O coração dos recifes bate de novo. Os corais lembram da nossa luz.”",
+ "ui.reef_lose_d": "A névoa do recife estava densa demais. Espere a maré alta ou fortaleça sua frota.",
+ "d.FOES.reef.n": "Guardião de Coral"
 }

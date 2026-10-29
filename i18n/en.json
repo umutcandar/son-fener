@@ -1234,7 +1234,7 @@
  "o.err.blocked": "Not possible: one of you has blocked the other",
  "o.err.bad_target": "Invalid player",
  "ui.ush_t": "Stardust ✨ {0}",
- "ui.ush_d": "Works as shards for any captain. Earned from daily (+2) and weekly (+10) quests, convoy wins (+3) and duplicate captains (+2).",
+ "ui.ush_d": "Works as shards for any captain. Earned from daily (+2) and weekly (+10) quests, convoy wins (+3) and duplicate captains (+2). Arena wins give +1 too (5 per day).",
  "ui.ush_x": "Exchange: {0} 🔮 → 1 ✨ · today {1}/{2}",
  "ui.ush_max": "Today’s exchange limit reached",
  "o.mod_t": "Moderation",
@@ -1256,5 +1256,17 @@
  "ui.ltip3": "Join a clan: research tech together and fight on the front.",
  "ui.ltip4": "Fair-match mode in the arena evens out power gaps.",
  "ui.ltip5": "Your save is backed up to the cloud automatically — switch devices freely.",
- "o.mod_log": "Audit log"
+ "o.mod_log": "Audit log",
+ "ui.reef_t": "Coral Reefs",
+ "ui.reef_locked": "Unlocks after rescuing {0} islands",
+ "ui.reef_d": "The tide turns every 2 hours: at high tide reef creatures are 25% weaker, at low tide 15% stronger. Time your attack!",
+ "ui.reef_hi": "High tide (−25%)",
+ "ui.reef_lo": "Low tide (+15%)",
+ "ui.reef_done": "Reefs cleared — the Warden has fallen!",
+ "ui.reef_go": "Sail to the reef",
+ "ui.reef_win": "Reef cleansed of fog!",
+ "ui.reef_boss_win": "The Coral Warden is defeated!",
+ "ui.reef_boss_d": "Yusuf: “The heart of the reefs beats again. The corals remember our light.”",
+ "ui.reef_lose_d": "The reef fog was too thick. Wait for high tide or strengthen your fleet.",
+ "d.FOES.reef.n": "Coral Warden"
 }
