@@ -24,7 +24,7 @@ async def main():
       for _ in range(3): await pg.evaluate("()=>document.querySelector('#mbox .acts button')?.click()");await pg.wait_for_timeout(300)
       await pg.evaluate("()=>window.__g.closeSheet()")
     await pg.evaluate("()=>{const s=window.__g.S;s.boss&&(s.boss.n=0);window.__g.bossFight()}");await pg.wait_for_timeout(1150);await pg.screenshot(path=D+'-boss-a.png')
-    await pg.wait_for_timeout(500);await pg.screenshot(path=D+'-boss-b.png');await pg.wait_for_timeout(6500);await pg.screenshot(path=D+'-boss-end.png')
+    await pg.wait_for_timeout(500);await pg.screenshot(path=D+'-boss-b.png');await pg.wait_for_timeout(9000);await pg.screenshot(path=D+'-boss-end.png');print('modal',await pg.evaluate("()=>document.getElementById('mbox')?.innerText.slice(0,80)"))
     print('perf',await pg.evaluate("()=>window.__perf&&window.__perf()"))
     print('errors:',errs);await b.close()
 asyncio.run(main())

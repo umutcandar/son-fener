@@ -644,7 +644,7 @@ function battleScene(bt,res,B,tm,icons,done){const RM=matchMedia('(prefers-reduc
   else{const im=u.o.im;x.save();x.beginPath();x.arc(0,0,s*.45,0,7);x.clip();if(im.complete&&im.naturalWidth)x.drawImage(im,-s*.45,-s*.45,s*.9,s*.9);x.restore();x.lineWidth=3;x.strokeStyle=sk&&sk.o===u.o?'#9be7ff':'#ffe08a';x.beginPath();x.arc(0,0,s*.45,0,7);x.stroke()}
   const hp=me?(u.t==='h'?Math.max(.08,mHp):Math.max(0,Math.min(1,(mHp-u.die)/(1-u.die+.001)))):(u.t==='b'?eHp:Math.max(0,Math.min(1,(eHp-u.die)/(1-u.die+.001))));
   const bw=u.t==='b'?s*.8:s*.7,by=-s*(u.t==='b'?.62:.6);x.fillStyle='#1a0e06';x.fillRect(-bw/2-1,by-1,bw+2,6);x.fillStyle=me?'#5fd38a':'#ff6b6b';x.fillRect(-bw/2,by,bw*hp,4);x.restore()}
- function draw(now){const dt=Math.min(.05,(now-(draw.p||now))/1000)*spd;draw.p=now;
+ function draw(now){const dt=Math.min(.1,(now-(draw.p||now))/1000)*spd;draw.p=now;
   if(skip){while(ri<res.rounds.length){const r=res.rounds[ri];eHp=r.eHp/res.eMax;mHp=r.hp/res.myMax;ri++}$('ehp').style.width=eHp*100+'%';$('mhp').style.width=mHp*100+'%';end();return}
   const r=res.rounds[ri];if(r){const pr=rt;rt+=dt*1000/RD;if(pr<.45&&rt>=.45)evt(r,1);if(pr<.7&&rt>=.7)evt(r,2);if(rt>=1){rt=0;ri++}}else if(!draw.e){draw.e=1;setTimeout(end,500/spd)}
   const k=RM?0:(rt<.45?rt/.45:rt<.7?1:1-(rt-.7)/.3),adv=r?k:0;
