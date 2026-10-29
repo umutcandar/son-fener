@@ -122,3 +122,13 @@ Her bina seviyesi görsel olarak değişmelidir (kademe: 1–5, 6–10, …).
 - B (kademe, revir, karşı tip, dizilim): canlı. B2 (şehir binaları, Akademi, 4. hat, ızgara): tasarım bu belgede, uygulama sıradaki adım.
 - C: canlı.
 - D: planlı.
+
+## Uygulanan: Şehir (b38, `supabase/city.sql`)
+- Tablo `war_city` (b, q, form, seeded). Yalnız sunucu yazar; RLS yalnız kendi satırını okur. 203 mevcut oyuncu güvenle tohumlandı (eski ada ızgarası silinmedi; `seeded` = ilk değerler).
+- Tohum: kale = fener.lv; kışla/zkule/dökümhane = en yüksek Tersane; sur = Gözcü Kulesi; akademi = Gözlemevi (kale≥4); revir 1 (kale≥2); ambar 1.
+- **Değişiklik:** kaynak binaları ada ızgarasında kalır (ekonomi bozulmasın); şehir askeri katmandır. Akademi eşikleri 2/5/9/14 (T2–T5); mevcut kademeler korunur.
+- Etkiler: kışla/zkule/dökümhane +%1/sv kendi hattına; revir +300 kapasite/sv; ambar +%1,5/sv yağma koruması (en çok %60 toplam); sur ada kulesi +%15/sv.
+- Maliyet taban×sv^1.6, süre taban×1.22^(sv−1) (≤24 sa), hızlandırma 1💎/başlamış dk, VIP2 → 2. sıra.
+- Diziliş 3×3 (`city_form`): ön sırada Abordajcı +%5, arka sırada Zıpkıncı/Topçu +%10; ızgaradaki kaptan kendi hattına +%8 (diğer roller +%3). Etkin kademe `sf_war_tiers` içinde (0,3 = 1 kademe) → saldırı, savunma, garnizon hepsinde.
+- Kancalar: `__online.city.{list,state,sync,on,open,upgrade,keys}`, `__online.army.{lines,info}`.
+- Ertelendi: Akıncı (Gemi Tezgahı) hattı — savaş motoru değişikliği gerekir.
