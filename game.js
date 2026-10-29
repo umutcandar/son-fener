@@ -96,7 +96,12 @@ function deco(g,lv){if(lv>=2){P(g,'cyl',0x8a5a32,.16,.2,.16,-.42,.1,.42);P(g,'cy
  if(lv>=3){const fc=lv>=7?0xffd84a:lv>=5?0xb98cff:0x3fa7e0;P(g,'cyl',0x6b4a30,.025,.9,.025,.46,.45,-.42);P(g,'box',fc,.22,.13,.01,.57,.82,-.42)}
  if(lv>=4){P(g,'cyl',0x333,.03,.5,.03,-.47,.25,-.4);P(g,'sph',0xffd27a,.09,.09,.09,-.47,.52,-.4,0,0,0,false,1)}
  if(lv>=5){P(g,'cyl',0xcfc6b4,1.18,.06,1.18,0,.01,0,0,0,0,false);P(g,'cyl',0xffd84a,1.2,.02,1.2,0,.045,0,0,0,0,false,1)}}
-const MK={hut:mkHut,fisher:mkFisher,wood:mkWood,mine:mkMine,yard:mkYard,lab:mkLab};
+function mkPearl(g,lv){P(g,'cyl',0x5fd3d0,1,.08,.9,0,.04,0);P(g,'cyl',0x2fa8b8,.86,.04,.76,0,.09,0,0,0,0,false);for(let k=0;k<4;k++)P(g,'cyl',0x9a6a42,.06,.32,.06,(k%2?.45:-.45),.16,(k<2?.4:-.4));
+ for(let k=0;k<2+Math.min(lv,4);k++){const a=k*1.9,x=Math.cos(a)*.3,z=Math.sin(a)*.25;P(g,'sph',0xf2c6d0,.22,.08,.18,x,.14,z,a);P(g,'sph',0xfff8f0,.08,.08,.08,x,.2,z,0,0,0,false,1)}
+ hut(g,.42,.36,.36,0xf6e6d0,0xff8f8f);g.children.slice(-4).forEach(m=>{m.position.x+=.28;m.position.z-=.25});P(g,'cone',0xff9fb0,.12,.3,.12,-.38,.22,-.3);P(g,'cone',0xffb070,.1,.24,.1,-.28,.18,-.38)}
+function mkForge(g,lv){P(g,'dod',0x4a403c,.95,.55,.85,0,.22,-.05);P(g,'cyl',0x2e2a28,.22,.7+lv*.05,.22,.22,.6,-.15);P(g,'box',0x1a1210,.36,.28,.1,0,.2,.36);P(g,'box',0xff6a2a,.26,.18,.11,0,.18,.37,0,0,0,false,1);
+ P(g,'cyl',0xff8a3a,.34,.04,.34,-.3,.06,.35,0,0,0,false,1);P(g,'cyl',0x3a3432,.38,.12,.38,-.3,.05,.35);for(let k=0;k<Math.min(lv,4);k++)P(g,'oct',0xffa040,.12,.2,.12,.38-k*.1,.1,.4,k,0,.2,false,1);g.userData.ember=1}
+const MK={hut:mkHut,fisher:mkFisher,wood:mkWood,mine:mkMine,yard:mkYard,lab:mkLab,pearl:mkPearl,forge:mkForge};
 function mkScaf(g){for(const a of[-1,1])for(const b of[-1,1])P(g,'cyl',0xc08a4a,.05,1.1,.05,a*.45,.55,b*.45);P(g,'box',0xf4d03f,.95,.04,.04,0,.9,.45);P(g,'box',0xf4d03f,.95,.04,.04,0,.5,-.45)}
 function mkFoe(g,b){if(b==='octo'){P(g,'sph',0x8a5aa8,.8,.7,.8,0,.35,0);P(g,'sph',0xfff36b,.14,.14,.08,-.18,.5,.36,0,0,0,false,1);P(g,'sph',0xfff36b,.14,.14,.08,.18,.5,.36,0,0,0,false,1);
   const ts=[];for(let k=0;k<6;k++){const a=k/6*6.28;const t=P(g,'cone',0x6a3a88,.18,.9,.18,Math.cos(a)*.55,.2,Math.sin(a)*.55,0,Math.cos(a)*.5,-Math.sin(a)*.5);ts.push(t)}g.userData.ts=ts}
@@ -161,9 +166,9 @@ let FIT=24,bubN=0;const minD=8,maxD=()=>FIT*1.25;
 function updCam(){const o=new THREE.Vector3(Math.sin(cam.pol)*Math.sin(cam.az),Math.cos(cam.pol),Math.sin(cam.pol)*Math.cos(cam.az)).multiplyScalar(cam.dist);camera.position.copy(cam.target).add(o);
  if(cam.shake>0){camera.position.x+=(Math.random()-.5)*cam.shake;camera.position.y+=(Math.random()-.5)*cam.shake;cam.shake*=.88;if(cam.shake<.01)cam.shake=0}camera.lookAt(cam.target)}
 function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();FIT=fitDist();cam.dist=FIT}addEventListener('resize',resize);
-function fitDist(){const R=GR*1.0+.5,pts=[[-R+.6,-R+.6],[R-.6,-R+.6],[-R+.6,R-.6],[R-.6,R-.6],[0,-R],[0,R],[-R,0],[R,0]].map(([x,z])=>new THREE.Vector3(x,0,z));pts.push(new THREE.Vector3(0,3.6,0));
+function fitDist(){const pts=[];for(let i=-GR;i<=GR;i++)for(let j=-GR;j<=GR;j++){if(!L.tileOK(i,j)||(Math.abs(i)<GR&&Math.abs(j)<GR))continue;for(const a of[-.45,.45])for(const b of[-.45,.45])pts.push(new THREE.Vector3((i+a)*TS,0,(j+b)*TS));pts.push(new THREE.Vector3(i*TS,.9,j*TS))}pts.push(new THREE.Vector3(0,3.6,0));
  const top=Math.min(170,innerHeight*.22),bot=Math.min(100,innerHeight*.13),sv=cam.dist;let lo=6,hi=90;
- for(let it=0;it<24;it++){const m=(lo+hi)/2;cam.dist=m;updCam();camera.updateMatrixWorld();const ok=pts.every(p=>{const q=p.clone().project(camera);const x=(q.x+1)/2*innerWidth,y=(1-q.y)/2*innerHeight;return x>=8&&x<=innerWidth-8&&y>=top&&y<=innerHeight-bot});ok?hi=m:lo=m}
+ for(let it=0;it<24;it++){const m=(lo+hi)/2;cam.dist=m;updCam();camera.updateMatrixWorld();const ok=pts.every(p=>{const q=p.clone().project(camera);const x=(q.x+1)/2*innerWidth,y=(1-q.y)/2*innerHeight;return x>=4&&x<=innerWidth-4&&y>=top&&y<=innerHeight-bot});ok?hi=m:lo=m}
  cam.dist=sv;return hi}
 const ray=new THREE.Raycaster(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
 const ndc=(x,y)=>new THREE.Vector2(x/innerWidth*2-1,-(y/innerHeight)*2+1);
@@ -190,7 +195,7 @@ const SCL=[0,2,4,7,9],SCLN=[0,3,5,7,10];function startMusic(){if(musOn||!AC)retu
  const pad=(root,t,minor)=>{[0,minor?3:4,7].forEach((iv,k)=>{for(const dt of[-4,4]){const o=a.createOscillator(),g=a.createGain(),f=a.createBiquadFilter();o.type=k?'sine':'triangle';o.frequency.value=110*Math.pow(2,(root+iv)/12);o.detune.value=dt;f.type='lowpass';f.frequency.value=minor?600:900;
   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.035,t+2);g.gain.linearRampToValueAtTime(.0001,t+8.5);o.connect(f).connect(g).connect(musBus);o.start(t);o.stop(t+8.6)}})};
  const roots=[0,-3,5,-5];let bar=0,nx=a.currentTime+.2;
- setInterval(()=>{if(!S.set.mus||document.hidden)return;const minor=nf>.5;while(nx<a.currentTime+1.5){const r=roots[bar%4];pad(r,nx,minor);const sc=minor?SCLN:SCL;
+ setInterval(()=>{if(!S.set.mus||document.hidden)return;const minor=nf>.5||eveK>.5||S.cur==='volkan',tr={home:0,mercan:2,volkan:-5}[S.cur]||0;while(nx<a.currentTime+1.5){const r=roots[bar%4]+tr;pad(r,nx,minor);const sc=minor?SCLN:SCL;
   for(let k=0;k<6;k++)if(Math.random()<.55){const n=sc[Math.floor(Math.random()*5)]+12*(1+Math.floor(Math.random()*2))+r;tone(220*Math.pow(2,n/12),1.4,'sine',.035,null,nx-a.currentTime+k*1.33+Math.random()*.1,musBus)}nx+=8;bar++}},700)}
 const SFX={coin:()=>{tone(1319,.07,'triangle',.07);tone(1760,.18,'triangle',.06,null,.06);tone(2637,.12,'sine',.025,null,.1)},boss:()=>{noise(.9,.35,220);tone(70,1,'sawtooth',.09,40);tone(55,1.2,'sine',.15,35,.2)},wave:()=>noise(.6,.12,700),build:()=>{tone(300,.08,'triangle',.12);tone(400,.1,'triangle',.12,null,.1);noise(.08,.15)},
  merge:lv=>[523,659,784,1047,1319].slice(0,2+Math.min(lv,3)).forEach((f,i)=>tone(f*(1+lv*.05),.18,'triangle',.12,null,i*.07)),pop:()=>tone(500,.06,'sine',.1,800),
@@ -200,7 +205,7 @@ const vib=p=>{if(!S.set.vib)return;try{navigator.vibrate&&navigator.vibrate(p)}c
 const parts=[];const pgeo=new THREE.BoxGeometry(.07,.07,.07);
 function burst(pos,c,n=10,sp=2.5,e){for(let k=0;k<n;k++){const m=new THREE.Mesh(pgeo,mat(c,e));m.position.copy(pos);scene.add(m);parts.push({m,v:new THREE.Vector3((Math.random()-.5)*sp,Math.random()*sp+1.5,(Math.random()-.5)*sp),life:.8+Math.random()*.4})}}
 // ---------- UI YARDIMCI ----------
-const fmt=n=>{n=Math.floor(n);return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e4?(n/1e3).toFixed(1)+'B':String(n)};
+const fmt=n=>{n=Math.floor(n);const d=(v,s)=>(v>=100?Math.floor(v):v.toFixed(1)).toString().replace('.',',').replace(/,0$/,'')+s;return n>=1e9?d(n/1e9,'Mr'):n>=1e6?d(n/1e6,'M'):n>=1e4?d(n/1e3,'B'):n.toLocaleString('tr-TR')};
 const fmtT=s=>{s=Math.max(0,Math.ceil(s));const m=Math.floor(s/60),h=Math.floor(m/60);return h?`${h}sa ${m%60}dk`:m?`${m}:${String(s%60).padStart(2,'0')}`:s+'sn'};
 const IMGR={fish:1,wood:1,crys:1,gems:1};const RI=r=>IMGR[r]?`<img class="ri" src="img/i_${r}.webp" alt="">`:RIC[r];
 const have=r=>r==='gems'?S.gems:r==='ticket'?S.tickets:S.res[r];
@@ -210,8 +215,8 @@ function floatTxt(x,y,t,c='#fff'){const d=document.createElement('div');d.classN
 function fly(res,x,y,n=4){const el=$('r_'+res);if(!el)return;const r=el.getBoundingClientRect();for(let k=0;k<n;k++){const d=document.createElement('div');d.className='fly';d.innerHTML=RI(res);d.style.left=x+(Math.random()-.5)*40+'px';d.style.top=y+(Math.random()-.5)*40+'px';$('fx').appendChild(d);
  setTimeout(()=>{d.style.left=r.left+'px';d.style.top=r.top+8+'px';d.style.transform='translate(-50%,-50%) scale(.6)'},30+k*45);setTimeout(()=>d.remove(),720+k*45)}}
 let toastT;function toast(t){const d=$('toast');d.innerHTML=t;d.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>d.style.opacity=0,2200)}
-function modal(html,acts){$('mbox').innerHTML=html+'<div class="acts"></div>';const a=$('mbox').querySelector('.acts');for(const[t,cls,fn]of acts){const b=document.createElement('button');b.className='btn '+(cls||'');b.innerHTML=t;b.onclick=()=>{closeModal();fn&&fn()};a.appendChild(b)}$('modal').classList.add('on')}
-const closeModal=()=>$('modal').classList.remove('on');
+function modal(html,acts){clearTimeout(mT);$('modal').classList.remove('out');$('mbox').innerHTML=html+'<div class="acts"></div>';const a=$('mbox').querySelector('.acts');for(const[t,cls,fn]of acts){const b=document.createElement('button');b.className='btn '+(cls||'');b.innerHTML=t;b.onclick=()=>{closeModal();fn&&fn()};a.appendChild(b)}$('modal').classList.add('on')}
+let mT=0;const closeModal=()=>{const m=$('modal');if(!m.classList.contains('on'))return;m.classList.add('out');clearTimeout(mT);mT=setTimeout(()=>{m.classList.remove('on','out')},170)};
 const DEMO='<div class="demo">🧪 DEMO: Gerçek ödeme alınmaz, kartından para çekilmez. Sadece satın almanın nasıl çalışacağını gösterir.</div>';
 function confirmBuy(t,d,p,fn){modal(`<h2>${t}</h2><p>${d}</p>${DEMO}`,[['Vazgeç','x'],[`Satın al · ${p}`,'g',fn]])}
 function spendGems(n,what,fn){if(S.gems<n){modal(`<h2>Elmas yetmiyor</h2><p>${what} için ${n}💎 gerekli, sende ${S.gems}💎 var.</p>`,[['Kapat','x'],['Mağaza','g',openShop]]);return}
@@ -227,7 +232,7 @@ const kPos=k=>k==='fener'?new THREE.Vector3(0,1,0):tpos(k).setY(.4);
 // ---------- AKSİYONLAR ----------
 const ACT={
  up:k=>{const e=L.startUp(S,k,now());if(resErr(e))return;SFX.build();vib(20);burst(kPos(k),0xc8a070,10,1.5);k==='fener'?syncFener():syncOne(k);closeSheet();ui();save()},
- speed:k=>{const b=k==='fener'?S.fener:S.g[k];const rem=(b.end-now())/1000;spendGems(L.speedGems(rem,S),`Hızlandır (${fmtT(rem)} kaldı)`,()=>{b.end=now()})},
+ speed:k=>{const b=k==='fener'?S.fener:S.g[k];const rem=(b.end-now())/1000;{const c=L.speedGems(rem,S);if(!c){b.end=now();SFX.coin();vib(15);return}spendGems(c,`Hızlandır (${fmtT(rem)} kaldı)`,()=>{b.end=now()})}},
  w:v=>{const[i,j,d]=v.split(':');const k=i+','+j;if(!L.assign(S,k,+d)){SFX.err();if(+d>0)toast(L.idle(S)<=0?'Boşta kurtulan yok — barınak kur/birleştir':'Bu bina dolu, birleştir ya da yükselt')}else SFX.tap();renderSheet();ui();tutCheck()},
  light:()=>{const e=L.setLight(S,!S.fener.on);if(resErr(e))return;if(S.fener.on){SFX.light();vib(30);cam.shake=.1;burst(new THREE.Vector3(0,beam.position.y,0),0xffe08a,24,3,1)}renderSheet();ui();save();tutCheck()},
  build:v=>{const[k,kind]=v.split('|');const e=L.build(S,k,kind);if(resErr(e))return;SFX.build();vib(15);const g=syncOne(k);popAnim(g,.5);burst(tpos(k).setY(.3),0xc8a070,12,1.8);closeSheet();ui();save();tutCheck()},
@@ -258,15 +263,15 @@ const ACT={
  open:k=>{const ks=Object.keys(S.g).filter(x=>S.g[x].k===k);if(ks.length)openB(ks[0]);else toast(KINDS[k].n+' yok — boş bir karoya dokunup kur')},
 };
 // ---------- PANELLER ----------
-const timerCard=(k,b)=>{const rem=(b.end-now())/1000;return `<div class="card"><div class="ic">🏗️</div><div class="mid"><div class="nm">Yükseltiliyor · ${fmtT(rem)}</div><div class="pbar"><i style="width:${(1-rem/b.dur)*100}%"></i></div></div><button class="btn g" data-a="speed" data-v="${k}" id="speedBtn">⚡ ${L.speedGems(rem,S)}💎</button></div>`};
+const timerCard=(k,b)=>{const rem=(b.end-now())/1000;return `<div class="card"><div class="ic">🏗️</div><div class="mid"><div class="nm">Yükseltiliyor · ${fmtT(rem)}</div><div class="pbar"><i style="width:${(1-rem/b.dur)*100}%"></i></div></div><button class="btn g" data-a="speed" data-v="${k}" id="speedBtn">${L.speedGems(rem,S)?`⚡ ${L.speedGems(rem,S)}💎`:'⚡ ÜCRETSİZ'}</button></div>`};
 function openFener(){sheet(()=>{const f=S.fener,R=L.safeR(S);let h=hdr(`🗼 Büyük Fener · Sv${f.lv}`)+`<div class="sub" style="margin:-4px 0 10px">Işık hüzmesi sisi geri iter. Fener seviyesi = güvenli alan ve diğer binaların en yüksek seviyesi.</div>`;
- h+=`<div class="card"><div class="ic">${L.lit(S)?'💡':'🌑'}</div><div class="mid"><div class="nm">${L.lit(S)?'Işık yanıyor':'Işık sönük'}</div><div class="sub">Tüketim ${L.crysUse(S).toFixed(1)||(.8+f.lv*.5).toFixed(1)} 🔮/dk · Sis Gecesi ihtiyacı ${L.nightNeed(S)} 🔮${L.lit(S)?'':' · Karanlıkta üretim −50%'}</div></div><button class="btn ${f.on?'x':'o'}" data-a="light" id="lightBtn">${f.on?'Söndür':'💡 Yak'}</button></div>`;
+ h+=`<div class="card"><div class="ic">${L.lit(S)?'💡':'🌑'}</div><div class="mid"><div class="nm">${L.lit(S)?'Işık yanıyor':'Işık sönük'}</div><div class="sub">Tüketim ${L.crysUse(S).toFixed(1).replace('.',',')||(.8+f.lv*.5).toFixed(1).replace('.',',')} 🔮/dk · Sis Gecesi ihtiyacı ${L.nightNeed(S)} 🔮${L.lit(S)?'':' · Karanlıkta üretim −50%'}</div></div><button class="btn ${f.on?'x':'o'}" data-a="light" id="lightBtn">${f.on?'Söndür':'💡 Yak'}</button></div>`;
  h+=`<div class="card"><div class="ic">🧭</div><div class="mid"><div class="nm">Güvenli alan ${R*2+1}×${R*2+1}</div><div class="sub">Bina seviye sınırı: Sv${L.maxLv(S)}${R<GR?' · Sonraki seviyede alan genişler':''}</div></div></div>`;
  if(f.end)h+=timerCard('fener',f);else if(f.lv<L.FENER_MAX){const e=L.checkUp(S,'fener');h+=`<div class="sec">Sv${f.lv+1}'e yükselt</div><div class="card"><div class="mid"><div>${costStr(L.fenerCost(f.lv))}</div><div class="sub">⏱ ${fmtT(L.fenerTime(f.lv,S))} · Alan ${Math.min(GR,f.lv+2)*2+1}×${Math.min(GR,f.lv+2)*2+1} · Sınır Sv${f.lv+2}</div></div><button class="btn o" data-a="up" data-v="fener" id="upBtn">Yükselt</button></div>`}
  return h})}
 function openB(k){sheet(()=>{const b=S.g[k];if(!b)return hdr('—');const T=KINDS[b.k];let h=hdr(`${T.ic} ${T.n} · Sv${b.lv}`)+`<div class="sub" style="margin:-4px 0 10px">${T.d}</div>`;
  if(b.fog){return h+`<div class="card" style="background:#4a2a6a88"><div class="ic">👻</div><div class="mid"><div class="nm">Sis bu binayı ele geçirdi</div><div class="sub">Üretmez, işçi alamaz. Işık kristaliyle arındır.</div></div><button class="btn g" data-a="cleanse" data-v="${k}" id="cleanseBtn">${costStr(L.cleanseCost(b,S))}</button></div>`}
- if(L.hasJob(b.k)){const w=b.w||0;const[i,j]=L.unkey(k);h+=`<div class="card"><div class="ic">👷</div><div class="mid"><div class="nm">${L.JOB[b.k]} ${w}/${L.maxW(b.lv)}</div><div class="sub">${T.res?`Üretim: ${L.rate(S,k).toFixed(1)} ${RIC[T.res]}/dk`:'Eğitim hızı +'+(w*25)+'%'} · Boşta: ${L.idle(S)}</div></div><button class="btn sm r" data-a="w" data-v="${i}:${j}:-1">−</button><button class="btn sm" data-a="w" data-v="${i}:${j}:1" id="wplus">+</button></div>`}
+ if(L.hasJob(b.k)){const w=b.w||0;const[i,j]=L.unkey(k);h+=`<div class="card"><div class="ic">👷</div><div class="mid"><div class="nm">${L.JOB[b.k]} ${w}/${L.maxW(b.lv)}</div><div class="sub">${T.res?`Üretim: ${L.rate(S,k).toFixed(1).replace('.',',')} ${RIC[T.res]}/dk`:'Eğitim hızı +'+(w*25)+'%'} · Boşta: ${L.idle(S)}</div></div><button class="btn sm r" data-a="w" data-v="${i}:${j}:-1">−</button><button class="btn sm" data-a="w" data-v="${i}:${j}:1" id="wplus">+</button></div>`}
  if(b.k==='hut')h+=`<div class="sub">+${b.lv*2} kişilik yer · Toplam ${S.surv}/${L.cap(S)}</div>`;
  if(b.k==='yard')h+=yardHtml();if(b.k==='lab')h+=labHtml();
  h+=`<div class="card" style="background:#1f6f8b44"><div class="ic">🔀</div><div class="mid"><div class="nm">Birleştir (ücretsiz, anında)</div><div class="sub">Aynı seviyedeki iki ${T.n} binasını sürükleyip üst üste bırak → Sv${b.lv+1}</div></div></div>`;
@@ -281,9 +286,9 @@ function yardHtml(){let h=gearHtml()+'<div class="sec">Filo tayfası eğit</div>
 function labHtml(){let h='';if(S.research){const rem=(S.research.end-now())/1000,T=TECH.find(x=>x.id===S.research.id);h+=`<div class="card"><div class="ic">${T.ic}</div><div class="mid"><div class="nm">${T.n} · ${fmtT(rem)}</div><div class="pbar"><i style="width:${(1-rem/S.research.dur)*100}%"></i></div></div><button class="btn g" data-a="techSpeed">⚡ ${L.speedGems(rem,S)}💎</button></div>`}
  let br='';for(const T of TECH){if(T.br!==br){br=T.br;h+=`<div class="sec">🌳 ${br}</div>`}const lv=S.tech[T.id]||0,e=L.checkTech(S,T.id),rq=T.req?Object.entries(T.req).map(([id,l])=>TECH.find(x=>x.id===id).n+' '+l).join(', '):'';const lock=e&&lv<T.max;
  h+=`<div class="card" style="margin-left:${T.req?16:0}px;${lock&&!L.techReqOK(S,T)?'opacity:.5':''}"><div class="ic">${T.ic}</div><div class="mid"><div class="nm">${T.n} ${lv}/${T.max}</div><div class="pbar"><i style="width:${lv/T.max*100}%"></i></div><div class="sub">${T.d}${lv<T.max?' · '+costStr(L.techCost(T.id,lv))+' · ⏱'+fmtT(L.techTime(lv)):''}${rq?' · 🔗 '+rq:''}${lock?' · <span style="color:#ff8a8a">'+e+'</span>':''}</div></div><button class="btn" data-a="tech" data-v="${T.id}" ${S.research||e?'disabled':''}>Araştır</button></div>`}return h}
-function openWork(){sheet(()=>{let h=hdr('👷 İşçi Ataması')+`<div class="card"><div class="ic">👥</div><div class="mid"><div class="nm">Kurtulanlar ${S.surv}/${L.cap(S)} · Boşta ${L.idle(S)}</div><div class="sub">Sallar ve batıklarla yeni kurtulanlar gelir (barınakta yer varsa). Tüketim ${L.fishUse(S).toFixed(1)} 🐟/dk</div></div></div>`;
+function openWork(){sheet(()=>{let h=hdr('👷 İşçi Ataması')+`<div class="card"><div class="ic">👥</div><div class="mid"><div class="nm">Kurtulanlar ${S.surv}/${L.cap(S)} · Boşta ${L.idle(S)}</div><div class="sub">Sallar ve batıklarla yeni kurtulanlar gelir (barınakta yer varsa). Tüketim ${L.fishUse(S).toFixed(1).replace('.',',')} 🐟/dk</div></div></div>`;
  const ks=Object.keys(S.g).filter(k=>L.hasJob(S.g[k].k)).sort((a,b)=>S.g[a].k.localeCompare(S.g[b].k));
- for(const k of ks){const b=S.g[k],T=KINDS[b.k];const[i,j]=L.unkey(k);h+=`<div class="card" ${b.fog?'style="opacity:.5"':''}><div class="ic">${T.ic}</div><div class="mid"><div class="nm">${T.n} Sv${b.lv} · ${L.JOB[b.k]} ${b.w||0}/${L.maxW(b.lv)}</div><div class="sub">${b.fog?'👻 Sisli':T.res?L.rate(S,k).toFixed(1)+' '+RIC[T.res]+'/dk':'Eğitim +'+((b.w||0)*25)+'%'}</div></div><button class="btn sm r" data-a="w" data-v="${i}:${j}:-1">−</button><button class="btn sm" data-a="w" data-v="${i}:${j}:1">+</button></div>`}
+ for(const k of ks){const b=S.g[k],T=KINDS[b.k];const[i,j]=L.unkey(k);h+=`<div class="card" ${b.fog?'style="opacity:.5"':''}><div class="ic">${T.ic}</div><div class="mid"><div class="nm">${T.n} Sv${b.lv} · ${L.JOB[b.k]} ${b.w||0}/${L.maxW(b.lv)}</div><div class="sub">${b.fog?'👻 Sisli':T.res?L.rate(S,k).toFixed(1).replace('.',',')+' '+RIC[T.res]+'/dk':'Eğitim +'+((b.w||0)*25)+'%'}</div></div><button class="btn sm r" data-a="w" data-v="${i}:${j}:-1">−</button><button class="btn sm" data-a="w" data-v="${i}:${j}:1">+</button></div>`}
  return h})}
 const port=(h,st,big)=>`<div class="port r${h.r}" style="${big?'width:84px;height:84px':''}"><img src="img/cap_${h.img}.webp" loading="lazy" alt="${h.n}">${st?`<b class="lv">${st.lv||1}</b>`:''}<small>${'★'.repeat(st?st.star:0)}</small></div>`;
 function openHeroes(){sheet(()=>{const free=S.freeCall!==L.day(now());let h=hdr('🧑‍✈️ Kaptanlar')+`<div class="sub" style="margin-bottom:10px">En güçlü 3 kaptan filonu yönetir. Kaptana dokun: seviye, yıldız, yetenek.</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px 6px;margin-bottom:12px">`;
@@ -298,8 +303,9 @@ function openHero(id){sheet(()=>{const H=HEROES.find(x=>x.id===id),st=S.heroes[i
  return h})}
 function recruitN(n){const go=k=>{const out=[];for(let i=0;i<k;i++)out.push(L.recruit(S,Math.random));L.dailyInc(S,'recruit',k,now());showGacha(out);ui();save();renderSheet()};
  if(n==='t'){if(S.tickets<1)return;S.tickets--;go(1)}else if(+n===0){S.freeCall=L.day(now());go(1)}else spendGems(+n===1?30:270,`${n}× Kaptan Çağır`,()=>go(+n))}
-function showGacha(out){const best=Math.max(...out.map(o=>o.h.r));SFX.gacha(best);vib(best===3?[50,40,80]:30);if(best===3)cam.shake=.2;
- modal(`<h2>${best===3?'✨ EFSANEVİ KAPTAN! ✨':'Çağrı sonucu'}</h2><div style="display:flex;flex-wrap:wrap;gap:12px 8px;justify-content:center;margin:12px 0 18px">${out.map((o,i)=>`<div class="flip" style="animation-delay:${i*.08}s;animation-fill-mode:backwards;text-align:center;width:${out.length>1?58:120}px">${port(o.h,S.heroes[o.h.id],out.length===1)}<div style="font-size:11px;font-weight:800;margin-top:8px">${o.h.n}</div><div style="font-size:10px;color:${o.isNew?'#7dff8a':'#a9d8e8'}">${o.isNew?'YENİ!':'+10 parça'}</div></div>`).join('')}</div>`,[['Tamam','']])}
+function showGacha(out){const best=Math.max(...out.map(o=>o.h.r)),RC={3:'#ffcf3a',2:'#c79bff',1:'#7fd3ff'},RN={3:'EFSANEVİ',2:'EPİK',1:'NADİR'},one=out.length===1,st=one?.5:.32;
+ vib(30);out.forEach((o,i)=>setTimeout(()=>{SFX.gacha(o.h.r);if(o.h.r===3){vib([50,40,80]);cam.shake=.25}else vib(12)},(.45+i*st)*1000));
+ modal(`<div class="rays ${best===3?'gold':''}"></div><h2>${best===3?'✨ EFSANEVİ KAPTAN! ✨':'Kaptan çağrısı'}</h2><div class="gcs ${one?'one':''}">${out.map((o,i)=>`<div class="gc r${o.h.r}" style="--c:${RC[o.h.r]};--d:${.45+i*st}s"><div class="gb">⚓</div><div class="gf">${port(o.h,S.heroes[o.h.id],one)}<div class="gn">${o.h.n}</div><div class="gr">${RN[o.h.r]}</div><div class="gs" style="color:${o.isNew?'#7dff8a':'#a9d8e8'}">${o.isNew?'YENİ!':'+10 parça'}</div></div></div>`).join('')}</div>`,[['Tamam','o']]);$('mbox').classList.add('rwbox')}
 function seaMap(){const st=S.stage;let h='<div class="sea">';const n0=Math.max(1,st-3);for(let n=n0;n<n0+7;n++){const i=n-n0;const x=12+i*13.5,y=50+Math.sin(n*1.7)*28;const c=n<st?'won':n===st?'cur':'fog';
  h+=`<div class="node ${c}" style="left:${x}%;top:${y}%">${n<st?'🏝️':n===st?FOES[L.stageFoe(n)].ic:'<i class="fd"></i>'}<small>${n}</small></div>`}return h+'<div class="ship" style="left:'+(12+(st-n0)*13.5-6)+'%;top:'+(50+Math.sin(st*1.7)*28+12)+'%">⛵</div></div>'}
 function openMap(){sheet(()=>{const st=S.stage,B=FOES[L.stageFoe(st)],my=L.armyPower(S),need=L.stagePower(st);const tr=Object.values(S.troops).reduce((a,b)=>a+b,0);
@@ -350,7 +356,7 @@ function bossFight(){const r=L.bossAttack(S,now(),Math.random);if(r.err){resErr(
   setTimeout(()=>{ui();save();modal(`<img src="img/f_kraken.webp" style="width:90px"><h2>${fmt(r.dmg)} hasar!</h2><p>Haftalık toplam: <b>${fmt(S.boss.dmg)}</b><br>Ganimet: ${rwStr(r.rw)}</p>`,[['Sıralama','o',()=>{bt.classList.remove('on');openBoss()}]])},400);return}
   const d=Math.round(r.dmg*hits[i]);acc+=d;be.animate([{transform:'scale(1)'},{transform:'scale(.92) rotate(-3deg)'},{transform:'none'}],{duration:220});SFX.hit();vib(15);const q=be.getBoundingClientRect();floatTxt(q.left+q.width/2+(Math.random()-.5)*80,q.top+q.height/2,'-'+fmt(d),i===3?'#ff6b6b':'#ffd84a');$('bdmg').textContent='Toplam hasar '+fmt(S.boss.dmg-r.dmg+acc);i++},550)}
 function openLogin(auto){const ready=L.loginReady(S,now()),cur=S.login.n%7;modal(`<h2>📅 7 Günlük Giriş</h2><p class="sub">Her gün gel, ödülü al. 7. günden sonra döngü baştan başlar.</p><div class="cal">${L.LOGIN.map((r,i)=>`<div class="${i<cur?'ok':i===cur&&ready?'now':''} ${i===6?'d7':''}">Gün ${i+1}<br>${rwStr(r)}${i<cur?'<br>✅':''}</div>`).join('')}</div>`,
- ready?[['Ödülü al','o',()=>{const o=L.claimLogin(S,now());if(o){for(const k in o.r)fly(k,innerWidth/2,innerHeight/2,3);SFX.done();ui();save()}}]]:[['Yarın gel','x']])}
+ ready?[['Ödülü al','o',()=>{const o=L.claimLogin(S,now());if(o){ui();save();setTimeout(()=>reward(`Gün ${o.i+1} ödülü`,o.r,{icon:'📅'}),200)}}]]:[['Yarın gel','x']])}
 function openSettings(){sheet(()=>{const tg=(k,n,d)=>`<div class="card"><div class="mid"><div class="nm">${n}</div><div class="sub">${d}</div></div><button class="tgl ${S.set[k]?'on':''}" data-a="set" data-v="${k}"></button></div>`;
  return hdr('⚙️ Ayarlar')+tg('snd','🔊 Ses efektleri','Dokunma, birleştirme, savaş')+tg('mus','🎵 Müzik','Ambiyans müziği ve dalga sesi')+tg('vib','📳 Titreşim','Destekleyen telefonlarda')+
  `<div class="card"><div class="mid"><div class="nm">🌐 Dil</div><div class="sub">Türkçe · English yakında</div></div><button class="btn x" data-a="lang">TR</button></div><div class="card"><div class="mid"><div class="nm">🗑️ İlerlemeyi sıfırla</div><div class="sub">Kayıt bu cihazda tutulur</div></div><button class="btn r" data-a="reset">Sıfırla</button></div><div class="sub" style="text-align:center;margin-top:8px">Son Fener v2 · Çevrimdışı demo</div>`})}
@@ -387,12 +393,26 @@ function ui(){for(const r of L.RES)$('r_'+r).textContent=fmt(S.res[r]);$('r_gems
  const pt=L.passTier(S);let pc=0;for(let i=0;i<pt;i++){if(!S.pass.cl.f[i])pc++;if(S.pass.prem&&!S.pass.cl.p[i])pc++}$('pdot').style.display=pc?'block':'none';$('ldot').style.display=L.loginReady(S,t)?'block':'none';
  $('kdot').style.display=S.tut>=9&&(S.boss.day!==L.day(t)||S.boss.n<L.bossTries(S))?'block':'none';$('side').style.display=S.tut>=9?'flex':'none';
  $('isl').textContent=(S.cur==='home'?'':L.ISLANDS[S.cur].ic+' ')+(S.stage-1);if(L.achReady(S).length)$('tdot').style.display='block';
+ {const sp=L.stagePower(S.stage);$('mdot').style.display=S.tut>=9&&L.armyPower(S)>=sp*.9?'block':'none'}
  $('collect').style.display=S.tut>=9&&bubN>=3&&!$('sheet').classList.contains('on')?'block':'none'}
-function claimQuest(){const q=L.claimQuest(S);if(!q)return;for(const r in q.r)fly(r,innerWidth/2,200,3);SFX.coin();ui();renderSheet();save();
- const nq=L.QUESTS[S.q];const lines=[...(q.say?[q.say]:[])];if(nq&&nq.c!==q.c&&!S.seen['ch'+nq.c]){S.seen['ch'+nq.c]=1;lines.push(`📖 Bölüm ${nq.c+1}: ${L.CHAPTERS[nq.c].n}`,...L.CHAPTERS[nq.c].say)}if(lines.length)talk(lines)}
+function claimQuest(silent){const q=L.claimQuest(S);if(!q)return;ui();renderSheet();save();if(silent===true){for(const r in q.r)fly(r,innerWidth/2,200,3);SFX.coin();toast(`⭐ ${q.t} ✓ ${rwStr(q.r)}`);return}
+ const nq=L.QUESTS[S.q];const lines=[...(q.say?[q.say]:[])];if(nq&&nq.c!==q.c&&!S.seen['ch'+nq.c]){S.seen['ch'+nq.c]=1;lines.push(`📖 Bölüm ${nq.c+1}: ${L.CHAPTERS[nq.c].n}`,...L.CHAPTERS[nq.c].say)}const go=()=>{if(lines.length)talk(lines)};closeSheet();reward('Görev tamam!',q.r,{icon:'⭐',sub:q.t,cb:go})}
 let talkQ=[],talkCb=null;function talk(lines,cb){talkQ=[...lines];talkCb=cb;closeSheet();nextTalk()}
 function nextTalk(){const l=talkQ.shift();if(l===undefined){$('talk').classList.remove('on');const c=talkCb;talkCb=null;c&&c();return}$('talkT').innerHTML=`<b>${L.NPC.n}</b>${l}<small>dokun ▸</small>`;$('talk').classList.add('on');SFX.tap()}
 $('talk').onclick=nextTalk;
+
+// ---------- KUTLAMA / ÖDÜL ----------
+const RNAME={fish:'Balık',wood:'Kereste',crys:'Kristal',gems:'Elmas',ticket:'Çağrı Bileti'};
+function shock(pos,c=0xffe08a,sz=2.2){const m=new THREE.Mesh(new THREE.RingGeometry(.5,.64,40).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:c,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));m.position.copy(pos);m.position.y=.1;scene.add(m);
+ tween(700,t=>{m.scale.setScalar(.4+E.out(t)*sz);m.material.opacity=1-t},()=>{scene.remove(m);m.geometry.dispose()})}
+function bigTxt(t,sub,c='#ffd84a'){const d=document.createElement('div');d.className='bigtxt';d.innerHTML=`<b style="color:${c}">${t}</b>${sub?`<small>${sub}</small>`:''}`;$('fx').appendChild(d);setTimeout(()=>d.remove(),1500)}
+const rwCards=r=>Object.entries(r).filter(([,v])=>v).map(([k,v],i)=>`<div class="rw" style="animation-delay:${.18+i*.14}s"><div class="ri2">${RI(k)}</div><b>+${fmt(v)}</b><small>${RNAME[k]||''}</small></div>`).join('');
+function reward(title,r,o={}){const n=Object.keys(r).length;SFX.done();vib([20,30,40]);for(let i=0;i<n;i++)setTimeout(()=>SFX.pop(),180+i*140);
+ modal(`<div class="rays"></div><div class="rwh">${o.icon||'🎁'}</div><h2>${title}</h2>${o.sub?`<p>${o.sub}</p>`:''}<div class="rws">${rwCards(r)}</div>`,[[o.btn||'Topla','o',()=>{for(const k in r)fly(k,innerWidth/2,innerHeight/2,4);SFX.coin();o.cb&&o.cb()}]]);$('mbox').classList.add('rwbox')}
+function levelUp(lv){const R=L.addRes,g={gems:lv*10,crys:lv*40};R(S,g);const nk=Object.values(KINDS).filter(k=>k.req===lv&&!k.only).map(k=>`${k.ic} ${k.n}`);const isl=Object.values(L.ISLANDS).filter(x=>x.unlock&&false);
+ const ul=[`🌫️ Güvenli alan genişledi`,`🏗️ Bina sınırı Sv${lv+1}`,...nk.map(x=>`🆕 ${x}`)];SFX.gacha(3);vib([40,40,80]);cam.shake=.3;
+ modal(`<div class="rays gold"></div><div class="lvb">${lv}</div><h2 class="lvh">FENER SEVİYE ATLADI!</h2><div class="ul">${ul.map((u,i)=>`<div style="animation-delay:${.35+i*.12}s">${u}</div>`).join('')}</div><div class="rws">${rwCards(g)}</div>`,[['Harika!','o',()=>{for(const k in g)fly(k,innerWidth/2,innerHeight/2,4);SFX.coin();ui();save()}]]);$('mbox').classList.add('rwbox','lvbox')}
+let combo=0,comboT=0;
 // ---------- EĞİTİM ----------
 const hand=$('hand'),tip=$('tip');const TUT_TILE='-2,1';
 function tutCheck(){if(S.tut>=9)return;
@@ -400,7 +420,8 @@ function tutCheck(){if(S.tut>=9)return;
  if(S.tut===1&&(S.g['1,0']?.w||0)>=2){S.tut=2;closeSheet();S.g['1,0'].stored=Math.max(S.g['1,0'].stored,25)}
  if(S.tut===2&&S.st.collect>=1)S.tut=3;
  if(S.tut===3&&L.count(S,'hut')>=2){S.tut=4;closeSheet()}
- if(S.tut===4&&S.st.merge>=1){S.tut=9;S.t0=now();S.nightN=0;save();setTimeout(()=>modal('<div style="font-size:50px">🗼</div><h2>Fener yanıyor!</h2><p>Kristalle Feneri besle, aynı binaları birleştirerek büyüt, Feneri yükselterek sisi geri it. Sis Gecesi gelince yeterli kristalin olsun. Tersane kurup kaptanlarınla sisli adaları kurtar!</p>',[['Başla!','o']]),400)}}
+ if(S.tut===4&&S.st.merge>=1){S.tut=9;S.t0=now();S.nightN=0;const g={gems:50,ticket:1,wood:150};L.addRes(S,g);save();setTimeout(()=>reward('Eğitim tamamlandı!',g,{icon:'🎓',sub:'Harika iş, bekçi! Fener artık senin.',btn:'Devam',cb:()=>talk(['Aferin evlat! Işık yanıyor, ada nefes alıyor.','Sis her gece yoklar. Kristalin bol olsun ki Fener sönmesin.','Görevleri takip et — her biri seni bir adım öteye taşır. Ben buradayım.'])}),700)}
+ while(S.tut<9||S.q<4){const q=L.QUESTS[S.q];if(!q||q.f(S)<q.n||S.q>=4)break;claimQuest(true)}}
 function tutFrame(T){if(S.tut>=9||$('modal').classList.contains('on')||$('battle').classList.contains('on')){hand.style.display=tip.style.display='none';return}
  const so=$('sheet').classList.contains('on');let txt='',pos=null,el=null;
  if(S.tut===0){txt='🗼 Fenere dokun ve ışığı yak — sis yaklaşıyor!';el=so&&$('lightBtn');if(!so)pos=scr(new THREE.Vector3(0,1.4,0))}
@@ -432,7 +453,7 @@ function moveDrag(x,y){const p=ground(x,y);if(!p)return;drag.g.position.x=p.x;dr
 function cancelDrag(){if(!drag)return;const d=drag;drag=null;ringM.visible=false;const s=d.g.position.clone();tween(220,t=>{d.g.position.lerpVectors(s,d.home,E.out(t))})}
 function endDrag(){const d=drag;ringM.visible=false;if(!d.over){if(S.g[d.k]&&S.g[d.k].lv>=L.maxLv(S)&&d.over===null)toast(`Sv${S.g[d.k].lv} sınırında — Feneri yükselt`);cancelDrag();return}drag=null;
  if(S.g[d.over]){const lv=S.g[d.over].lv+1;scene.remove(d.g);meshes.delete(d.k);L.merge(S,d.k,d.over,now());const g=syncOne(d.over);popAnim(g,.7);
-  SFX.merge(lv);vib(lv>=4?[40,30,60]:30);if(lv>=4)cam.shake=.15+lv*.03;burst(tpos(d.over).setY(.6),0xffe08a,16+lv*2,2.8,1);const s=tileScr(d.over,1.2);floatTxt(s.x,s.y,`Sv${lv}!`,'#7dff8a')}
+  SFX.merge(lv);vib(lv>=4?[40,30,60]:30);if(lv>=4)cam.shake=.15+lv*.03;burst(tpos(d.over).setY(.6),0xffe08a,16+lv*2,2.8,1);shock(tpos(d.over),lv>=5?0xffd84a:0x9ff8ff,1.6+lv*.2);const tn_=performance.now();combo=tn_-comboT<4000?combo+1:1;comboT=tn_;const s=tileScr(d.over,1.2);floatTxt(s.x,s.y,`Sv${lv}!`,'#7dff8a');if(combo>=2){floatTxt(s.x,s.y-34,`KOMBO x${combo}`,'#ffb347');SFX.coin()}if(lv>=3)bigTxt('BİRLEŞTİ!',`${KINDS[S.g[d.over].k].n} · Sv${lv}`,lv>=5?'#ffd84a':'#9ff8ff')}
  else{L.move(S,d.k,d.over);const m=meshes.get(d.k);meshes.delete(d.k);meshes.set(d.over,m);const to=tpos(d.over);const s=d.g.position.clone();tween(160,t=>d.g.position.lerpVectors(s,to,E.out(t)));SFX.pop()}
  ui();save();tutCheck()}
 function tap(x,y){const p=pick(x,y);if(!p){closeSheet();return}SFX.tap();
@@ -452,7 +473,18 @@ const lbls={};
 function labels(){const t=now();const items=Object.keys(S.g).filter(k=>S.g[k].end).map(k=>[k,S.g[k],tileScr(k,1.4)]);if(S.fener.end)items.push(['fener',S.fener,scr(new THREE.Vector3(0,beam.position.y+1.2,0))]);
  const seen=new Set();for(const[k,b,p]of items){seen.add(k);let d=lbls[k];if(!d){d=lbls[k]=document.createElement('div');d.className='lbl';$('fx').appendChild(d)}const rem=(b.end-t)/1000;d.style.left=p.x+'px';d.style.top=p.y+'px';d.innerHTML=`🔨 ${fmtT(rem)}<div class="pbar"><i style="width:${(1-rem/b.dur)*100}%"></i></div>`}
  for(const k in lbls)if(!seen.has(k)){lbls[k].remove();delete lbls[k]}}
-let last=performance.now(),acc=0,uiAcc=0,nf=0,fogR=-1,duskK=.55;
+let last=performance.now(),acc=0,uiAcc=0,nf=0,fogR=-1,duskK=.3,eveK=0;
+const ISLT={home:{f:[.8,.9,.96],o:[.12,.62,.69]},mercan:{f:[.82,.95,.95],o:[.1,.74,.74]},volkan:{f:[.72,.66,.66],o:[.12,.42,.5]}};
+// ada ambiyansı: kor (volkan), ışıltı (mercan), ateşböceği (gece)
+const AMB_N=70,ambP=new Float32Array(AMB_N*3),ambS=[];for(let i=0;i<AMB_N;i++){ambS.push({x:0,y:-9,z:0,v:0,ph:Math.random()*9})}
+const ambG=new THREE.BufferGeometry();ambG.setAttribute('position',new THREE.BufferAttribute(ambP,3));
+const ambM=new THREE.PointsMaterial({size:.16,map:glowTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,color:0xffa040});const amb=new THREE.Points(ambG,ambM);amb.frustumCulled=false;scene.add(amb);
+function ambFx(T,dt,vN){const id=S.cur,R_=GR*TS;ambM.color.setHex(id==='volkan'?0xff7a2a:id==='mercan'?0xbff8ff:0xfff27a);ambM.size=id==='volkan'?.2:.14;
+ const act=id==='volkan'?AMB_N:id==='mercan'?40:Math.round(vN*50);for(let i=0;i<AMB_N;i++){const p=ambS[i];if(i>=act){ambP[i*3+1]=-50;continue}
+  if(p.y<-5||p.y>(id==='home'?2.2:6)){p.x=(Math.random()*2-1)*R_*(id==='mercan'?1.5:1);p.z=(Math.random()*2-1)*R_*(id==='mercan'?1.5:1);if(id==='volkan'&&Math.random()<.5){p.x=-9+(Math.random()-.5)*2;p.z=-9+(Math.random()-.5)*2;p.y=3}else p.y=id==='mercan'?-.2:.2+Math.random()*1.5;p.v=id==='volkan'?.6+Math.random()*.8:id==='mercan'?.15+Math.random()*.2:0}
+  p.y+=p.v*dt;if(id==='home'){p.x+=Math.sin(T*1.3+p.ph)*dt*.4;p.z+=Math.cos(T*1.1+p.ph)*dt*.4;p.y+=Math.sin(T*2+p.ph)*dt*.15;if(Math.random()<.002)p.y=-9}
+  if(id==='mercan'&&p.y>.6)p.y=-9;ambP[i*3]=p.x+(id==='volkan'?Math.sin(T+p.ph)*.3:0);ambP[i*3+1]=p.y+(id==='mercan'?Math.abs(Math.sin(T*3+p.ph))*.05:0);ambP[i*3+2]=p.z}
+ ambG.attributes.position.needsUpdate=true;amb.material.opacity=id==='home'?Math.min(1,vN*1.4):id==='mercan'?.55+Math.sin(T*2)*.25:.9}
 function frame(){const tn=performance.now(),dt=Math.min(.1,(tn-last)/1000);last=tn;const T=tn/1000,t=now();
  for(let n=tweens.length-1;n>=0;n--){const w=tweens[n];const k=Math.min(1,(tn-w.t0)/w.dur);w.fn(k);if(k>=1){tweens.splice(n,1);w.done&&w.done()}}
  for(let n=parts.length-1;n>=0;n--){const p=parts[n];p.life-=dt;p.v.y-=9*dt;p.m.position.addScaledVector(p.v,dt);p.m.scale.setScalar(Math.max(.01,p.life));if(p.life<=0){scene.remove(p.m);parts.splice(n,1)}}
@@ -460,10 +492,11 @@ function frame(){const tn=performance.now(),dt=Math.min(.1,(tn-last)/1000);last=
  foam.material.opacity=.25+Math.sin(T*1.5)*.12;foam.scale.setScalar(1+Math.sin(T*1.5)*.015);
  nf+=((L.night(S,t)?1:0)-nf)*dt*.8;if(fogR!==L.safeR(S)){fogR=L.safeR(S);buildFog();buildTiles()}
  for(const f of fogs){const sh=1-nf*.14;f.m.position.set(f.b.x*sh+Math.sin(T*.3+f.ph)*.3,f.b.y+Math.sin(T*.5+f.ph)*.08,f.b.z*sh+Math.cos(T*.25+f.ph)*.3);f.m.material.opacity=Math.min(.95,f.o+nf*.3);f.m.material.color.setRGB(1-nf*.35,1-nf*.4,1-nf*.2)}
- const ph=L.nightPhase(S,t);const dk=S.tut<9?.55:Math.min(1,Math.max(0,(ph-.45)/.36))*.9;duskK+=(dk-duskK)*dt*.5;
- skyU.uT.value=duskK;skyU.uN.value=nf*.85;stars.material.opacity=nf*.9;
- hemi.intensity=1.45-nf*.6-duskK*.1;sun.intensity=2.1-nf*1.2-duskK*.2;sun.color.setRGB(1,.92-duskK*.22,.82-duskK*.35);
- scene.fog.color.setRGB(.8+duskK*.05-nf*.6,.9-duskK*.3-nf*.6,.96-duskK*.43-nf*.45);ocean.material.color.setRGB(.12-nf*.04,.62-duskK*.08-nf*.32,.69-nf*.25);
+ const ph=L.nightPhase(S,t);const dk=S.tut<9?.3:ph<.06?(1-ph/.06)*.7:ph<.28?0:ph<.46?(ph-.28)/.18:ph<.81?1-Math.min(1,(ph-.46)/.12)*.55:.45;duskK+=(dk-duskK)*dt*.6;
+ const ev=S.tut<9?0:ph>.5&&ph<.82?Math.min(1,(ph-.5)/.1)*.72:0;eveK+=(ev-eveK)*dt*.6;const vN=Math.max(nf,eveK);
+ skyU.uT.value=duskK;skyU.uN.value=vN*.9;stars.material.opacity=vN*.95;ambFx(T,dt,vN);
+ hemi.intensity=1.45-vN*.62-duskK*.12;sun.intensity=2.1-vN*1.25-duskK*.25;sun.color.setRGB(1,.92-duskK*.22,.82-duskK*.35);
+ const IT=ISLT[S.cur]||ISLT.home;scene.fog.color.setRGB(IT.f[0]+duskK*.05-vN*.6,IT.f[1]-duskK*.3-vN*.6,IT.f[2]-duskK*.43-vN*.45);ocean.material.color.setRGB(IT.o[0]-vN*.04+duskK*.05,IT.o[1]-duskK*.1-vN*.32,IT.o[2]-vN*.25-duskK*.06);
  const home=S.cur==='home';if(fenerG)fenerG.visible=home;const on=L.lit(S)&&home;beam.visible=on;halo.visible=on;beam.rotation.y=T*.9;lamp.intensity=on?10+S.fener.lv+Math.sin(T*6)*.6:0;halo.scale.setScalar(on?2.2+Math.sin(T*4)*.15:0);
  bubN=0;const cand=[];for(const[k,m]of meshes){const b=S.g[k];if(!b)continue;const u=m.g.userData;if(u.bub){u.bub.visible=false;const r=L.rate(S,k);if((b.stored||0)>=Math.max(1,r*.5,L.storeCap(S,k)*.15)&&!b.end&&!(drag&&drag.k===k))cand.push([b.stored/Math.max(1,L.storeCap(S,k)),u,m])}if(u.gh)u.gh.position.y=1.2+Math.sin(T*2)*.1}
  cand.sort((a,b)=>b[0]-a[0]);bubN=cand.length;cand.slice(0,6).forEach(([f,u,m],i)=>{u.bub.visible=true;u.bub.position.y=1.15+(i%2)*.18+Math.sin(T*3+m.g.position.x)*.05;const s=.3+Math.min(1,f)*.12;u.bub.scale.set(s,s,1)});
@@ -477,8 +510,8 @@ function frame(){const tn=performance.now(),dt=Math.min(.1,(tn-last)/1000);last=
  acc+=dt;if(acc>.25){const ev=L.step(S,acc,t);acc=0;handle(ev)}uiAcc+=dt;if(uiAcc>.5){uiAcc=0;ui();if($('sheet').classList.contains('on')&&$('sheet').querySelector('.pbar'))renderSheet()}
  updCam();renderer.render(scene,camera);labels();tutFrame(T);requestAnimationFrame(frame)}
 function handle(evs){for(const e of evs){
- if(e.e==='built'){if(e.isl&&e.isl!==S.cur){toast(`🏝️ ${L.ISLANDS[e.isl].n}: Sv${e.lv} hazır!`);continue}const g=syncOne(e.k);popAnim(g,.6);SFX.done();vib([20,30,20]);burst(tpos(e.k).setY(.6),0xffd84a,16,2.5,1);toast(`${KINDS[S.g[e.k].k].n} Sv${e.lv} hazır!`);renderSheet()}
- if(e.e==='fener'){syncFener();popAnim(fenerG,.3);SFX.light();vib([30,40,60]);cam.shake=.25;burst(new THREE.Vector3(0,beam.position.y,0),0xffe08a,30,4,1);toast(`🗼 Fener Sv${e.lv}! Sis geri çekildi`);renderSheet()}
+ if(e.e==='built'){if(e.isl&&e.isl!==S.cur){toast(`🏝️ ${L.ISLANDS[e.isl].n}: Sv${e.lv} hazır!`);continue}const g=syncOne(e.k);popAnim(g,.6);SFX.done();vib([20,30,20]);burst(tpos(e.k).setY(.6),0xffd84a,16,2.5,1);shock(tpos(e.k),0xffd84a,2);toast(`${KINDS[S.g[e.k].k].n} Sv${e.lv} hazır!`);renderSheet()}
+ if(e.e==='fener'){syncFener();popAnim(fenerG,.3);SFX.light();vib([30,40,60]);cam.shake=.25;burst(new THREE.Vector3(0,beam.position.y,0),0xffe08a,30,4,1);closeSheet();setTimeout(()=>levelUp(e.lv),500)}
  if(e.e==='dark'){SFX.err();toast('🌑 Kristal bitti, Fener söndü!')}
  if(e.e==='trained'){SFX.done();toast(`${e.n} ${TROOPS[e.t].n} hazır!`)}
  if(e.e==='researched'){SFX.done();toast(`🔭 ${TECH.find(x=>x.id===e.id).n} tamamlandı!`)}
@@ -495,4 +528,4 @@ const sb=$('startBtn');sb.disabled=false;sb.textContent='▶ Oyna';sb.onclick=()
  if(isNew){S.seen.ch0=1;setTimeout(()=>talk(L.CHAPTERS[0].say),300)}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>openLogin(1),1200)};
 if(new URLSearchParams(location.search).has('skip'))sb.onclick();
 requestAnimationFrame(frame);setInterval(save,5000);addEventListener('visibilitychange',()=>document.hidden&&save());
-window.__g={get S(){return S},L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,get FIT(){return FIT}};
+window.__g={get S(){return S},L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,levelUp,reward,get FIT(){return FIT}};

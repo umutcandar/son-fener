@@ -13,15 +13,17 @@ export const KINDS={
  wood:{n:'Oduncu',ic:'🪓',req:1,res:'wood',perW:3,cost:{fish:20},d:'Oduncular ada ağaçlarından kereste keser.'},
  mine:{n:'Kristal Madeni',ic:'🔮',req:1,res:'crys',perW:1.6,cost:{wood:30,fish:10},d:'Madenciler Feneri besleyen ışık kristalini çıkarır.'},
  yard:{n:'Tersane',ic:'⚓',req:2,cost:{wood:80,fish:40},d:'Filo tayfası eğitilir, gemi donanımı yapılır. Gemi ustaları eğitimi hızlandırır.',job:'Gemi ustası'},
+ pearl:{n:'İnci Çiftliği',ic:'🦪',req:1,res:'gems',perW:.012,cost:{wood:220,fish:160},only:'mercan',d:'Yalnızca Mercan Atolü. Dalgıçlar istiridyeden inci çıkarır — inciler elmasa dönüşür.',job:'İnci dalgıcı'},
+ forge:{n:'Kor Ocağı',ic:'🌋',req:1,res:'crys',perW:3.4,cost:{wood:320,crys:90},only:'volkan',d:'Yalnızca Kül Adası. Lavdan kristal döker; her seviye filoya +%3 güç verir.',job:'Dökümcü'},
  lab:{n:'Gözlemevi',ic:'🔭',req:3,cost:{wood:150,crys:60},d:'Araştırma ağacı: ekonomi, fener ve donanma.'},
 };
-export const JOB={fisher:'Balıkçı',wood:'Oduncu',mine:'Madenci',yard:'Gemi ustası'};
+export const JOB={fisher:'Balıkçı',wood:'Oduncu',mine:'Madenci',yard:'Gemi ustası',pearl:'İnci dalgıcı',forge:'Dökümcü'};
 export const FENER_MAX=7;
 // ---------- adalar ----------
 export const ISLANDS={
- home:{n:'Fener Adası',ic:'🗼',d:'Ana üs. Büyük Fener burada.',kinds:Object.keys(KINDS)},
- mercan:{n:'Mercan Atolü',ic:'🪸',d:'Sığ, bereketli sular. Balık +50%, kereste +20%.',kinds:['hut','fisher','wood'],bonus:{fish:1.5,wood:1.2},unlock:4,cost:{wood:300,fish:200}},
- volkan:{n:'Kül Adası',ic:'🌋',d:'Sönmüş volkan, kristal damarları. Kristal +60%.',kinds:['hut','mine','wood'],bonus:{crys:1.6},unlock:8,cost:{wood:800,crys:300}},
+ home:{n:'Fener Adası',ic:'🗼',d:'Ana üs. Büyük Fener burada.',kinds:Object.keys(KINDS).filter(k=>!KINDS[k].only)},
+ mercan:{n:'Mercan Atolü',ic:'🪸',d:'Sığ, bereketli sular. Balık +50%, kereste +20%.',kinds:['hut','fisher','pearl','wood'],bonus:{fish:1.5,wood:1.2},unlock:4,cost:{wood:300,fish:200}},
+ volkan:{n:'Kül Adası',ic:'🌋',d:'Sönmüş volkan, kristal damarları. Kristal +60%.',kinds:['hut','forge','mine','wood'],bonus:{crys:1.6},unlock:8,cost:{wood:800,crys:300}},
 };
 export const gridOf=(S,id)=>id===S.cur?S.g:(S.isl[id]&&S.isl[id].g)||{};
 export const owned=S=>Object.keys(ISLANDS).filter(id=>id==='home'||S.isl[id]?.own);
@@ -99,13 +101,13 @@ const heroMaxStar=S=>Math.max(0,...Object.values(S.heroes).map(h=>h.star));
 const islB=(S,id)=>Object.keys(gridOf(S,id)).length;
 export const QUESTS=[
  // 1
- {c:0,t:'Feneri yak',f:S=>S.fener.on?1:0,n:1,r:{wood:30}},
- {c:0,t:'Madene 2 işçi ata',f:S=>mx(S,'mine'),n:2,r:{fish:30}},
- {c:0,t:'Kaynak topla',f:S=>S.st.collect,n:1,r:{wood:40}},
- {c:0,t:'2 binayı birleştir',f:S=>S.st.merge,n:1,r:{crys:20}},
- {c:0,t:'Balıkçıya 2 işçi ata',f:S=>mx(S,'fisher'),n:2,r:{wood:50}},
- {c:0,t:'8 kurtulana ulaş',f:S=>S.surv,n:8,r:{fish:60}},
- {c:0,t:'Feneri Sv2 yap',f:S=>S.fener.lv,n:2,r:{gems:20},say:'Işık uzağa vuruyor! Sis bir adım geri çekildi.'},
+ {c:0,t:'Feneri yak',f:S=>S.fener.on?1:0,n:1,r:{wood:60,gems:5}},
+ {c:0,t:'Madene 2 işçi ata',f:S=>mx(S,'mine'),n:2,r:{fish:60,gems:5}},
+ {c:0,t:'Kaynak topla',f:S=>S.st.collect,n:1,r:{wood:80,gems:5}},
+ {c:0,t:'2 binayı birleştir',f:S=>S.st.merge,n:1,r:{crys:40,gems:10}},
+ {c:0,t:'Balıkçıya 2 işçi ata',f:S=>mx(S,'fisher'),n:2,r:{wood:120,gems:5}},
+ {c:0,t:'8 kurtulana ulaş',f:S=>S.surv,n:8,r:{fish:150,ticket:1}},
+ {c:0,t:'Feneri Sv2 yap',f:S=>S.fener.lv,n:2,r:{gems:40,crys:60},say:'Işık uzağa vuruyor! Sis bir adım geri çekildi.'},
  // 2
  {c:1,t:'Tersane kur',f:S=>count(S,'yard'),n:1,r:{fish:80}},
  {c:1,t:'10 tayfa eğit',f:S=>S.st.trained,n:10,r:{wood:100}},
@@ -234,7 +236,7 @@ export const fishUse=S=>S.surv*.5;
 export function rate(S,k,id=S.cur){const g=gridOf(S,id),b=g[k];if(!b||!KINDS[b.k].res||b.fog)return 0;const r=KINDS[b.k].res;
  let m=1+T_(S,'net')*.15*(r!=='crys')+T_(S,'cut')*.15*(r==='crys');if(r==='fish')m*=1+skill(S,'fish');m*=(ISLANDS[id].bonus||{})[r]||1;
  return (b.w||0)*KINDS[b.k].perW*(1+.5*(b.lv-1))*m*(1+vipLv(S)*.05+islandBonus(S))*(lit(S)?1:.5)*(S.res.fish<=0&&r!=='fish'?.5:1)}
-export const storeCap=(S,k,id)=>Math.max(30,rate(S,k,id)*120*(1+T_(S,'store')*.25));
+export const storeCap=(S,k,id)=>{const b=gridOf(S,id||S.cur)[k];if(b&&KINDS[b.k].res==='gems')return Math.max(5,rate(S,k,id)*900);return capN(S,k,id)};const capN=(S,k,id)=>Math.max(30,rate(S,k,id)*120*(1+T_(S,'store')*.25));
 export function canAfford(S,c){return Object.entries(c).every(([r,v])=>(r==='gems'?S.gems:r==='ticket'?S.tickets:S.res[r])>=v)}
 export function pay(S,c){for(const r in c)r==='gems'?S.gems-=c[r]:r==='ticket'?S.tickets-=c[r]:S.res[r]-=c[r]}
 export function addRes(S,c){for(const r in c){if(r==='gems')S.gems+=c[r];else if(r==='ticket')S.tickets+=c[r];else if(r in S.res)S.res[r]+=c[r]}}
@@ -251,7 +253,7 @@ export const upCost=(kind,lv)=>{const c={};for(const r in KINDS[kind].cost)c[r]=
 export const upTime=(lv,S)=>Math.round(6*Math.pow(2,lv)*(1-(S?T_(S,'build'):0)*.08));
 export const fenerCost=lv=>{const L=lv+1;return{wood:60*L*L,fish:30*L*L,crys:20*L*L}};
 export const fenerTime=(lv,S)=>Math.round(12*(lv+1)**2*(1-(S?T_(S,'build'):0)*.08));
-export const speedGems=(sec,S)=>S&&vipLv(S)>=4&&sec<180?0:Math.max(1,Math.ceil(sec/60));
+export const speedGems=(sec,S)=>S&&vipLv(S)>=4&&sec<180||sec<=60?0:Math.max(1,Math.ceil(sec/60));
 export function checkUp(S,k){const b=k==='fener'?S.fener:S.g[k];if(!b)return'Yok';if(b.end)return'Zaten inşaatta';
  if(k==='fener'){if(b.lv>=FENER_MAX)return'En üst seviye'}else{if(b.fog)return'Önce sisten arındır';if(b.lv>=maxLv(S))return S.cur==='home'?`Önce Feneri Sv${b.lv} yap`:'Işık Direği / Fener sınırı'}
  if(busyBuilders(S)>=builderCount(S))return'BUILDERS';if(!canAfford(S,k==='fener'?fenerCost(b.lv):upCost(b.k,b.lv)))return'RES';return null}
@@ -260,7 +262,7 @@ export function startUp(S,k,now){const e=checkUp(S,k);if(e)return e;const b=k===
 export const cleanseCost=(b,S)=>({crys:Math.max(1,Math.round(8*b.lv*(1-(S?T_(S,'beam'):0)*.15)))});
 export function cleanse(S,k){const b=S.g[k];if(!b||!b.fog)return'Sis yok';const c=cleanseCost(b,S);if(!canAfford(S,c))return'RES';pay(S,c);b.fog=0;return null}
 export function assign(S,k,d){const b=S.g[k];if(!b||!hasJob(b.k)||b.fog)return false;const nw=(b.w||0)+d;if(nw<0||nw>maxW(b.lv)||(d>0&&idle(S)<=0))return false;b.w=nw;return true}
-export function collect(S,k,now){const b=S.g[k];const a=Math.floor(b.stored||0);if(a<1)return 0;S.res[KINDS[b.k].res]+=a;b.stored-=a;S.st.collect++;dailyInc(S,'collect',1,now);return a}
+export function collect(S,k,now){const b=S.g[k];const a=Math.floor(b.stored||0);if(a<1)return 0;addRes(S,{[KINDS[b.k].res]:a});b.stored-=a;S.st.collect++;dailyInc(S,'collect',1,now);return a}
 export function setLight(S,on){if(on&&S.res.crys<=0)return'Kristal yok';S.fener.on=on;return null}
 // --- filo
 const hb_=S=>Object.values(homeG(S));
@@ -282,7 +284,8 @@ const gearM=(S,st)=>1+Object.entries(GEAR).filter(([,G])=>G.st===st).reduce((a,[
 export const atkM=S=>(1+T_(S,'harp')*.1)*gearM(S,'atk')*(1+skill(S,'atk'));
 export const hpM=S=>(1+T_(S,'hull')*.1)*gearM(S,'hp')*(1+skill(S,'hp'));
 export function armyPower(S){const ta=atkM(S),th=hpM(S);let p=0;for(const t in TROOPS)p+=S.troops[t]*(TROOPS[t].atk*ta+TROOPS[t].hp*th*.25);
- for(const h of team(S))p+=heroPower(h,S.heroes[h.id])*2;return Math.round(p)}
+ for(const h of team(S))p+=heroPower(h,S.heroes[h.id])*2;return Math.round(p*(1+forgeLv(S)*.03))}
+export const forgeLv=S=>allB(S).filter(b=>b.k==='forge').reduce((a,b)=>a+b.lv,0);
 // Dürüst çağrı: oranlar sabit (5/25/70), her 40 çağrıda Efsanevi garanti (sayaç görünür)
 export function recruit(S,rng){S.pity++;const r=rng()*100;let rar=r<5?3:r<30?2:1;if(S.pity>=PITY)rar=3;if(rar===3)S.pity=0;const pool=HEROES.filter(h=>h.r===rar);const h=pool[Math.floor(rng()*pool.length)];
  let isNew=false;if(!S.heroes[h.id]){S.heroes[h.id]={star:1,sh:0,lv:1};isNew=true}else S.heroes[h.id].sh+=10;
@@ -311,7 +314,7 @@ export function step(S,dt,now,rng=Math.random){const ev=[];const m=dt/60;
  if(S.fener.end&&now>=S.fener.end){S.fener.end=0;S.fener.lv++;ev.push({e:'fener',lv:S.fener.lv})}
  const auto=vipLv(S)>=6;
  for(const[id,g]of grids(S))for(const k in g){const b=g[k];if(b.end&&now>=b.end){b.end=0;b.lv++;ev.push({e:'built',k,lv:b.lv,isl:id})}
-  if(KINDS[b.k].res){b.stored=Math.min(storeCap(S,k,id),(b.stored||0)+rate(S,k,id)*m);if(auto&&b.stored>=1){const a=Math.floor(b.stored);S.res[KINDS[b.k].res]+=a;b.stored-=a}}}
+  if(KINDS[b.k].res){b.stored=Math.min(storeCap(S,k,id),(b.stored||0)+rate(S,k,id)*m);if(auto&&b.stored>=1){const a=Math.floor(b.stored);addRes(S,{[KINDS[b.k].res]:a});b.stored-=a}}}
  if(S.train&&now>=S.train.end){S.troops[S.train.t]+=S.train.n;S.st.trained+=S.train.n;dailyInc(S,'train',S.train.n,now);ev.push({e:'trained',...S.train});S.train=null}
  if(S.research&&now>=S.research.end){S.tech[S.research.id]=(S.tech[S.research.id]||0)+1;ev.push({e:'researched',id:S.research.id});S.research=null}
  S.raftT+=dt;if(S.raftT>=RAFT_EVERY*(1-T_(S,'raft')*.1)){S.raftT=0;if(S.surv<cap(S)&&S.res.fish>0){S.surv++;ev.push({e:'raft'})}}

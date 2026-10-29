@@ -82,6 +82,46 @@ img.ri{width:16px;height:16px;vertical-align:-3px;object-fit:contain}.pill img.r
 .tgl{width:52px;height:30px;border-radius:15px;border:0;background:#46597a;position:relative}.tgl:after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}.tgl.on{background:#3fb950}.tgl.on:after{left:25px}
 #loading{background:#0a1a2a url(img/title.webp) center/cover;justify-content:flex-end;padding-bottom:calc(env(safe-area-inset-bottom) + 70px);gap:14px}
 #loading img{width:min(80vw,380px);filter:drop-shadow(0 6px 14px #000c)}#loading .btn{font-size:22px;padding:14px 46px}#loading small{font-size:12px;color:#fff;opacity:.8;font-weight:700;text-shadow:0 1px 3px #000}
+
+@font-face{font-family:Fredoka;src:url(fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Fredoka;src:url(fonts/fredoka-latin-ext.woff2) format('woff2');font-weight:300 700;font-display:swap;unicode-range:U+0100-02AF,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+/* ---- tasarım sistemi v2.1 ---- */
+:root{--pn:linear-gradient(#1f5068,#102a3c);--ln:#7fd8e8;--ac:#ffd27a;--tx2:#a9d8e8;--rd:14px;--sh:0 4px 14px #0007}
+html,body,button{font-family:Fredoka,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:.1px}
+.btn{font-family:inherit;font-weight:700;font-size:14px;border-radius:12px;min-height:36px;padding:8px 14px;transition:transform .08s,filter .15s;text-shadow:0 1px 0 #0005;cursor:pointer}
+.btn:active{transform:translateY(2px) scale(.97);box-shadow:none}.btn.sm{min-height:32px;padding:4px 10px}
+.nm{font-weight:700;font-size:15px}.sub{font-weight:500;font-size:12px;color:var(--tx2)}.card{border-radius:var(--rd);padding:10px;gap:10px;font-weight:500}
+.card .ic{font-size:28px;width:42px;height:42px;display:grid;place-items:center;background:#ffffff10;border-radius:12px}
+#sheet{background:var(--pn);transition:transform .3s cubic-bezier(.2,1.2,.4,1),opacity .2s;opacity:0;padding-top:0}#sheet.on{opacity:1}
+#sheet h3{position:sticky;top:0;z-index:2;margin:0 -12px 10px;padding:12px 12px 10px;background:linear-gradient(#21566e,#1b4a60);border-bottom:1px solid #7fd8e833;font-size:19px;font-weight:700}
+#sheet h3 .close{width:36px;padding:0}
+.sec{font-weight:700;letter-spacing:.8px}
+#modal{transition:background .17s}#modal.out{background:#0000}#modal.out .box{animation:pout .17s forwards}@keyframes pout{to{transform:scale(.85);opacity:0}}
+#modal h2{font-weight:700;font-size:22px;position:relative}#modal p{font-weight:500}
+#modal .box{position:relative;overflow:hidden;box-shadow:0 10px 40px #000a}#modal .box>*{position:relative}
+.rays{position:absolute!important;left:50%;top:70px;width:520px;height:520px;margin:-260px 0 0 -260px;background:repeating-conic-gradient(#ffffff14 0 10deg,#0000 10deg 20deg);animation:spin 14s linear infinite;pointer-events:none;-webkit-mask:radial-gradient(#000 20%,#0000 65%);mask:radial-gradient(#000 20%,#0000 65%)}
+.rays.gold{background:repeating-conic-gradient(#ffd84a33 0 10deg,#0000 10deg 20deg)}@keyframes spin{to{transform:rotate(360deg)}}
+.rwh{font-size:58px;animation:pop .5s cubic-bezier(.2,1.8,.4,1);filter:drop-shadow(0 4px 8px #0008)}
+.rws{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0 16px}
+.rw{width:78px;padding:10px 4px 8px;border-radius:14px;background:linear-gradient(#2d6a85,#173d52);border:2px solid var(--ac);box-shadow:0 0 14px #ffd27a55;animation:rwin .5s cubic-bezier(.2,1.7,.4,1) backwards;display:flex;flex-direction:column;align-items:center;gap:2px}
+.rw .ri2{font-size:30px;height:36px;display:grid;place-items:center}.rw .ri2 img.ri{width:36px;height:36px}.rw b{font-size:16px}.rw small{font-size:10px;color:var(--tx2)}
+@keyframes rwin{from{transform:scale(0) rotate(-20deg);opacity:0}}
+.lvb{font-size:64px;font-weight:700;color:#fff;width:110px;height:110px;margin:4px auto 6px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(#ffe89a,#f0a030);border:4px solid #fff;text-shadow:0 3px 0 #b5651d;box-shadow:0 0 30px #ffd84a;animation:pop .6s cubic-bezier(.2,1.8,.4,1)}
+.lvh{color:var(--ac);text-shadow:0 2px 0 #0008}.ul div{font-weight:600;font-size:14px;padding:5px;margin:4px 0;background:#ffffff10;border-radius:10px;animation:rwin .4s backwards}
+.bigtxt{position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);text-align:center;animation:bigt 1.5s ease-out forwards;white-space:nowrap}
+.bigtxt b{display:block;font-size:40px;font-weight:700;text-shadow:0 3px 0 #0009,0 0 18px #000a;letter-spacing:1px}.bigtxt small{font-size:15px;font-weight:600;color:#fff;text-shadow:0 2px 3px #000}
+@keyframes bigt{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}15%{transform:translate(-50%,-50%) scale(1.15);opacity:1}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{transform:translate(-50%,-90%);opacity:0}}
+.gcs{display:flex;flex-wrap:wrap;gap:14px 8px;justify-content:center;margin:14px 0 18px;perspective:600px}
+.gc{width:62px;height:104px;position:relative}.gcs.one .gc{width:130px;height:170px}
+.gc>div{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center}
+.gb{background:linear-gradient(135deg,#2a5a78,#12324a);border:2px solid var(--ln);font-size:26px;justify-content:center;animation:gbo .25s ease-in var(--d) forwards}
+.gf{transform:rotateY(90deg);animation:gfi .35s cubic-bezier(.2,1.6,.4,1) calc(var(--d) + .25s) forwards;padding-top:4px}
+.gf .port{box-shadow:0 0 16px var(--c),0 0 4px var(--c);border-color:var(--c)}.gn{font-size:11px;font-weight:700;margin-top:9px}.gr{font-size:9px;font-weight:700;color:var(--c);letter-spacing:.6px}.gs{font-size:10px;font-weight:600}
+.gcs.one .gn{font-size:15px}.gcs.one .gr{font-size:12px}
+.gc.r3 .gf::after{content:'';position:absolute;inset:-6px;border-radius:16px;box-shadow:0 0 26px 6px #ffcf3a88;animation:pulse 1.2s infinite;pointer-events:none}
+@keyframes gbo{to{transform:rotateY(-90deg)}}@keyframes gfi{to{transform:rotateY(0)}}@keyframes pulse{50%{opacity:.35}}
+.pill{font-weight:600}#prof b,#night{font-weight:700}.big{font-weight:700;font-size:11.5px}
+.dot{animation:dotp 1.6s infinite}@keyframes dotp{50%{transform:scale(1.18)}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">
@@ -95,7 +135,7 @@ img.ri{width:16px;height:16px;vertical-align:-3px;object-fit:contain}.pill img.r
 <div id="side"><button class="sb hot" id="sPass">🎫<small>Bilet</small><i class="dot" id="pdot"></i></button><button class="sb" id="sBoss">🦑<small>Kraken</small><i class="dot" id="kdot"></i></button><button class="sb" id="sLogin">📅<small>Giriş</small><i class="dot" id="ldot"></i></button><button class="sb" id="sSet">⚙️<small>Ayarlar</small></button></div>
 <button class="btn o" id="collect">✋ Hepsini topla</button><div id="talk"><img src="img/cap_yusuf.webp" alt=""><div class="bub" id="talkT"></div></div>
 <div id="fx"></div>
-<div id="bottom"><button class="big" id="bWork"><span>👷</span>İşçiler</button><button class="big" id="bHero"><span>🧑‍✈️</span>Kaptanlar<i class="dot" id="hdot"></i></button><button class="big hot" id="bMap"><span>⛵</span>Deniz</button><button class="big" id="bTask"><span>📋</span>Görevler<i class="dot" id="tdot"></i></button><button class="big" id="bShop"><span>🛒</span>Mağaza</button></div>
+<div id="bottom"><button class="big" id="bWork"><span>👷</span>İşçiler</button><button class="big" id="bHero"><span>🧑‍✈️</span>Kaptanlar<i class="dot" id="hdot"></i></button><button class="big hot" id="bMap"><span>⛵</span>Deniz<i class="dot" id="mdot"></i></button><button class="big" id="bTask"><span>📋</span>Görevler<i class="dot" id="tdot"></i></button><button class="big" id="bShop"><span>🛒</span>Mağaza</button></div>
 <div id="sheet"></div>
 <div id="battle"></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
