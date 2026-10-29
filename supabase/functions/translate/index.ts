@@ -1,5 +1,6 @@
 // Sohbet çevirisi: oyuncu okuyabildiği bir mesajı kendi diline çevirir. Ücretsiz MyMemory API; (mesaj, dil) başına önbellek; kullanıcı başına günlük sınır.
 import { createClient } from "npm:@supabase/supabase-js@2";
+const MM_EMAIL = Deno.env.get('MYMEMORY_EMAIL') ?? ''; // MyMemory contact email: set in the deployed function (not committed to keep the public repo clean)
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
 const LANGS = new Set(["tr","en","de","fr","es","pt-BR","ru","ar","id","zh-CN","zh-TW"]);
 const J = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
@@ -21,7 +22,7 @@ Deno.serve(async (req) => {
     const { data: us } = await admin.from("tr_usage").select("n").eq("user_id", u.user.id).eq("day", day).maybeSingle();
     if ((us?.n ?? 0) >= 300) return J({ error: "limit" }, 429);
     await admin.from("tr_usage").upsert({ user_id: u.user.id, day, n: (us?.n ?? 0) + 1 });
-    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(m.body)}&langpair=autodetect|${to}`);
+    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(m.body)}&langpair=autodetect|${to}${MM_EMAIL?'&de='+encodeURIComponent(MM_EMAIL):''}`);
     const d = await r.json().catch(() => ({ responseStatus: r.status }));
     let text: string = d?.responseData?.translatedText ?? "";
     const src: string = d?.responseData?.detectedLanguage ?? "";

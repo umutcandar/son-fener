@@ -76,7 +76,7 @@ const offline=()=>`<div class="prev">${T('offline_msg')}</div>`;
 const hdr=t=>G.hdr(t);
 const tabs=(cur,list,act)=>`<div class="tabs">${list.map(([v,n])=>`<button class="btn ${cur===v?'o':'x'}" data-o="${act}" data-v="${v}">${n}</button>`).join('')}</div>`;
 const inp=(id,ph,ml,val='')=>`<input id="${id}" maxlength="${ml}" placeholder="${esc(ph)}" value="${esc(val)}" style="flex:1;min-width:0;padding:10px;border-radius:10px;border:1px solid #ffffff33;background:#0006;color:#fff;font:inherit">`;
-const regName=()=>region?region.name.replace(/^Deniz (\d+)/,(m,n)=>T('sea_n',[n])):T('sea_n',[prof?.region_id||1]);
+const regName=()=>{const id=region?.id||prof?.region_id||1,k='reg_'+id,v=T(k),loc=v&&v!=='o.'+k&&v!==k?v:(region?.name||'').split('·')[1]?.trim();return T('sea_n',[id])+(loc?' · '+loc:'')};
 // ---------- KLAN ----------
 let clanList=null,clanQ='';
 async function openClan(){if(!online)return G.openClan();await refreshClan();if(!clan){clanList=await rpc('list_clans',{p_q:clanQ}).catch(()=>[])}open('clan',clanHtml)}
@@ -156,7 +156,7 @@ function warHtml(){const w=war||{phase:'none'};const isOff=clan&&['lider','yard�
   else h+=`<div class="sub">${T('war_only_officers')}</div>`;
   return h+rewardsHtml()}
  const oc=w.op_clan||{};const myN=(w.mine||[]).find(m=>m.id===uid)?.n||0;
- h+=`<div class="wscore"><div><div class="sub">${esc(clan?.icon)} ${esc(clan?.name)}</div><b>${w.my}★</b><div class="sub">${Math.round(w.my_dmg)}%</div></div><div class="vs">VS</div><div><div class="sub">${esc(oc.icon)} ${esc(oc.name)} [${esc(oc.tag)}]</div><b>${w.op}★</b><div class="sub">${Math.round(w.op_dmg)}%</div></div></div>`;
+ h+=`<div class="wscore"><div><div class="sub">${esc(clan?.icon)} ${esc(clan?.name)} [${esc(clan?.tag)}]</div><b>${w.my}★</b><div class="sub">${Math.round(w.my_dmg)}%</div></div><div class="vs">VS</div><div><div class="sub">${esc(oc.icon)} ${esc(oc.name)} [${esc(oc.tag)}]</div><b>${w.op}★</b><div class="sub">${Math.round(w.op_dmg)}%</div></div></div>`;
  if(w.phase!=='result')h+=`<div class="card"><div class="mid"><div class="nm">${w.phase==='prep'?T('battle_starts_in'):T('battle_ends_in')} <b id="warCd">${dur(warLeft())}</b></div><div class="sub">${w.phase==='prep'?T('prep_desc'):T('attacks_left',[3-myN])}</div></div><button class="btn x" data-o="pvpTab" data-v="war">🔄</button></div>`;
  else h+=`<div class="card" style="border-color:${w.won?'#3fb950':w.tie?'#ffd27a':'#ff6b6b'}"><div class="ic" style="font-size:34px">${w.won?'🏆':w.tie?'🤝':'💀'}</div><div class="mid"><div class="nm">${w.won?T('war_won'):w.tie?T('war_tie'):T('war_lost')}</div><div class="sub">${T('war_reward_sent')}</div></div></div>`+(isOff?`<button class="btn o" data-o="fJoin" style="width:100%">⚔️ ${T('war_find_next')}</button>`:'');
  h+=`<div class="sec">${T('enemy_lines')}</div>`;

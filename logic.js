@@ -49,7 +49,8 @@ export const HEROES=[
  {id:'deniz',n:'Deniz Al',ic:'🎣',img:'deniz',r:2,role:'Tayfa',p:66,sk:{n:'Bereketli Ağ',t:'fish',v:.12,d:'Balık üretimi'}},
  {id:'nene',n:'Pusula Nene',ic:'🧭',img:'nene',r:2,role:'Rotacı',p:60,sk:{n:'Eski Haritalar',t:'loot',v:.15,d:'Savaş ganimeti'}},
  {id:'ela',n:'Ela Çark',ic:'⚙️',img:'ela',r:1,role:'Usta',p:42,sk:{n:'Hızlı Kızak',t:'train',v:.12,d:'Eğitim hızı'}},
- {id:'ali',n:'Fenerli Ali',ic:'🏮',img:'ali',r:1,role:'Tayfa',p:40,sk:{n:'Fener Işığı',t:'night',v:.10,d:'Sis Gecesi kristal ihtiyacı (azalma)'}}];
+ {id:'ali',n:'Fenerli Ali',ic:'🏮',img:'ali',r:1,role:'Tayfa',p:40,sk:{n:'Fener Işığı',t:'night',v:.10,d:'Sis Gecesi kristal ihtiyacı (azalma)'}},
+ {id:'sisnur',n:'Sis Kraliçesi Nur',ic:'🌫️',img:'sisnur',r:3,season:1,role:'Sis Kaptanı',p:125,sk:{n:'Sis Perdesi',t:'hp',v:.2,d:'Filo dayanıklılığı'}}];
 export const NPC={n:'Fenerci Yusuf',img:'yusuf'};
 export const RARITY={3:{n:'Efsanevi',odds:5},2:{n:'Epik',odds:25},1:{n:'Nadir',odds:70}};
 export const PITY=40;
@@ -287,7 +288,7 @@ export function armyPower(S){const ta=atkM(S),th=hpM(S);let p=0;for(const t in T
  for(const h of team(S))p+=heroPower(h,S.heroes[h.id])*2;return Math.round(p*(1+forgeLv(S)*.03))}
 export const forgeLv=S=>allB(S).filter(b=>b.k==='forge').reduce((a,b)=>a+b.lv,0);
 // Dürüst çağrı: oranlar sabit (5/25/70), her 40 çağrıda Efsanevi garanti (sayaç görünür)
-export function recruit(S,rng){S.pity++;const r=rng()*100;let rar=r<5?3:r<30?2:1;if(S.pity>=PITY)rar=3;if(rar===3)S.pity=0;const pool=HEROES.filter(h=>h.r===rar);const h=pool[Math.floor(rng()*pool.length)];
+export function recruit(S,rng){S.pity++;const r=rng()*100;let rar=r<5?3:r<30?2:1;if(S.pity>=PITY)rar=3;if(rar===3)S.pity=0;const pool=HEROES.filter(h=>h.r===rar&&!h.season);const h=pool[Math.floor(rng()*pool.length)];
  let isNew=false;if(!S.heroes[h.id]){S.heroes[h.id]={star:1,sh:0,lv:1};isNew=true}else S.heroes[h.id].sh+=10;
  S.st.recruit++;addXP(S,5);return{h,isNew}}
 export function simulate(S,stage,rng){const ta=atkM(S),th=hpM(S);const hb=team(S).reduce((a,h)=>a+heroPower(h,S.heroes[h.id]),0);
@@ -326,3 +327,13 @@ export function step(S,dt,now,rng=Math.random){const ev=[];const m=dt/60;
 export function offline(S,now){const sec=Math.min(8*3600,(now-S.saved)/1000);if(sec<60)return null;const g={};
  for(const[id,gr]of grids(S))for(const k in gr){const r=KINDS[gr[k].k].res;if(r)g[r]=(g[r]||0)+Math.floor(rate(S,k,id)*sec/60*(.5+T_(S,'offl')*.1))}
  for(const k in g)if(!g[k])delete g[k];return Object.keys(g).length?{g,min:Math.floor(sec/60)}:null}
+
+// DEMO sezon: sezon kaptanı yalnız Sis İzi yolu ile (gacha havuzunda yok)
+export const SEASON={id:1,start:Date.UTC(2026,9,26),days:60,need:45,hero:'sisnur',routeDaily:2};
+export const seasonEnd=()=>SEASON.start+SEASON.days*864e5;
+export function seasonOf(S){if(!S.season||S.season.id!==SEASON.id)S.season={id:SEASON.id,marks:0,last:'',route:0};return S.season}
+export function claimMark(S,now){const z=seasonOf(S),d=day(now);if(z.last===d||now>seasonEnd())return 0;z.last=d;const n=1+(z.route?SEASON.routeDaily:0);z.marks+=n;
+ if(!S.heroes[SEASON.hero]&&z.marks>=SEASON.need)S.heroes[SEASON.hero]={star:1,sh:0,lv:1};else if(S.heroes[SEASON.hero]&&z.marks>SEASON.need)S.heroes[SEASON.hero].sh+=n*2;return n}
+export const priceNum=p=>+(String(p).replace(/[^0-9,\.]/g,'').replace(',','.'))||0;
+export const monthKey=now=>new Date(now).toISOString().slice(0,7);
+export function spendOf(S,now){const m=monthKey(now);if(!S.spend)S.spend={on:1,lim:500,m,sum:0};const z=S.spend;if(z.m!==m){z.m=m;z.sum=0}if(z.pend&&now>=z.pend.at){z.lim=z.pend.lim;if(z.pend.on!=null)z.on=z.pend.on;delete z.pend}return z}
