@@ -44,7 +44,7 @@ async function afterLogin(){prof=await rpc('ensure_profile');online=true;
  const{data:mu}=await sb.from('mutes').select('muted');muted=new Set((mu||[]).map(x=>x.muted));
  region=await rpc('my_region').catch(()=>null);
  await monetSync();
- await refreshClan();await claim();subscribe();setStatus();fwSide();fwPoll();setInterval(fwPoll,90000);
+ await refreshClan();await claim();subscribe();loadDm();setStatus();fwSide();fwPoll();setInterval(fwPoll,90000);
  setInterval(()=>{push();claim()},20000);setInterval(bossWatch,2000);lastBoss={w:G.S.boss.w,d:G.S.boss.dmg};
  addEventListener('visibilitychange',()=>document.hidden&&push())}
 // DEMO para durumu sunucuda (monet_*); çevrimdışı alımlar kuyruktan kaydedilir, sunucu esas
@@ -114,36 +114,47 @@ let helps=[];function helpHtml(){return helps.length?helps.map(r=>`<div class="c
 async function loadHelps(){const{data}=await sb.from('help_requests').select('id,user_id,label,helps,max_helps,created_at').lt('helps',5).order('id',{ascending:false}).limit(20);const nm=Object.fromEntries((clan?.members||[]).map(m=>[m.id,m.nick]));
  helps=(data||[]).filter(r=>r.helps<r.max_helps).map(r=>({...r,nick:nm[r.user_id]||'?'}))}
 // ---------- SOHBET: dünya / bölge / klan + dokun-çevir ----------
-const chanOf=tab=>tab==='tr'?'tr':tab==='reg'?'r:'+(prof?.region_id||1):'clan:'+clan?.id;
-const tabOf=c=>c==='tr'?'tr':c.startsWith('r:')?'reg':'clan';
+const dmCh=p=>'dm:'+[uid,p].sort().join(':');let dmL=[],dmUn=0,dmNames={};
+const chanOf=tab=>tab.startsWith('dm:')?dmCh(tab.slice(3)):tab==='tr'?'tr':tab==='reg'?'r:'+(prof?.region_id||1):'clan:'+clan?.id;
+const tabOf=c=>c.startsWith('dm:')?'dm:'+c.split(':').slice(1).find(x=>x!==uid):c==='tr'?'tr':c.startsWith('r:')?'reg':'clan';
 const trs={};let showOrig=new Set();
-async function loadMsgs(ch){if(ch==='clan'&&!clan)return;const{data}=await sb.from('messages').select('*').eq('channel',chanOf(ch)).order('id',{ascending:false}).limit(50);msgs[ch]=(data||[]).reverse()}
-async function openChat(tab){if(tab)chTab=tab;if(!online){open('chat',()=>hdr(T('chat_t'))+offline());return}if(chTab==='clan')await refreshClan();await loadMsgs(chTab).catch(()=>{});open('chat',chatHtml);scrollChat()}
+async function loadDm(){try{dmL=await rpc('dm_list')||[];dmUn=dmL.filter(x=>!x.blocked).reduce((a,x)=>a+x.unread,0);for(const x of dmL)dmNames[x.peer]=x}catch(e){console.warn(e.message)}dmBadge()}
+function dmBadge(){const b=$('bChat');if(!b)return;let d=$('dmDot');if(!d){d=document.createElement('i');d.id='dmDot';d.style.cssText='position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:#ff4a5a;color:#fff;font:900 11px/18px system-ui;text-align:center;padding:0 4px;font-style:normal;pointer-events:none';b.style.position=b.style.position||'relative';b.appendChild(d)}d.textContent=dmUn>9?'9+':dmUn;d.style.display=dmUn?'block':'none'}
+async function loadMsgs(ch){if(ch==='dm')return loadDm();if(ch==='clan'&&!clan)return;const{data}=await sb.from('messages').select('*').eq('channel',chanOf(ch)).order('id',{ascending:false}).limit(50);msgs[ch]=(data||[]).reverse();if(ch.startsWith('dm:')){await rpc('dm_read',{p_peer:ch.slice(3)}).catch(()=>{});await loadDm()}}
+async function openChat(tab){if(tab)chTab=tab;if(chTab.startsWith('dm')&&!dmL.length)await loadDm();if(!online){open('chat',()=>hdr(T('chat_t'))+offline());return}if(chTab==='clan')await refreshClan();await loadMsgs(chTab).catch(()=>{});open('chat',chatHtml);scrollChat()}
 function msgHtml(m){const sy=m.avatar==='🔬'&&/^§tech:(prod|store|help):(\d)$/.exec(m.body||'');if(sy)return `<div class="card" style="background:#7c5cff22;border-color:#b9a6ff;justify-content:center"><div class="mid" style="text-align:center"><div class="sub">${hm(m.created_at)}</div><b>🔬 ${T('tech_up_msg',[esc(m.nick),T('tech_'+sy[1]),sy[2]])}</b></div></div>`;
  const me=m.user_id===uid,need=!me&&!sameLang(m.lang,lang),x=trs[m.id];let tr='';
  if(x?.text&&!showOrig.has(m.id))tr=`<div class="msgt">🌐 ${esc(x.text)}</div><div class="sub"><a data-o="trOrig" data-v="${m.id}">${T('show_orig')}</a></div>`;
  else if(x==='…')tr=`<div class="sub">⏳ ${T('translating')}</div>`;
  else if(!me)tr=`<div class="sub"><a data-o="tr" data-v="${m.id}" class="trbtn">🌐 ${T(need?'translate':'translate_any')}</a>${x?.err?' · ⚠️ '+T('tr_fail'):''}</div>`;
  return `<div class="card" style="${me?'background:#ffb34722;border-color:#ffd27a':''};align-items:flex-start">${av(m.avatar,30)}<div class="mid"><div class="sub"><b data-o="prof" data-v="${m.user_id}" style="cursor:pointer">${esc(m.nick)}</b> · ${hm(m.created_at)}</div><div class="msgb" style="word-break:break-word" data-o="${me?'':'tr'}" data-v="${m.id}">${esc(m.body)}</div>${tr}</div>${me?'':`<button class="btn sm x" data-o="report" data-v="${m.id}" title="${T('report')}">🚩</button>`}</div>`}
-function chatHtml(){let h=hdr(T('chat_t'))+tabs(chTab,[['tr','🌍 '+T('ch_world')],['reg','🌊 '+esc(regName())],['clan','🛡️ '+T('clan')]],'chTab');if(chTab==='clan'&&!clan)return h+`<div class="sub">${T('chat_need_clan')}</div>`;
+function chatHtml(){const dmT=chTab.startsWith('dm');let h=hdr(T('chat_t'))+tabs(dmT?'dm':chTab,[['tr','🌍 '+T('ch_world')],['reg','🌊 '+esc(regName())],['clan','🛡️ '+T('clan')],['dm','✉️ '+T('dm_tab')+(dmUn?` <span class="tag" style="background:#ff4a5a">${dmUn}</span>`:'')]],'chTab');
+ if(chTab==='dm'){if(!dmL.length)return h+`<div class="sub">${T('dm_empty')}</div>`;for(const x of dmL)h+=`<div class="card" data-o="chTab" data-v="dm:${x.peer}" style="cursor:pointer;${x.blocked?'opacity:.5':''}">${av(x.avatar,40)}<div class="mid"><div class="nm">${esc(x.nick)}${x.blocked?' 🚫':''}</div><div class="sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x.last_body)} · ${hm(x.last_at)}</div></div>${x.unread&&!x.blocked?`<span class="tag" style="background:#ff4a5a">${x.unread}</span>`:''}</div>`;return h}
+ if(chTab.startsWith('dm:')){const pi=chTab.slice(3),n=dmNames[pi];h+=`<div class="card" style="gap:8px"><button class="btn x sm" data-o="chTab" data-v="dm">‹</button>${n?av(n.avatar,32):''}<div class="mid"><b data-o="prof" data-v="${pi}" style="cursor:pointer">${esc(n?.nick||'…')}</b><div class="sub">${T('dm_private')}</div></div></div>`;msgs[chTab]=msgs[chTab]||[]}if(chTab==='clan'&&!clan)return h+`<div class="sub">${T('chat_need_clan')}</div>`;
  if(chTab==='reg')h+=`<div class="sub">${T('ch_reg_desc')}</div>`;
  h+=`<div id="chBox" style="max-height:52vh;overflow:auto;display:flex;flex-direction:column;gap:6px">`;
- for(const m of msgs[chTab])if(!muted.has(m.user_id))h+=msgHtml(m);
- if(!msgs[chTab].length)h+=`<div class="sub">${T('chat_empty')}</div>`;
+ for(const m of msgs[chTab]||[])if(!muted.has(m.user_id))h+=msgHtml(m);
+ if(!(msgs[chTab]||[]).length)h+=`<div class="sub">${T('chat_empty')}</div>`;
  return h+`</div><div class="card" style="gap:6px;margin-top:8px">${inp('chIn',T('msg_ph'),200)}<button class="btn o" data-o="send">${T('send')}</button></div><div class="sub">${T('chat_rules')}</div>`}
 function scrollChat(){setTimeout(()=>{const b=$('chBox');if(b)b.scrollTop=b.scrollHeight},30)}
 function keepRender(){const v=$('chIn')?.value||'',sc=$('chBox')?.scrollTop;rerender();if($('chIn'))$('chIn').value=v;if(sc!=null&&$('chBox'))$('chBox').scrollTop=sc}
-function onMsg(m){const ch=tabOf(m.channel);if(msgs[ch].some(x=>x.id===m.id))return;msgs[ch].push(m);if(msgs[ch].length>80)msgs[ch].shift();
+function onMsg(m){const ch=tabOf(m.channel);msgs[ch]=msgs[ch]||[];if(msgs[ch].some(x=>x.id===m.id))return;if(ch.startsWith('dm:')&&m.user_id!==uid&&!muted.has(m.user_id)){if(sheetIs('chat')&&chTab===ch)rpc('dm_read',{p_peer:m.user_id}).catch(()=>{});else{dmUn++;dmBadge();G.toast('✉️ '+esc(m.nick)+': '+esc(m.body).slice(0,40));if(sheetIs('chat')&&chTab==='dm')loadDm().then(keepRender)}}msgs[ch].push(m);if(msgs[ch].length>80)msgs[ch].shift();
  if(sheetIs('chat')&&chTab===ch){keepRender();scrollChat()}else if(m.user_id!==uid)$('bChat')?.classList.add('ping')}
 async function translate(id){if(trs[id]?.text){showOrig.delete(id);return keepRender()}trs[id]='…';keepRender();
  try{const{data,error}=await sb.functions.invoke('translate',{body:{id:+id,to:lang}});if(error||!data?.text)throw error||new Error('tr');trs[id]={text:data.text,src:data.src}}catch(e){trs[id]={err:1}}keepRender()}
 // ---------- PROFİL / DÜELLO ----------
-async function openProfile(id){id=id||uid;const{data:p}=await sb.from('profiles').select('id,nick,avatar,power,stage,region_id').eq('id',id).single();const{data:a}=await sb.from('arena').select('rating').eq('user_id',id).maybeSingle();
+let profC=null;
+function cardHtml(c,r){const H=G.L.HEROES||[],hn=id=>H.find(x=>x.id===id)?.n||id,wl=c.wins+c.losses,wr=wl?Math.round(c.wins/wl*100):0;
+ let h=`<div class="card" style="background:linear-gradient(135deg,#1d3d5c,#2a1a40);border-color:#7ad7ff">${av(c.avatar,64)}<div class="mid"><div class="nm">${esc(c.nick)}</div><div class="sub">${c.clan?`${esc(c.clan.icon||'🛡️')} [${esc(c.clan.tag||'')}] ${esc(c.clan.name)} · ${RIC[c.clan.role]||''} ${T(ROLE[c.clan.role]||'role_member')}`:T('no_clan_p')}</div><div class="sub">🌊 ${T('sea_n',[c.region||1])} · 🗺️ ${T('n_islands',[Math.max(0,c.stage-1)])}</div></div></div>`;
+ h+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0">${[['⚔️',T('power'),fmt(c.power)],['🏟️',tierN(c.tier),r],['🏆',T('win_rate'),wl?wr+'%':'—']].map(([i,k,v])=>`<div class="card" style="display:block;text-align:center;padding:8px 4px"><div style="font-size:18px">${i}</div><b>${v}</b><div class="sub">${k}</div></div>`).join('')}</div>`;
+ h+=`<div class="sec">⚓ ${T('captains')} · ${fmt(c.cap_power)}</div><div style="display:flex;gap:8px;justify-content:center">${(c.heroes||[]).map(x=>`<div style="text-align:center">${av(x.id,52)}<div class="sub">${esc(hn(x.id))}</div><div class="sub">${'⭐'.repeat(+x.star||1)} ${T('lv_n',[x.lv||1])}${x.tal?' · 🌟'+x.tal:''}</div></div>`).join('')||`<div class="sub">—</div>`}</div>`;
+ h+=`<div class="sec">📊 ${T('stats')}</div><div class="sub">${T('stats_line',[fmt(c.st.wins),c.wins,c.losses,c.best,fmt(c.st.boss),c.st.heroes])}</div>`;return h}
+async function openProfile(id){id=id||uid;let c=null;try{c=await rpc('player_card',{p_id:id})}catch(e){return err(e)}const p={id:c.id,nick:c.nick,avatar:c.avatar,power:c.power,stage:c.stage,region_id:c.region};const a={rating:c.rating};profC=c;
  const mine=id===uid;const r=a?.rating??1000;
- open('prof',()=>{let h=hdr('👤 '+esc(p.nick))+`<div class="card">${av(p.avatar,64)}<div class="mid"><div class="nm">${esc(p.nick)}</div><div class="sub">⚔️ ${T('power')} ${fmt(p.power)} · 🗺️ ${T('n_islands',[p.stage-1])} · 🏟️ ${r} (${tierN(tier(r))}) · 🌊 ${T('sea_n',[p.region_id||1])}</div></div></div>`;
+ open('prof',()=>{let h=hdr('👤 '+esc(p.nick))+cardHtml(c,r);
   if(mine){h+=`<div class="sec">${T('name_portrait')}</div><div class="card" style="gap:6px">${inp('pNick',T('nick_ph'),16,p.nick)}<button class="btn o" data-o="saveProf">${T('save')}</button></div><div style="display:flex;gap:6px;flex-wrap:wrap">${HERO_IDS.map(x=>`<span data-o="pAv" data-v="${x}" style="cursor:pointer;opacity:${x===(window.__pav||p.avatar)?1:.45}">${av(x,46)}</span>`).join('')}</div>
    <div class="sec">${T('account')}</div><div class="sub">${T('guest_desc')}</div><div class="card" style="gap:6px;flex-wrap:wrap">${inp('pMail',T('email'),80)}${inp('pPass',T('pass_ph'),64)}<button class="btn" data-o="link">${T('link')}</button></div><div class="sub">${T('google_soon')}</div>`}
-  else h+=`<button class="btn o" data-o="duel" data-v="${id}" style="width:100%">${T('duel_btn')}</button><button class="btn x" data-o="mute" data-v="${id}" style="width:100%;margin-top:6px">${muted.has(id)?T('unmute'):T('mute')}</button>`;
+  else h+=`${c.blocks_me?`<div class="sub">🚫 ${T('blocks_you')}</div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button class="btn o" data-o="duel" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>${T('duel_btn')}</button><button class="btn" data-o="dmOpen" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>✉️ ${T('dm_btn')}</button><button class="btn x" data-o="repP" data-v="${id}">🚩 ${T('report')}</button><button class="btn x" data-o="block" data-v="${id}">${c.blocked?'✅ '+T('unblock'):'🚫 '+T('block')}</button></div>`;
   return h})}
 const tier=r=>r>=1800?'Efsane':r>=1500?'Elmas':r>=1300?'Altın':r>=1100?'Gümüş':'Bronz';
 const TIERS=[['Bronz',0,50],['Gümüş',1100,100],['Altın',1300,180],['Elmas',1500,300],['Efsane',1800,500]];
@@ -181,9 +192,9 @@ function leagueHtml(){const a=arena||{rating:1000,best:1000,wins:0,losses:0,seas
  return h+`<div class="sub" style="margin:6px 2px">${T('league_note')}</div>`}
 const TIC={Bronz:'🥉',Gümüş:'🥈',Altın:'🥇',Elmas:'💎',Efsane:'👑'};
 // ---------- SAVAŞ: baskın, arena, Sis Cephesi, raporlar, sıralama ----------
-let targets=[],opps=[],reports=[],board=[];
+let myCap=0,targets=[],opps=[],reports=[],board=[];
 async function openPvp(tab){if(tab)pvpTab=tab;if(!online){open('pvp',()=>hdr(T('war_hdr'))+offline());return}await push();
- try{if(pvpTab==='raid')targets=await rpc('find_targets');if(pvpTab==='arena'){arena=await rpc('arena_me');opps=await rpc('arena_opponents');board=await rpc('arena_board')}
+ try{if(pvpTab==='raid')targets=await rpc('find_targets');if(pvpTab==='arena'){arena=await rpc('arena_me');opps=await rpc('arena_opponents');try{myCap=(await rpc('player_card',{p_id:uid})).cap_power||0}catch(e){};board=await rpc('arena_board')}
   if(pvpTab==='war'){await refreshClan();war=clan?await rpc('front_status'):{phase:'noclan'};war._t=Date.now()}
   if(pvpTab==='rep'){const{data}=await sb.from('battles').select('*').or(`attacker.eq.${uid},defender.eq.${uid}`).order('id',{ascending:false}).limit(30);reports=data||[]}
   if(pvpTab==='lb')board=boardTab==='kraken'?await rpc('leaderboard',{p_kind:'kraken',p_wk:wk()}):boardTab==='clan'?await rpc('clan_board',{p_wk:wk()}):await rpc('leaderboard',{p_kind:'power'});
@@ -224,7 +235,7 @@ function pvpHtml(){let h=hdr(T('war_hdr'))+tabs(pvpTab,[['raid','🏴‍☠️ '
   h+=`<div class="card" style="background:linear-gradient(135deg,#5a3a10,#1a1030)"><div class="ic" style="font-size:34px">${TIC[ti]}</div><div class="mid"><div class="nm">${T('arena_t')} · ${tierN(ti)} · ${arena.rating}</div><div class="sub">${T('arena_sub',[arena.season,arena.wins,arena.losses,arena.tickets])}</div><div class="sub">${T('arena_season_rw')}</div></div></div>
   <div class="sec">${T('def_lineup')}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${own.map(x=>`<span data-o="lineup" data-v="${x}" style="cursor:pointer;opacity:${(arena.lineup||[]).includes(x)?1:.4}">${av(x,46)}</span>`).join('')||`<div class="sub">${T('no_caps')}</div>`}</div><div class="sub">${T('lineup_desc')}</div><div class="sec">${T('opponents')}</div>`;
   h+=`<button class="btn o" data-o="league" style="width:100%;margin:4px 0 8px">🏆 ${T('league_btn')}</button>`;h+=`<div class="card"><div class="ic">⚖️</div><div class="mid"><div class="nm">${T('eq_arena')} ${window.__eqArena?T('on'):T('off')}</div><div class="sub">${T('eq_desc',[arena.eq_rating??1000])}</div></div><button class="btn sm" data-o="eqArena">${window.__eqArena?T('normal'):T('equal')}</button></div>`;
-  for(const o of opps)h+=`<div class="card">${av(o.avatar)}<div class="mid"><div class="nm">${esc(o.nick)}</div><div class="sub">${TIC[o.tier]} ${o.rating} · ${T('cap_power')} ${fmt(o.power)}</div></div><button class="btn o" data-o="arena" data-v="${o.id}" ${arena.tickets?'':'disabled'}>${T('fight')}</button></div>`;
+  if(myCap)h+=`<div class="sub" style="margin:4px 0">⚖️ ${T('band_info',[fmt(myCap*.7),fmt(myCap*1.4)])}</div>`;for(const o of opps)h+=`<div class="card">${av(o.avatar)}<div class="mid"><div class="nm">${esc(o.nick)}</div><div class="sub">${TIC[o.tier]} ${o.rating} · ${T('cap_power')} ${fmt(o.power)}${myCap?(()=>{const q=o.power/myCap;return q>=.7&&q<=1.4?` · <span style="color:#7dffa0">⚖️ ${T('band_fair')}</span>`:q<.7?` · <span style="color:#ffb36b">⬇️ ${T('band_weak')}</span>`:` · <span style="color:#ff7a7a">⬆️ ${T('band_strong')}</span>`})():''}</div></div><button class="btn o" data-o="arena" data-v="${o.id}" ${arena.tickets?'':'disabled'}>${T('fight')}</button></div>`;
   if(!opps.length)h+=`<div class="sub">${T('no_opps')}</div>`;h+=`<div class="sec">${T('arena_board')}</div><div class="board">`+board.map((r,i)=>`<div class="card ${r.id===uid?'me':''}"><b style="width:26px">#${i+1}</b>${av(r.avatar,26)}<div class="mid">${esc(r.nick)}</div><b>${TIC[r.tier]} ${r.rating}</b></div>`).join('')+'</div>'}
  if(pvpTab==='rep'){if(!reports.length)h+=`<div class="sub">${T('no_battles')}</div>`;for(const b of reports){const att=b.attacker===uid,won=att?b.win:!b.win,K={raid:'🏴‍☠️ '+T('t_raid'),arena:'🏟️ '+T('t_arena'),duel:'🤺 '+T('duel'),front:'🌫️ '+T('t_front')}[b.kind]||b.kind;
   const loot=b.kind==='raid'?Object.entries(b.loot||{}).filter(([,v])=>v).map(([k,v])=>`${G.L.RIC[k]}${fmt(v)}`).join(' '):b.kind==='arena'?T('n_points',[`${b.loot.rating>0?'+':''}${att?b.loot.rating:-Math.trunc(b.loot.rating/2)}`]):b.kind==='front'?stars(b.loot.stars||0):'';
@@ -266,6 +277,9 @@ const OA={
  tr:v=>v&&translate(v),trOrig:v=>{showOrig.add(+v);keepRender()},
  report:async v=>{try{await rpc('report_msg',{p_msg:+v});toast(T('reported'))}catch(e){err(e)}},
  prof:v=>openProfile(v),
+ dmOpen:async v=>{if(!dmNames[v]&&profC?.id===v)dmNames[v]={peer:v,nick:profC.nick,avatar:profC.avatar};openChat('dm:'+v)},
+ block:async v=>{try{const on=!muted.has(v);await rpc('block_player',{p_target:v,p_on:on});on?muted.add(v):muted.delete(v);toast(on?T('blocked_ok'):T('unblocked_ok'));loadDm();openProfile(v)}catch(e){err(e)}},
+ repP:v=>{G.modal(`<h2>🚩 ${T('report_t')}</h2><p>${T('report_d')}</p><div style="display:grid;gap:6px">${['spam','abuse','name','cheat','other'].map(k=>`<button class="btn x" data-rr="${k}">${T('rr_'+k)}</button>`).join('')}</div>`,[[T('cancel'),'',()=>{}]]);document.querySelectorAll('[data-rr]').forEach(b=>b.onclick=async()=>{document.querySelector('#mbox .acts button')?.click();try{await rpc('report_player',{p_target:v,p_reason:b.dataset.rr});toast(T('reported'))}catch(e){err(e)}})},
  mute:async v=>{try{if(muted.has(v)){await sb.from('mutes').delete().eq('user_id',uid).eq('muted',v);muted.delete(v)}else{const{error}=await sb.from('mutes').insert({user_id:uid,muted:v});if(error)throw error;muted.add(v)}toast(muted.has(v)?T('muted'):T('unmuted'));openProfile(v)}catch(e){err(e)}},
  pAv:v=>{window.__pav=v;rerender()},
  saveProf:async()=>{const n=val('pNick');if(!nickOK(n))return toast(T('nick_bad'));try{await rpc('set_profile',{p_nick:n,p_avatar:window.__pav||prof.avatar});prof=await rpc('ensure_profile');toast(T('saved'));openProfile()}catch(e){err(e)}},
@@ -297,4 +311,4 @@ function initErr(){Object.assign(SERR,{'Geçersiz bağış':'err.don_bad','Bugü
  'Savaş başladıktan sonra katıldın':'err.late','Hedef rakip klanda değil':'err.not_foe','3 saldırı hakkın bitti':'err.no_attacks','Biraz bekle':'err.wait','Kayıt yok':'err.no_save','Filon boş — önce tayfa eğit':'err.empty_fleet',
  'Kendine saldıramazsın':'err.self','Filo hâlâ dönüyor, biraz bekle':'err.fleet_back','Bugünkü baskın hakkın bitti':'err.raid_limit','Hedef kalkan altında':'err.shield','Yeni kaptan koruması (7 gün)':'err.newbie','Başka bölgede':'err.region',
  'Klan arkadaşına saldıramazsın':'err.clanmate','Bugünkü arena biletin bitti':'err.tickets','Kaptanın yok':'err.no_caps','Sohbetten geçici olarak susturuldun':'err.chat_muted','Mesaj 1-200 karakter olmalı':'err.msg_len','Çok hızlı yazıyorsun':'err.too_fast',
- 'Dakikada en fazla 12 mesaj':'err.per_min','Kanal yok':'err.channel','Kendinle savaşamazsın':'err.self','Çatışma yalnızca Cuma-Cumartesi':'err.fw_clash_only','Bugünkü saldırı hakların bitti (3/3)':'err.fw_no_attacks','Eşleşme yok':'err.fw_no_match','Bölge yok':'err.no_region'})}
+ 'Dakikada en fazla 12 mesaj':'err.per_min','Kanal yok':'err.channel','Kendinle savaşamazsın':'err.self','Çatışma yalnızca Cuma-Cumartesi':'err.fw_clash_only','Bugünkü saldırı hakların bitti (3/3)':'err.fw_no_attacks','Eşleşme yok':'err.fw_no_match','Bölge yok':'err.no_region','arena_weak':'err.arena_weak','blocked':'err.blocked','bad_target':'err.bad_target'})}
