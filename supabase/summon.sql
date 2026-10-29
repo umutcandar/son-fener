@@ -47,6 +47,7 @@ declare u uuid:=auth.uid(); sv public.saves; d jsonb; s public.summon_state; tod
   outj:=outj||jsonb_build_array(jsonb_build_object('id',id,'r',rar,'new',nw)); end loop;
  d:=jsonb_set(d,'{ush}',to_jsonb(public.sf_n(d,'{ush}',1e6)+ush)); d:=jsonb_set(d,'{pity}',to_jsonb(s.pity)); d:=jsonb_set(d,'{pity2}',to_jsonb(s.pity2)); d:=jsonb_set(d,'{selTok}',to_jsonb(s.sel));
  update public.summon_state set pity=s.pity,pity2=s.pity2,sel=s.sel,total=s.total+p_n,free_day=s.free_day where user_id=u;
+ insert into public.hero_own(user_id,hero_id,src) select u,k,'summon' from jsonb_object_keys(coalesce(d->'heroes','{}'::jsonb)) k on conflict do nothing;
  update public.saves set data=d, rev=rev+1 where user_id=u returning * into sv;
  insert into public.summon_log(user_id,n,pay,cost,out) values(u,p_n,p_pay,cost,outj);
  return jsonb_build_object('rev',sv.rev,'out',outj,'gems',d->'gems','tickets',d->'tickets','ush',d->'ush','heroes',d->'heroes','pity',s.pity,'pity2',s.pity2,'sel',s.sel); end $$;
@@ -58,6 +59,7 @@ declare u uuid:=auth.uid(); sv public.saves; d jsonb; s public.summon_state; nw 
  select * into sv from public.saves where user_id=u for update; if not found then raise exception 'Kayıt bulunamadı'; end if;
  d:=sv.data; s:=public.sf_summon_state(u,d); if s.sel<1 then raise exception 'Seçim hakkın yok'; end if;
  select x.d2,x.isnew into d,nw from public.sf_summon_apply(d,p_id) x; d:=jsonb_set(d,'{selTok}',to_jsonb(s.sel-1));
+ insert into public.hero_own(user_id,hero_id,src) select u,k,'summon' from jsonb_object_keys(coalesce(d->'heroes','{}'::jsonb)) k on conflict do nothing;
  update public.summon_state set sel=sel-1 where user_id=u; update public.saves set data=d, rev=rev+1 where user_id=u returning * into sv;
  insert into public.summon_log(user_id,n,pay,cost,out) values(u,1,'pick',0,jsonb_build_array(jsonb_build_object('id',p_id,'r',3,'new',nw)));
  return jsonb_build_object('rev',sv.rev,'out',jsonb_build_array(jsonb_build_object('id',p_id,'r',3,'new',nw)),'heroes',d->'heroes','sel',s.sel-1); end $$;
