@@ -75,7 +75,7 @@ async function refreshClan(){if(!online)return;try{clan=await rpc('clan_info')}c
 // ---------- arayüz yardımcıları ----------
 let cur='';const sheetIs=n=>cur===n&&$('sheet').classList.contains('on');const rerender=()=>G.renderSheet?.();
 function open(name,fn){const nw=cur!==name;cur=name;G.sheet(fn);if(nw)requestAnimationFrame(()=>{const e=document.querySelector('#sheet .body')||$('sheet');e.scrollTop=0})}
-function addButtons(){const row=$('bClan')?.parentElement;if(row&&!$('bPvp')){const b=document.createElement('div');b.className='pill';b.id='bPvp';{const t=T('btn_war').trim(),i=t.indexOf(' ');b.title=t.slice(i+1);b.innerHTML=i>0?t.slice(0,i)+'<span class="lb"> '+esc(t.slice(i+1))+'</span>':esc(t)}row.insertBefore(b,$('bClan'));b.onclick=()=>openPvp()}
+function addButtons(){const row=$('bClan')?.parentElement;if(row&&!$('bPvp')){const b=document.createElement('div');b.className='pill';b.id='bPvp';{const t=T('btn_war').trim(),m=t.match(/^([\p{Extended_Pictographic}\uFE0F\u200D]+)\s*(.+)$/u);b.title=m?m[2]:t;b.innerHTML=m?m[1]+'<span class="lb"> '+esc(m[2])+'</span>':esc(t)}row.insertBefore(b,$('bClan'));b.onclick=()=>openPvp()}
  if($('bClan'))$('bClan').onclick=()=>openClan();if($('bChat'))$('bChat').onclick=()=>openChat();
  $('sheet').addEventListener('click',ev=>{const b=ev.target.closest('[data-o]');if(!b)return;ev.stopPropagation();G.SFX?.tap?.();const f=OA[b.dataset.o];if(f)f(b.dataset.v,b)});
  $('sheet').addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='chIn')OA.send()})}

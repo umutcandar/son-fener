@@ -2,7 +2,7 @@
 import * as THREE from './lib/three.module.js';
 import * as L from './logic.js';
 import {t as tx,tl,lang,LANGS,setLang,localizeData,applyDom,locale,RTL} from './i18n.js';
-localizeData(L);applyDom();for(const id of ['bClan','bChat']){const e=document.getElementById(id);if(!e)continue;const t=e.textContent.trim(),i=t.indexOf(' ');if(i>0){e.title=t.slice(i+1);e.innerHTML=t.slice(0,i)+'<span class="lb"> '+t.slice(i+1)+'</span>'}}const LV=tx('ui.lv'),DEC=(1.5).toLocaleString(locale)[1];
+localizeData(L);applyDom();for(const id of ['bClan','bChat']){const e=document.getElementById(id);if(!e)continue;const m=e.textContent.trim().match(/^([\p{Extended_Pictographic}\uFE0F\u200D]+)\s*(.+)$/u);if(m){e.title=m[2];e.innerHTML=m[1]+'<span class="lb"> '+m[2]+'</span>'}}const LV=tx('ui.lv'),DEC=(1.5).toLocaleString(locale)[1];
 const {KINDS,RIC,TROOPS,HEROES,TECH,FOES,RARITY,GR}=L;
 const $=id=>document.getElementById(id);const now=()=>Date.now();
 const KEY='sonfener1',TS=1.3;
@@ -223,7 +223,7 @@ const parts=[];const pgeo=new THREE.BoxGeometry(.07,.07,.07);
 function burst(pos,c,n=10,sp=2.5,e){for(let k=0;k<n;k++){const m=new THREE.Mesh(pgeo,mat(c,e));m.position.copy(pos);scene.add(m);parts.push({m,v:new THREE.Vector3((Math.random()-.5)*sp,Math.random()*sp+1.5,(Math.random()-.5)*sp),life:.8+Math.random()*.4})}}
 // ---------- UI YARDIMCI ----------
 const fmt=n=>{n=Math.floor(n);const d=(v,s)=>(v>=100?Math.floor(v):v.toFixed(1)).toString().replace('.',DEC).replace(DEC+'0','')+s;return n>=1e9?d(n/1e9,tx('ui.u_b')):n>=1e6?d(n/1e6,tx('ui.u_m')):n>=1e4?d(n/1e3,tx('ui.u_k')):n.toLocaleString(locale)};
-const fmtT=s=>{s=Math.max(0,Math.ceil(s));const m=Math.floor(s/60),h=Math.floor(m/60);return h?`${tx('ui.sa_dk',[h,m%60])}`:m?`${m}:${String(s%60).padStart(2,'0')}`:s+'sn'};
+const fmtT=s=>{s=Math.max(0,Math.ceil(s));const m=Math.floor(s/60),h=Math.floor(m/60);return h?`${tx('ui.sa_dk',[h,m%60])}`:m?`${m}:${String(s%60).padStart(2,'0')}`:tx('ui.sec_s',[s])};
 const IMGR={fish:1,wood:1,crys:1,gems:1};const RI=r=>IMGR[r]?`<img class="ri" src="img/i_${r}.webp" alt="">`:RIC[r];
 const have=r=>r==='gems'?S.gems:r==='ticket'?S.tickets:S.res[r];
 const costStr=c=>Object.entries(c).filter(([r,v])=>v).map(([r,v])=>`<span class="cs" style="color:${have(r)>=v?'#fff':'#ff8a8a'}">${RI(r)}${fmt(v)}</span>`).join(' ');
@@ -303,7 +303,7 @@ const ACT={
 // ---------- PANELLER ----------
 const timerCard=(k,b)=>{const rem=(b.end-now())/1000;return `<div class="card"><div class="ic">🏗️</div><div class="mid"><div class="nm">${tx('ui.yukseltiliyor',[fmtT(rem)])}</div><div class="pbar"><i style="width:${(1-rem/b.dur)*100}%"></i></div></div><button class="btn g" data-a="speed" data-v="${k}" id="speedBtn">${L.speedGems(rem,S)?`⚡ ${L.speedGems(rem,S)}💎`:tx('ui.ucretsiz')}</button></div>`};
 function openFener(){sheet(()=>{const f=S.fener,R=L.safeR(S);let h=hdr(`${tx('ui.buyuk_fener_sv',[f.lv])}`)+`<div class="sub" style="margin:-4px 0 10px">${tx('ui.isik_huzmesi_sisi_geri')}</div>`;
- h+=`<div class="card"><div class="ic">${L.lit(S)?'💡':'🌑'}</div><div class="mid"><div class="nm">${L.lit(S)?tx('ui.isik_yaniyor'):tx('ui.isik_sonuk')}</div><div class="sub">${tx('ui.tuketim_dk_sis_gecesi',[L.crysUse(S).toFixed(1).replace('.',DEC)||(.8+f.lv*.5).toFixed(1).replace('.',DEC),L.nightNeed(S)])}${L.lit(S)?'':tx('ui.karanlikta_uretim_50')}</div></div><button class="btn ${f.on?'x':'o'}" data-a="light" id="lightBtn">${f.on?tx('ui.sondur'):'💡 Yak'}</button></div>`;
+ h+=`<div class="card"><div class="ic">${L.lit(S)?'💡':'🌑'}</div><div class="mid"><div class="nm">${L.lit(S)?tx('ui.isik_yaniyor'):tx('ui.isik_sonuk')}</div><div class="sub">${tx('ui.tuketim_dk_sis_gecesi',[L.crysUse(S).toFixed(1).replace('.',DEC)||(.8+f.lv*.5).toFixed(1).replace('.',DEC),L.nightNeed(S)])}${L.lit(S)?'':tx('ui.karanlikta_uretim_50')}</div></div><button class="btn ${f.on?'x':'o'}" data-a="light" id="lightBtn">${f.on?tx('ui.sondur'):tx('ui.yak_btn')}</button></div>`;
  h+=`<div class="card"><div class="ic">🧭</div><div class="mid"><div class="nm">${tx('ui.guvenli_alan',[R*2+1,R*2+1])}</div><div class="sub">${tx('ui.bina_seviye_siniri_sv',[L.maxLv(S)])}${R<GR?tx('ui.sonraki_seviyede_alan_genisler'):''}</div></div></div>`;
  if(f.end)h+=timerCard('fener',f);else if(f.lv<L.FENER_MAX){const e=L.checkUp(S,'fener');h+=`<div class="sec">${tx('ui.sv_e_yukselt',[f.lv+1])}</div><div class="card"><div class="mid"><div>${costStr(L.fenerCost(f.lv))}</div><div class="sub">${tx('ui.alan_sinir_sv',[fmtT(L.fenerTime(f.lv,S)),Math.min(GR,f.lv+2)*2+1,Math.min(GR,f.lv+2)*2+1,f.lv+2])}</div></div><button class="btn o" data-a="up" data-v="fener" id="upBtn">${tx('ui.yukselt')}</button></div>`}
  return h})}
@@ -470,7 +470,7 @@ const findB=kind=>Object.keys(S.g).filter(k=>S.g[k].k===kind&&!S.g[k].fog).sort(
 function emptyTile(){let best=null,bd=1e9;for(let i=-L.GR;i<=L.GR;i++)for(let j=-L.GR;j<=L.GR;j++){const k=L.key(i,j);if(S.g[k]||!L.tileOK(i,j)||!L.isSafe(S,k)||(i===0&&j===0))continue;const d=i*i+j*j;if(d<bd){bd=d;best=k}}return best}
 function questGo(){const q=L.QUESTS[S.q];if(!q||!q.go)return;const[a,v]=q.go.split(':'),t='👉 '+q.t;closeSheet();
  if(S.cur!=='home'&&a!=='islands'&&a!=='map'&&a!=='heroes'&&a!=='boss'){goIsland('home')}
- const build=kind=>{const k=emptyTile();if(!k){toast(tx('ui.guide_no_tile'));return}openBuild(k);guideAt({sel:'#bk_'+kind},t)};
+ const build=kind=>{const k=emptyTile();if(!k){toast(tx('ui.guide_no_tile'));return}const e=L.checkBuild(S,k,kind);if(e&&e!=='RES'){openFener();guideAt({sel:'#upBtn'},'🔒 '+tl(e));return}openBuild(k);guideAt({sel:'#bk_'+kind},t)};
  if(a==='fener'){openFener();guideAt({sel:S.fener.on?'#upBtn':'#lightBtn'},t)}
  else if(a==='b'||a==='gear'){const kd=a==='gear'?'yard':v,k=findB(kd);if(!k)return build(kd);openB(k);guideAt({sel:a==='gear'?'[data-a=gear]:not([disabled])':kd==='yard'?'[data-a=train]':kd==='lab'?'[data-a=tech]:not([disabled])':'#wplus'},t)}
  else if(a==='build')build(v);
