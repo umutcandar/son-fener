@@ -45,7 +45,7 @@ declare m public.monet; begin perform public.monet_me(); select * into m from pu
  return public.monet_me(); end $$;
 -- günlük Sis İzi (UTC günü), sezon penceresi sunucuda
 create or replace function public.monet_claim_mark() returns jsonb language plpgsql security definer set search_path='' as $$
-declare m public.monet; z jsonb:=public.sf_season(); d text:=to_char(now() at time zone 'UTC','YYYY-MM-DD'); st timestamptz:=(z->>'start')::timestamptz; begin
+declare m public.monet; z jsonb:=public.sf_season(); d text:=to_char(now() at time zone 'Europe/Istanbul','YYYY-MM-DD'); st timestamptz:=(z->>'start')::timestamptz; begin
  perform public.monet_me(); select * into m from public.monet where user_id=auth.uid() for update;
  if now()<st or now()>st+((z->>'days')::int*interval '1 day') then raise exception 'Sezon açık değil'; end if;
  if m.last_mark=d then raise exception 'Bugünkü Sis İzi alındı'; end if;

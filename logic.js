@@ -16,6 +16,7 @@ export const KINDS={
  pearl:{n:'İnci Çiftliği',ic:'🦪',req:1,res:'gems',perW:.012,cost:{wood:220,fish:160},only:'mercan',d:'Yalnızca Mercan Atolü. Dalgıçlar istiridyeden inci çıkarır — inciler elmasa dönüşür.',job:'İnci dalgıcı'},
  forge:{n:'Kor Ocağı',ic:'🌋',req:1,res:'crys',perW:3.4,cost:{wood:320,crys:90},only:'volkan',d:'Yalnızca Kül Adası. Lavdan kristal döker; her seviye filoya +%3 güç verir.',job:'Dökümcü'},
  lab:{n:'Gözlemevi',ic:'🔭',req:3,cost:{wood:150,crys:60},d:'Araştırma ağacı: ekonomi, fener ve donanma.'},
+ tower:{n:'Gözcü Kulesi',ic:'🗼',job:'Gözcü',req:4,cost:{wood:260,crys:90},d:'Korsan konvoylarını uzaktan görür. Her seviye filo saldırısı +%3, konvoy ganimeti +%8.'},
 };
 export const JOB={fisher:'Balıkçı',wood:'Oduncu',mine:'Madenci',yard:'Gemi ustası',pearl:'İnci dalgıcı',forge:'Dökümcü'};
 export const FENER_MAX=7;
@@ -50,7 +51,10 @@ export const HEROES=[
  {id:'nene',n:'Pusula Nene',ic:'🧭',img:'nene',r:2,role:'Rotacı',p:60,sk:{n:'Eski Haritalar',t:'loot',v:.15,d:'Savaş ganimeti'}},
  {id:'ela',n:'Ela Çark',ic:'⚙️',img:'ela',r:1,role:'Usta',p:42,sk:{n:'Hızlı Kızak',t:'train',v:.12,d:'Eğitim hızı'}},
  {id:'ali',n:'Fenerli Ali',ic:'🏮',img:'ali',r:1,role:'Tayfa',p:40,sk:{n:'Fener Işığı',t:'night',v:.10,d:'Sis Gecesi kristal ihtiyacı (azalma)'}},
- {id:'sisnur',n:'Sis Kraliçesi Nur',ic:'🌫️',img:'sisnur',r:3,season:1,role:'Sis Kaptanı',p:125,sk:{n:'Sis Perdesi',t:'hp',v:.2,d:'Filo dayanıklılığı'}}];
+ {id:'sisnur',n:'Sis Kraliçesi Nur',ic:'🌫️',img:'sisnur',r:3,season:1,role:'Sis Kaptanı',p:125,sk:{n:'Sis Perdesi',t:'hp',v:.2,d:'Filo dayanıklılığı'}},
+ {id:'selin',n:'Mercan Selin',ic:'🪸',img:'selin',r:3,role:'Dalgıç Savaşçı',p:118,sk:{n:'Mercan Damarı',t:'crys',v:.18,d:'Kristal üretimi'}},
+ {id:'lale',n:'Fırtına Lale',ic:'🌩️',img:'lale',r:2,role:'Fırtınacı',p:70,sk:{n:'Fırtına Çağrısı',t:'atk',v:.1,d:'Filo saldırısı'}},
+ {id:'baris',n:'Enkazcı Barış',ic:'🪝',img:'baris',r:1,role:'Enkaz Avcısı',p:41,sk:{n:'Sağlam Kanca',t:'wood',v:.1,d:'Kereste üretimi'}}];
 export const NPC={n:'Fenerci Yusuf',img:'yusuf'};
 export const RARITY={3:{n:'Efsanevi',odds:5},2:{n:'Epik',odds:25},1:{n:'Nadir',odds:70}};
 export const PITY=40;
@@ -209,6 +213,7 @@ export function migrate(S,now){
  S.set={snd:1,mus:1,vib:1,lang:'tr',...S.set};for(const id in S.heroes)S.heroes[id].lv=S.heroes[id].lv||1;
  fixWorkers(S);return S}
 export const day=now=>new Date(now).toISOString().slice(0,10);
+export const dayIst=now=>new Date(now+108e5).toISOString().slice(0,10); // İstanbul günü (UTC+3, DST yok)
 export const builderCount=S=>S.builders+(vipLv(S)>=3?1:0);
 export const cap=S=>allB(S).filter(b=>b.k==='hut').reduce((a,b)=>a+b.lv*2,0)+2;
 export const workers=S=>allB(S).reduce((a,b)=>a+(b.w||0),0);
@@ -235,7 +240,7 @@ export const lit=S=>S.fener.on&&S.res.crys>0;
 export const crysUse=S=>S.fener.on?(.8+S.fener.lv*.5)*(1-T_(S,'lens')*.1):0; // /dk
 export const fishUse=S=>S.surv*.5;
 export function rate(S,k,id=S.cur){const g=gridOf(S,id),b=g[k];if(!b||!KINDS[b.k].res||b.fog)return 0;const r=KINDS[b.k].res;
- let m=1+T_(S,'net')*.15*(r!=='crys')+T_(S,'cut')*.15*(r==='crys');if(r==='fish')m*=1+skill(S,'fish');m*=(ISLANDS[id].bonus||{})[r]||1;
+ let m=1+T_(S,'net')*.15*(r!=='crys')+T_(S,'cut')*.15*(r==='crys');if(r==='fish'||r==='wood'||r==='crys')m*=1+skill(S,r);m*=(ISLANDS[id].bonus||{})[r]||1;
  return (b.w||0)*KINDS[b.k].perW*(1+.5*(b.lv-1))*m*(1+vipLv(S)*.05+islandBonus(S))*(lit(S)?1:.5)*(S.res.fish<=0&&r!=='fish'?.5:1)}
 export const storeCap=(S,k,id)=>{const b=gridOf(S,id||S.cur)[k];if(b&&KINDS[b.k].res==='gems')return Math.max(5,rate(S,k,id)*900);return capN(S,k,id)};const capN=(S,k,id)=>Math.max(30,rate(S,k,id)*120*(1+T_(S,'store')*.25));
 export function canAfford(S,c){return Object.entries(c).every(([r,v])=>(r==='gems'?S.gems:r==='ticket'?S.tickets:S.res[r])>=v)}
@@ -282,7 +287,8 @@ export function startResearch(S,id,now){if(S.research)return'Zaten araştırıl�
 export const heroPower=(h,st)=>Math.round(h.p*(1+.5*(st.star-1))*(1+.1*((st.lv||1)-1)));
 export const team=S=>HEROES.filter(h=>S.heroes[h.id]).sort((a,b)=>heroPower(b,S.heroes[b.id])-heroPower(a,S.heroes[a.id])).slice(0,3);
 const gearM=(S,st)=>1+Object.entries(GEAR).filter(([,G])=>G.st===st).reduce((a,[id,G])=>a+(S.gear[id]||0)*G.v,0);
-export const atkM=S=>(1+T_(S,'harp')*.1)*gearM(S,'atk')*(1+skill(S,'atk'));
+export const towerLv=S=>allB(S).filter(b=>b.k==='tower').reduce((a,b)=>a+b.lv,0);
+export const atkM=S=>(1+T_(S,'harp')*.1)*gearM(S,'atk')*(1+skill(S,'atk'))*(1+towerLv(S)*.03);
 export const hpM=S=>(1+T_(S,'hull')*.1)*gearM(S,'hp')*(1+skill(S,'hp'));
 export function armyPower(S){const ta=atkM(S),th=hpM(S);let p=0;for(const t in TROOPS)p+=S.troops[t]*(TROOPS[t].atk*ta+TROOPS[t].hp*th*.25);
  for(const h of team(S))p+=heroPower(h,S.heroes[h.id])*2;return Math.round(p*(1+forgeLv(S)*.03))}
@@ -291,9 +297,9 @@ export const forgeLv=S=>allB(S).filter(b=>b.k==='forge').reduce((a,b)=>a+b.lv,0)
 export function recruit(S,rng){S.pity++;const r=rng()*100;let rar=r<5?3:r<30?2:1;if(S.pity>=PITY)rar=3;if(rar===3)S.pity=0;const pool=HEROES.filter(h=>h.r===rar&&!h.season);const h=pool[Math.floor(rng()*pool.length)];
  let isNew=false;if(!S.heroes[h.id]){S.heroes[h.id]={star:1,sh:0,lv:1};isNew=true}else S.heroes[h.id].sh+=10;
  S.st.recruit++;addXP(S,5);return{h,isNew}}
-export function simulate(S,stage,rng){const ta=atkM(S),th=hpM(S);const hb=team(S).reduce((a,h)=>a+heroPower(h,S.heroes[h.id]),0);
+export function simulate(S,stage,rng,epo){const ta=atkM(S),th=hpM(S);const hb=team(S).reduce((a,h)=>a+heroPower(h,S.heroes[h.id]),0);
  let atk=0,hp=0;for(const t in TROOPS){atk+=S.troops[t]*TROOPS[t].atk*ta;hp+=S.troops[t]*TROOPS[t].hp*th}atk+=hb*1.2;hp+=hb*2;
- const EP=stagePower(stage);let eAtk=EP*.32,eHp=EP*1.6;const myMax=hp,eMax=eHp;const rounds=[];
+ const EP=epo||stagePower(stage);let eAtk=EP*.32,eHp=EP*1.6;const myMax=hp,eMax=eHp;const rounds=[];
  for(let i=0;i<10&&hp>0&&eHp>0;i++){const d1=Math.round(atk*(.85+rng()*.3));eHp=Math.max(0,eHp-d1);let d2=0;if(eHp>0){d2=Math.round(eAtk*(.85+rng()*.3));hp=Math.max(0,hp-d2)}rounds.push({d1,d2,hp,eHp})}
  const win=eHp<=0;const lossFrac=myMax?Math.min(1,(myMax-hp)/myMax)*.5:0;return{win,rounds,myMax,eMax,lossFrac}}
 export function applyBattle(S,res,stage,now){const lost={};for(const t in TROOPS){lost[t]=Math.floor(S.troops[t]*res.lossFrac);S.troops[t]-=lost[t]}
@@ -334,10 +340,19 @@ export const seasonEnd=()=>SEASON.start+SEASON.days*864e5;
 export function seasonOf(S){if(!S.season||S.season.id!==SEASON.id)S.season={id:SEASON.id,marks:0,last:'',route:0};return S.season}
 export function settleSeason(S){const z=seasonOf(S),H=SEASON.hero;let got=0;if(!S.heroes[H]&&z.marks>=SEASON.need){S.heroes[H]={star:1,sh:0,lv:1};got=1}
  const base=Math.max(SEASON.need,z.cr||0);if(S.heroes[H]&&z.marks>base)S.heroes[H].sh+=(z.marks-base)*2;z.cr=Math.max(z.cr||0,z.marks);return got}
-export function claimMark(S,now){const z=seasonOf(S),d=day(now);if(z.last===d||now<SEASON.start||now>seasonEnd())return 0;z.last=d;z.offl=d;const n=1+(z.route?SEASON.routeDaily:0);z.marks+=n;settleSeason(S);return n}
+export function claimMark(S,now){const z=seasonOf(S),d=dayIst(now);if(z.last===d||now<SEASON.start||now>seasonEnd())return 0;z.last=d;z.offl=d;const n=1+(z.route?SEASON.routeDaily:0);z.marks+=n;settleSeason(S);return n}
 // sunucu durumu (monet_me) yerel kayda uygulanır; sunucu esas
 export function applyMonet(S,st){if(!st)return;const q=(S.spend&&S.spend.q)||[];S.spend={...st.spend,q:[]};if(q.length)S.spend.q=q;const z=seasonOf(S);
  if(st.season.id===z.id){z.marks=st.season.marks;z.last=st.season.last;z.route=st.season.route;delete z.offl}settleSeason(S)}
 export const priceNum=p=>+(String(p).replace(/[^0-9,\.]/g,'').replace(',','.'))||0;
 export const monthKey=now=>new Date(now).toISOString().slice(0,7);
 export function spendOf(S,now){const m=monthKey(now);if(!S.spend)S.spend={on:1,lim:500,m,sum:0,q:[]};const z=S.spend;if(z.m!==m){z.m=m;z.sum=0}if(z.pend&&now>=z.pend.at){z.lim=z.pend.lim;if(z.pend.on!=null)z.on=z.pend.on;delete z.pend}return z}
+
+// ---------- Korsan Konvoyu (deniz haritası PvE olayı) ----------
+export const CONVOY_CD=4*3600e3;
+export const convoyPower=S=>Math.round(stagePower(Math.max(1,S.stage-1))*1.15);
+export const convoyReward=S=>{const n=Math.max(1,S.stage-1),m=1+towerLv(S)*.08;return{wood:Math.round(70*n*m),crys:Math.round(22*n*m),gems:15}};
+export function convoyState(S,now){S.conv=S.conv||{next:0,n:0,w:0};return{ready:S.tut>=9&&S.stage>=3&&now>=S.conv.next,left:Math.max(0,S.conv.next-now),open:S.stage>=3&&S.tut>=9}}
+export function convoyFight(S,now,rng){const c=convoyState(S,now);if(!c.open)return{err:'Ada 3 gerekli'};if(!c.ready)return{err:'Konvoy henüz görünmedi'};
+ const res=simulate(S,S.stage,rng,convoyPower(S));const lost={};for(const t in TROOPS){lost[t]=Math.floor(S.troops[t]*res.lossFrac*.6);S.troops[t]-=lost[t]}
+ S.conv.next=now+CONVOY_CD;S.conv.n++;let rw=null;if(res.win){rw=convoyReward(S);if(rng()<.25)rw.ticket=1;addRes(S,rw);S.conv.w++;dailyInc(S,'battle',1,now);addXP(S,15)}return{res,rw,lost}}
