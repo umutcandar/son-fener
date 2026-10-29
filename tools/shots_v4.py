@@ -8,6 +8,7 @@ with sync_playwright() as p:
   J=lambda s:pg.evaluate(s)
   import os
   OUT=os.environ.get('OUT','shots/v4');os.makedirs(OUT,exist_ok=True)
+  ISL=os.environ.get('ISL')
   if os.environ.get('Q'): pg.add_init_script("localStorage.setItem('sf_q','"+os.environ['Q']+"')")
   pg.goto(url+'?lang=tr');pg.wait_for_timeout(3000)
   try: J("document.getElementById('startBtn').click()")
@@ -31,4 +32,8 @@ with sync_playwright() as p:
   J("__g.cam.az+=1.6");pg.wait_for_timeout(1500);pg.screenshot(path=f'{OUT}/{pre}-3-yakin-donuk.png');J("__g.cam.az-=1.6;__g.cam.dist=__g.cam.dist*2")
   J('__g.S.t0=Date.now()-(__g.L.NIGHT_EVERY-__g.L.NIGHT_LEN+3)*1000;__g.S.nightN=0');pg.wait_for_timeout(6000);pg.screenshot(path=f'{OUT}/{pre}-4-sis-gecesi.png')
   print('perf night',json.dumps(J('__perf()')))
+  J('__g.S.t0=Date.now()-(__g.L.NIGHT_EVERY*.3)*1000');pg.wait_for_timeout(4000)
+  for isl in ['mercan','volkan']:
+    J(f"(()=>{{const S=__g.S;S.isl=S.isl||{{}};S.isl['{isl}']=Object.assign(S.isl['{isl}']||{{}},{{own:true,lv:S.isl['{isl}']?.lv||2}});__g.goIsland('{isl}')}})()");pg.wait_for_timeout(2500)
+    J("document.querySelectorAll('#modal.on .btn').forEach(b=>b.click());document.getElementById('modal').classList.remove('on')");pg.wait_for_timeout(800);pg.screenshot(path=f'{OUT}/{pre}-5-{isl}.png')
   print('errors:',errs)

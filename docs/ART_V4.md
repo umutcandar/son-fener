@@ -20,3 +20,16 @@ Sıcak, boyalı (painted) görünümlü, okunaklı bir **kale-şehir üssü**. R
 - Tier varyasyonu parametrik olarak tek fonksiyonla üretilir.
 - **Draw call:** mergeStatic artık tüm opak Lambert parçaları vertex-color ile tek bir malzemede birleştiriyor. Medium'da 381 olan draw call 236'ya indi (gölge geçişi dahil), bu da 2.3 kat daha fazla detayla geldi.
 - logic.js'e dokunulmadı.
+
+## Referans çalışması (v6, yalnızca stil; asset, isim veya yerleşim kopyalanmadı)
+- **Whiteout Survival:** stilize low-poly ve izometrik kamera, sabit yerleşimli bir şehir. Binalar seviye atladıkça büyür ve şekil değiştirir. Hayatı küçük insanlar ve duman taşır. → Bizde: tier silüetleri, yürüyen işçi ve arabalar, baca dumanı.
+- **Castle Clash:** üstten, chibi, parlak ve temiz renkler. Sur ve kapılar okunaklı. Erken binalar sade, yükseldikçe "görkemli". → Bizde: kazık sur ve kapılar; tier 2'de taş, altın ve arduvaz.
+- **Legend Online:** sıcak, boyalı fantastik şehir paleti, bayrak ve süs yoğunluğu. → Bizde: sıcak palet, flamalar, meşaleler.
+- **v6'da uygulanan iki etkili iyileştirme:**
+  - zemin çeşitliliği: parsel köşelerinde ot öbekleri ve çiçekler (instanced)
+  - binalarda hafif "nefes" idle animasyonu
+- **Diğer v6 değişiklikleri:**
+  - Mercan: mercan kümeleri, yosun, kazıklı kulübeler
+  - Kül/volkan: katmanlı koni, lav akıntıları, krater ışığı, bazalt sütunlar, lav gölcükleri
+  - global instanced duman ve flamalar: Medium'da yaklaşık 205 → 170 draw call
+- **Not:** savaş ve harita ekranları DOM/2D; bu turda 3D stile dahil edilmedi.
