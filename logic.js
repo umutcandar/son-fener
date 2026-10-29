@@ -292,6 +292,8 @@ export const heroPower=(h,st)=>Math.round(h.p*(1+.5*(st.star-1))*(1+.1*((st.lv||
 export const TAL_SH=[5,10,20,30,45],TAL_CR=[20,40,80,120,160],USH_X={crys:50,day:10};
 export const talCost=st=>{const t=Math.min(4,st.tal||0);return{sh:TAL_SH[t],crys:TAL_CR[t]}};
 export const ushOf=S=>S.ush||0;
+export const USH_AR=5;
+export function ushArena(S,now){const d=day(now);S.usha=S.usha||{d:'',n:0};if(S.usha.d!==d)S.usha={d,n:0};if(S.usha.n>=USH_AR)return'MAX';S.ush=ushOf(S)+1;S.usha.n++;return null}
 export function ushBuy(S,now){const d=day(now);S.ushx=S.ushx||{d:'',n:0};if(S.ushx.d!==d)S.ushx={d,n:0};if(S.ushx.n>=USH_X.day)return'MAX';if(S.res.crys<USH_X.crys)return'RES';S.res.crys-=USH_X.crys;S.ush=ushOf(S)+1;S.ushx.n++;return null}
 export function ushGive(S,id,n=1){const st=S.heroes[id];if(!st||ushOf(S)<n)return'SH';S.ush-=n;st.sh+=n;return null}
 export const eqCost=(st,g)=>{const l=st.eq?.[g.k]||0,G=HGEAR.find(x=>x.k===g.k);return{[G.r]:(G.r==='crys'?60:250)*(l+1)*(l+1)}};

@@ -607,11 +607,12 @@ function handle(evs){for(const e of evs){
  if(e.e==='wreck'&&!$('modal').classList.contains('on')&&!$('battle').classList.contains('on')){const room=L.cap(S)-S.surv;modal(`<div style="font-size:50px">🚢</div><h2>${tx('ui.batik_gemi')}</h2><p>${tx('ui.kiyiya_bir_enkaz_vurdu',[e.n])}${room<e.n?`<br><span style="color:#ff8a8a">${tx('ui.barinaklarda_sadece_yer_var',[Math.max(0,room)])}</span>`:''}</p>`,[[tx('ui.birak'),'x'],[tx('ui.kurtar'),'o',()=>{const k=Math.min(e.n,Math.max(0,room));S.surv+=k;for(let i=0;i<k;i++)setTimeout(()=>sendRaft(false),i*500);toast(`${tx('ui.kurtulan_katildi',[k])}`);ui()}]])}}}
 // ---------- BAŞLAT ----------
 resize();buildTiles();buildFog();fogR=L.safeR(S);syncAll();syncPeople();ui();
-if(!isNew){const o=L.offline(S,now());if(o)setTimeout(()=>modal(`<div style="font-size:50px">🌙</div><h2>${tx('ui.tekrar_hos_geldin')}</h2><p>${tx('ui.sen_yokken_dk_iscilerin',[o.min])}<br><b style="font-size:18px">${costStr(o.g)}</b></p>`,[['Al','',()=>{L.addRes(S,o.g);ui();save()}],['📺 x2 Al (reklam)','o',()=>watchAd(()=>{for(const k in o.g)o.g[k]*=2;L.addRes(S,o.g);ui();save()})]]),600)}
+if(!isNew){const o=L.offline(S,now());if(o)setTimeout(()=>modal(`<div style="font-size:50px">🌙</div><h2>${tx('ui.tekrar_hos_geldin')}</h2><p>${tx('ui.sen_yokken_dk_iscilerin',[o.min])}<br><b style="font-size:18px">${costStr(o.g)}</b></p>`,[[tx('ui.take'),'',()=>{L.addRes(S,o.g);ui();save()}],['📺 '+tx('ui.take_x2'),'o',()=>watchAd(()=>{for(const k in o.g)o.g[k]*=2;L.addRes(S,o.g);ui();save()})]]),600)}
 paintIsland(S.cur);buildIslDeco(S.cur);syncBeacon();
 {const bw=L.bossWeek(S,now());if(bw)setTimeout(()=>modal(`<img src="img/f_kraken.webp" style="width:90px"><h2>${tx('ui.kraken_haftasi_bitti')}</h2><p>${tx('ui.siran_2')} <b>#${bw.rank}</b><br>${tx('ui.odul',[rwStr(bw.rw)])}</p>`,[[tx('ui.harika_2'),'o']]),900)}
 {const side=$('side');if(side&&!$('sMute')){const b=document.createElement('button');b.className='sb';b.id='sMute';b.setAttribute('aria-label','mute');b.onclick=e=>{e.stopPropagation();toggleMute()};side.appendChild(b)}muteLbl()}
-const sb=$('startBtn');sb.disabled=false;sb.textContent='▶ Oyna';sb.onclick=()=>{ac();if(S.set.mus)startMusic();setVol();$('loading').remove();
+const sb=$('startBtn');window.__ldp&&window.__ldp(100);{const ld=$('loading'),tp=$('ldTip');setTimeout(()=>ld&&ld.classList.add('ready'),700);if(tp){let ti=Math.floor(Math.random()*6);const sh=()=>{tp.classList.remove('on');setTimeout(()=>{tp.textContent='💡 '+tx(['ui.ltip0','ui.ltip1','ui.ltip2','ui.ltip3','ui.ltip4','ui.ltip5'][ti++%6]);tp.classList.add('on')},350)};sh();const iv=setInterval(()=>{if(!$('ldTip'))clearInterval(iv);else sh()},5000)}}
+sb.disabled=false;sb.textContent='▶ '+tx('ui.play');sb.onclick=()=>{ac();if(S.set.mus)startMusic();setVol();{const ld=$('loading');sb.onclick=null;ld.classList.add('out');document.body.classList.add('fadeIn');setTimeout(()=>ld.remove(),620)}
  if(isNew){S.seen.ch0=1;setTimeout(()=>talk(L.CHAPTERS[0].say),300)}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>openLogin(1),1200)};
 if(new URLSearchParams(location.search).has('skip'))sb.onclick();
 requestAnimationFrame(frame);setInterval(save,5000);addEventListener('visibilitychange',()=>document.hidden&&save());
@@ -637,7 +638,7 @@ const fx7=(()=>{const gal=new THREE.Group(),lan=[];
   if(fl_>0){fl_=Math.max(0,fl_-dt*2.6);const fk=fl_*(Math.sin(T*55)>0?1:.55);hemi.intensity+=fk*3.2;ov.style.opacity=RM?0:(fl_*.5).toFixed(3);bm.opacity=Math.min(1,fl_*1.6)}else if(bm.opacity){bm.opacity=0;ov.style.opacity=0}
   window.__strike=strike;
   const th=beam.rotation.y;spots.forEach((m,i)=>{const s=i?-1:1;m.visible=on;m.position.set(Math.cos(th)*9.5*s,.02,-Math.sin(th)*9.5*s);sm.opacity=.22+Math.sin(T*4)*.05})}})();
-window.__g={get S(){return S},sheet,modal,toast,hdr,closeSheet,renderSheet,fmt,fmtT,rwStr,SFX,KEY,L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,levelUp,reward,get FIT(){return FIT}};
+window.__g={get S(){return S},ushArena:()=>{if(!L.ushArena(S,Date.now())){toast('+1 ✨ '+tx('ui.ush_arena'));ui();save()}},sheet,modal,toast,hdr,closeSheet,renderSheet,fmt,fmtT,rwStr,SFX,KEY,L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,levelUp,reward,get FIT(){return FIT}};
 
 // çevrimiçi katman (Supabase) — yüklenemezse oyun çevrimdışı devam eder
 // PWA: servis çalışanı + ana ekrana ekle
