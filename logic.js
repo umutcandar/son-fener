@@ -57,7 +57,7 @@ export const HEROES=[
  {id:'baris',n:'Enkazcı Barış',ic:'🪝',img:'baris',r:1,role:'Enkaz Avcısı',p:41,sk:{n:'Sağlam Kanca',t:'wood',v:.1,d:'Kereste üretimi'}}];
 export const NPC={n:'Fenerci Yusuf',img:'yusuf'};
 export const RARITY={3:{n:'Efsanevi',odds:5},2:{n:'Epik',odds:25},1:{n:'Nadir',odds:70}};
-export const PITY=40;
+export const PITY=40,PITY2=80;
 export const GEAR={cannon:{n:'Bronz Top',ic:'💣',st:'atk',v:.06,d:'Filo saldırısı +6%/sv'},plate:{n:'Demir Kaplama',ic:'🛡️',st:'hp',v:.06,d:'Filo dayanıklılığı +6%/sv'},sail:{n:'Fırtına Yelkeni',ic:'⛵',st:'hp',v:.04,d:'Dayanıklılık +4%/sv, ganimet +3%/sv'}};
 export const GEAR_MAX=10;
 export const gearCost=lv=>({wood:Math.round(120*Math.pow(lv+1,1.6)),crys:Math.round(30*Math.pow(lv+1,1.6))});
@@ -231,7 +231,7 @@ export function migrate(S,now){
  if(S.v<2){const h={};for(const id in S.heroes){const n=OLDH[id]||id;if(HEROES.find(x=>x.id===n))h[n]={lv:1,...S.heroes[id]}}S.heroes=h;S.v=2}
  S.st={collect:0,trained:0,recruit:0,wins:0,merge:0,repel:0,boss:0,claims:0,...S.st};
  S.cur=S.cur||'home';S.isl=S.isl||{};if(!S.isl.home)S.isl.home={own:1,lv:1,g:null};
- S.gear=S.gear||{cannon:0,plate:0,sail:0};S.pity=S.pity||0;S.tickets=S.tickets||0;
+ S.gear=S.gear||{cannon:0,plate:0,sail:0};S.pity=S.pity||0;S.pity2=S.pity2||0;S.selTok=S.selTok||0;S.tickets=S.tickets||0;
  S.boss=S.boss||{w:-1,dmg:0,day:'',n:0,ref:0};S.login=S.login||{n:0,last:'',total:0};
  S.pass=S.pass||{xp:0,prem:0,cl:{f:{},p:{}}};S.ach=S.ach||{};S.seen=S.seen||{};
  S.set={snd:1,mus:1,vib:1,lang:'tr',...S.set};for(const id in S.heroes)S.heroes[id].lv=S.heroes[id].lv||1;
@@ -330,8 +330,9 @@ export const hpM=S=>(1+T_(S,'hull')*.1)*gearM(S,'hp')*(1+skill(S,'hp'));
 export function armyPower(S){const ta=atkM(S),th=hpM(S);let p=0;for(const t in TROOPS)p+=S.troops[t]*(TROOPS[t].atk*ta+TROOPS[t].hp*th*.25);
  for(const h of team(S))p+=heroPower(h,S.heroes[h.id])*2;return Math.round(p*(1+forgeLv(S)*.03))}
 export const forgeLv=S=>allB(S).filter(b=>b.k==='forge').reduce((a,b)=>a+b.lv,0);
-// Dürüst çağrı: oranlar sabit (5/25/70), her 40 çağrıda Efsanevi garanti (sayaç görünür)
-export function recruit(S,rng){S.pity++;const r=rng()*100;let rar=r<5?3:r<30?2:1;if(S.pity>=PITY)rar=3;if(rar===3)S.pity=0;const pool=HEROES.filter(h=>h.r===rar&&!h.season);const h=pool[Math.floor(rng()*pool.length)];
+// Dürüst çağrı: oranlar sabit (5/25/70), her 40 çağrıda Efsanevi garanti, her 80 çağrıda seçmeli Efsanevi hakkı (sayaçlar görünür)
+export function selPick(S,id){const h=HEROES.find(x=>x.id===id&&x.r===3&&!x.season);if(!h)return'NO';if(!(S.selTok>0))return'TOK';S.selTok--;let isNew=false;if(!S.heroes[id]){S.heroes[id]={star:1,sh:0,lv:1};isNew=true}else S.heroes[id].sh+=10;return{h,isNew}}
+export function recruit(S,rng){S.pity++;S.pity2=(S.pity2||0)+1;if(S.pity2>=PITY2){S.pity2=0;S.selTok=(S.selTok||0)+1}const r=rng()*100;let rar=r<5?3:r<30?2:1;if(S.pity>=PITY)rar=3;if(rar===3)S.pity=0;const pool=HEROES.filter(h=>h.r===rar&&!h.season);const h=pool[Math.floor(rng()*pool.length)];
  let isNew=false;if(!S.heroes[h.id]){S.heroes[h.id]={star:1,sh:0,lv:1};isNew=true}else{S.heroes[h.id].sh+=10;S.ush=(S.ush||0)+2}
  S.st.recruit++;addXP(S,5);return{h,isNew}}
 export function simulate(S,stage,rng,epo){const ta=atkM(S),th=hpM(S);const hb=team(S).reduce((a,h)=>a+heroPower(h,S.heroes[h.id]),0);
