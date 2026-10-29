@@ -1,18 +1,18 @@
 // ===== Son Fener — çevrimiçi katman (Supabase): hesap, bulut kayıt, klan, sohbet (dünya/bölge/klan + çeviri), baskın, arena, düello, Sis Cephesi, sıralama.
 // Yalnızca herkese açık (publishable) anahtar kullanılır; tüm hassas işlemler sunucudaki RPC'lerde doğrulanır.
-import {t,lang,locale} from './i18n.js';
+import {t,lang,locale,tl} from './i18n.js';
 const SB_URL='https://ftbbzqzgafmallrfimnt.supabase.co',SB_KEY='sb_publishable_Z46YoAdDJSnL3RYmX61vBg_XUbiAfuZ';
 // Panelde Anonymous Sign-ins açılınca true yapın; kapalıyken 'guest' edge fonksiyonu kullanılır
 const ANON=false;
 const T=(k,p)=>t('o.'+k,p);
 let lastDuel=null,fwData=null;let G,sb,uid=null,prof=null,clan=null,arena=null,region=null,war=null,online=false,rev=+localStorage.getItem('sf_rev')||null,lastBoss=null,chTab='tr',pvpTab='raid',boardTab='power';
-const msgs={tr:[],reg:[],clan:[]};let muted=new Set();const $=id=>document.getElementById(id);
+const msgs={tr:[],reg:[],clan:[]};let muted=new Set();const $=id=>document.getElementById(id);try{const q=new URLSearchParams(location.search).get('ref');if(q&&/^[A-Za-z0-9]{4,12}$/.test(q))localStorage.setItem('sf_ref',q.toUpperCase())}catch(e){}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>G.fmt?G.fmt(n):String(n);const toast=t=>G.toast(t);
 const HERO_IDS=['kaan','mei','tunc','deniz','nene','ela','ali','selin','lale','baris'];
 const av=(id,s=34)=>`<img src="img/cap_${HERO_IDS.includes(id)?id:'ali'}.webp" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;border:2px solid #ffd27a;flex:none" alt="">`;
 // sunucu hata mesajları Türkçe gelir -> sözlükten çevrilir (o.err.*), yoksa olduğu gibi
-const SERR={};const srvErr=m=>{const k=SERR[m];return k?T(k):m};
+const SERR={};const srvErr=m=>{const k=SERR[m];return k?T(k):tl(m)};
 const err=e=>{const m=((e&&(e.message||e.msg))||String(e)).replace(/^.*?:\s*/,'');toast('⚠️ '+srvErr(m).slice(0,90));G.SFX?.err?.()};
 const wk=()=>String(G.L.weekId(Date.now()));
 const ROLE={lider:'role_leader','yardımcı':'role_officer','üye':'role_member'};const RIC={lider:'👑','yardımcı':'⭐','üye':'⚓'};const role=r=>(RIC[r]||'⚓')+' '+T(ROLE[r]||'role_member');
@@ -28,7 +28,7 @@ export const nickOK=n=>/^[\p{L}\p{N}_ ]{3,16}$/u.test(n.trim());
 
 async function rpcS(fn,args){const{data,error}=await sb.rpc(fn+'_s',args||{});if(error)throw error;if(data&&typeof data==='object'&&!Array.isArray(data)&&data.err)throw{message:data.err,soft:1};return data}
 async function rpc(fn,args){const{data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
-export async function start(g){G=g;window.__online={pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,test:{dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message)},open:{clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
+export async function start(g){G=g;window.__online={pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,test:{dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info')},open:{clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
  initErr();addButtons();if(!window.supabase){setStatus();return}
  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'sf_auth',autoRefreshToken:true}});
  try{await signIn();await afterLogin()}catch(e){console.warn('offline:',e?.message||e);online=false;setStatus()}
@@ -45,7 +45,7 @@ async function afterLogin(){prof=await rpc('ensure_profile');online=true;
  const{data:mu}=await sb.from('mutes').select('muted');muted=new Set((mu||[]).map(x=>x.muted));
  region=await rpc('my_region').catch(()=>null);
  await monetSync();
- await refreshClan();await claim();subscribe();loadDm();rpc('is_admin').then(v=>isAdm=!!v,()=>{});setStatus();fwSide();fwPoll();setInterval(fwPoll,90000);
+ await refreshClan();await claim();subscribe();loadDm();rpc('is_admin').then(v=>isAdm=!!v,()=>{});setStatus();fwSide();fwPoll();setInterval(fwPoll,90000);refSync();setInterval(refSync,300000);
  setInterval(()=>{push();claim()},20000);setInterval(bossWatch,2000);lastBoss={w:G.S.boss.w,d:G.S.boss.dmg};
  addEventListener('visibilitychange',()=>document.hidden&&push())}
 // DEMO para durumu sunucuda (monet_*); çevrimdışı alımlar kuyruktan kaydedilir, sunucu esas
@@ -157,10 +157,15 @@ function cardHtml(c,r){const H=G.L.HEROES||[],hn=id=>H.find(x=>x.id===id)?.n||id
  h+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0">${[['⚔️',T('power'),fmt(c.power)],['🏟️',tierN(c.tier),r],['🏆',T('win_rate'),wl?wr+'%':'—']].map(([i,k,v])=>`<div class="card" style="display:block;text-align:center;padding:8px 4px"><div style="font-size:18px">${i}</div><b>${v}</b><div class="sub">${k}</div></div>`).join('')}</div>`;
  h+=`<div class="sec">⚓ ${T('captains')} · ${fmt(c.cap_power)}</div><div style="display:flex;gap:8px;justify-content:center">${(c.heroes||[]).map(x=>`<div style="text-align:center">${av(x.id,52)}<div class="sub">${esc(hn(x.id))}</div><div class="sub">${'⭐'.repeat(+x.star||1)} ${T('lv_n',[x.lv||1])}${x.tal?' · 🌟'+x.tal:''}</div></div>`).join('')||`<div class="sub">—</div>`}</div>`;
  h+=`<div class="sec">📊 ${T('stats')}</div><div class="sub">${T('stats_line',[fmt(c.st.wins),c.wins,c.losses,c.best,fmt(c.st.boss),c.st.heroes])}</div>`;return h}
+
+let refD=null;async function refSync(){try{const c=localStorage.getItem('sf_ref');if(c){localStorage.removeItem('sf_ref');try{await rpc('ref_claim',{p_code:c});toast('🤝 '+T('inv_ok'))}catch(e){err(e)}}
+ const r=await rpc('ref_collect');if(r&&r.gems>0){G.L.addRes(G.S,{gems:r.gems});G.save();G.ui();setTimeout(()=>toast('🤝 '+T('inv_rw')+' 💎'+r.gems),c?2600:0)}}catch(e){}}
+function refHtml(){if(!refD)return `<div class="sec">🤝 ${T('inv_t')}</div><div class="sub">…</div>`;const url=location.origin+location.pathname+'?ref='+refD.code;
+ return `<div class="sec">🤝 ${T('inv_t')}</div><div class="card" style="flex-direction:column;align-items:stretch;gap:6px"><div class="sub">${T('inv_desc')}</div><div class="nm">${T('inv_code',[esc(refD.code)])}</div><div class="sub" style="word-break:break-all;opacity:.8">${esc(url)}</div><div class="sub">${T('inv_stats',[refD.invited,refD.done,refD.paid])}</div>${refD.by?`<div class="sub">💌 ${T('inv_by',[esc(refD.by)])}</div>`:''}<button class="btn o" data-o="invShare">📤 ${T('inv_share')}</button></div>`}
 async function openProfile(id){id=id||uid;let c=null;try{c=await rpc('player_card',{p_id:id})}catch(e){return err(e)}const p={id:c.id,nick:c.nick,avatar:c.avatar,power:c.power,stage:c.stage,region_id:c.region};const a={rating:c.rating};profC=c;
- const mine=id===uid;const r=a?.rating??1000;
+ const mine=id===uid;if(mine)rpc('ref_info').then(v=>{refD=v;if(cur==='prof')G.renderSheet?.()},()=>{});const r=a?.rating??1000;
  open('prof',()=>{let h=hdr('👤 '+esc(p.nick))+cardHtml(c,r);
-  if(mine){h+=`<div class="sec">${T('name_portrait')}</div><div class="card" style="gap:6px">${inp('pNick',T('nick_ph'),16,p.nick)}<button class="btn o" data-o="saveProf">${T('save')}</button></div><div style="display:flex;gap:6px;flex-wrap:wrap">${HERO_IDS.map(x=>`<span data-o="pAv" data-v="${x}" style="cursor:pointer;opacity:${x===(window.__pav||p.avatar)?1:.45}">${av(x,46)}</span>`).join('')}</div>
+  if(mine){h+=refHtml();h+=`<div class="sec">${T('name_portrait')}</div><div class="card" style="gap:6px">${inp('pNick',T('nick_ph'),16,p.nick)}<button class="btn o" data-o="saveProf">${T('save')}</button></div><div style="display:flex;gap:6px;flex-wrap:wrap">${HERO_IDS.map(x=>`<span data-o="pAv" data-v="${x}" style="cursor:pointer;opacity:${x===(window.__pav||p.avatar)?1:.45}">${av(x,46)}</span>`).join('')}</div>
    <div class="sec">${T('account')}</div><div class="sub">${T('guest_desc')}</div><div class="card" style="gap:6px;flex-wrap:wrap">${inp('pMail',T('email'),80)}${inp('pPass',T('pass_ph'),64)}<button class="btn" data-o="link">${T('link')}</button></div><div class="sub">${T('google_soon')}</div>`;if(isAdm)h+=`<button class="btn o" data-o="modOpen" style="width:100%;margin-top:8px">🛡️ ${T('mod_t')}</button>`}
   else h+=`${c.blocks_me?`<div class="sub">🚫 ${T('blocks_you')}</div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button class="btn o" data-o="duel" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>${T('duel_btn')}</button><button class="btn" data-o="dmOpen" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>✉️ ${T('dm_btn')}</button><button class="btn x" data-o="repP" data-v="${id}">🚩 ${T('report')}</button><button class="btn x" data-o="block" data-v="${id}">${c.blocked?'✅ '+T('unblock'):'🚫 '+T('block')}</button></div>`;
   return h})}
@@ -194,13 +199,27 @@ function fwHtml(){const d=fwData||{},ph=d.phase||'prep',f=x=>x?new Date(x).toLoc
 function seasonEndTs(){const d=new Date(Date.now()+3*36e5);return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)-3*36e5}
 let cupD=null;const CUP_RW={1:{gems:80,crys:400,ush:15},2:{gems:50,crys:250,ush:8},3:{gems:30,crys:150},5:{gems:15,crys:80}};
 const rwTxt=o=>Object.entries(o).map(([k,v])=>`${(G.L.RIC&&G.L.RIC[k])||(k==='ush'?'✨':k)}${fmt(v)}`).join(' ');
+const cupNm=p=>p.id?(p.nick||'?'):'🌫️ '+T('cup_ghost'),CUP_PN={1:'cup_p1',2:'cup_p2',3:'cup_p3',5:'cup_p5'};
 function cupHtml(){const c=cupD&&cupD.cup,pn=p=>T({1:'cup_p1',2:'cup_p2',3:'cup_p3',5:'cup_p5'}[p]);let h=`<h3><span><button class="btn x sm" data-o="pvpTab" data-v="arena">‹</button> ⚖️🏆 ${T('cup_t',[esc(cupD?cupD.week:'')])}</span><button class="btn x close">✕</button></h3><div class="sub" style="margin:4px 0 8px">${T('cup_desc')}</div>`;
  if(!cupD)return h+'<div class="sub">…</div>';
  if(!c)h+=`<button class="btn o" data-o="cupGo" style="width:100%;margin:4px 0 10px">${T('cup_play')}</button>`;
  else{h+=`<div class="card me" style="border-color:#ffd84a"><div class="ic" style="font-size:30px">${c.place===1?'🥇':c.place===2?'🥈':c.place===3?'🥉':'🎖️'}</div><div class="mid"><div class="nm">${T('cup_you',[pn(c.place)])}</div><div class="sub">${rwTxt(c.reward)} · ${T('cup_done')}</div></div></div>`;
   const nm=p=>p.id?esc(p.nick||'?'):'🌫️ '+T('cup_ghost');
-  c.bracket.forEach((ms,ri)=>{h+=`<div class="sec">${T(['cup_r1','cup_r2','cup_r3'][ri])}</div>`;for(const m of ms){const me=x=>x.id===uid;h+=`<div class="card" style="padding:6px 10px;${me(m.a)||me(m.b)?'border-color:#ffd84a':''}"><div class="mid"><div class="nm" style="font-size:13px">${m.w===0?'🏆 ':''}<span style="${m.w===0?'':'opacity:.55'}">${nm(m.a)}</span> <span class="sub">vs</span> ${m.w===1?'🏆 ':''}<span style="${m.w===1?'':'opacity:.55'}">${nm(m.b)}</span></div></div></div>`}})}
+  c.bracket.forEach((ms,ri)=>{h+=`<div class="sec">${T(['cup_r1','cup_r2','cup_r3'][ri])}</div>`;for(const m of ms){const me=x=>x.id===uid;h+=`<div class="card" style="padding:6px 10px;${me(m.a)||me(m.b)?'border-color:#ffd84a':''}"><div class="mid"><div class="nm" style="font-size:13px">${m.w===0?'🏆 ':''}<span style="${m.w===0?'':'opacity:.55'}">${nm(m.a)}</span> <span class="sub">vs</span> ${m.w===1?'🏆 ':''}<span style="${m.w===1?'':'opacity:.55'}">${nm(m.b)}</span></div></div>${m.r?`<button class="btn sm" data-o="cupRp" data-v="${ri},${ms.indexOf(m)}" aria-label="${T('cup_watch')}">▶️</button>`:''}</div>`}});
+  h+=`<button class="btn o" data-o="cupShare" style="width:100%;margin:10px 0 4px">📤 ${T('cup_share')}</button>`}
  h+=`<div class="sec">${T('cup_rw')}</div>`;for(const p of[1,2,3,5])h+=`<div class="card ${c&&c.place===p?'me':''}" style="padding:6px 10px"><div class="mid"><div class="nm" style="font-size:13px">${pn(p)}</div></div><b>${rwTxt(CUP_RW[p])}</b></div>`;return h}
+
+function cupCard(){const c=cupD.cup,W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+ const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0b2a4a');g.addColorStop(.55,'#123d63');g.addColorStop(1,'#1a1030');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.globalAlpha=.18;for(let i=0;i<14;i++){x.fillStyle='#ffd84a';x.beginPath();x.moveTo(W/2,250);x.arc(W/2,250,1400,i*.45,i*.45+.12);x.fill()}x.globalAlpha=1;
+ const F=(sz,w)=>`${w||800} ${sz}px "Fredoka","Baloo 2",system-ui,sans-serif`;x.textAlign='center';x.fillStyle='#ffd84a';x.font=F(54);x.fillText('⚖️🏆 '+T('cup_t',[cupD.week]),W/2,120);
+ x.font=F(190,400);x.fillText(c.place===1?'🥇':c.place===2?'🥈':c.place===3?'🥉':'🎖️',W/2,360);x.fillStyle='#fff';x.font=F(68);x.fillText(T(CUP_PN[c.place]),W/2,470);
+ x.font=F(40,600);x.fillStyle='#cfe6ff';x.fillText(cupNm(c.bracket[0].flatMap(m=>[m.a,m.b]).find(p=>p.id===uid)||{nick:prof?.nick}),W/2,530);
+ let y=620;c.bracket.forEach((ms,ri)=>{x.fillStyle='#ffd84a';x.font=F(34);x.fillText(T(['cup_r1','cup_r2','cup_r3'][ri]).toUpperCase(),W/2,y);y+=50;
+  for(const m of ms){const me=m.a.id===uid||m.b.id===uid;x.fillStyle=me?'rgba(255,216,74,.22)':'rgba(255,255,255,.08)';x.beginPath();x.roundRect?x.roundRect(120,y-36,W-240,52,16):x.rect(120,y-36,W-240,52);x.fill();
+   x.font=F(30,700);x.fillStyle=m.w===0?'#fff':'rgba(255,255,255,.5)';x.textAlign='right';x.fillText((m.w===0?'🏆 ':'')+cupNm(m.a),W/2-40,y);x.fillStyle='#9fb8d0';x.textAlign='center';x.fillText('vs',W/2,y);
+   x.fillStyle=m.w===1?'#fff':'rgba(255,255,255,.5)';x.textAlign='left';x.fillText(cupNm(m.b)+(m.w===1?' 🏆':''),W/2+40,y);x.textAlign='center';y+=60}y+=16});
+ x.fillStyle='#ffd84a';x.font=F(44);x.fillText('Son Fener',W/2,H-80);x.fillStyle='#cfe6ff';x.font=F(28,600);x.fillText(location.host+location.pathname,W/2,H-40);return cv}
 function leagueHtml(){const a=arena||{rating:1000,best:1000,wins:0,losses:0,season:''},r=a.rating,ti=TIERS.findIndex(x=>x[0]===tier(r)),nx=TIERS[ti+1],end=seasonEndTs(),left=Math.max(0,Math.ceil((end-Date.now())/864e5));
  let h=`<h3><span><button class="btn x sm" data-o="pvpTab" data-v="arena">‹</button> 🏆 ${T('league_t')}</span><button class="btn x close">✕</button></h3>`;
  h+=`<div class="card" style="background:linear-gradient(135deg,#5a3a10,#1a1030)"><div class="ic" style="font-size:34px">${TIC[TIERS[ti][0]]}</div><div class="mid"><div class="nm">${tierN(TIERS[ti][0])} · ${r}</div>${nx?`<div class="pbar"><i style="width:${Math.min(100,(r-TIERS[ti][1])/(nx[1]-TIERS[ti][1])*100)}%"></i></div><div class="sub">${T('league_next',[nx[1]-r,tierN(nx[0])])}</div>`:`<div class="sub">${T('league_top')}</div>`}<div class="sub">${T('league_best',[a.best,a.wins,a.losses])}</div></div></div>`;
@@ -266,13 +285,26 @@ let bossCache=null;function bossHtml(){if(!online)return null;if(!bossCache||Dat
  const rows=bossCache.rows;return `<div class="sec">${T('real_board')}</div><div class="board">${rows.map((r,i)=>`<div class="card ${r.id===uid?'me':''}"><b style="width:26px">#${i+1}</b>${av(r.avatar,24)}<div class="mid">${r.id===uid?'⭐ '+T('you'):esc(r.nick)}${r.tag?` <span class="tag">[${esc(r.tag)}]</span>`:''}</div><b>${fmt(r.val)}</b></div>`).join('')||`<div class="sub">${T('kraken_first')}</div>`}</div>`}
 // ---------- savaş tekrarı ----------
 function replay(r,title){G.closeSheet?.();const bt=$('battle'),aH=r.a||null,dH=r.d||null;const side=(nick,avt,pw,list,id)=>`<div class="side" style="text-align:center">${list?`<div style="display:flex;gap:6px;justify-content:center">${list.map(x=>av(x.id,58)).join('')}</div>`:av(avt,80)}<div class="hl">${esc(nick)} · ⚔️ ${fmt(pw)}</div><div class="pbar" style="width:70%;margin:6px auto"><i id="${id}" style="width:100%;transition:width .4s"></i></div></div>`;
- bt.innerHTML=`<div class="top">${title}</div>${side(r.def_nick,r.def_avatar,r.def_power,dH,'hpE')}<div class="waves" id="rLog" style="text-align:center;font-weight:900;font-size:22px;min-height:40px"></div>${side(T('you'),prof?.avatar,r.att_power,aH,'hpA')}`;
+ bt.innerHTML=`<div class="top">${title}</div>${side(r.def_nick,r.def_avatar,r.def_power,dH,'hpE')}<div class="waves" id="rLog" style="text-align:center;font-weight:900;font-size:22px;min-height:40px"></div>${side(r.att_nick||T('you'),r.att_avatar||prof?.avatar,r.att_power,aH,'hpA')}`;
  bt.classList.add('on');G.SFX?.boss?.();let i=0;const R=r.rounds||[];const iv=setInterval(()=>{const x=R[i++];if(!x){clearInterval(iv);setTimeout(()=>finish(r),500);return}
-  $('hpE').style.width=(x.eHp/r.eMax*100)+'%';$('hpA').style.width=(x.hp/r.myMax*100)+'%';$('rLog').innerHTML=`<span style="color:#ffd84a">−${fmt(x.d1)}</span> &nbsp; <span style="color:#ff6b6b">−${fmt(x.d2)}</span>`;G.SFX?.hit?.()},600)}
+  $('hpE').style.width=(x.eHp/r.eMax*100)+'%';$('hpA').style.width=(x.hp/r.myMax*100)+'%';$('rLog').innerHTML=`<span style="color:#ffd84a">−${fmt(x.d1)}</span> &nbsp; <span style="color:#ff6b6b">−${fmt(x.d2)}</span>`;juice(bt,x);G.SFX?.hit?.()},600)}
+const RM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+function juiceCss(){if($('sfJuice'))return;const st=document.createElement('style');st.id='sfJuice';st.textContent=`@keyframes sfShk{0%,100%{transform:translate(0,0)}20%{transform:translate(-7px,3px)}40%{transform:translate(6px,-4px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,2px)}}
+.sfShk{animation:sfShk .28s linear}@keyframes sfDmg{0%{opacity:0;transform:translate(-50%,0) scale(.6)}15%{opacity:1;transform:translate(-50%,-6px) scale(1.25)}100%{opacity:0;transform:translate(-50%,-70px) scale(1)}}@keyframes sfDmgR{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+.sfDmg{position:absolute;left:50%;font-weight:900;font-size:30px;pointer-events:none;text-shadow:0 2px 0 #000,0 0 12px rgba(0,0,0,.6);animation:sfDmg .9s ease-out forwards;z-index:5}.sfDmg.rm{animation-name:sfDmgR}.sfDmg.crit{font-size:40px}
+@keyframes sfHit{0%{filter:brightness(2.4) saturate(.2)}100%{filter:none}}.sfHit{animation:sfHit .25s ease-out}
+.sfSpark{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;background:#ffd84a;box-shadow:0 0 10px #ffb000;z-index:5;transition:transform .45s ease-out,opacity .45s}`;document.head.appendChild(st)}
+function juice(bt,x){juiceCss();const rm=RM(),sides=bt.querySelectorAll('.side');if(getComputedStyle(bt).position==='static')bt.style.position='relative';
+ const pop=(el,v,col,big)=>{if(!el||!v)return;const r=el.getBoundingClientRect(),b=bt.getBoundingClientRect(),d=document.createElement('div');d.className='sfDmg'+(rm?' rm':'')+(big?' crit':'');d.style.color=col;d.style.top=(r.top-b.top+r.height*.35+(Math.random()*16-8))+'px';d.style.left=(r.left-b.left+r.width*(.4+Math.random()*.2))+'px';d.textContent='−'+fmt(v)+(big?'!':'');bt.appendChild(d);setTimeout(()=>d.remove(),950);
+  el.classList.remove('sfHit');void el.offsetWidth;el.classList.add('sfHit');
+  if(!rm)for(let k=0;k<6;k++){const p=document.createElement('div');p.className='sfSpark';p.style.top=(r.top-b.top+r.height*.4)+'px';p.style.left=(r.left-b.left+r.width/2)+'px';p.style.background=col;bt.appendChild(p);requestAnimationFrame(()=>{const a=Math.random()*6.28,s=30+Math.random()*40;p.style.transform=`translate(${Math.cos(a)*s}px,${Math.sin(a)*s}px)`;p.style.opacity=0});setTimeout(()=>p.remove(),500)}};
+ const avg=(x.d1+x.d2)/2||1;pop(sides[0],x.d1,'#ffd84a',x.d1>avg*1.25);pop(sides[1],x.d2,'#ff6b6b',x.d2>avg*1.25);
+ if(!rm&&(x.d1>avg*1.25||x.d2>avg*1.25||Math.random()<.5)){bt.classList.remove('sfShk');void bt.offsetWidth;bt.classList.add('sfShk')}}
+window.__juice={RM,juice};
 function finish(r){const bt=$('battle');const loot=Object.entries(r.loot||{}).filter(([k,v])=>v&&G.L.RIC[k]).map(([k,v])=>`${G.L.RIC[k]}${fmt(v)}`).join(' ');
  const lost=Object.entries(r.att_lost||{}).filter(([,v])=>v).map(([k,v])=>`${G.L.TROOPS[k].ic}${-v}`).join(' ');
- const body=r.kind==='arena'?`${T('arena_pts')}: <b>${r.rating_change>0?'+':''}${r.rating_change}</b>`:r.kind==='duel'?T('duel_noloot'):r.kind==='fw'?`⭐ +${r.pts} · ${T('fw_left',[r.left])}`:r.kind==='front'?`<div style="font-size:34px">${stars(r.stars)}</div>${T('front_result',[r.dmg])}`:`${loot?T('loot')+': '+loot+'<br>':''}${lost?T('lost')+': '+lost:''}`;
- const close=()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war');if(r.kind==='fw')OA.fw()};G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>${r.kind==='duel'?`<p class="sub">⚔️ ${fmt(r.att_power)} vs ${fmt(r.def_power)} · ${T('duel_rounds',[(r.rounds||[]).length])}</p>`:''}`,r.kind==='duel'&&lastDuel?[[T('ok'),'x',close],['🔁 '+T('rematch'),'o',()=>{bt.classList.remove('on');setTimeout(()=>OA.duelGo(lastDuel),1600)}]]:[[T('ok'),'o',close]])}
+ const body=r.kind==='cup'?`🏆 <b>${esc(r.win?r.att_nick:r.def_nick)}</b>`:r.kind==='arena'?`${T('arena_pts')}: <b>${r.rating_change>0?'+':''}${r.rating_change}</b>`:r.kind==='duel'?T('duel_noloot'):r.kind==='fw'?`⭐ +${r.pts} · ${T('fw_left',[r.left])}`:r.kind==='front'?`<div style="font-size:34px">${stars(r.stars)}</div>${T('front_result',[r.dmg])}`:`${loot?T('loot')+': '+loot+'<br>':''}${lost?T('lost')+': '+lost:''}`;
+ const close=()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war');if(r.kind==='fw')OA.fw();if(r.kind==='cup')open('eqcup',cupHtml)};G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.kind==='cup'?esc(r.cupT||''):r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>${r.kind==='duel'?`<p class="sub">⚔️ ${fmt(r.att_power)} vs ${fmt(r.def_power)} · ${T('duel_rounds',[(r.rounds||[]).length])}</p>`:''}`,r.kind==='duel'&&lastDuel?[[T('ok'),'x',close],['🔁 '+T('rematch'),'o',()=>{bt.classList.remove('on');setTimeout(()=>OA.duelGo(lastDuel),1600)}]]:[[T('ok'),'o',close]])}
 // ---------- eylemler ----------
 const val=id=>($(id)?.value||'').trim();
 const OA={
@@ -309,6 +341,12 @@ const OA={
   G.modal(`<div style="font-size:46px">🤺</div><h2>${T('duel_t')}</h2><div style="display:flex;justify-content:space-around;align-items:center;margin:8px 0"><div>${av(prof?.avatar,52)}<div class="sub">${T('you')}</div><b>⚔️ ${fmt(me)}</b></div><b style="font-size:20px">VS</b><div>${av(o.avatar,52)}<div class="sub">${esc(o.nick)}</div><b>⚔️ ${fmt(o.power)}</b></div></div><p class="sub">${T('duel_rules')}</p>`,[[T('cancel'),'x'],['🤺 '+T('duel_go'),'o',()=>OA.duelGo(v)]])})},
  duelGo:async v=>{try{lastDuel=v;const r=await rpc('duel',{p_target:v});if(r.win){inc('arena');window.__g&&window.__g.ushArena&&window.__g.ushArena()}replay(r,'🤺 '+T('duel_t'))}catch(e){err(e)}},
  league:()=>open('league',leagueHtml),
+ cupRp:v=>{const[ri,mi]=String(v).split(',').map(Number),m=cupD?.cup?.bracket?.[ri]?.[mi];if(!m||!m.r)return;replay({kind:'cup',win:m.w===0,rounds:m.r,myMax:m.am,eMax:m.bm,att_nick:cupNm(m.a),att_avatar:m.a.avatar,att_power:m.a.pw,def_nick:cupNm(m.b),def_avatar:m.b.avatar,def_power:m.b.pw,cupT:T(['cup_r1','cup_r2','cup_r3'][ri])},'⚖️🏆 '+T(['cup_r1','cup_r2','cup_r3'][ri]))},
+ cupShare:async()=>{if(!cupD?.cup)return;const cv=cupCard();window.__cupCv=cv;const blob=await new Promise(r=>cv.toBlob(r,'image/png'));const f=new File([blob],'son-fener-cup-'+cupD.week+'.png',{type:'image/png'});
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Son Fener',text:T('cup_share_txt',[T(CUP_PN[cupD.cup.place])])+' '+location.origin+location.pathname});return}}catch(e){if(e&&e.name==='AbortError')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast(T('cup_saved'))},
+ invShare:async()=>{if(!refD)return;const url=location.origin+location.pathname+'?ref='+refD.code,txt=T('inv_msg',[refD.code]);try{if(navigator.share){await navigator.share({title:'Son Fener',text:txt,url});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(txt+' '+url);toast(T('inv_copied'))}catch(e){prompt(T('inv_t'),url)}},
  eqcup:async()=>{cupD=null;open('eqcup',cupHtml);try{cupD=await rpc('eq_cup_get');if(cur==='eqcup')G.renderSheet()}catch(e){err(e)}},
  cupGo:async()=>{try{cupD=await rpc('eq_cup_run');const rw=cupD.cup.reward;G.L.addRes(G.S,rw);if(rw.ush)G.S.ush=(G.S.ush||0)+rw.ush;G.save();G.ui();G.SFX&&G.SFX.win&&G.SFX.win();G.toast('🏆 '+T('cup_you',[T({1:'cup_p1',2:'cup_p2',3:'cup_p3',5:'cup_p5'}[cupD.cup.place])])+' '+rwTxt(rw));if(cur==='eqcup')G.renderSheet()}catch(e){err(e)}},
  fwAtk:async()=>{try{const r=await rpc('fw_attack');if(r.def_avatar==='🌫️')r.def_avatar='sisnur';r.def_nick=r.def_nick==='Sis Filosu'?T('fw_npc'):r.def_nick;replay(r,'🏮 '+T('fw_t'))}catch(e){err(e)}},
