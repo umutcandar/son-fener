@@ -35,3 +35,12 @@ tx('some.key', {name:'Ali'})    // "{name}" nesne ile
 - Anahtar önekleri: `ui.*` arayüz (game.js), `html.*` statik index metinleri (`applyDom` ile), `e.*` logic.js mesajları (toast'ta `tl()` ile ters çevrilir), `d.<EXPORT>.<yol>` logic.js veri tabloları (`localizeData(L)` yerinde çevirir).
 - `logic.js` saf kalır; içinde `t()` çağrılmaz. game.js'te yerel `t` değişkenleri olduğu için import adı `tx`.
 - Sayılar/tarihler: `fmtNum`, `fmtDec`, `fmtDate` (Intl, aktif yerel ayar).
+
+## 🎨 Sanat yönü / UI kiti (v3)
+
+- **Palet:** derin deniz `#0e2838` → teal panel `#1b4a5e / #22566f`, çizgi `#7fd8e8`, vurgu altın `#ffd27a`, pirinç `#d8a84a → #9a6a22`, ahşap `#6e4425 → #b98250`, uyarı mercan `#d8433a`.
+- **Tipografi:** Fredoka (700 başlık, 500–600 gövde); CJK için PingFang/Noto Sans SC-TC, Arapça için Noto Sans Arabic yedeği.
+- **Paneller:** ahşap çerçeve (`--wood`) + iç pirinç çizgi + köşe perçinleri; başlıklar kırlangıç kuyruklu teal kurdele (`#modal h2`); alt sayfalar pirinç + ahşap üst kenar.
+- **Butonlar:** `.btn` + renk sınıfı (`o` turuncu ana eylem, `g` yeşil/onay, `x` ikincil), üst parlama + alt gölge.
+- **3B:** tüm Lambert malzemelerde toon bant + rim ışık + yumuşak AO (`toon()`); okyanus derinlik rengi + parıltı + kıyı halkası (`waterMat()`); sis sprite'larında animasyonlu fbm gürültüsü (`fogMat()`).
+- **Seviye detayı:** Sv2 fıçı, Sv3 dalgalanan bayrak, Sv4 baca + duman, Sv6 taş/altın kaide, Sv8 parlayan fener.
