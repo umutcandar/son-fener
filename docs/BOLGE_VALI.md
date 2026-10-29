@@ -1,6 +1,6 @@
 # Deniz Bölgeleri ve Vali (Sea Regions & Governor) — design draft (B24)
 
-Status: design + schema skeleton only. Not applied, no gameplay.
+Status (B25): live. Schema in supabase/sea_zones.sql. Each server sea (public.regions) has 7 zones. A clan leader picks a home zone (can change once per week). Influence = this week's Serpent damage/100 + 20 per member (hourly cron :17). Leaders and officers vote with weight sqrt(own clan influence), at any time during the week. zone_close runs Mondays 00:05 (UTC+3), is idempotent, and a clan can't govern a 3rd week in a row. The title is cosmetic for now; a buff is a later step.
 
 ## Idea
 - The sea is split into **regions**, for example 7 per server-sea: Kuzey Akıntısı, Mercan Sığlığı, Sis Körfezi...
