@@ -1245,5 +1245,16 @@
  "o.mod_line": "{0} denuncias · {1} personas",
  "o.mod_dismiss": "Descartar",
  "o.mod_done": "Acción aplicada",
- "o.err.not_admin": "Se requieren permisos de administrador"
+ "o.err.not_admin": "Se requieren permisos de administrador",
+ "ui.play": "Jugar",
+ "ui.take": "Recoger",
+ "ui.take_x2": "Recoger x2 (anuncio)",
+ "ui.ush_arena": "Victoria en la arena",
+ "ui.ltip0": "Cuanto más brilla tu faro, más retrocede la niebla.",
+ "ui.ltip1": "Fusiona edificios iguales para crear otros más fuertes.",
+ "ui.ltip2": "Las tareas diarias dan polvo estelar ✨ para mejorar talentos de capitanes.",
+ "ui.ltip3": "Únete a un clan: investigad juntos y luchad en el frente.",
+ "ui.ltip4": "El modo justo de la arena iguala las diferencias de poder.",
+ "ui.ltip5": "Tu partida se guarda automáticamente en la nube.",
+ "o.mod_log": "Registro de auditoría"
 }

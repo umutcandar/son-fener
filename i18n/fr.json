@@ -1245,5 +1245,16 @@
  "o.mod_line": "{0} signalements · {1} personnes",
  "o.mod_dismiss": "Classer",
  "o.mod_done": "Action appliquée",
- "o.err.not_admin": "Droits d’administrateur requis"
+ "o.err.not_admin": "Droits d’administrateur requis",
+ "ui.play": "Jouer",
+ "ui.take": "Récupérer",
+ "ui.take_x2": "Récupérer x2 (pub)",
+ "ui.ush_arena": "Victoire en arène",
+ "ui.ltip0": "Plus ton phare brille, plus le brouillard recule.",
+ "ui.ltip1": "Fusionne des bâtiments identiques pour en créer de plus puissants.",
+ "ui.ltip2": "Les tâches quotidiennes donnent de la poussière d’étoile ✨ pour les talents des capitaines.",
+ "ui.ltip3": "Rejoins un clan : recherchez ensemble et combattez sur le front.",
+ "ui.ltip4": "Le mode équitable de l’arène compense les écarts de puissance.",
+ "ui.ltip5": "Ta sauvegarde est copiée automatiquement dans le cloud.",
+ "o.mod_log": "Journal d’audit"
 }

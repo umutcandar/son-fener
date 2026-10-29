@@ -1245,5 +1245,16 @@
  "o.mod_line": "{0} reports · {1} people",
  "o.mod_dismiss": "Dismiss",
  "o.mod_done": "Action applied",
- "o.err.not_admin": "Admin rights required"
+ "o.err.not_admin": "Admin rights required",
+ "ui.play": "Play",
+ "ui.take": "Collect",
+ "ui.take_x2": "Collect x2 (ad)",
+ "ui.ush_arena": "Arena victory",
+ "ui.ltip0": "The brighter your beacon, the further the fog retreats.",
+ "ui.ltip1": "Merge matching buildings to create stronger ones.",
+ "ui.ltip2": "Daily tasks give stardust ✨ — use it to raise captain talents.",
+ "ui.ltip3": "Join a clan: research tech together and fight on the front.",
+ "ui.ltip4": "Fair-match mode in the arena evens out power gaps.",
+ "ui.ltip5": "Your save is backed up to the cloud automatically — switch devices freely.",
+ "o.mod_log": "Audit log"
 }

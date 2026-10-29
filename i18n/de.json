@@ -1245,5 +1245,16 @@
  "o.mod_line": "{0} Meldungen · {1} Personen",
  "o.mod_dismiss": "Verwerfen",
  "o.mod_done": "Aktion ausgeführt",
- "o.err.not_admin": "Adminrechte erforderlich"
+ "o.err.not_admin": "Adminrechte erforderlich",
+ "ui.play": "Spielen",
+ "ui.take": "Einsammeln",
+ "ui.take_x2": "x2 einsammeln (Werbung)",
+ "ui.ush_arena": "Arenasieg",
+ "ui.ltip0": "Je heller dein Leuchtfeuer, desto weiter weicht der Nebel.",
+ "ui.ltip1": "Verschmelze gleiche Gebäude zu stärkeren.",
+ "ui.ltip2": "Tagesaufgaben geben Sternenstaub ✨ – damit steigerst du Kapitänstalente.",
+ "ui.ltip3": "Tritt einem Clan bei: gemeinsam forschen und an der Front kämpfen.",
+ "ui.ltip4": "Der Fair-Modus in der Arena gleicht Machtunterschiede aus.",
+ "ui.ltip5": "Dein Spielstand wird automatisch in der Cloud gesichert.",
+ "o.mod_log": "Prüfprotokoll"
 }

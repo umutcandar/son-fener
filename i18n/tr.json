@@ -1245,5 +1245,16 @@
  "o.mod_line": "{0} şikâyet · {1} kişi",
  "o.mod_dismiss": "Kapat",
  "o.mod_done": "İşlem uygulandı",
- "o.err.not_admin": "Bu işlem için yönetici yetkisi gerekir"
+ "o.err.not_admin": "Bu işlem için yönetici yetkisi gerekir",
+ "ui.play": "Oyna",
+ "ui.take": "Al",
+ "ui.take_x2": "x2 Al (reklam)",
+ "ui.ush_arena": "Arena zaferi",
+ "ui.ltip0": "Fener ne kadar parlaksa sis o kadar geri çekilir.",
+ "ui.ltip1": "Aynı binaları birleştirerek daha güçlü olanları kur.",
+ "ui.ltip2": "Günlük görevler yıldız tozu ✨ verir; kaptan yeteneklerini onunla yükselt.",
+ "ui.ltip3": "Bir klana katıl: birlikte teknoloji araştırın ve cephede savaşın.",
+ "ui.ltip4": "Arenada adil eşleşme modu güç farkını dengeler.",
+ "ui.ltip5": "Kaydın buluta otomatik yedeklenir; cihaz değiştirsen de kaybolmaz.",
+ "o.mod_log": "Denetim kaydı"
 }

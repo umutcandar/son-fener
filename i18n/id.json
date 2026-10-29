@@ -1245,5 +1245,16 @@
  "o.mod_line": "{0} laporan · {1} orang",
  "o.mod_dismiss": "Abaikan",
  "o.mod_done": "Tindakan diterapkan",
- "o.err.not_admin": "Perlu hak admin"
+ "o.err.not_admin": "Perlu hak admin",
+ "ui.play": "Main",
+ "ui.take": "Ambil",
+ "ui.take_x2": "Ambil x2 (iklan)",
+ "ui.ush_arena": "Kemenangan arena",
+ "ui.ltip0": "Makin terang mercusuarmu, makin jauh kabut mundur.",
+ "ui.ltip1": "Gabungkan bangunan yang sama untuk membuat yang lebih kuat.",
+ "ui.ltip2": "Tugas harian memberi debu bintang ✨ untuk menaikkan bakat kapten.",
+ "ui.ltip3": "Gabung klan: riset teknologi bersama dan bertarung di garis depan.",
+ "ui.ltip4": "Mode adil di arena menyeimbangkan selisih kekuatan.",
+ "ui.ltip5": "Simpananmu otomatis dicadangkan ke cloud.",
+ "o.mod_log": "Log audit"
 }

@@ -1245,5 +1245,16 @@
  "o.mod_line": "{0} denúncias · {1} pessoas",
  "o.mod_dismiss": "Descartar",
  "o.mod_done": "Ação aplicada",
- "o.err.not_admin": "Requer permissão de administrador"
+ "o.err.not_admin": "Requer permissão de administrador",
+ "ui.play": "Jogar",
+ "ui.take": "Coletar",
+ "ui.take_x2": "Coletar x2 (anúncio)",
+ "ui.ush_arena": "Vitória na arena",
+ "ui.ltip0": "Quanto mais forte o farol, mais a névoa recua.",
+ "ui.ltip1": "Combine construções iguais para criar outras mais fortes.",
+ "ui.ltip2": "Tarefas diárias dão poeira estelar ✨ para melhorar talentos dos capitães.",
+ "ui.ltip3": "Entre em um clã: pesquisem juntos e lutem no front.",
+ "ui.ltip4": "O modo justo da arena equilibra diferenças de poder.",
+ "ui.ltip5": "Seu progresso é salvo automaticamente na nuvem.",
+ "o.mod_log": "Registro de auditoria"
 }
