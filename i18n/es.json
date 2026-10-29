@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "¡El Guardián de Coral ha sido derrotado!",
  "ui.reef_boss_d": "Yusuf: «El corazón de los arrecifes late de nuevo. Los corales recuerdan nuestra luz».",
  "ui.reef_lose_d": "La niebla del arrecife era muy densa. Espera la marea alta o refuerza tu flota.",
- "d.FOES.reef.n": "Guardián de Coral"
+ "d.FOES.reef.n": "Guardián de Coral",
+ "ui.q_t": "Calidad gráfica",
+ "ui.q_d": "Baja: menos calor y consumo de batería",
+ "ui.q_auto": "Auto",
+ "ui.q_low": "Baja",
+ "ui.q_med": "Media",
+ "ui.q_high": "Alta"
 }

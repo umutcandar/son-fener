@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "O Guardião de Coral foi derrotado!",
  "ui.reef_boss_d": "Yusuf: “O coração dos recifes bate de novo. Os corais lembram da nossa luz.”",
  "ui.reef_lose_d": "A névoa do recife estava densa demais. Espere a maré alta ou fortaleça sua frota.",
- "d.FOES.reef.n": "Guardião de Coral"
+ "d.FOES.reef.n": "Guardião de Coral",
+ "ui.q_t": "Qualidade gráfica",
+ "ui.q_d": "Baixa: menos aquecimento e bateria",
+ "ui.q_auto": "Auto",
+ "ui.q_low": "Baixa",
+ "ui.q_med": "Média",
+ "ui.q_high": "Alta"
 }

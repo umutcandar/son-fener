@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "珊瑚守護者被擊敗了！",
  "ui.reef_boss_d": "優素福：“珊瑚礁的心臟重新跳動，珊瑚記起了我們的光。”",
  "ui.reef_lose_d": "礁石迷霧太濃了。等待漲潮或強化你的艦隊。",
- "d.FOES.reef.n": "珊瑚守護者"
+ "d.FOES.reef.n": "珊瑚守護者",
+ "ui.q_t": "畫質",
+ "ui.q_d": "低：發熱更少，更省電",
+ "ui.q_auto": "自動",
+ "ui.q_low": "低",
+ "ui.q_med": "中",
+ "ui.q_high": "高"
 }

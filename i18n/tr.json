@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "Mercan Muhafızı yenildi!",
  "ui.reef_boss_d": "Yusuf: “Resiflerin kalbi yeniden atıyor. Mercanlar ışığımızı hatırladı.”",
  "ui.reef_lose_d": "Resif sisi çok yoğundu. Yüksek gelgiti bekle ya da filonu güçlendir.",
- "d.FOES.reef.n": "Mercan Muhafızı"
+ "d.FOES.reef.n": "Mercan Muhafızı",
+ "ui.q_t": "Grafik kalitesi",
+ "ui.q_d": "Düşük: daha az ısınma ve pil tüketimi",
+ "ui.q_auto": "Otomatik",
+ "ui.q_low": "Düşük",
+ "ui.q_med": "Orta",
+ "ui.q_high": "Yüksek"
 }

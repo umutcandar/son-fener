@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "Penjaga Karang dikalahkan!",
  "ui.reef_boss_d": "Yusuf: “Jantung terumbu berdetak lagi. Karang mengingat cahaya kita.”",
  "ui.reef_lose_d": "Kabut karang terlalu tebal. Tunggu pasang atau perkuat armadamu.",
- "d.FOES.reef.n": "Penjaga Karang"
+ "d.FOES.reef.n": "Penjaga Karang",
+ "ui.q_t": "Kualitas grafis",
+ "ui.q_d": "Rendah: lebih hemat baterai dan tidak panas",
+ "ui.q_auto": "Otomatis",
+ "ui.q_low": "Rendah",
+ "ui.q_med": "Sedang",
+ "ui.q_high": "Tinggi"
 }

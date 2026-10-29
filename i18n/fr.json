@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "Le Gardien de corail est vaincu !",
  "ui.reef_boss_d": "Yusuf : « Le cœur des récifs bat à nouveau. Les coraux se souviennent de notre lumière. »",
  "ui.reef_lose_d": "Le brouillard du récif était trop dense. Attends la marée haute ou renforce ta flotte.",
- "d.FOES.reef.n": "Gardien de corail"
+ "d.FOES.reef.n": "Gardien de corail",
+ "ui.q_t": "Qualité graphique",
+ "ui.q_d": "Basse : moins de chauffe et de batterie",
+ "ui.q_auto": "Auto",
+ "ui.q_low": "Basse",
+ "ui.q_med": "Moyenne",
+ "ui.q_high": "Haute"
 }

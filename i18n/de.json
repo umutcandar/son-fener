@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "Der Korallenwächter ist besiegt!",
  "ui.reef_boss_d": "Yusuf: „Das Herz der Riffe schlägt wieder. Die Korallen erinnern sich an unser Licht.“",
  "ui.reef_lose_d": "Der Riffnebel war zu dicht. Warte auf die Flut oder stärke deine Flotte.",
- "d.FOES.reef.n": "Korallenwächter"
+ "d.FOES.reef.n": "Korallenwächter",
+ "ui.q_t": "Grafikqualität",
+ "ui.q_d": "Niedrig: weniger Wärme und Akkuverbrauch",
+ "ui.q_auto": "Auto",
+ "ui.q_low": "Niedrig",
+ "ui.q_med": "Mittel",
+ "ui.q_high": "Hoch"
 }

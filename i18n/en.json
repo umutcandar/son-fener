@@ -1268,5 +1268,11 @@
  "ui.reef_boss_win": "The Coral Warden is defeated!",
  "ui.reef_boss_d": "Yusuf: “The heart of the reefs beats again. The corals remember our light.”",
  "ui.reef_lose_d": "The reef fog was too thick. Wait for high tide or strengthen your fleet.",
- "d.FOES.reef.n": "Coral Warden"
+ "d.FOES.reef.n": "Coral Warden",
+ "ui.q_t": "Graphics quality",
+ "ui.q_d": "Low: less heat and battery drain",
+ "ui.q_auto": "Auto",
+ "ui.q_low": "Low",
+ "ui.q_med": "Medium",
+ "ui.q_high": "High"
 }
