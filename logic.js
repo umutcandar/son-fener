@@ -102,51 +102,51 @@ const heroMaxStar=S=>Math.max(0,...Object.values(S.heroes).map(h=>h.star));
 const islB=(S,id)=>Object.keys(gridOf(S,id)).length;
 export const QUESTS=[
  // 1
- {c:0,t:'Feneri yak',f:S=>S.fener.on?1:0,n:1,r:{wood:60,gems:5}},
- {c:0,t:'Madene 2 işçi ata',f:S=>mx(S,'mine'),n:2,r:{fish:60,gems:5}},
- {c:0,t:'Kaynak topla',f:S=>S.st.collect,n:1,r:{wood:80,gems:5}},
- {c:0,t:'2 binayı birleştir',f:S=>S.st.merge,n:1,r:{crys:40,gems:10}},
- {c:0,t:'Balıkçıya 2 işçi ata',f:S=>mx(S,'fisher'),n:2,r:{wood:120,gems:5}},
- {c:0,t:'8 kurtulana ulaş',f:S=>S.surv,n:8,r:{fish:150,ticket:1}},
- {c:0,t:'Feneri Sv2 yap',f:S=>S.fener.lv,n:2,r:{gems:40,crys:60},say:'Işık uzağa vuruyor! Sis bir adım geri çekildi.'},
+ {c:0,go:'fener',t:'Feneri yak',f:S=>S.fener.on?1:0,n:1,r:{wood:60,gems:5}},
+ {c:0,go:'b:mine',t:'Madene 2 işçi ata',f:S=>mx(S,'mine'),n:2,r:{fish:60,gems:5}},
+ {c:0,go:'collect',t:'Kaynak topla',f:S=>S.st.collect,n:1,r:{wood:80,gems:5}},
+ {c:0,go:'merge',t:'2 binayı birleştir',f:S=>S.st.merge,n:1,r:{crys:40,gems:10}},
+ {c:0,go:'b:fisher',t:'Balıkçıya 2 işçi ata',f:S=>mx(S,'fisher'),n:2,r:{wood:120,gems:5}},
+ {c:0,go:'build:hut',t:'8 kurtulana ulaş',f:S=>S.surv,n:8,r:{fish:150,ticket:1}},
+ {c:0,go:'fener',t:'Feneri Sv2 yap',f:S=>S.fener.lv,n:2,r:{gems:40,crys:60},say:'Işık uzağa vuruyor! Sis bir adım geri çekildi.'},
  // 2
- {c:1,t:'Tersane kur',f:S=>count(S,'yard'),n:1,r:{fish:80}},
- {c:1,t:'10 tayfa eğit',f:S=>S.st.trained,n:10,r:{wood:100}},
- {c:1,t:'İlk adayı sisten kurtar',f:S=>S.stage-1,n:1,r:{gems:20}},
- {c:1,t:'Sv3 bir bina yap',f:topLv,n:3,r:{crys:60}},
- {c:1,t:'Bir kaptan çağır',f:S=>S.st.recruit,n:1,r:{gems:30}},
- {c:1,t:'Gemiye 1 donanım yap',f:gearSum,n:1,r:{wood:120}},
- {c:1,t:'3 ada kurtar',f:S=>S.stage-1,n:3,r:{gems:30},say:'Kurtardığın her ada, kıyımıza yeni insanlar getiriyor.'},
+ {c:1,go:'build:yard',t:'Tersane kur',f:S=>count(S,'yard'),n:1,r:{fish:80}},
+ {c:1,go:'b:yard',t:'10 tayfa eğit',f:S=>S.st.trained,n:10,r:{wood:100}},
+ {c:1,go:'map',t:'İlk adayı sisten kurtar',f:S=>S.stage-1,n:1,r:{gems:20}},
+ {c:1,go:'merge',t:'Sv3 bir bina yap',f:topLv,n:3,r:{crys:60}},
+ {c:1,go:'heroes',t:'Bir kaptan çağır',f:S=>S.st.recruit,n:1,r:{gems:30}},
+ {c:1,go:'gear',t:'Gemiye 1 donanım yap',f:gearSum,n:1,r:{wood:120}},
+ {c:1,go:'map',t:'3 ada kurtar',f:S=>S.stage-1,n:3,r:{gems:30},say:'Kurtardığın her ada, kıyımıza yeni insanlar getiriyor.'},
  // 3
- {c:2,t:'Feneri Sv3 yap',f:S=>S.fener.lv,n:3,r:{gems:30}},
- {c:2,t:'Gözlemevi kur',f:S=>count(S,'lab'),n:1,r:{crys:80}},
- {c:2,t:'İlk araştırmayı bitir',f:techSum,n:1,r:{gems:40}},
- {c:2,t:'Bir kaptanı Sv5 yap',f:heroMaxLv,n:5,r:{crys:60}},
- {c:2,t:'Sis Gecesini 2 kez püskürt',f:S=>S.st.repel,n:2,r:{gems:30}},
- {c:2,t:'Toplam 50 tayfa eğit',f:S=>S.st.trained,n:50,r:{fish:200}},
- {c:2,t:'5 ada kurtar',f:S=>S.stage-1,n:5,r:{gems:50},say:'Ufukta bir atol görünüyor… pembe kumlu, sahipsiz.'},
+ {c:2,go:'fener',t:'Feneri Sv3 yap',f:S=>S.fener.lv,n:3,r:{gems:30}},
+ {c:2,go:'build:lab',t:'Gözlemevi kur',f:S=>count(S,'lab'),n:1,r:{crys:80}},
+ {c:2,go:'b:lab',t:'İlk araştırmayı bitir',f:techSum,n:1,r:{gems:40}},
+ {c:2,go:'heroes',t:'Bir kaptanı Sv5 yap',f:heroMaxLv,n:5,r:{crys:60}},
+ {c:2,go:'fener',t:'Sis Gecesini 2 kez püskürt',f:S=>S.st.repel,n:2,r:{gems:30}},
+ {c:2,go:'b:yard',t:'Toplam 50 tayfa eğit',f:S=>S.st.trained,n:50,r:{fish:200}},
+ {c:2,go:'map',t:'5 ada kurtar',f:S=>S.stage-1,n:5,r:{gems:50},say:'Ufukta bir atol görünüyor… pembe kumlu, sahipsiz.'},
  // 4
- {c:3,t:'Mercan Atolü’nü sahiplen',f:S=>S.isl.mercan?.own?1:0,n:1,r:{gems:50}},
- {c:3,t:'Atolde 4 bina kur',f:S=>islB(S,'mercan'),n:4,r:{wood:200}},
- {c:3,t:'Feneri Sv4 yap',f:S=>S.fener.lv,n:4,r:{gems:40}},
- {c:3,t:'Kraken Avı’na katıl',f:S=>S.st.boss,n:1,r:{gems:30}},
- {c:3,t:'5 araştırma seviyesi',f:techSum,n:5,r:{crys:120}},
- {c:3,t:'2 yıldızlı bir kaptan',f:heroMaxStar,n:2,r:{ticket:1}},
- {c:3,t:'8 ada kurtar',f:S=>S.stage-1,n:8,r:{gems:60},say:'Kül Adası’ndan kristal parıltısı geliyor. Oraya da ışık götürelim.'},
+ {c:3,go:'islands',t:'Mercan Atolü’nü sahiplen',f:S=>S.isl.mercan?.own?1:0,n:1,r:{gems:50}},
+ {c:3,go:'islands',t:'Atolde 4 bina kur',f:S=>islB(S,'mercan'),n:4,r:{wood:200}},
+ {c:3,go:'fener',t:'Feneri Sv4 yap',f:S=>S.fener.lv,n:4,r:{gems:40}},
+ {c:3,go:'boss',t:'Kraken Avı’na katıl',f:S=>S.st.boss,n:1,r:{gems:30}},
+ {c:3,go:'b:lab',t:'5 araştırma seviyesi',f:techSum,n:5,r:{crys:120}},
+ {c:3,go:'heroes',t:'2 yıldızlı bir kaptan',f:heroMaxStar,n:2,r:{ticket:1}},
+ {c:3,go:'map',t:'8 ada kurtar',f:S=>S.stage-1,n:8,r:{gems:60},say:'Kül Adası’ndan kristal parıltısı geliyor. Oraya da ışık götürelim.'},
  // 5
- {c:4,t:'Kül Adası’nı sahiplen',f:S=>S.isl.volkan?.own?1:0,n:1,r:{gems:60}},
- {c:4,t:'Feneri Sv5 yap',f:S=>S.fener.lv,n:5,r:{gems:80}},
- {c:4,t:'Sv5 bir bina yap',f:topLv,n:5,r:{crys:150}},
- {c:4,t:'10 araştırma seviyesi',f:techSum,n:10,r:{gems:60}},
- {c:4,t:'Toplam 10 donanım seviyesi',f:gearSum,n:10,r:{ticket:1}},
- {c:4,t:'Bir kaptanı Sv15 yap',f:heroMaxLv,n:15,r:{gems:60}},
- {c:4,t:'12 ada kurtar',f:S=>S.stage-1,n:12,r:{gems:100},say:'Derinlerden yükselen sis, daha önce görmediğim kadar koyu…'},
+ {c:4,go:'islands',t:'Kül Adası’nı sahiplen',f:S=>S.isl.volkan?.own?1:0,n:1,r:{gems:60}},
+ {c:4,go:'fener',t:'Feneri Sv5 yap',f:S=>S.fener.lv,n:5,r:{gems:80}},
+ {c:4,go:'merge',t:'Sv5 bir bina yap',f:topLv,n:5,r:{crys:150}},
+ {c:4,go:'b:lab',t:'10 araştırma seviyesi',f:techSum,n:10,r:{gems:60}},
+ {c:4,go:'gear',t:'Toplam 10 donanım seviyesi',f:gearSum,n:10,r:{ticket:1}},
+ {c:4,go:'heroes',t:'Bir kaptanı Sv15 yap',f:heroMaxLv,n:15,r:{gems:60}},
+ {c:4,go:'map',t:'12 ada kurtar',f:S=>S.stage-1,n:12,r:{gems:100},say:'Derinlerden yükselen sis, daha önce görmediğim kadar koyu…'},
  // 6
- {c:5,t:'Feneri Sv6 yap',f:S=>S.fener.lv,n:6,r:{gems:100}},
- {c:5,t:'15 ada kurtar',f:S=>S.stage-1,n:15,r:{gems:150}},
- {c:5,t:'Sv7 bir bina yap',f:topLv,n:7,r:{ticket:2}},
- {c:5,t:'20 ada kurtar',f:S=>S.stage-1,n:20,r:{gems:200}},
- {c:5,t:'Feneri Sv7 yap',f:S=>S.fener.lv,n:7,r:{gems:300},say:'Başardın evlat. Deniz yeniden ışıl ışıl. Ama ufukta… yeni sisler var. Hikâye sürecek!'}];
+ {c:5,go:'fener',t:'Feneri Sv6 yap',f:S=>S.fener.lv,n:6,r:{gems:100}},
+ {c:5,go:'map',t:'15 ada kurtar',f:S=>S.stage-1,n:15,r:{gems:150}},
+ {c:5,go:'merge',t:'Sv7 bir bina yap',f:topLv,n:7,r:{ticket:2}},
+ {c:5,go:'map',t:'20 ada kurtar',f:S=>S.stage-1,n:20,r:{gems:200}},
+ {c:5,go:'fener',t:'Feneri Sv7 yap',f:S=>S.fener.lv,n:7,r:{gems:300},say:'Başardın evlat. Deniz yeniden ışıl ışıl. Ama ufukta… yeni sisler var. Hikâye sürecek!'}];
 export const DAILY=[{id:'collect',t:'5 kez kaynak topla',n:5,g:10},{id:'merge',t:'3 birleştirme yap',n:3,g:10},{id:'train',t:'10 tayfa eğit',n:10,g:10},{id:'battle',t:'1 deniz savaşı kazan',n:1,g:15},{id:'recruit',t:'1 kaptan çağır',n:1,g:15},{id:'boss',t:'Kraken’e 1 kez saldır',n:1,g:15}];
 export const ACH=[
  {id:'m10',t:'Birleştirme Çırağı',d:'10 birleştirme',f:S=>S.st.merge,n:10,g:20},{id:'m100',t:'Birleştirme Ustası',d:'100 birleştirme',f:S=>S.st.merge,n:100,g:80},
@@ -318,7 +318,7 @@ export function step(S,dt,now,rng=Math.random){const ev=[];const m=dt/60;
   if(KINDS[b.k].res){b.stored=Math.min(storeCap(S,k,id),(b.stored||0)+rate(S,k,id)*m);if(auto&&b.stored>=1){const a=Math.floor(b.stored);addRes(S,{[KINDS[b.k].res]:a});b.stored-=a}}}
  if(S.train&&now>=S.train.end){S.troops[S.train.t]+=S.train.n;S.st.trained+=S.train.n;dailyInc(S,'train',S.train.n,now);ev.push({e:'trained',...S.train});S.train=null}
  if(S.research&&now>=S.research.end){S.tech[S.research.id]=(S.tech[S.research.id]||0)+1;ev.push({e:'researched',id:S.research.id});S.research=null}
- S.raftT+=dt;if(S.raftT>=RAFT_EVERY*(1-T_(S,'raft')*.1)){S.raftT=0;if(S.surv<cap(S)&&S.res.fish>0){S.surv++;ev.push({e:'raft'})}}
+ S.raftT+=dt;if(S.raftT>=(S.surv<8?25:RAFT_EVERY)*(1-T_(S,'raft')*.1)){S.raftT=0;if(S.surv<cap(S)&&S.res.fish>0){S.surv++;ev.push({e:'raft'})}}
  if(S.tut>=9){S.rescueT+=dt;if(S.rescueT>200){S.rescueT=0;ev.push({e:'wreck',n:2+Math.floor(rng()*3)})}
   const n=Math.floor(((now-S.t0)/1000+NIGHT_LEN)/NIGHT_EVERY);if(n>S.nightN){S.nightN=n;const need=nightNeed(S);
    if(lit(S)&&S.res.crys>=need){S.res.crys-=need;S.st.repel++;const gg=T_(S,'glow')*5;S.gems+=gg;ev.push({e:'repel',need,gg})}

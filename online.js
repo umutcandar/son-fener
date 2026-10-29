@@ -41,7 +41,7 @@ async function afterLogin(){prof=await rpc('ensure_profile');online=true;
  const{data:mu}=await sb.from('mutes').select('muted');muted=new Set((mu||[]).map(x=>x.muted));
  region=await rpc('my_region').catch(()=>null);
  await monetSync();
- await refreshClan();await claim();subscribe();setStatus();
+ await refreshClan();await claim();subscribe();setStatus();fwSide();fwPoll();setInterval(fwPoll,90000);
  setInterval(()=>{push();claim()},20000);setInterval(bossWatch,2000);lastBoss={w:G.S.boss.w,d:G.S.boss.dmg};
  addEventListener('visibilitychange',()=>document.hidden&&push())}
 // DEMO para durumu sunucuda (monet_*); çevrimdışı alımlar kuyruktan kaydedilir, sunucu esas
@@ -62,7 +62,7 @@ async function claim(){if(!online)return;let ev;try{ev=await rpc('claim_events')
  for(const e of ev){const d=e.delta||{};for(const[k,v]of Object.entries(d.res||{})){if(k==='gems')S.gems=Math.max(0,S.gems+v);else if(k in S.res)S.res[k]=Math.max(0,S.res[k]+v)}
   for(const[k,v]of Object.entries(d.troops||{}))if(k in S.troops)S.troops[k]=Math.max(0,S.troops[k]+v);
   if(d.help_sec)helpApply(S,d.help_sec*1000),toast(T('helped_by',[esc(d.from||T('clan')),d.help_sec]));
-  if(e.kind==='raided')toast(T('you_were_raided'));if(e.kind==='season')toast(T('season_reward',[tierN(d.tier),d.res.gems]));
+  if(e.kind==='raided')toast(T('you_were_raided'));if(e.kind==='fw')toast(T('fw_reward_t',[d.res.gems])+(d.vali?' 👑':''));if(e.kind==='season')toast(T('season_reward',[tierN(d.tier),d.res.gems]));
   if(e.kind==='front')toast(T(d.tie?'war_rw_tie':d.win?'war_rw_win':'war_rw_lose',[d.res.gems]))}
  G.ui();G.save();push()}
 function helpApply(S,ms){const ts=[S.train,S.research,S.fener?.end?S.fener:null];for(const g of Object.values(S.isl||{}))for(const b of Object.values(g?.g||{}))if(b.end)ts.push(b);for(const b of Object.values(S.g))if(b.end)ts.push(b);
@@ -75,7 +75,7 @@ async function refreshClan(){if(!online)return;try{clan=await rpc('clan_info')}c
 // ---------- arayüz yardımcıları ----------
 let cur='';const sheetIs=n=>cur===n&&$('sheet').classList.contains('on');const rerender=()=>G.renderSheet?.();
 function open(name,fn){const nw=cur!==name;cur=name;G.sheet(fn);if(nw)requestAnimationFrame(()=>{const e=document.querySelector('#sheet .body')||$('sheet');e.scrollTop=0})}
-function addButtons(){const row=$('bClan')?.parentElement;if(row&&!$('bPvp')){const b=document.createElement('div');b.className='pill';b.id='bPvp';b.innerHTML=T('btn_war');row.insertBefore(b,$('bClan'));b.onclick=()=>openPvp()}
+function addButtons(){const row=$('bClan')?.parentElement;if(row&&!$('bPvp')){const b=document.createElement('div');b.className='pill';b.id='bPvp';{const t=T('btn_war').trim(),i=t.indexOf(' ');b.title=t.slice(i+1);b.innerHTML=i>0?t.slice(0,i)+'<span class="lb"> '+esc(t.slice(i+1))+'</span>':esc(t)}row.insertBefore(b,$('bClan'));b.onclick=()=>openPvp()}
  if($('bClan'))$('bClan').onclick=()=>openClan();if($('bChat'))$('bChat').onclick=()=>openChat();
  $('sheet').addEventListener('click',ev=>{const b=ev.target.closest('[data-o]');if(!b)return;ev.stopPropagation();G.SFX?.tap?.();const f=OA[b.dataset.o];if(f)f(b.dataset.v,b)});
  $('sheet').addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='chIn')OA.send()})}
@@ -139,11 +139,30 @@ async function openProfile(id){id=id||uid;const{data:p}=await sb.from('profiles'
   return h})}
 const tier=r=>r>=1800?'Efsane':r>=1500?'Elmas':r>=1300?'Altın':r>=1100?'Gümüş':'Bronz';
 const TIERS=[['Bronz',0,50],['Gümüş',1100,100],['Altın',1300,180],['Elmas',1500,300],['Efsane',1800,500]];
+// ---------- Fener Savaşı yan düğmesi + puan bildirimi ----------
+let fwTot=null;const fwSum=d=>Object.values(d?.mine||{}).reduce((a,b)=>a+(+b||0),0);
+function fwSide(){const sd=$('side');if(!sd||$('sFw'))return;const b=document.createElement('button');b.className='sb';b.id='sFw';b.innerHTML=`🏮<small id="fwL">${T('fw_btn_s')}</small><i class="dot" id="fwdot"></i>`;sd.insertBefore(b,$('sSet')||null);b.onclick=()=>{G.SFX?.tap?.();OA.fw()}}
+function fwMark(){const d=fwData;if(!d||!$('sFw'))return;const ph=d.phase||'prep';$('fwL').textContent=T('fw_ph_'+ph);$('sFw').classList.toggle('hot',ph==='clash');
+ $('fwdot').style.display=(ph==='clash'&&d.left>0)||(ph==='reward'&&d.settled===false)?'block':'none';const t=fwSum(d);if(fwTot!=null&&t>fwTot)G.toast(T('fw_gain',[fmt(t-fwTot)]));fwTot=t}
+async function fwPoll(){if(!online||document.hidden)return;try{fwData=await rpc('fener_war_me');fwMark();if(sheetIs('fw'))rerender()}catch(e){console.warn(e.message)}}
 function fwHtml(){const d=fwData||{},ph=d.phase||'prep',f=x=>x?new Date(x).toLocaleString(locale,{weekday:'short',hour:'2-digit',minute:'2-digit'}):'';
- const P=[['prep','🛠️',f(d.clash_at)],['clash','🔥',f(d.reward_at)],['reward','🎁',f(d.end_at)]];
- let h=`<h3><span><button class="btn x sm" data-o="pvpTab" data-v="war">‹</button> 🏮 ${T('fw_t')}</span><button class="btn x close">✕</button></h3><div class="card" style="background:linear-gradient(135deg,#123a5a,#1a1030)"><div class="ic" style="font-size:32px">🏮</div><div class="mid"><div class="nm">${T('fw_t')} · ${esc(d.week||'')}</div><div class="sub">${T('fw_d')}</div><div class="sub">🌊 ${esc(regName())} ⚔️ ${d.matched?esc(T('reg_'+d.opp)):T('fw_wait')}</div></div></div><div class="sec">${T('fw_sched')}</div>`;
+ const P=[['prep','🛠️',f(d.clash_at)],['clash','🔥',f(d.reward_at)],['reward','🎁',f(d.end_at)]],us=+d.us||0,th=+d.them||0,pc=us+th?Math.round(us/(us+th)*100):50;
+ const oppN=d.npc?T('fw_npc'):d.opp?T('reg_'+d.opp):T('fw_wait');
+ let h=`<h3><span><button class="btn x sm" data-o="pvpTab" data-v="war">‹</button> 🏮 ${T('fw_t')}</span><button class="btn x close">✕</button></h3>`;
+ if(d.vali)h+=`<div class="card" style="background:linear-gradient(135deg,#6a4a10,#2a1a08);border-color:#ffd84a">${av(d.vali.avatar,40)}<div class="mid"><div class="nm">👑 ${T('fw_vali')}: ${esc(d.vali.nick)}${d.vali.me?` <span class="tag">${T('league_you')}</span>`:''}</div><div class="sub">${T('fw_vali_d',[esc(regName())])}</div></div></div>`;
+ h+=`<div class="card" style="display:block;background:linear-gradient(135deg,#123a5a,#1a1030)"><div class="sub" style="text-align:center">${esc(d.week||'')} · ${T('fw_'+ph)}</div>
+ <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0"><div style="text-align:center;flex:1"><div style="font-size:26px">🏮</div><b style="font-size:13px">${esc(regName())}</b><div style="font-size:20px;font-weight:900;color:#7ad7ff">${fmt(us)}</div></div><b style="font-size:18px">VS</b><div style="text-align:center;flex:1"><div style="font-size:26px">${d.npc?'🌫️':'🗼'}</div><b style="font-size:13px">${esc(oppN)}</b><div style="font-size:20px;font-weight:900;color:#ff8a7a">${fmt(th)}</div></div></div>
+ <div style="height:12px;border-radius:8px;background:#ff8a7a55;overflow:hidden"><div style="height:100%;width:${pc}%;background:linear-gradient(90deg,#2fa8ff,#7ad7ff);transition:width .6s"></div></div>
+ <div class="sub" style="text-align:center;margin-top:4px">⚔️ ${T('fw_dmg',[fmt(d.them_dmg||0),fmt(d.us_dmg||0)])}</div></div>`;
+ if(ph==='clash')h+=`<button class="btn o" data-o="fwAtk" style="width:100%;margin:4px 0" ${d.left>0?'':'disabled'}>🔥 ${T('fw_attack')} (${d.left??0}/3)</button>`;
+ else if(ph==='prep')h+=`<div class="card"><div class="ic">🔒</div><div class="mid"><div class="nm">${T('fw_attack')}</div><div class="sub">${T('fw_opens',[f(d.clash_at)])}</div></div></div>`;
+ else h+=`<div class="card"><div class="ic">🎁</div><div class="mid"><div class="nm">${d.settled?T('fw_settled'):T('fw_reward_d')}</div><div class="sub">${T('fw_rw_rule')}</div></div></div>`;
+ h+=`<div class="sec">${T('fw_sched')}</div>`;
  for(const[k,ic,until]of P)h+=`<div class="card ${k===ph?'me':''}"><div class="ic">${ic}</div><div class="mid"><div class="nm">${T('fw_'+k)} ${k===ph?`<span class="tag">${T('fw_now')}</span>`:''}</div><div class="sub">${T('fw_'+k+'_d')}${until?' · ⏳ '+until:''}</div></div></div>`;
- h+=`<div class="sec">${T('fw_pts')}</div><div class="sub">🏗️ ${T('fw_s_build')} · 🎖️ ${T('fw_s_train')} · 🐙 ${T('fw_s_kraken')} · 🏴‍☠️ ${T('fw_s_raid')}</div><div class="card"><div class="ic">⭐</div><div class="mid"><div class="nm">${T('fw_mine',[fmt(d.mine||0)])}</div><div class="sub">${T('fw_preview')}</div></div></div>`;
+ const m=d.mine||{},tot=Object.values(m).reduce((a,b)=>a+b,0),SRC=[['build','🏗️'],['help','🤝'],['kraken','🐙'],['raid','🏴‍☠️'],['clash','🔥']];
+ h+=`<div class="sec">${T('fw_pts')}</div><div class="card"><div class="ic">⭐</div><div class="mid"><div class="nm">${T('fw_mine',[fmt(tot)])}</div><div class="sub">${SRC.map(([k,ic])=>`${ic} ${T('fw_s_'+k)} ${fmt(m[k]||0)}`).join(' · ')}</div><div class="sub">${T('fw_caps')}</div></div></div>`;
+ if(d.top?.length){h+=`<div class="sec">${T('fw_top')}</div>`;d.top.forEach((x,i)=>h+=`<div class="card">${i===0?'👑':'#'+(i+1)} ${av(x.avatar,28)}<div class="mid"><div class="nm">${esc(x.nick)}</div></div><b>⭐ ${fmt(x.s)}</b></div>`)}
+ if(d.last)h+=`<div class="sec">${T('fw_last')}</div><div class="card"><div class="ic">${d.last.win?'🏆':'💀'}</div><div class="mid"><div class="nm">${esc(d.last.week)} · ${d.last.win?T('fw_won'):T('fw_lost')}</div><div class="sub">${fmt(d.last.us)} – ${fmt(d.last.them)}${d.last.vali?' · 👑 '+esc(d.last.vali):''}</div></div></div>`;
  return h}
 function seasonEndTs(){const d=new Date(Date.now()+3*36e5);return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)-3*36e5}
 function leagueHtml(){const a=arena||{rating:1000,best:1000,wins:0,losses:0,season:''},r=a.rating,ti=TIERS.findIndex(x=>x[0]===tier(r)),nx=TIERS[ti+1],end=seasonEndTs(),left=Math.max(0,Math.ceil((end-Date.now())/864e5));
@@ -189,7 +208,7 @@ function warHtml(){const w=war||{phase:'none'};const isOff=clan&&['lider','yard�
  return h+rewardsHtml()}
 const rewardsHtml=()=>`<div class="sec">${T('rewards')}</div><div class="sub">🏆 ${T('rw_win')}: 💎150 🪵2500 💠300 · 🤝 ${T('rw_tie')}: 💎80 · 💀 ${T('rw_lose')}: 💎40 — ${T('rw_note')}</div>`;
 function pvpHtml(){let h=hdr(T('war_hdr'))+tabs(pvpTab,[['raid','🏴‍☠️ '+T('t_raid')],['arena','🏟️ '+T('t_arena')],['war','🌫️ '+T('t_front')],['rep','📜 '+T('t_rep')],['lb','🏆 '+T('t_lb')]],'pvpTab');
- if(pvpTab==='war')return h+`<button class="btn o" data-o="fw" style="width:100%;margin:4px 0 8px">🏮 ${T('fw_btn')} <span class="tag">${T('fw_soon')}</span></button>`+warHtml();
+ if(pvpTab==='war')return h+`<button class="btn o" data-o="fw" style="width:100%;margin:4px 0 8px">🏮 ${T('fw_btn')} </button>`+warHtml();
  if(pvpTab==='raid'){const sh=new Date(prof?.shield_until)>new Date();h+=`<div class="card"><div class="mid"><div class="nm">${T('fleet_power')} ⚔️ ${fmt(prof?.power||0)}</div><div class="sub">${sh?T('shield_on'):T('shield_off')} · ${T('raid_rules')} · 🌊 ${esc(regName())}</div></div><button class="btn x" data-o="pvpTab" data-v="raid">🔄</button></div>`+(prof&&!prof.has_attacked&&Date.now()-new Date(prof.created_at)<6048e5?`<div class="card"><div class="ic">🐣</div><div class="mid"><div class="nm">${T('newbie_t')}</div><div class="sub">${T('newbie_d')}</div></div><button class="btn sm r" data-o="unprotect">${T('remove')}</button></div>`:'');
   if(!targets.length)h+=`<div class="sub">${T('no_targets')}</div>`;
   for(const x of targets)h+=`<div class="card">${av(x.avatar)}<div class="mid"><div class="nm" data-o="prof" data-v="${x.id}">${esc(x.nick)}${x.tag?` <span class="tag">[${esc(x.tag)}]</span>`:''}</div><div class="sub">⚔️ ${fmt(x.power)} · 🗺️ ${T('n_islands',[x.stage-1])}</div></div><button class="btn o" data-o="raid" data-v="${x.id}">${T('attack')}</button></div>`}
@@ -216,8 +235,8 @@ function replay(r,title){G.closeSheet?.();const bt=$('battle'),aH=r.a||null,dH=r
   $('hpE').style.width=(x.eHp/r.eMax*100)+'%';$('hpA').style.width=(x.hp/r.myMax*100)+'%';$('rLog').innerHTML=`<span style="color:#ffd84a">−${fmt(x.d1)}</span> &nbsp; <span style="color:#ff6b6b">−${fmt(x.d2)}</span>`;G.SFX?.hit?.()},600)}
 function finish(r){const bt=$('battle');const loot=Object.entries(r.loot||{}).filter(([k,v])=>v&&G.L.RIC[k]).map(([k,v])=>`${G.L.RIC[k]}${fmt(v)}`).join(' ');
  const lost=Object.entries(r.att_lost||{}).filter(([,v])=>v).map(([k,v])=>`${G.L.TROOPS[k].ic}${-v}`).join(' ');
- const body=r.kind==='arena'?`${T('arena_pts')}: <b>${r.rating_change>0?'+':''}${r.rating_change}</b>`:r.kind==='duel'?T('duel_noloot'):r.kind==='front'?`<div style="font-size:34px">${stars(r.stars)}</div>${T('front_result',[r.dmg])}`:`${loot?T('loot')+': '+loot+'<br>':''}${lost?T('lost')+': '+lost:''}`;
- const close=()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war')};G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>${r.kind==='duel'?`<p class="sub">⚔️ ${fmt(r.att_power)} vs ${fmt(r.def_power)} · ${T('duel_rounds',[(r.rounds||[]).length])}</p>`:''}`,r.kind==='duel'&&lastDuel?[[T('ok'),'x',close],['🔁 '+T('rematch'),'o',()=>{bt.classList.remove('on');setTimeout(()=>OA.duelGo(lastDuel),1600)}]]:[[T('ok'),'o',close]])}
+ const body=r.kind==='arena'?`${T('arena_pts')}: <b>${r.rating_change>0?'+':''}${r.rating_change}</b>`:r.kind==='duel'?T('duel_noloot'):r.kind==='fw'?`⭐ +${r.pts} · ${T('fw_left',[r.left])}`:r.kind==='front'?`<div style="font-size:34px">${stars(r.stars)}</div>${T('front_result',[r.dmg])}`:`${loot?T('loot')+': '+loot+'<br>':''}${lost?T('lost')+': '+lost:''}`;
+ const close=()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war');if(r.kind==='fw')OA.fw()};G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>${r.kind==='duel'?`<p class="sub">⚔️ ${fmt(r.att_power)} vs ${fmt(r.def_power)} · ${T('duel_rounds',[(r.rounds||[]).length])}</p>`:''}`,r.kind==='duel'&&lastDuel?[[T('ok'),'x',close],['🔁 '+T('rematch'),'o',()=>{bt.classList.remove('on');setTimeout(()=>OA.duelGo(lastDuel),1600)}]]:[[T('ok'),'o',close]])}
 // ---------- eylemler ----------
 const val=id=>($(id)?.value||'').trim();
 const OA={
@@ -247,7 +266,8 @@ const OA={
   G.modal(`<div style="font-size:46px">🤺</div><h2>${T('duel_t')}</h2><div style="display:flex;justify-content:space-around;align-items:center;margin:8px 0"><div>${av(prof?.avatar,52)}<div class="sub">${T('you')}</div><b>⚔️ ${fmt(me)}</b></div><b style="font-size:20px">VS</b><div>${av(o.avatar,52)}<div class="sub">${esc(o.nick)}</div><b>⚔️ ${fmt(o.power)}</b></div></div><p class="sub">${T('duel_rules')}</p>`,[[T('cancel'),'x'],['🤺 '+T('duel_go'),'o',()=>OA.duelGo(v)]])})},
  duelGo:async v=>{try{lastDuel=v;const r=await rpc('duel',{p_target:v});replay(r,'🤺 '+T('duel_t'))}catch(e){err(e)}},
  league:()=>open('league',leagueHtml),
- fw:async()=>{try{fwData=await rpc('fener_war_me')}catch(e){fwData=null}open('fw',fwHtml)},
+ fwAtk:async()=>{try{const r=await rpc('fw_attack');if(r.def_avatar==='🌫️')r.def_avatar='sisnur';r.def_nick=r.def_nick==='Sis Filosu'?T('fw_npc'):r.def_nick;replay(r,'🏮 '+T('fw_t'))}catch(e){err(e)}},
+ fw:async()=>{try{fwData=await rpc('fener_war_me');fwMark()}catch(e){fwData=null}open('fw',fwHtml)},
  unprotect:async()=>{try{await rpc('drop_protection');prof.has_attacked=true;toast(T('prot_removed'))}catch(e){err(e)}},
  eqArena:()=>{window.__eqArena=!window.__eqArena;openPvp()},
  raid:async v=>{try{await push();const r=await rpc('raid',{p_target:v});prof&&(prof.has_attacked=true);r.kind='raid';replay(r,'🏴‍☠️ '+T('t_raid'))}catch(e){err(e)}},
@@ -268,4 +288,4 @@ function initErr(){Object.assign(SERR,{'Önce bir klana katıl':'err.need_clan',
  'Savaş başladıktan sonra katıldın':'err.late','Hedef rakip klanda değil':'err.not_foe','3 saldırı hakkın bitti':'err.no_attacks','Biraz bekle':'err.wait','Kayıt yok':'err.no_save','Filon boş — önce tayfa eğit':'err.empty_fleet',
  'Kendine saldıramazsın':'err.self','Filo hâlâ dönüyor, biraz bekle':'err.fleet_back','Bugünkü baskın hakkın bitti':'err.raid_limit','Hedef kalkan altında':'err.shield','Yeni kaptan koruması (7 gün)':'err.newbie','Başka bölgede':'err.region',
  'Klan arkadaşına saldıramazsın':'err.clanmate','Bugünkü arena biletin bitti':'err.tickets','Kaptanın yok':'err.no_caps','Sohbetten geçici olarak susturuldun':'err.chat_muted','Mesaj 1-200 karakter olmalı':'err.msg_len','Çok hızlı yazıyorsun':'err.too_fast',
- 'Dakikada en fazla 12 mesaj':'err.per_min','Kanal yok':'err.channel','Kendinle savaşamazsın':'err.self'})}
+ 'Dakikada en fazla 12 mesaj':'err.per_min','Kanal yok':'err.channel','Kendinle savaşamazsın':'err.self','Çatışma yalnızca Cuma-Cumartesi':'err.fw_clash_only','Bugünkü saldırı hakların bitti (3/3)':'err.fw_no_attacks','Eşleşme yok':'err.fw_no_match','Bölge yok':'err.no_region'})}

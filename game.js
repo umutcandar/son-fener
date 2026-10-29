@@ -2,7 +2,7 @@
 import * as THREE from './lib/three.module.js';
 import * as L from './logic.js';
 import {t as tx,tl,lang,LANGS,setLang,localizeData,applyDom,locale,RTL} from './i18n.js';
-localizeData(L);applyDom();const LV=tx('ui.lv'),DEC=(1.5).toLocaleString(locale)[1];
+localizeData(L);applyDom();for(const id of ['bClan','bChat']){const e=document.getElementById(id);if(!e)continue;const t=e.textContent.trim(),i=t.indexOf(' ');if(i>0){e.title=t.slice(i+1);e.innerHTML=t.slice(0,i)+'<span class="lb"> '+t.slice(i+1)+'</span>'}}const LV=tx('ui.lv'),DEC=(1.5).toLocaleString(locale)[1];
 const {KINDS,RIC,TROOPS,HEROES,TECH,FOES,RARITY,GR}=L;
 const $=id=>document.getElementById(id);const now=()=>Date.now();
 const KEY='sonfener1',TS=1.3;
@@ -421,11 +421,11 @@ function battle(stage,camp){closeSheet();const res=L.simulate(S,stage,Math.rando
 function ui(){for(const r of L.RES)$('r_'+r).textContent=fmt(S.res[r]);$('r_gems').textContent=fmt(S.gems);$('flv').textContent=S.fener.lv;$('pow').textContent=fmt(L.armyPower(S));
  const t=now(),nt=L.night(S,t),ni=L.nightIn(S,t);$('nval').textContent=nt?tx('ui.sis_gecesi'):L.lit(S)?tx('ui.fener_yaniyor'):tx('ui.fener_sonuk');
  $('nsub').textContent=S.tut<9?tx('ui.egitim_2'):nt?`${tx('ui.bitise',[fmtT(-ni)])}`:`${tx('ui.sis_gecesine',[fmtT(ni),L.nightNeed(S)])}`;$('night').className=nt?'storm':L.lit(S)?'':'dark';
- $('surv').textContent=`${S.surv}/${L.cap(S)}`+(L.idle(S)>0?` ${tx('ui.bosta_2',[L.idle(S)])}`:'');$('bld').textContent=`${L.busyBuilders(S)}/${L.builderCount(S)}`;$('isl').textContent=S.stage-1;
+ {const id=L.idle(S),h=`${S.surv}/${L.cap(S)}`+(id>0?`<b class="idle" title="${tx('ui.bosta_2',[id])}">${id}</b>`:'');if($('surv').dataset.h!==h){$('surv').innerHTML=h;$('surv').dataset.h=h}}$('bld').textContent=`${L.busyBuilders(S)}/${L.builderCount(S)}`;$('isl').textContent=S.stage-1;
  const w=[];if(!L.lit(S))w.push(tx('ui.fener_sonuk_uretim_yariya'));else if(S.res.crys<L.nightNeed(S))w.push(`${tx('ui.sis_gecesi_icin_kristal',[L.nightNeed(S)])}`);if(S.res.fish<=0)w.push(tx('ui.balik_bitti'));const fg=Object.values(S.g).filter(b=>b.fog).length;if(fg)w.push(`${tx('ui.bina_sisli_arindir',[fg])}`);
  $('warn').style.display=w.length&&S.tut>=9?'block':'none';$('warn').textContent=w.join(' · ');
- const q=L.QUESTS[S.q];if(q){const v=Math.min(q.f(S),q.n),done=v>=q.n;const h=`<div>⭐ ${q.t}</div><div class="bar"><i style="width:${v/q.n*100}%"></i></div><div style="display:flex;justify-content:space-between;margin-top:3px;font-size:11px;color:#a9d8e8"><span>${v}/${q.n}</span><span>${costStr(q.r)}</span></div>${done?`<button class="btn o" id="qclaim" style="margin-top:5px;padding:6px 12px">${tx('ui.odulu_al')}</button>`:''}`;
-  if($('quest').dataset.h!==h){$('quest').innerHTML=h;$('quest').dataset.h=h;if(done)$('qclaim').onclick=claimQuest}}else $('quest').innerHTML=tx('ui.tum_bolum_gorevleri_tamam');
+ const q=L.QUESTS[S.q];if(q){const v=Math.min(q.f(S),q.n),done=v>=q.n;const h=`<div>⭐ ${q.t}</div><div class="bar"><i style="width:${v/q.n*100}%"></i></div><div style="display:flex;justify-content:space-between;margin-top:3px;font-size:11px;color:#a9d8e8"><span>${v}/${q.n}</span><span>${costStr(q.r)}</span></div>${done?`<button class="btn o" id="qclaim" style="margin-top:5px;padding:6px 12px">${tx('ui.odulu_al')}</button>`:q.go&&S.tut>=9?`<button class="btn" id="qgo">${tx('ui.quest_go')}</button>`:''}`;
+  if($('quest').dataset.h!==h){$('quest').innerHTML=h;$('quest').dataset.h=h;if(done)$('qclaim').onclick=claimQuest;else if($('qgo'))$('qgo').onclick=e=>{e.stopPropagation();SFX.tap();questGo()}}}else $('quest').innerHTML=tx('ui.tum_bolum_gorevleri_tamam');
  L.dailyReset(S,t);$('tdot').style.display=L.DAILY.some(d=>!S.daily.c[d.id]&&(S.daily.p[d.id]||0)>=d.n)||(q&&q.f(S)>=q.n)?'block':'none';$('hdot').style.display=S.freeCall!==L.day(t)||Object.keys(S.heroes).some(id=>S.heroes[id].sh>=S.heroes[id].star*10&&S.heroes[id].star<5)?'block':'none';
  const pt=L.passTier(S);let pc=0;for(let i=0;i<pt;i++){if(!S.pass.cl.f[i])pc++;if(S.pass.prem&&!S.pass.cl.p[i])pc++}$('pdot').style.display=pc?'block':'none';$('ldot').style.display=L.loginReady(S,t)?'block':'none';
  $('kdot').style.display=S.tut>=9&&(S.boss.day!==L.day(t)||S.boss.n<L.bossTries(S))?'block':'none';$('side').style.display=S.tut>=9?'flex':'none';
@@ -459,7 +459,32 @@ function tutCheck(){if(S.tut>=9)return;
  if(S.tut===3&&L.count(S,'hut')>=2){S.tut=4;closeSheet()}
  if(S.tut===4&&S.st.merge>=1){S.tut=9;S.t0=now();S.nightN=0;const g={gems:50,ticket:1,wood:150};L.addRes(S,g);save();setTimeout(()=>reward(tx('ui.egitim_tamamlandi'),g,{icon:'🎓',sub:tx('ui.harika_is_bekci_fener'),btn:tx('ui.devam'),cb:()=>talk([tx('ui.aferin_evlat_isik_yaniyor'),tx('ui.sis_her_gece_yoklar'),tx('ui.gorevleri_takip_et_her')])}),700)}
  while(S.tut<9||S.q<4){const q=L.QUESTS[S.q];if(!q||q.f(S)<q.n||S.q>=4)break;claimQuest(true)}}
-function tutFrame(T){if(S.tut>=9||$('modal').classList.contains('on')||$('battle').classList.contains('on')){hand.style.display=tip.style.display='none';return}
+// ---------- GÖREV REHBERİ (eğitim sonrası "Göster") ----------
+let guide=null;const guideAt=(o,txt)=>{guide={...o,txt,q:S.q,until:performance.now()+8000}};
+const findB=kind=>Object.keys(S.g).filter(k=>S.g[k].k===kind&&!S.g[k].fog).sort((a,b)=>S.g[b].lv-S.g[a].lv)[0];
+function emptyTile(){let best=null,bd=1e9;for(let i=-L.GR;i<=L.GR;i++)for(let j=-L.GR;j<=L.GR;j++){const k=L.key(i,j);if(S.g[k]||!L.tileOK(i,j)||!L.isSafe(S,k)||(i===0&&j===0))continue;const d=i*i+j*j;if(d<bd){bd=d;best=k}}return best}
+function questGo(){const q=L.QUESTS[S.q];if(!q||!q.go)return;const[a,v]=q.go.split(':'),t='👉 '+q.t;closeSheet();
+ if(S.cur!=='home'&&a!=='islands'&&a!=='map'&&a!=='heroes'&&a!=='boss'){goIsland('home')}
+ const build=kind=>{const k=emptyTile();if(!k){toast(tx('ui.guide_no_tile'));return}openBuild(k);guideAt({sel:'#bk_'+kind},t)};
+ if(a==='fener'){openFener();guideAt({sel:S.fener.on?'#upBtn':'#lightBtn'},t)}
+ else if(a==='b'||a==='gear'){const kd=a==='gear'?'yard':v,k=findB(kd);if(!k)return build(kd);openB(k);guideAt({sel:a==='gear'?'[data-a=gear]:not([disabled])':kd==='yard'?'[data-a=train]':kd==='lab'?'[data-a=tech]:not([disabled])':'#wplus'},t)}
+ else if(a==='build')build(v);
+ else if(a==='collect'){const k=Object.keys(S.g).find(k=>KINDS[S.g[k].k].res&&(S.g[k].stored||0)>=1);if(k)guideAt({tile:k,y:1.3},t);else toast(tx('ui.guide_collect'))}
+ else if(a==='merge'){const ks=Object.keys(S.g).filter(k=>!S.g[k].fog&&!S.g[k].end);let pr=null;for(const x of ks){const y=ks.find(z=>z!==x&&S.g[z].k===S.g[x].k&&S.g[z].lv===S.g[x].lv);if(y){pr=[x,y];break}}
+  if(pr)guideAt({drag:pr},tx('ui.guide_drag'));else toast(tx('ui.guide_merge'))}
+ else if(a==='map'){openMap();guideAt({sel:'#fightBtn'},t)}
+ else if(a==='heroes'){openHeroes();guideAt({sel:'#freeCall,[data-a=call]'},t)}
+ else if(a==='islands'){openIslands();guideAt({sel:'[data-a=isl]'},t)}
+ else if(a==='boss'){openBoss();guideAt({sel:'[data-a=boss]'},t)}}
+function guideFrame(T){const g=guide;if(!g||g.q!==S.q||performance.now()>g.until||$('modal').classList.contains('on')||$('talk').classList.contains('on')||$('battle').classList.contains('on')){if(g&&(g.q!==S.q||performance.now()>g.until))guide=null;hand.style.display=tip.style.display='none';return}
+ const so=$('sheet').classList.contains('on');let pos=null;
+ if(g.sel){if(!so){guide=null;hand.style.display=tip.style.display='none';return}const e=document.querySelector('#sheet '+g.sel.split(',').join(',#sheet '));if(e){const r=e.getBoundingClientRect();if(r.width&&r.bottom>0&&r.top<innerHeight)pos={x:r.left+r.width/2,y:r.top+r.height/2}}}
+ else if(so){hand.style.display=tip.style.display='none';return}
+ else if(g.tile&&S.g[g.tile])pos=tileScr(g.tile,g.y||.5);
+ else if(g.drag){const a=tileScr(g.drag[0],.3),b=tileScr(g.drag[1],.3),f=(T%1.6)/1.6;pos={x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f}}
+ tip.style.display='block';tip.textContent=g.txt;tip.style.bottom=so?'auto':'104px';tip.style.top=so?'60px':'auto';
+ if(pos){hand.style.display='block';hand.style.left=pos.x+'px';hand.style.top=pos.y+'px'}else hand.style.display='none'}
+function tutFrame(T){if(S.tut>=9)return guideFrame(T);if($('modal').classList.contains('on')||$('talk').classList.contains('on')||$('battle').classList.contains('on')){hand.style.display=tip.style.display='none';return}
  const so=$('sheet').classList.contains('on');let txt='',pos=null,el=null;
  if(S.tut===0){txt=tx('ui.fenere_dokun_ve_isigi');el=so&&$('lightBtn');if(!so)pos=scr(new THREE.Vector3(0,1.4,0))}
  else if(S.tut===1){txt=`${tx('ui.kristal_madenine_2_madenci',[S.g['1,0']?.w||0])}`;el=so&&$('wplus');if(!so)pos=tileScr('1,0',.5)}
