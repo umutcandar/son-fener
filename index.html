@@ -38,7 +38,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#14304a;font-family:sy
 #modal.on{display:flex}#modal .box{background:linear-gradient(#1f5068,#102a3c);border:2px solid #7fd8e8;border-radius:20px;padding:18px;max-width:340px;width:100%;text-align:center;animation:pop .3s cubic-bezier(.2,1.6,.4,1)}
 #modal h2{margin:0 0 8px}#modal p{margin:6px 0 14px;font-weight:600;line-height:1.4}#modal .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 @keyframes pop{from{transform:scale(.6);opacity:0}}
-#toast{position:fixed;left:50%;top:190px;transform:translateX(-50%);background:#0a2030e6;color:#fff;padding:9px 16px;border-radius:14px;font-weight:700;font-size:14px;z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;text-align:center;max-width:86%;border:1px solid #7fd8e8}
+#toast{position:fixed;left:50%;top:190px;transform:translateX(-50%);background:#0a2030e6;color:#fff;padding:9px 16px;border-radius:14px;font-weight:700;font-size:14px;z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;text-align:center;max-width:86%;border:1px solid #7fd8e8}#toast.low{top:auto;bottom:calc(18px + env(safe-area-inset-bottom));z-index:120}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:15}
 .float{position:absolute;font-weight:900;font-size:19px;color:#fff;text-shadow:0 2px 0 #000a,0 0 6px #0008;transform:translate(-50%,-50%);animation:up 1s ease-out forwards;white-space:nowrap}
 @keyframes up{to{transform:translate(-50%,-260%);opacity:0}}

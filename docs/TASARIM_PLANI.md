@@ -40,7 +40,7 @@ Ortak nefret: sınırsız harcama farkı, yeni nesil kahramanla güç enflasyonu
 - **İlerleme hızlandırma**: hızlandırmalar, enerji yenileme, "Rota Bileti" (geçilmiş sefer/bölümü atla, sadece önceden 3 yıldızla geçilmişse), inşaat kuyruğu 2. usta.
 - **Fener Bileti** (sezonluk ücretsiz + premium şerit), Aylık Kart, VIP (sadece kolaylık; en üst seviyeler kozmetik ağırlıklı).
 - **Kademeli paketler**: ilk alım paketi, büyüme fonu; fiyat her zaman gerçek para birimiyle gösterilir.
-- **Adalet önlemleri**: Arena "Eşit" modu; Fener Savaşı'nda güç bandı eşleşmesi; ücretsiz oyuncu için her kaptana giden yol; günlük/haftalık harcama limiti seçeneği (oyuncu ayarlı) ve 18 yaş altına varsayılan limit.
+- **Adalet önlemleri**: Arena "Eşit" modu; Fener Savaşı'nda güç bandı eşleşmesi; ücretsiz oyuncu için her kaptana giden yol ve 18 yaş altına varsayılan limit.
 
 ## Hukuk ve mağaza uyumu
 - Gerçek ödeme yalnızca Apple IAP / Google Play Billing (Apple 3.1.1: https://developer.apple.com/app-store/review/guidelines/ ; Google: https://support.google.com/googleplay/android-developer/answer/9858738)
@@ -57,5 +57,5 @@ D1 ≥ %40, D7 ≥ %15, D30 ≥ %6; ödeyen dönüşümü ≥ %3; ARPDAU 0,30–
 
 ## Yol haritası
 - **2 hafta**: hesap + bulut kayıt + kullanıcı adı, dünya/klan sohbeti + çeviri, klan kurma/yardım, Arena v1 (asenkron), ada baskını v1 (kalkan, koruma), oran ekranı, analitik olayları.
-- **1 ay**: Deniz Bölgeleri, Sis Cephesi klan savaşı, haftalık etkinlik takvimi, Fener Bileti sezon 1, ilk premium kaptan (ücretsiz yol ile), harcama limiti ayarı.
+- **1 ay**: Deniz Bölgeleri, Sis Cephesi klan savaşı, haftalık etkinlik takvimi, Fener Bileti sezon 1, ilk premium kaptan (ücretsiz yol ile).
 - **3 ay**: Fener Savaşı (bölge vs bölge), 8 haftalık sezonlar, Vali seçimi, Capacitor ile Android/iOS + gerçek IAP, yaş derecelendirmesi, moderasyon araçları, A/B testleri.
