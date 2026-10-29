@@ -132,6 +132,7 @@ html.L-ar body{font-family:Fredoka,"Noto Sans Arabic","Segoe UI",Tahoma,sans-ser
 html.L-ru .btn,html.L-de .btn,html.L-fr .btn,html.L-es .btn,html.L-pt-BR .btn,html.L-id .btn{white-space:normal;overflow-wrap:anywhere}
 [dir=rtl] .card,[dir=rtl] #sheet h3{direction:rtl;text-align:right}
 [dir=rtl] #hud,[dir=rtl] #bar{direction:ltr}
+#bChat.ping::after{content:"";position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#ff4d4d}#bChat{position:relative}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">
@@ -152,5 +153,6 @@ html.L-ru .btn,html.L-de .btn,html.L-fr .btn,html.L-es .btn,html.L-pt-BR .btn,ht
 <div id="toast"></div><div id="hand">👆</div><div id="tip"></div>
 <div id="ad"><div style="font-size:14px;opacity:.7">DEMO REKLAM</div><div style="font-size:40px">📺</div><div id="adt"></div></div>
 <div id="loading"><img src="img/logo.webp" alt="Son Fener"><button class="btn o" id="startBtn" disabled>Yükleniyor…</button><small>v2 · Demo — tüm satın alımlar sahte</small></div>
+<script src="lib/supabase.js"></script>
 <script type="module" src="game.js"></script>
 </body></html>
