@@ -240,7 +240,7 @@ export const heroCap=st=>10*st.star;
 export const heroLvCost=lv=>({fish:30*lv,wood:30*lv,crys:8*lv});
 export const skillVal=(h,st)=>h.sk.v*(1+.25*(st.star-1));
 export function skill(S,t){const pool=['atk','hp','loot'].includes(t)?team(S):HEROES.filter(h=>S.heroes[h.id]);return pool.filter(h=>h.sk.t===t).reduce((a,h)=>a+skillVal(h,S.heroes[h.id]),0)}
-export function heroUp(S,id){const st=S.heroes[id];if(!st)return'Yok';if(st.lv>=heroCap(st))return`Yıldız sınırı (Sv${heroCap(st)}) — yıldız yükselt`;const c=heroLvCost(st.lv);if(!canAfford(S,c))return'RES';pay(S,c);st.lv++;return null}
+export function heroUp(S,id,now=Date.now()){const st=S.heroes[id];if(!st)return'Yok';if(st.lv>=heroCap(st))return`Yıldız sınırı (Sv${heroCap(st)}) — yıldız yükselt`;const c=heroLvCost(st.lv);if(!canAfford(S,c))return'RES';pay(S,c);st.lv++;dailyInc(S,'heroup',1,now);return null}
 export function starUp(S,id){const st=S.heroes[id];if(!st||st.star>=5)return'En üst';if(st.sh<st.star*10)return'Parça yetersiz';st.sh-=st.star*10;st.star++;return null}
 // Sis Gecesi döngüsü (eğitim bitince başlar)
 const nt=(S,now)=>S.tut<9?0:((now-S.t0)/1000);
@@ -262,7 +262,7 @@ export const busyBuilders=S=>allB(S).filter(b=>b.end).length+(S.fener.end?1:0);
 // --- inşa / birleştir / yükselt
 export function checkBuild(S,k,kind){const[i,j]=unkey(k);if(!tileOK(i,j))return'Buraya kurulamaz';if(S.g[k])return'Dolu';if(!isSafe(S,k))return S.cur==='home'?'Sisli bölge — Feneri yükselt':'Işık Direğini yükselt';
  if(!ISLANDS[S.cur].kinds.includes(kind))return'Bu adada kurulamaz';if(S.fener.lv<KINDS[kind].req)return`Fener Sv${KINDS[kind].req} gerekli`;if(!canAfford(S,KINDS[kind].cost))return'RES';return null}
-export function build(S,k,kind){const e=checkBuild(S,k,kind);if(e)return e;pay(S,KINDS[kind].cost);S.g[k]={k:kind,lv:1,w:0,stored:0};addXP(S,3);return null}
+export function build(S,k,kind,now=Date.now()){const e=checkBuild(S,k,kind);if(e)return e;pay(S,KINDS[kind].cost);S.g[k]={k:kind,lv:1,w:0,stored:0};addXP(S,3);dailyInc(S,'build',1,now);return null}
 export function canMerge(S,a,b){const A=S.g[a],B=S.g[b];return !!(A&&B&&a!==b&&A.k===B.k&&A.lv===B.lv&&!A.end&&!B.end&&!A.fog&&!B.fog&&A.lv<maxLv(S)&&isSafe(S,b))}
 export function merge(S,a,b,now){if(!canMerge(S,a,b))return'Birleşemez';const A=S.g[a],B=S.g[b];delete S.g[a];B.lv++;B.stored=(B.stored||0)+(A.stored||0);
  B.w=Math.min(maxW(B.lv),(B.w||0)+(A.w||0));S.st.merge++;dailyInc(S,'merge',1,now);addXP(S,5);return null}
@@ -276,7 +276,7 @@ export function checkUp(S,k){const b=k==='fener'?S.fener:S.g[k];if(!b)return'Yok
  if(k==='fener'){if(b.lv>=FENER_MAX)return'En üst seviye'}else{if(b.fog)return'Önce sisten arındır';if(b.lv>=maxLv(S))return S.cur==='home'?`Önce Feneri Sv${b.lv} yap`:'Işık Direği / Fener sınırı'}
  if(busyBuilders(S)>=builderCount(S))return'BUILDERS';if(!canAfford(S,k==='fener'?fenerCost(b.lv):upCost(b.k,b.lv)))return'RES';return null}
 export function startUp(S,k,now){const e=checkUp(S,k);if(e)return e;const b=k==='fener'?S.fener:S.g[k];const c=k==='fener'?fenerCost(b.lv):upCost(b.k,b.lv);const t=k==='fener'?fenerTime(b.lv,S):upTime(b.lv,S);
- pay(S,c);b.end=now+t*1000;b.dur=t;return null}
+ pay(S,c);b.end=now+t*1000;b.dur=t;dailyInc(S,'upgrade',1,now);return null}
 export const cleanseCost=(b,S)=>({crys:Math.max(1,Math.round(8*b.lv*(1-(S?T_(S,'beam'):0)*.15)))});
 export function cleanse(S,k){const b=S.g[k];if(!b||!b.fog)return'Sis yok';const c=cleanseCost(b,S);if(!canAfford(S,c))return'RES';pay(S,c);b.fog=0;return null}
 export function assign(S,k,d){const b=S.g[k];if(!b||!hasJob(b.k)||b.fog)return false;const nw=(b.w||0)+d;if(nw<0||nw>maxW(b.lv)||(d>0&&idle(S)<=0))return false;b.w=nw;return true}
@@ -295,7 +295,7 @@ export const techCost=(id,lv)=>({wood:60*(lv+1)**2,fish:30*(lv+1)**2,crys:15*(lv
 export const techTime=lv=>30*(lv+1)**2;
 export function checkTech(S,id){const T=TECH.find(t=>t.id===id),lv=T_(S,id);if(!labLv(S))return'Gözlemevi yok';if(lv>=T.max)return'En üst seviye';if(!techReqOK(S,T))return'Önceki düğüm gerekli';if(lv>=labLv(S))return`Gözlemevi Sv${lv+1} gerekli`;return null}
 export function startResearch(S,id,now){if(S.research)return'Zaten araştırılıyor';const e=checkTech(S,id);if(e)return e;const lv=T_(S,id);const c=techCost(id,lv);if(!canAfford(S,c))return'RES';
- pay(S,c);S.research={id,end:now+techTime(lv)*1000,dur:techTime(lv)};return null}
+ pay(S,c);S.research={id,end:now+techTime(lv)*1000,dur:techTime(lv)};dailyInc(S,'research',1,now);return null}
 export const HGEAR=[{k:'k',i:'🧭',r:'wood'},{k:'s',i:'🔭',r:'fish'},{k:'c',i:'🪬',r:'crys'}],TAL_MAX=5,EQ_MAX=5;
 export const eqSum=st=>HGEAR.reduce((a,g)=>a+Math.min(EQ_MAX,st.eq?.[g.k]||0),0);
 export const heroMul=st=>(1+.06*Math.min(TAL_MAX,st.tal||0))*(1+.03*eqSum(st));
@@ -333,7 +333,14 @@ export function applyBattle(S,res,stage,now){const lost={};for(const t in TROOPS
 export function dailyReset(S,now){const d=day(now);if(S.daily.date!==d)S.daily={date:d,p:{},c:{}}}
 export const weekIst=now=>{const d=new Date(now+108e5);d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)};
 export function weeklyReset(S,now){const w=weekIst(now);if(!S.weekly||S.weekly.w!==w)S.weekly={w,p:{},c:{}}}
-export function dailyInc(S,id,n,now){dailyReset(S,now);S.daily.p[id]=(S.daily.p[id]||0)+n;weeklyReset(S,now);S.weekly.p[id]=(S.weekly.p[id]||0)+n}
+// Fener Takvimi: haftanın her günü bir tema (İstanbul saati, Pzt=0); temaya uyan eylemler puan verir, 3 günlük sandık
+export const EVDAYS=[{id:'build',ic:'🏗️',w:{merge:20,upgrade:30,build:10}},{id:'crew',ic:'⚓',w:{train:2,collect:4}},{id:'capt',ic:'🧑‍✈️',w:{recruit:25,heroup:15}},{id:'lab',ic:'🔬',w:{research:60,upgrade:15,collect:5}},{id:'sea',ic:'⛵',w:{battle:25,train:1,collect:3}},{id:'front',ic:'🌫️',w:{battle:15,raid:40,arena:30,train:1}},{id:'kraken',ic:'🦑',w:{boss:40,battle:10,heroup:15,collect:3}}];
+export const EVCH=[{n:120,r:{wood:400,fish:400}},{n:300,r:{crys:250,gems:20}},{n:600,r:{gems:40,ush:5}}];
+export const evDow=now=>(Math.floor((now+108e5)/864e5)+3)%7;
+export function evReset(S,now){const d=dayIst(now);if(!S.ev||S.ev.d!==d)S.ev={d,p:0,c:[]}}
+export function evReady(S,now){evReset(S,now);return EVCH.findIndex((c,i)=>S.ev.p>=c.n&&!S.ev.c.includes(i))}
+export function claimEv(S,i,now){evReset(S,now);const c=EVCH[i];if(!c||S.ev.c.includes(i)||S.ev.p<c.n)return'Hazır değil';const r={...c.r},u=r.ush||0;delete r.ush;addRes(S,r);if(u)S.ush=(S.ush||0)+u;S.ev.c.push(i);addXP(S,25);return null}
+export function dailyInc(S,id,n,now){evReset(S,now);{const w=EVDAYS[evDow(now)].w[id];if(w)S.ev.p+=w*n}dailyReset(S,now);S.daily.p[id]=(S.daily.p[id]||0)+n;weeklyReset(S,now);S.weekly.p[id]=(S.weekly.p[id]||0)+n}
 export function claimWeekly(S,id,now){weeklyReset(S,now);const d=WEEKLY.find(x=>x.id===id);if(!d||S.weekly.c[id]||(S.weekly.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.ush=(S.ush||0)+10;S.weekly.c[id]=1;addXP(S,60);return null}
 export const clanB={prod:0,store:0,help:0};
 export function claimDaily(S,id){const d=DAILY.find(x=>x.id===id);if(!d||S.daily.c[id]||(S.daily.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.ush=(S.ush||0)+2;S.daily.c[id]=1;addXP(S,30);return null}

@@ -161,6 +161,13 @@ html.L-ru .btn,html.L-de .btn,html.L-fr .btn,html.L-es .btn,html.L-pt-BR .btn,ht
 @media (prefers-reduced-motion:reduce){#loading .ldBeam,#startBtn,#ldLogo{animation:none!important}}
 body.fadeIn #app,body.fadeIn canvas{animation:gIn .7s ease both}@keyframes gIn{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 #battle.reefB{background:radial-gradient(circle at 50% 30%,#1fb5a855,transparent 60%),linear-gradient(#0b3b4a,#0a5a5a 60%,#e98a6a55)!important}#battle.reefB #beast{filter:drop-shadow(0 0 18px #3ff5d9aa)}.reefC{background:linear-gradient(135deg,#0f4f5acc,#2a1f4acc)!important;border:1px solid #3ff5d955}
+.evHero{background:linear-gradient(135deg,#7a4f1c,#2a4a5e)!important;border:1px solid #ffd27a88}.evIc{font-size:38px;width:58px;height:58px;display:grid;place-items:center;border-radius:14px;background:radial-gradient(circle,#ffd27a55,#0000 70%)}
+.evBar{position:relative;margin:16px 8px 4px}.evBar .pbar{height:12px}.evMk{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:22px;filter:grayscale(.7) drop-shadow(0 2px 2px #0008);transition:filter .3s}.evMk.rdy{filter:drop-shadow(0 0 8px #ffd27a);animation:evB 1s ease-in-out infinite}.evMk.done{filter:none;font-size:18px}
+@keyframes evB{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-62%) scale(1.15)}}
+.evAct{display:flex;flex-wrap:wrap;gap:6px}.evAct span{background:#0a2030aa;border:1px solid #7fd8e855;border-radius:10px;padding:5px 8px;font-size:12px}.evAct b{color:#ffd27a}
+.evWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.evWeek div{background:#0a2030aa;border:1px solid #7fd8e833;border-radius:10px;padding:4px 2px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}.evWeek b{font-size:20px}.evWeek small{font-size:8.5px;line-height:1.1;opacity:.85;overflow:hidden;text-overflow:ellipsis;max-width:100%}.evWeek .on{background:linear-gradient(#ffb347,#c8551f);border-color:#ffd27a;box-shadow:0 0 10px #ffd27a66}.evWeek .past{opacity:.45}
+.mhand{position:fixed;left:-14px;top:-6px;z-index:7;pointer-events:none;font-size:34px;opacity:0;display:none;filter:drop-shadow(0 3px 4px #0009);text-align:center;line-height:1}.mhand.on{display:block}.mhand small{display:block;font-size:10px;font-weight:800;color:#7dff8a;background:#0a2030cc;border-radius:6px;padding:2px 5px;margin-top:2px;white-space:nowrap;transform:translateX(-25%)}
+@media (prefers-reduced-motion:reduce){.evMk.rdy{animation:none}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">
