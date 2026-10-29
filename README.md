@@ -4,9 +4,9 @@ Tarayıcıda (mobil öncelikli, PWA) oynanan bir **barut çağı kale-şehir str
 
 **Canlı:** https://umutcandar.github.io/son-fener/
 
-| Şehir | Sefer haritası | Klan | Komutanlar |
-|---|---|---|---|
-| ![Şehir](img/readme/r1_main.webp) | ![Harita](img/readme/r2_map.webp) | ![Klan](img/readme/r3_clan.webp) | ![Komutanlar](img/readme/r4_hero.webp) |
+| Şehir | Dünya haritası | Sefer haritası | Klan | Komutanlar |
+|---|---|---|---|---|
+| ![Şehir](img/readme/r1_main.webp) | ![Dünya](img/readme/r5_world.webp) | ![Harita](img/readme/r2_map.webp) | ![Klan](img/readme/r3_clan.webp) | ![Komutanlar](img/readme/r4_hero.webp) |
 
 ## Ana döngü: savaş
 1. **Üret** — Şehir binaları tahıl, kereste ve barut/kristal üretir.

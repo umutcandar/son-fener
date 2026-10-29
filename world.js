@@ -19,7 +19,7 @@ const $=i=>document.getElementById(i);
 function fmtT(ms){ms=Math.max(0,ms/1e3|0);const m=ms/60|0,s=ms%60;return m+':'+String(s).padStart(2,'0')}
 export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-reduced-motion: reduce)').matches;const O=window.__online;if(!(O&&O.on&&O.world))return null;if(!AD)AD=liveAdapter();if(AD.ready)await AD.ready;let rt=AD.live?setInterval(()=>AD.refresh(),5000):0;
  let el=$('world');if(!el){el=document.createElement('div');el.id='world';el.innerHTML='<canvas id="wcv"></canvas><div id="wtop"><b id="wtt"></b><small id="wmock"></small><button id="wcl">✕</button></div><div id="wcard"></div><button id="whome">🏠</button>';document.body.appendChild(el)}
- $('wtt').textContent='🌊 '+tx('ui.w_title');$('wmock').textContent='';el.classList.add('on');
+ $('wtt').textContent='🔥 '+tx('ui.w_title');$('wmock').textContent='';el.classList.add('on');
  const cv=$('wcv'),x=cv.getContext('2d'),dpr=Math.min(1.5,devicePixelRatio||1);let W=0,H=0,alive=true,sel=null;
  const me=AD.me();let cz=1,cx=me.x,cy=me.y,tz=1,tcx=me.x,tcy=me.y;const fit=()=>Math.min(W,H)/1000;
  function rs(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px'}rs();addEventListener('resize',rs);
@@ -39,8 +39,8 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
  function tap(a,b){const o=hit(a,b);sel=o;const cd=$('wcard');if(!o){cd.classList.remove('on');return}ctx.SFX&&ctx.SFX.tap();tcx=o.x;tcy=o.y;tz=Math.max(tz,4);
   let h='';if(o.k==='i')h=`<b>${o.me?'🏠 ':''}${o.name}</b><small>${o.clan?'['+o.clan+'] · ':''}${tx('ui.w_lv',[o.lv])}${o.shield?' · 🛡️ '+tx('ui.w_shield'):''}</small>`+(o.me?'':`<button id="watk" ${o.shield?'disabled':''}>⚔️ ${tx('ui.w_attack')}</button>`);
   else if(o.k==='f')h=`<b>🏰 ${tx('ui.w_fort')} [${o.clan}]</b><small>${tx('ui.w_lv',[o.lv])} · ❤️ ${Math.round(o.hp*100)}%${o.attacked?' · 🔥 '+tx('ui.w_under'):''}</small><button id="watk">⚔️ ${tx('ui.w_rally')}</button>`;
-  else if(o.k==='c')h=`<b>${o.kind==='pirate'?'🏴‍☠️':'👾'} ${tx('ui.w_lv',[o.lv])}</b><small>⚔️ ${o.pw||'?'}</small><button id="watk">⛵ ${tx('ui.w_send')}</button>`;
-  else h=`<b>🗼 ${tx('ui.w_ruin')}</b><small>${tx('ui.w_ruin_d')}</small><button id="watk">⛵ ${tx('ui.w_send')}</button>`;
+  else if(o.k==='c')h=`<b>${o.kind==='pirate'?'🏴‍☠️':'👾'} ${tx('ui.w_lv',[o.lv])}</b><small>⚔️ ${o.pw||'?'}</small><button id="watk">🐎 ${tx('ui.w_send')}</button>`;
+  else h=`<b>🏰 ${tx('ui.w_ruin')}</b><small>${tx('ui.w_ruin_d')}</small><button id="watk">🐎 ${tx('ui.w_send')}</button>`;
   cd.innerHTML=h;cd.classList.add('on');const bt=$('watk');if(bt)bt.onclick=()=>{close();if(O.world.state){const st=O.world.state();st.sel={x:(o.x-5)/10,y:(o.y-5)/10}}ctx.after&&ctx.after()}}
  // çizim yardımcıları
  function keep(px,py,s,o,t){const g=x;const c=o.clanColor||'#999';const im=wimg('wm'+(o.lv>=20?3:o.lv>=10?2:1));if(wok(im)){const w=s*3.4,h=w*im.naturalHeight/im.naturalWidth;g.save();g.translate(px,py);g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(0,s*.55,w*.45,w*.14,0,0,7);g.fill();g.strokeStyle=c;g.lineWidth=o.me?3:2;g.globalAlpha=o.me?.95:.7;g.beginPath();g.ellipse(0,s*.45,w*.5,w*.17,0,0,7);g.stroke();g.globalAlpha=1;g.drawImage(im,-w/2,s*.7-h,w,h);if(o.shield){g.strokeStyle='rgba(120,200,255,.8)';g.fillStyle='rgba(120,200,255,.12)';g.lineWidth=2;g.beginPath();g.arc(0,-h*.3,w*.6,0,7);g.fill();g.stroke()}g.restore();return}g.save();g.translate(px,py);
@@ -105,7 +105,7 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
      x.font='800 12px system-ui';x.textAlign='center';x.fillStyle='#fff';x.strokeStyle='#a00';x.lineWidth=3;const lb='⚠️ '+tx('ui.w_under');x.strokeText(lb,p,q-s*2.1);x.fillText(lb,p,q-s*2.1)}
      if(k>1.1){x.font='800 11px system-ui';x.fillStyle=o.clanColor;x.textAlign='center';x.fillText('🏰 ['+o.clan+'] '+tx('ui.w_lv',[o.lv]),p,q+s*1.15)}}
    else if(ty==='c'){const s=Math.max(8,9*k);camp(p,q,s,o,t)}
-   else{const s=8*k*.9;ruin(p,q,s,t);if(k>1.3){x.font='700 10px system-ui';x.fillStyle='#ffe9a8';x.textAlign='center';x.fillText('🗼 '+tx('ui.w_ruin'),p,q+s*.9)}}
+   else{const s=8*k*.9;ruin(p,q,s,t);if(k>1.3){x.font='700 10px system-ui';x.fillStyle='#ffe9a8';x.textAlign='center';x.fillText('🏰 '+tx('ui.w_ruin'),p,q+s*.9)}}
    if(sel&&sel.id===o.id){x.strokeStyle='#ffe38a';x.lineWidth=2;x.beginPath();x.arc(p,q,22+3*Math.sin(t*6),0,7);x.stroke()}}
   requestAnimationFrame(frame)}
  requestAnimationFrame(frame);
