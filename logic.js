@@ -332,8 +332,12 @@ export function offline(S,now){const sec=Math.min(8*3600,(now-S.saved)/1000);if(
 export const SEASON={id:1,start:Date.UTC(2026,9,26),days:60,need:45,hero:'sisnur',routeDaily:2};
 export const seasonEnd=()=>SEASON.start+SEASON.days*864e5;
 export function seasonOf(S){if(!S.season||S.season.id!==SEASON.id)S.season={id:SEASON.id,marks:0,last:'',route:0};return S.season}
-export function claimMark(S,now){const z=seasonOf(S),d=day(now);if(z.last===d||now>seasonEnd())return 0;z.last=d;const n=1+(z.route?SEASON.routeDaily:0);z.marks+=n;
- if(!S.heroes[SEASON.hero]&&z.marks>=SEASON.need)S.heroes[SEASON.hero]={star:1,sh:0,lv:1};else if(S.heroes[SEASON.hero]&&z.marks>SEASON.need)S.heroes[SEASON.hero].sh+=n*2;return n}
+export function settleSeason(S){const z=seasonOf(S),H=SEASON.hero;let got=0;if(!S.heroes[H]&&z.marks>=SEASON.need){S.heroes[H]={star:1,sh:0,lv:1};got=1}
+ const base=Math.max(SEASON.need,z.cr||0);if(S.heroes[H]&&z.marks>base)S.heroes[H].sh+=(z.marks-base)*2;z.cr=Math.max(z.cr||0,z.marks);return got}
+export function claimMark(S,now){const z=seasonOf(S),d=day(now);if(z.last===d||now<SEASON.start||now>seasonEnd())return 0;z.last=d;z.offl=d;const n=1+(z.route?SEASON.routeDaily:0);z.marks+=n;settleSeason(S);return n}
+// sunucu durumu (monet_me) yerel kayda uygulanır; sunucu esas
+export function applyMonet(S,st){if(!st)return;const q=(S.spend&&S.spend.q)||[];S.spend={...st.spend,q:[]};if(q.length)S.spend.q=q;const z=seasonOf(S);
+ if(st.season.id===z.id){z.marks=st.season.marks;z.last=st.season.last;z.route=st.season.route;delete z.offl}settleSeason(S)}
 export const priceNum=p=>+(String(p).replace(/[^0-9,\.]/g,'').replace(',','.'))||0;
 export const monthKey=now=>new Date(now).toISOString().slice(0,7);
-export function spendOf(S,now){const m=monthKey(now);if(!S.spend)S.spend={on:1,lim:500,m,sum:0};const z=S.spend;if(z.m!==m){z.m=m;z.sum=0}if(z.pend&&now>=z.pend.at){z.lim=z.pend.lim;if(z.pend.on!=null)z.on=z.pend.on;delete z.pend}return z}
+export function spendOf(S,now){const m=monthKey(now);if(!S.spend)S.spend={on:1,lim:500,m,sum:0,q:[]};const z=S.spend;if(z.m!==m){z.m=m;z.sum=0}if(z.pend&&now>=z.pend.at){z.lim=z.pend.lim;if(z.pend.on!=null)z.on=z.pend.on;delete z.pend}return z}

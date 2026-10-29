@@ -5,7 +5,7 @@ const SB_URL='https://ftbbzqzgafmallrfimnt.supabase.co',SB_KEY='sb_publishable_Z
 // Panelde Anonymous Sign-ins açılınca true yapın; kapalıyken 'guest' edge fonksiyonu kullanılır
 const ANON=false;
 const T=(k,p)=>t('o.'+k,p);
-let G,sb,uid=null,prof=null,clan=null,arena=null,region=null,war=null,online=false,rev=+localStorage.getItem('sf_rev')||null,lastBoss=null,chTab='tr',pvpTab='raid',boardTab='power';
+let lastDuel=null,fwData=null;let G,sb,uid=null,prof=null,clan=null,arena=null,region=null,war=null,online=false,rev=+localStorage.getItem('sf_rev')||null,lastBoss=null,chTab='tr',pvpTab='raid',boardTab='power';
 const msgs={tr:[],reg:[],clan:[]};let muted=new Set();const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>G.fmt?G.fmt(n):String(n);const toast=t=>G.toast(t);
@@ -40,9 +40,17 @@ async function afterLogin(){prof=await rpc('ensure_profile');online=true;
  if(sv)rev=sv.rev;await push();
  const{data:mu}=await sb.from('mutes').select('muted');muted=new Set((mu||[]).map(x=>x.muted));
  region=await rpc('my_region').catch(()=>null);
+ await monetSync();
  await refreshClan();await claim();subscribe();setStatus();
  setInterval(()=>{push();claim()},20000);setInterval(bossWatch,2000);lastBoss={w:G.S.boss.w,d:G.S.boss.dmg};
  addEventListener('visibilitychange',()=>document.hidden&&push())}
+// DEMO para durumu sunucuda (monet_*); çevrimdışı alımlar kuyruktan kaydedilir, sunucu esas
+let monetOk=false;
+async function monetSync(){try{const S=G.S,L=G.L;let st=await rpc('monet_me');
+ for(const q of [...((S.spend&&S.spend.q)||[])]){try{st=await rpc('monet_purchase',{p_price:q.p,p_item:q.i||'',p_offline:true})}catch(e){console.warn('monet q',e.message)}S.spend.q.shift()}
+ const z=S.season;if(z&&z.offl&&z.offl!==st.season.last){try{st=await rpc('monet_claim_mark')}catch(e){}}
+ L.applyMonet(S,st);G.save();monetOk=true}catch(e){console.warn('monet',e.message)}}
+window.__monet={ok:()=>online&&monetOk,purchase:(p,i)=>rpc('monet_purchase',{p_price:p,p_item:i||'',p_offline:false}),setLimit:(l,on)=>rpc('monet_set_limit',{p_lim:l,p_on:on}),claimMark:()=>rpc('monet_claim_mark'),me:()=>rpc('monet_me')};
 function adopt(sv){toast(T('cloud_loading'));sessionStorage.setItem('sf_adopted','1');window.__noSave=1;localStorage.setItem('sonfener1',JSON.stringify(sv.data));localStorage.setItem('sf_rev',sv.rev);setTimeout(()=>location.reload(),300)}
 let pushing=false;
 async function push(){if(!online||pushing)return;pushing=true;try{G.save();const S=G.S;let r=await rpc('save_game',{p_data:S,p_rev:rev});
@@ -66,7 +74,7 @@ function bossWatch(){const b=G.S.boss;if(!lastBoss||b.w!==lastBoss.w){lastBoss={
 async function refreshClan(){if(!online)return;try{clan=await rpc('clan_info')}catch(e){clan=null}if(clan)await loadHelps().catch(()=>{})}
 // ---------- arayüz yardımcıları ----------
 let cur='';const sheetIs=n=>cur===n&&$('sheet').classList.contains('on');const rerender=()=>G.renderSheet?.();
-function open(name,fn){cur=name;G.sheet(fn)}
+function open(name,fn){const nw=cur!==name;cur=name;G.sheet(fn);if(nw)requestAnimationFrame(()=>{const e=document.querySelector('#sheet .body')||$('sheet');e.scrollTop=0})}
 function addButtons(){const row=$('bClan')?.parentElement;if(row&&!$('bPvp')){const b=document.createElement('div');b.className='pill';b.id='bPvp';b.innerHTML=T('btn_war');row.insertBefore(b,$('bClan'));b.onclick=()=>openPvp()}
  if($('bClan'))$('bClan').onclick=()=>openClan();if($('bChat'))$('bChat').onclick=()=>openChat();
  $('sheet').addEventListener('click',ev=>{const b=ev.target.closest('[data-o]');if(!b)return;ev.stopPropagation();G.SFX?.tap?.();const f=OA[b.dataset.o];if(f)f(b.dataset.v,b)});
@@ -130,6 +138,20 @@ async function openProfile(id){id=id||uid;const{data:p}=await sb.from('profiles'
   else h+=`<button class="btn o" data-o="duel" data-v="${id}" style="width:100%">${T('duel_btn')}</button><button class="btn x" data-o="mute" data-v="${id}" style="width:100%;margin-top:6px">${muted.has(id)?T('unmute'):T('mute')}</button>`;
   return h})}
 const tier=r=>r>=1800?'Efsane':r>=1500?'Elmas':r>=1300?'Altın':r>=1100?'Gümüş':'Bronz';
+const TIERS=[['Bronz',0,50],['Gümüş',1100,100],['Altın',1300,180],['Elmas',1500,300],['Efsane',1800,500]];
+function fwHtml(){const d=fwData||{},ph=d.phase||'prep',f=x=>x?new Date(x).toLocaleString(locale,{weekday:'short',hour:'2-digit',minute:'2-digit'}):'';
+ const P=[['prep','🛠️',f(d.clash_at)],['clash','🔥',f(d.reward_at)],['reward','🎁',f(d.end_at)]];
+ let h=`<h3><span><button class="btn x sm" data-o="pvpTab" data-v="war">‹</button> 🏮 ${T('fw_t')}</span><button class="btn x close">✕</button></h3><div class="card" style="background:linear-gradient(135deg,#123a5a,#1a1030)"><div class="ic" style="font-size:32px">🏮</div><div class="mid"><div class="nm">${T('fw_t')} · ${esc(d.week||'')}</div><div class="sub">${T('fw_d')}</div><div class="sub">🌊 ${esc(regName())} ⚔️ ${d.matched?esc(T('reg_'+d.opp)):T('fw_wait')}</div></div></div><div class="sec">${T('fw_sched')}</div>`;
+ for(const[k,ic,until]of P)h+=`<div class="card ${k===ph?'me':''}"><div class="ic">${ic}</div><div class="mid"><div class="nm">${T('fw_'+k)} ${k===ph?`<span class="tag">${T('fw_now')}</span>`:''}</div><div class="sub">${T('fw_'+k+'_d')}${until?' · ⏳ '+until:''}</div></div></div>`;
+ h+=`<div class="sec">${T('fw_pts')}</div><div class="sub">🏗️ ${T('fw_s_build')} · 🎖️ ${T('fw_s_train')} · 🐙 ${T('fw_s_kraken')} · 🏴‍☠️ ${T('fw_s_raid')}</div><div class="card"><div class="ic">⭐</div><div class="mid"><div class="nm">${T('fw_mine',[fmt(d.mine||0)])}</div><div class="sub">${T('fw_preview')}</div></div></div>`;
+ return h}
+function seasonEndTs(){const d=new Date(Date.now()+3*36e5);return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)-3*36e5}
+function leagueHtml(){const a=arena||{rating:1000,best:1000,wins:0,losses:0,season:''},r=a.rating,ti=TIERS.findIndex(x=>x[0]===tier(r)),nx=TIERS[ti+1],end=seasonEndTs(),left=Math.max(0,Math.ceil((end-Date.now())/864e5));
+ let h=`<h3><span><button class="btn x sm" data-o="pvpTab" data-v="arena">‹</button> 🏆 ${T('league_t')}</span><button class="btn x close">✕</button></h3>`;
+ h+=`<div class="card" style="background:linear-gradient(135deg,#5a3a10,#1a1030)"><div class="ic" style="font-size:34px">${TIC[TIERS[ti][0]]}</div><div class="mid"><div class="nm">${tierN(TIERS[ti][0])} · ${r}</div>${nx?`<div class="pbar"><i style="width:${Math.min(100,(r-TIERS[ti][1])/(nx[1]-TIERS[ti][1])*100)}%"></i></div><div class="sub">${T('league_next',[nx[1]-r,tierN(nx[0])])}</div>`:`<div class="sub">${T('league_top')}</div>`}<div class="sub">${T('league_best',[a.best,a.wins,a.losses])}</div></div></div>`;
+ h+=`<div class="card"><div class="ic">⏳</div><div class="mid"><div class="nm">${T('league_end',[left])}</div><div class="sub">${new Date(end).toLocaleString(locale,{dateStyle:'medium',timeStyle:'short'})} · ${T('league_reset')}</div></div></div><div class="sec">${T('league_rw')}</div>`;
+ for(let i=TIERS.length-1;i>=0;i--){const[t,min,g]=TIERS[i],cur=i===ti;h+=`<div class="card ${cur?'me':''}" style="${cur?'border-color:#ffd84a':''}"><div class="ic" style="font-size:28px">${TIC[t]}</div><div class="mid"><div class="nm">${tierN(t)} ${cur?`<span class="tag">${T('league_you')}</span>`:''}</div><div class="sub">${min?T('league_min',[min]):T('league_start')}</div></div><b>💎${g}</b></div>`}
+ return h+`<div class="sub" style="margin:6px 2px">${T('league_note')}</div>`}
 const TIC={Bronz:'🥉',Gümüş:'🥈',Altın:'🥇',Elmas:'💎',Efsane:'👑'};
 // ---------- SAVAŞ: baskın, arena, Sis Cephesi, raporlar, sıralama ----------
 let targets=[],opps=[],reports=[],board=[];
@@ -167,14 +189,14 @@ function warHtml(){const w=war||{phase:'none'};const isOff=clan&&['lider','yard�
  return h+rewardsHtml()}
 const rewardsHtml=()=>`<div class="sec">${T('rewards')}</div><div class="sub">🏆 ${T('rw_win')}: 💎150 🪵2500 💠300 · 🤝 ${T('rw_tie')}: 💎80 · 💀 ${T('rw_lose')}: 💎40 — ${T('rw_note')}</div>`;
 function pvpHtml(){let h=hdr(T('war_hdr'))+tabs(pvpTab,[['raid','🏴‍☠️ '+T('t_raid')],['arena','🏟️ '+T('t_arena')],['war','🌫️ '+T('t_front')],['rep','📜 '+T('t_rep')],['lb','🏆 '+T('t_lb')]],'pvpTab');
- if(pvpTab==='war')return h+warHtml();
+ if(pvpTab==='war')return h+`<button class="btn o" data-o="fw" style="width:100%;margin:4px 0 8px">🏮 ${T('fw_btn')} <span class="tag">${T('fw_soon')}</span></button>`+warHtml();
  if(pvpTab==='raid'){const sh=new Date(prof?.shield_until)>new Date();h+=`<div class="card"><div class="mid"><div class="nm">${T('fleet_power')} ⚔️ ${fmt(prof?.power||0)}</div><div class="sub">${sh?T('shield_on'):T('shield_off')} · ${T('raid_rules')} · 🌊 ${esc(regName())}</div></div><button class="btn x" data-o="pvpTab" data-v="raid">🔄</button></div>`+(prof&&!prof.has_attacked&&Date.now()-new Date(prof.created_at)<6048e5?`<div class="card"><div class="ic">🐣</div><div class="mid"><div class="nm">${T('newbie_t')}</div><div class="sub">${T('newbie_d')}</div></div><button class="btn sm r" data-o="unprotect">${T('remove')}</button></div>`:'');
   if(!targets.length)h+=`<div class="sub">${T('no_targets')}</div>`;
   for(const x of targets)h+=`<div class="card">${av(x.avatar)}<div class="mid"><div class="nm" data-o="prof" data-v="${x.id}">${esc(x.nick)}${x.tag?` <span class="tag">[${esc(x.tag)}]</span>`:''}</div><div class="sub">⚔️ ${fmt(x.power)} · 🗺️ ${T('n_islands',[x.stage-1])}</div></div><button class="btn o" data-o="raid" data-v="${x.id}">${T('attack')}</button></div>`}
  if(pvpTab==='arena'&&arena){const ti=tier(arena.rating),own=HERO_IDS.filter(x=>G.S.heroes[x]);
   h+=`<div class="card" style="background:linear-gradient(135deg,#5a3a10,#1a1030)"><div class="ic" style="font-size:34px">${TIC[ti]}</div><div class="mid"><div class="nm">${T('arena_t')} · ${tierN(ti)} · ${arena.rating}</div><div class="sub">${T('arena_sub',[arena.season,arena.wins,arena.losses,arena.tickets])}</div><div class="sub">${T('arena_season_rw')}</div></div></div>
   <div class="sec">${T('def_lineup')}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${own.map(x=>`<span data-o="lineup" data-v="${x}" style="cursor:pointer;opacity:${(arena.lineup||[]).includes(x)?1:.4}">${av(x,46)}</span>`).join('')||`<div class="sub">${T('no_caps')}</div>`}</div><div class="sub">${T('lineup_desc')}</div><div class="sec">${T('opponents')}</div>`;
-  h+=`<div class="card"><div class="ic">⚖️</div><div class="mid"><div class="nm">${T('eq_arena')} ${window.__eqArena?T('on'):T('off')}</div><div class="sub">${T('eq_desc',[arena.eq_rating??1000])}</div></div><button class="btn sm" data-o="eqArena">${window.__eqArena?T('normal'):T('equal')}</button></div>`;
+  h+=`<button class="btn o" data-o="league" style="width:100%;margin:4px 0 8px">🏆 ${T('league_btn')}</button>`;h+=`<div class="card"><div class="ic">⚖️</div><div class="mid"><div class="nm">${T('eq_arena')} ${window.__eqArena?T('on'):T('off')}</div><div class="sub">${T('eq_desc',[arena.eq_rating??1000])}</div></div><button class="btn sm" data-o="eqArena">${window.__eqArena?T('normal'):T('equal')}</button></div>`;
   for(const o of opps)h+=`<div class="card">${av(o.avatar)}<div class="mid"><div class="nm">${esc(o.nick)}</div><div class="sub">${TIC[o.tier]} ${o.rating} · ${T('cap_power')} ${fmt(o.power)}</div></div><button class="btn o" data-o="arena" data-v="${o.id}" ${arena.tickets?'':'disabled'}>${T('fight')}</button></div>`;
   if(!opps.length)h+=`<div class="sub">${T('no_opps')}</div>`;h+=`<div class="sec">${T('arena_board')}</div><div class="board">`+board.map((r,i)=>`<div class="card ${r.id===uid?'me':''}"><b style="width:26px">#${i+1}</b>${av(r.avatar,26)}<div class="mid">${esc(r.nick)}</div><b>${TIC[r.tier]} ${r.rating}</b></div>`).join('')+'</div>'}
  if(pvpTab==='rep'){if(!reports.length)h+=`<div class="sub">${T('no_battles')}</div>`;for(const b of reports){const att=b.attacker===uid,won=att?b.win:!b.win,K={raid:'🏴‍☠️ '+T('t_raid'),arena:'🏟️ '+T('t_arena'),duel:'🤺 '+T('duel'),front:'🌫️ '+T('t_front')}[b.kind]||b.kind;
@@ -195,7 +217,7 @@ function replay(r,title){G.closeSheet?.();const bt=$('battle'),aH=r.a||null,dH=r
 function finish(r){const bt=$('battle');const loot=Object.entries(r.loot||{}).filter(([k,v])=>v&&G.L.RIC[k]).map(([k,v])=>`${G.L.RIC[k]}${fmt(v)}`).join(' ');
  const lost=Object.entries(r.att_lost||{}).filter(([,v])=>v).map(([k,v])=>`${G.L.TROOPS[k].ic}${-v}`).join(' ');
  const body=r.kind==='arena'?`${T('arena_pts')}: <b>${r.rating_change>0?'+':''}${r.rating_change}</b>`:r.kind==='duel'?T('duel_noloot'):r.kind==='front'?`<div style="font-size:34px">${stars(r.stars)}</div>${T('front_result',[r.dmg])}`:`${loot?T('loot')+': '+loot+'<br>':''}${lost?T('lost')+': '+lost:''}`;
- G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>`,[[T('ok'),'o',()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war')}]])}
+ const close=()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war')};G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>${r.kind==='duel'?`<p class="sub">⚔️ ${fmt(r.att_power)} vs ${fmt(r.def_power)} · ${T('duel_rounds',[(r.rounds||[]).length])}</p>`:''}`,r.kind==='duel'&&lastDuel?[[T('ok'),'x',close],['🔁 '+T('rematch'),'o',()=>{bt.classList.remove('on');setTimeout(()=>OA.duelGo(lastDuel),1600)}]]:[[T('ok'),'o',close]])}
 // ---------- eylemler ----------
 const val=id=>($(id)?.value||'').trim();
 const OA={
@@ -221,7 +243,11 @@ const OA={
  saveProf:async()=>{const n=val('pNick');if(!nickOK(n))return toast(T('nick_bad'));try{await rpc('set_profile',{p_nick:n,p_avatar:window.__pav||prof.avatar});prof=await rpc('ensure_profile');toast(T('saved'));openProfile()}catch(e){err(e)}},
  link:async()=>{const em=val('pMail'),pw=val('pPass');if(!/^\S+@\S+\.\S+$/.test(em)||pw.length<8)return toast(T('email_bad'));
   const{error}=await sb.auth.updateUser({email:em,password:pw});if(error)return err(error);toast(T('email_sent'))},
- duel:async v=>{try{const r=await rpc('duel',{p_target:v});replay(r,'🤺 '+T('duel_t'))}catch(e){err(e)}},
+ duel:v=>{const me=prof?.power||0;sb.from('profiles').select('nick,avatar,power').eq('id',v).single().then(({data:o})=>{if(!o)return;
+  G.modal(`<div style="font-size:46px">🤺</div><h2>${T('duel_t')}</h2><div style="display:flex;justify-content:space-around;align-items:center;margin:8px 0"><div>${av(prof?.avatar,52)}<div class="sub">${T('you')}</div><b>⚔️ ${fmt(me)}</b></div><b style="font-size:20px">VS</b><div>${av(o.avatar,52)}<div class="sub">${esc(o.nick)}</div><b>⚔️ ${fmt(o.power)}</b></div></div><p class="sub">${T('duel_rules')}</p>`,[[T('cancel'),'x'],['🤺 '+T('duel_go'),'o',()=>OA.duelGo(v)]])})},
+ duelGo:async v=>{try{lastDuel=v;const r=await rpc('duel',{p_target:v});replay(r,'🤺 '+T('duel_t'))}catch(e){err(e)}},
+ league:()=>open('league',leagueHtml),
+ fw:async()=>{try{fwData=await rpc('fener_war_me')}catch(e){fwData=null}open('fw',fwHtml)},
  unprotect:async()=>{try{await rpc('drop_protection');prof.has_attacked=true;toast(T('prot_removed'))}catch(e){err(e)}},
  eqArena:()=>{window.__eqArena=!window.__eqArena;openPvp()},
  raid:async v=>{try{await push();const r=await rpc('raid',{p_target:v});prof&&(prof.has_attacked=true);r.kind='raid';replay(r,'🏴‍☠️ '+T('t_raid'))}catch(e){err(e)}},

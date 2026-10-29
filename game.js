@@ -234,9 +234,11 @@ let toastT;function toast(t){const d=$('toast');d.innerHTML=tl(t);d.style.opacit
 function modal(html,acts){clearTimeout(mT);$('modal').classList.remove('out');$('mbox').innerHTML=html+'<div class="acts"></div>';const a=$('mbox').querySelector('.acts');for(const[t,cls,fn]of acts){const b=document.createElement('button');b.className='btn '+(cls||'');b.innerHTML=t;b.onclick=()=>{closeModal();fn&&fn()};a.appendChild(b)}$('modal').classList.add('on')}
 let mT=0;const closeModal=()=>{const m=$('modal');if(!m.classList.contains('on'))return;m.classList.add('out');clearTimeout(mT);mT=setTimeout(()=>{m.classList.remove('on','out')},170)};
 const DEMO=`<div class="demo">${tx('ui.demo_gercek_odeme_alinmaz')}</div>`;
-function confirmBuy(t,d,p,fn){const z=L.spendOf(S,now()),pr=L.priceNum(p);
+function confirmBuy(t,d,p,fn,item=''){const z=L.spendOf(S,now()),pr=L.priceNum(p);
  if(z.on&&z.sum+pr>z.lim){modal(`<h2>🛑 ${tx('m.lim_block_t')}</h2><p>${tx('m.lim_block',[fmtTL(z.sum),fmtTL(z.lim),p])}</p>${DEMO}`,[[tx('ui.kapat'),'x'],[tx('m.lim_set'),'',openLimit]]);return}
- modal(`<h2>${t}</h2><p>${d}</p><p class="sub">${z.on?tx('m.lim_info',[fmtTL(z.sum),fmtTL(z.lim)]):tx('m.lim_off_info')}</p>${DEMO}`,[[tx('ui.vazgec'),'x'],[`${tx('ui.satin_al',[p])}`,'g',()=>{z.sum=Math.round((z.sum+pr)*100)/100;fn();save()}]])}
+ modal(`<h2>${t}</h2><p>${d}</p><p class="sub">${z.on?tx('m.lim_info',[fmtTL(z.sum),fmtTL(z.lim)]):tx('m.lim_off_info')}</p>${DEMO}`,[[tx('ui.vazgec'),'x'],[`${tx('ui.satin_al',[p])}`,'g',()=>{const M=window.__monet;
+ if(M&&M.ok()){M.purchase(pr,item).then(st=>{L.applyMonet(S,st);fn();save()}).catch(e=>{if(/sınır/i.test(e.message||''))M.me().then(st=>{L.applyMonet(S,st);save();confirmBuy(t,d,p,fn,item)});else toast('⚠️ '+tx('m.srv_err'))});return}
+ z.sum=Math.round((z.sum+pr)*100)/100;(z.q=z.q||[]).push({p:pr,i:item});fn();save()}]])}
 const fmtTL=n=>'₺'+n.toLocaleString(locale,{minimumFractionDigits:2,maximumFractionDigits:2});
 function openLimit(){sheet(()=>{const z=L.spendOf(S,now());let h=hdr('🛡️ '+tx('m.lim_t'))+DEMO+`<div class="card"><div class="mid"><div class="nm">${z.on?tx('m.lim_on'):tx('m.lim_off')}</div><div class="sub">${tx('m.lim_month',[fmtTL(z.sum),fmtTL(z.lim)])}</div><div class="pbar"><i style="width:${Math.min(100,z.sum/z.lim*100)}%"></i></div><div class="sub">${tx('m.lim_why')}</div></div></div>`;
  if(z.pend)h+=`<div class="card"><div class="mid"><div class="sub">⏳ ${tx('m.lim_pend',[z.pend.on===0?tx('m.lim_off'):fmtTL(z.pend.lim),new Date(z.pend.at).toLocaleString(locale)])}</div></div></div>`;
@@ -279,19 +281,21 @@ const ACT={
  hstar:id=>{const e=L.starUp(S,id);if(resErr(e))return;SFX.gacha(3);vib([30,30,60]);toast(tx('ui.yildiz_yukseldi'));renderSheet();ui();save()},
  gear:id=>{const e=L.upGear(S,id);if(resErr(e))return;SFX.build();vib(15);renderSheet();ui();save()},
  boss:()=>bossFight(),pass:v=>{const[i,p]=v.split(':');if(resErr(L.claimPass(S,+i,+p)))return;SFX.coin();renderSheet();ui();save()},
- passBuy:()=>confirmBuy(tx('ui.fener_bileti_premium'),tx('ui.bu_sezonun_premium_odul'),'₺119,99',()=>{S.pass.prem=1;S.vipPts+=120;SFX.done();toast(tx('ui.demo_premium_acildi'));renderSheet();ui();save()}),
- offer:()=>{const o=L.offerOf(now()),d=L.day(now());if(S.buy['of'+d])return;confirmBuy(o.ic+' '+o.n,o.d+tx('ui.bugunun_teklifi_yarin_degisir'),o.p,()=>{L.addRes(S,o.g);S.vipPts+=o.vip;S.buy['of'+d]=1;SFX.done();toast(tx('ui.demo_satin_alma_tamamlandi'));renderSheet();ui();save()})},
+ passBuy:()=>confirmBuy(tx('ui.fener_bileti_premium'),tx('ui.bu_sezonun_premium_odul'),'₺119,99',()=>{S.pass.prem=1;S.vipPts+=120;SFX.done();toast(tx('ui.demo_premium_acildi'));renderSheet();ui();save()},'pass'),
+ offer:()=>{const o=L.offerOf(now()),d=L.day(now());if(S.buy['of'+d])return;confirmBuy(o.ic+' '+o.n,o.d+tx('ui.bugunun_teklifi_yarin_degisir'),o.p,()=>{L.addRes(S,o.g);S.vipPts+=o.vip;S.buy['of'+d]=1;SFX.done();toast(tx('ui.demo_satin_alma_tamamlandi'));renderSheet();ui();save()},'offer')},
  isl:id=>{const e=L.claimIsland(S,id);if(resErr(e))return;SFX.done();toast(`${tx('ui.artik_senin',[L.ISLANDS[id].n])}`);goIsland(id)},go:id=>goIsland(id),post:()=>{if(resErr(L.upPost(S)))return;SFX.build();syncBeacon();renderSheet();ui();save()},
  set:k=>{S.set[k]=S.set[k]?0:1;if(k==='mus'&&S.set.mus){ac();startMusic()}setVol();renderSheet();save()},
  reset:()=>modal(`<h2>${tx('ui.sifirla')}</h2><p>${tx('ui.tum_ilerleme_silinir_emin')}</p>`,[[tx('ui.vazgec'),'x'],[tx('ui.sil_ve_bastan_basla'),'r',()=>{window.__noSave=1;localStorage.removeItem(KEY);location.reload()}]]),
  lang:()=>{SFX.tap();modal(`<h2>${tx('ui.dil')}</h2><div class="langs">${Object.entries(LANGS).map(([c,n])=>`<button class="btn ${c===lang?'o':'x'}" data-l="${c}">${n}</button>`).join('')}</div>`,[[tx('ui.kapat'),'']]);$('mbox').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{if(b.dataset.l!==lang)setLang(b.dataset.l)})},
- buy:id=>{const it=SHOP.find(x=>x.id===id);confirmBuy(it.ic+' '+it.n,it.d,it.p,()=>{it.f();S.vipPts+=it.vip||0;if(it.once)S.buy[id]=1;SFX.done();vib([20,30,20]);toast(tx('ui.demo_satin_alma_tamamlandi'));renderSheet();ui();save()})},
+ buy:id=>{const it=SHOP.find(x=>x.id===id);confirmBuy(it.ic+' '+it.n,it.d,it.p,()=>{it.f();S.vipPts+=it.vip||0;if(it.once)S.buy[id]=1;SFX.done();vib([20,30,20]);toast(tx('ui.demo_satin_alma_tamamlandi'));renderSheet();ui();save()},id)},
  gemItem:i=>{const g=GEMSHOP[+i];spendGems(g.c,g.n,()=>{g.f();SFX.coin();renderSheet()})},
  ad:()=>watchAd(()=>{S.gems+=10;const d=L.day(now()),a=S.buy.adDay||'';S.buy.adDay=d+':'+(a.startsWith(d)?+a.split(':')[1]+1:1);ui();renderSheet();save()}),
- mark:()=>{const n=L.claimMark(S,now());if(!n)return;SFX.coin();toast(tx('m.mark_got',[n]));if(S.heroes[L.SEASON.hero]&&L.seasonOf(S).marks>=L.SEASON.need&&L.seasonOf(S).marks-n<L.SEASON.need)toast('🌫️ '+tx('m.season_got'));renderSheet();ui();save()},
- route:()=>{const z=L.seasonOf(S);if(z.route)return;confirmBuy('🧭 '+tx('m.route'),tx('m.route_d',[L.SEASON.routeDaily,L.SEASON.need]),SEAS_RP,()=>{z.route=1;S.gems+=300;S.vipPts+=60;SFX.done();toast(tx('ui.demo_satin_alma_tamamlandi'));renderSheet();ui();save()})},
+ mark:()=>{const M=window.__monet,had=!!S.heroes[L.SEASON.hero];if(M&&M.ok()){const b=L.seasonOf(S).marks;M.claimMark().then(st=>{L.applyMonet(S,st);const n=L.seasonOf(S).marks-b;SFX.coin();toast(tx('m.mark_got',[n]));if(!had&&S.heroes[L.SEASON.hero])toast('🌫️ '+tx('m.season_got'));renderSheet();ui();save()}).catch(()=>toast('⚠️ '+tx('m.srv_err')));return}
+  const n=L.claimMark(S,now());if(!n)return;SFX.coin();toast(tx('m.mark_got',[n]));if(S.heroes[L.SEASON.hero]&&L.seasonOf(S).marks>=L.SEASON.need&&L.seasonOf(S).marks-n<L.SEASON.need)toast('🌫️ '+tx('m.season_got'));renderSheet();ui();save()},
+ route:()=>{const z=L.seasonOf(S);if(z.route)return;confirmBuy('🧭 '+tx('m.route'),tx('m.route_d',[L.SEASON.routeDaily,L.SEASON.need]),SEAS_RP,()=>{z.route=1;S.gems+=300;S.vipPts+=60;SFX.done();toast(tx('ui.demo_satin_alma_tamamlandi'));renderSheet();ui();save()},'route')},
  limOpen:()=>openLimit(),
- lim:v=>{const z=L.spendOf(S,now());v=+v;const at=now()+864e5;if(v===0){z.pend={lim:z.lim,on:0,at}}else if(z.on&&v>z.lim){z.pend={lim:v,on:1,at}}else{z.lim=v;z.on=1;delete z.pend}SFX.tap();toast(z.pend?tx('m.lim_wait'):tx('m.lim_saved'));renderSheet();save()},
+ lim:v=>{const M=window.__monet;if(M&&M.ok()){const on=+v!==0;M.setLimit(on?+v:L.spendOf(S,now()).lim,on).then(st=>{L.applyMonet(S,st);SFX.tap();toast(S.spend.pend?tx('m.lim_wait'):tx('m.lim_saved'));renderSheet();save()}).catch(()=>toast('⚠️ '+tx('m.srv_err')));return}
+  const z=L.spendOf(S,now());v=+v;const at=now()+864e5;if(v===0){z.pend={lim:z.lim,on:0,at}}else if(z.on&&v>z.lim){z.pend={lim:v,on:1,at}}else{z.lim=v;z.on=1;delete z.pend}SFX.tap();toast(z.pend?tx('m.lim_wait'):tx('m.lim_saved'));renderSheet();save()},
  monthly:()=>{S.gems+=100;S.monthlyClaim=L.day(now());SFX.coin();renderSheet();ui();save()},
  open:k=>{const ks=Object.keys(S.g).filter(x=>S.g[x].k===k);if(ks.length)openB(ks[0]);else toast(KINDS[k].n+tx('ui.yok_bos_bir_karoya'))},
 };
@@ -462,6 +466,7 @@ function tutFrame(T){if(S.tut>=9||$('modal').classList.contains('on')||$('battle
  else if(S.tut===2){txt=tx('ui.baloncuga_dokun_kristali_topla');if(!so)pos=tileScr('1,0',1.3)}
  else if(S.tut===3){txt=tx('ui.bos_bir_karoya_dokun');el=so&&$('bk_hut');if(!so)pos=tileScr(TUT_TILE,.1)}
  else if(S.tut===4){txt=tx('ui.bir_barinagi_surukle_digerinin');if(!so){const hs=Object.keys(S.g).filter(k=>S.g[k].k==='hut'&&S.g[k].lv===1);if(hs.length>=2){const a=tileScr(hs[0],.3),b=tileScr(hs[1],.3);const f=(T%1.6)/1.6;pos={x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f}}}}
+ if(so&&!el){hand.style.display=tip.style.display='none';return}
  if(el){const r=el.getBoundingClientRect();pos={x:r.left+r.width/2,y:r.top+r.height/2}}
  tip.style.display='block';tip.textContent=txt;tip.style.bottom=so?'auto':'104px';tip.style.top=so?'60px':'auto';
  if(pos){hand.style.display='block';hand.style.left=pos.x+'px';hand.style.top=pos.y+'px'}else hand.style.display='none'}
