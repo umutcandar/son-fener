@@ -196,8 +196,8 @@ export const passTier=S=>Math.min(PASS_TIERS,Math.floor(S.pass.xp/PASS_XP));
 export function addXP(S,n){S.pass.xp+=n;S.pass.tq=Math.min(600,(S.pass.tq||0)+n)}
 export function claimPass(S,i,prem){if(i>=passTier(S))return'Kilitli';if(prem&&!S.pass.prem)return'Premium yok';const c=S.pass.cl[prem?'p':'f'];if(c[i])return'Alındı';c[i]=1;addRes(S,passReward(i,prem));return null}
 // ---------- VIP ----------
-export const VIPN=[0,100,300,700,1500,3000,6000];
-export const VIP_PERKS=['Üretim +5%/VIP seviyesi','VIP 2: Günlük ödüllü reklam 5 → 8','VIP 3: +1 kalıcı inşaatçı','VIP 4: 3 dakikadan kısa hızlandırmalar ücretsiz','VIP 5: Kraken Avı’nda günde +1 saldırı','VIP 6: Kaynak baloncukları otomatik toplanır'];
+export const VIPN=[0,100,300,700,1500,3000,6000,10000,15000,22000,30000];
+export const VIP_PERKS=['Üretim +5%/VIP seviyesi','VIP 2: Günlük ödüllü reklam 5 → 8','VIP 3: +1 kalıcı inşaatçı','VIP 4: 3 dakikadan kısa hızlandırmalar ücretsiz','VIP 5: Kraken Avı’nda günde +1 saldırı','VIP 6: Kaynak baloncukları otomatik toplanır','VIP 7: +1 Kale inşaat sırası','VIP 8: Revir elmas maliyeti −%25','VIP 9: Kalkan elmas maliyeti −%20','VIP 10: Kale hızlandırma elmas maliyeti −%20'];
 export const vipLv=S=>VIPN.filter(x=>S.vipPts>=x).length-1;
 // ---------- Kraken Avı (haftalık boss, bot sıralaması) ----------
 const EPOCH=Date.UTC(2024,0,1); // Pazartesi
