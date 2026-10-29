@@ -30,7 +30,7 @@ export const nickOK=n=>/^[\p{L}\p{N}_ ]{3,16}$/u.test(n.trim());
 
 async function rpcS(fn,args){const{data,error}=await sb.rpc(fn+'_s',args||{});if(error)throw error;if(data&&typeof data==='object'&&!Array.isArray(data)&&data.err)throw{message:data.err,soft:1};return data}
 async function rpc(fn,args){const{data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
-export async function start(g){G=g;window.__online={mile:n=>online?rpc('mile_claim',{p_n:n}):Promise.reject(new Error('offline')),summon:{sync:()=>summonSync(),call:(n,pay)=>sumCall('summon',{p_n:n,p_pay:pay}),pick:id=>sumCall('summon_pick',{p_id:id})},pass:{sync:()=>passSync(),claim:(i,p)=>rpc('pass_claim',{p_i:i,p_prem:!!p}),prem:async()=>passAdopt(await rpc('pass_prem_demo'))},openMail:()=>openMail(),get mails(){return mails},pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},retry:()=>online?Promise.resolve(true):signIn().then(afterLogin).then(()=>online,()=>false),get uid(){return uid},detectLang,nickOK,test:{push:()=>push(),srv:async()=>{const{data}=await sb.from('saves').select('data,rev').eq('user_id',uid).maybeSingle();return data},dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},open:{craid:openCraid,zones:openZones,clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
+export async function start(g){G=g;window.__online={mile:n=>online?rpc('mile_claim',{p_n:n}):Promise.reject(new Error('offline')),summon:{sync:()=>summonSync(),call:(n,pay)=>sumCall('summon',{p_n:n,p_pay:pay}),pick:id=>sumCall('summon_pick',{p_id:id})},pass:{sync:()=>passSync(),claim:(i,p)=>rpc('pass_claim',{p_i:i,p_prem:!!p}),prem:async()=>passAdopt(await rpc('pass_prem_demo'))},openMail:()=>openMail(),get mails(){return mails},pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},retry:()=>online?Promise.resolve(true):signIn().then(afterLogin).then(()=>online,()=>false),get uid(){return uid},detectLang,nickOK,test:{push:()=>push(),srv:async()=>{const{data}=await sb.from('saves').select('data,rev').eq('user_id',uid).maybeSingle();return data},dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},open:{cal:openCal,craid:openCraid,zones:openZones,clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
  initErr();addButtons();if(!window.supabase){setStatus();return}
  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'sf_auth',autoRefreshToken:true}});
  try{await signIn();await afterLogin()}catch(e){console.warn('offline:',e?.message||e);online=false;setStatus()}
@@ -473,3 +473,37 @@ function initErr(){Object.assign(SERR,{'Geçersiz bağış':'err.don_bad','Bugü
  'Kendine saldıramazsın':'err.self','Filo hâlâ dönüyor, biraz bekle':'err.fleet_back','Bugünkü baskın hakkın bitti':'err.raid_limit','Hedef kalkan altında':'err.shield','Yeni kaptan koruması (7 gün)':'err.newbie','Başka bölgede':'err.region',
  'Klan arkadaşına saldıramazsın':'err.clanmate','Bugünkü arena biletin bitti':'err.tickets','Kaptanın yok':'err.no_caps','Sohbetten geçici olarak susturuldun':'err.chat_muted','Mesaj 1-200 karakter olmalı':'err.msg_len','Çok hızlı yazıyorsun':'err.too_fast',
  'Dakikada en fazla 12 mesaj':'err.per_min','Kanal yok':'err.channel','Kendinle savaşamazsın':'err.self','Çatışma yalnızca Cuma-Cumartesi':'err.fw_clash_only','Bugünkü saldırı hakların bitti (3/3)':'err.fw_no_attacks','Eşleşme yok':'err.fw_no_match','Bölge yok':'err.no_region','arena_weak':'err.arena_weak','blocked':'err.blocked','bad_target':'err.bad_target','not_admin':'err.not_admin'})}
+// b35: Etkinlik Takvimi merkezi — tüm zamanlı etkinlikler, evreler, geri sayımlar, kısayol
+let cal=null,calTimer=0;
+const IST3=3*36e5,istWeek=t=>{const d=new Date(t+IST3),dw=(d.getUTCDay()+6)%7;return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-IST3-dw*864e5};
+async function openCal(){cal=cal||{};open('cal',calHtml);if(online){const q=(n)=>rpc(n).catch(()=>null);const[tr,fw,fr,cr]=await Promise.all([q('tour_me'),q('fener_war_me'),q('front_status'),q('craid_me')]);cal={tour:tr,fw,front:fr,craid:cr,_t:Date.now()}}else cal={_t:Date.now()};if(sheetIs('cal'))rerender();clearInterval(calTimer);calTimer=setInterval(()=>{if(!sheetIs('cal'))return clearInterval(calTimer);rerender()},1000)}
+function calRows(){const now=Date.now(),L=G.L,c=cal||{},R=[],wk=istWeek(now);
+ const add=(k,ic,nm,ph,phs,end,lbl,dis)=>R.push({k,ic,nm,ph,phs,end,lbl,dis});
+ // Turnuva: Pzt–Per kayıt, Cum–Paz maçlar
+ {const sat=wk+4*864e5,mon=wk+7*864e5,bat=c.tour?c.tour.dow>=5:now>=sat;add('tour','🎖️',T('t_tour'),bat?1:0,[T('tour_ph_reg'),T('tour_ph_bat')],bat?mon:sat,bat?'cal_ends':'cal_next_ph',null)}
+ // Fener Savaşı (bölge): server evreleri
+ {const d=c.fw;if(d){const P=['prep','clash','reward'],pi=Math.max(0,P.indexOf(d.phase||'prep')),ends=[d.clash_at,d.reward_at,d.end_at];add('fw','🏮',T('fw_t'),pi,P.map(p=>T('fw_ph_'+p)),+ends[pi],pi<2?'cal_next_ph':'cal_ends',null)}else add('fw','🏮',T('fw_t'),-1,[],0,'',online?null:'offline')}
+ // Cephe Savaşı (klan)
+ {const d=c.front;if(!d||d.phase==='noclan'||d.phase==='none'&&!d.region&&!online)add('front','🌫️',T('t_front'),-1,[],0,'',online?'noclan':'offline');
+  else if(d.phase==='prep'||d.phase==='battle'||d.phase==='result'){const P=['prep','battle','result'],pi=P.indexOf(d.phase);add('front','🌫️',T('t_front'),pi,P.map(p=>T('ph_'+p)),pi===0?Date.parse(d.starts_at):pi===1?Date.parse(d.ends_at):0,pi===0?'cal_next_ph':pi===1?'cal_ends':'',null)}
+  else add('front','🌫️',T('t_front'),-1,[],0,d.phase==='queue'?'cal_queue':'cal_front_idle',null)}
+ // Klan Baskını (haftalık)
+ {const d=c.craid;if(d)add('craid','🐉',T('rk_craid'),d.killed?1:0,[T('ph_battle'),T('cal_killed')],+d.end,'cal_ends',null);else add('craid','🐉',T('rk_craid'),-1,[],0,'',online?'noclan':'offline')}
+ // Kraken Avı (haftalık, Pzt 03:00)
+ add('boss','🦑',T('cal_kraken'),0,[],Date.UTC(2024,0,1)+(Math.floor((now-Date.UTC(2024,0,1))/(7*864e5))+1)*7*864e5,'cal_ends',null);
+ // Arena sezonu (aylık) ve Sezon etkinliği
+ add('arena','🏟️',T('cal_arena'),0,[],seasonEndTs(),'cal_ends',online?null:'offline');
+ if(L.seasonEnd&&L.seasonEnd()>now)add('season','🌫️',T('cal_season',[L.SEASON.id]),0,[],L.seasonEnd(),'cal_ends',null);
+ // Günün teması
+ add('daily','🗓️',T('cal_daily'),0,[],(Math.floor((now+IST3)/864e5)+1)*864e5-IST3,'cal_ends',null);
+ return R}
+function calHtml(){const now=Date.now(),fT=ms=>{const x=Math.max(0,(ms-now)/1000);return x>=172800?T('cal_dh',[Math.floor(x/86400),Math.floor(x%86400/3600)]):G.fmtT(x)};let h=G.hdr('📅 '+T('cal_t'))+`<div class="sub" style="margin:-4px 0 8px">${T('cal_d')}</div>`;
+ for(const r of calRows()){const ph=r.ph>=0&&r.phs.length?`<div class="wtl" style="margin:4px 0">${r.phs.map((n,i)=>`<div class="wst ${i===r.ph?'on':i<r.ph?'done':''}">${n}</div>`).join('<b>›</b>')}</div>`:'';
+  const nxt=r.phs[r.ph+1],cd=r.end&&r.end>now?(r.lbl==='cal_next_ph'&&nxt?T('cal_next_ph',[nxt,fT(r.end)]):T('cal_ends',[fT(r.end)])):r.lbl&&r.lbl!=='cal_ends'&&r.lbl!=='cal_next_ph'?T(r.lbl):'';
+  const sub=r.dis==='offline'?T('offline_msg'):r.dis==='noclan'?T('cal_noclan'):cd;
+  h+=`<div class="card" id="cal_${r.k}"><div class="ic">${r.ic}</div><div class="mid"><div class="nm">${r.nm}</div>${ph}<div class="sub">⏳ ${sub}</div></div><button class="btn o sm" data-o="calGo" data-v="${r.k}" ${r.dis==='offline'?'disabled':''}>${T('cal_go')}</button></div>`}
+ const B=G.L.bonusSched?G.L.bonusSched(now,7):[];h+=`<div class="sec">⚡ ${T('cal_bonus')}</div>`;
+ for(const b of B.slice(0,6)){const live=b.start<=now;h+=`<div class="card"><div class="ic">${b.ic}</div><div class="mid"><div class="nm">${T('cal_b_'+b.id)}${live?` <span class="tag" style="background:#3fb950">${T('cal_live')}</span>`:''}</div><div class="sub">⏳ ${live?T('cal_ends',[fT(b.end)]):T('cal_starts',[fT(b.start)])}</div></div><button class="btn sm" data-o="calGo" data-v="daily">${T('cal_go')}</button></div>`}
+ return h+`<div class="sub" style="margin-top:8px">🕒 ${T('cal_tz')}</div>`}
+OA.cal=()=>openCal();
+OA.calGo=v=>{clearInterval(calTimer);const m={tour:()=>openPvp('tour'),fw:()=>OA.fw(),front:()=>openPvp('war'),craid:()=>cal?.craid?openCraid():openClan(),boss:()=>G.openBoss(),arena:()=>openPvp('arena'),season:()=>G.openShop(),daily:()=>G.openEvent()};(m[v]||m.daily)()};
