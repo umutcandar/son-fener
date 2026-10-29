@@ -1489,5 +1489,13 @@
  "ui.off_login": "Deine tägliche Login-Belohnung ist bereit",
  "ui.off_free": "Deine kostenlose tägliche Kapitänsbeschwörung ist bereit",
  "ui.off_next": "Nächstes Ziel: {0}",
- "ui.off_boost": "×2 einsammeln (Demo-Werbung, 3 s)"
+ "ui.off_boost": "×2 einsammeln (Demo-Werbung, 3 s)",
+ "ui.mile_t": "Insel-Meilenstein: {0} Inseln",
+ "ui.mile_d": "Gerettete Inseln {0}/{1} – Bonustruhe zwischen den Story-Zielen",
+ "ui.mile_claim": "Abholen",
+ "ui.mile_got": "{0}-Insel-Truhe erhalten:",
+ "ui.mile_wait": "Gewinne diese Inselkämpfe zuerst online",
+ "ui.mile_online": "Verbinde dich, um die Truhe abzuholen",
+ "o.badge_me": "Saisonhoch: {0} · Bestes Abzeichen: {1}",
+ "o.badge_next": "Nächstes Abzeichen {0}: +{1} Wertung"
 }

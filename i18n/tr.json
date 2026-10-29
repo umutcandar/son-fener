@@ -1489,5 +1489,13 @@
  "ui.off_login": "Günlük giriş ödülün hazır",
  "ui.off_free": "Ücretsiz günlük kaptan çağrın hazır",
  "ui.off_next": "Sıradaki hedef: {0}",
- "ui.off_boost": "×2 topla (demo reklam, 3 sn)"
+ "ui.off_boost": "×2 topla (demo reklam, 3 sn)",
+ "ui.mile_t": "Ada kilometre taşı: {0} ada",
+ "ui.mile_d": "Kurtarılan ada {0}/{1} — hikâye hedefleri arasında ek sandık",
+ "ui.mile_claim": "Al",
+ "ui.mile_got": "{0} ada sandığı alındı:",
+ "ui.mile_wait": "Önce bu adaların savaşlarını çevrimiçi kazan",
+ "ui.mile_online": "Sandığı almak için bağlan",
+ "o.badge_me": "Sezon zirven: {0} · En iyi nişan: {1}",
+ "o.badge_next": "Sonraki nişan {0}: +{1} puan"
 }

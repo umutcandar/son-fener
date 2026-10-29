@@ -1489,5 +1489,13 @@
  "ui.off_login": "Tu recompensa diaria de conexión está lista",
  "ui.off_free": "Tu invocación gratuita diaria de capitán está lista",
  "ui.off_next": "Próximo objetivo: {0}",
- "ui.off_boost": "Recoger ×2 (anuncio demo, 3 s)"
+ "ui.off_boost": "Recoger ×2 (anuncio demo, 3 s)",
+ "ui.mile_t": "Hito de islas: {0} islas",
+ "ui.mile_d": "Islas rescatadas {0}/{1}: cofre extra entre objetivos",
+ "ui.mile_claim": "Cobrar",
+ "ui.mile_got": "Cofre de {0} islas cobrado:",
+ "ui.mile_wait": "Gana primero estas batallas de islas en línea",
+ "ui.mile_online": "Conéctate para cobrar este cofre",
+ "o.badge_me": "Pico de temporada: {0} · Mejor insignia: {1}",
+ "o.badge_next": "Próxima insignia {0}: +{1} puntos"
 }

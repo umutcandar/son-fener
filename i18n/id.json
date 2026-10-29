@@ -1489,5 +1489,13 @@
  "ui.off_login": "Hadiah login harianmu siap",
  "ui.off_free": "Panggilan kapten gratis harianmu siap",
  "ui.off_next": "Target berikutnya: {0}",
- "ui.off_boost": "Ambil ×2 (iklan demo, 3 dtk)"
+ "ui.off_boost": "Ambil ×2 (iklan demo, 3 dtk)",
+ "ui.mile_t": "Tonggak pulau: {0} pulau",
+ "ui.mile_d": "Pulau diselamatkan {0}/{1} — peti bonus di antara target cerita",
+ "ui.mile_claim": "Ambil",
+ "ui.mile_got": "Peti {0} pulau diambil:",
+ "ui.mile_wait": "Menangkan dulu pertempuran pulau ini secara online",
+ "ui.mile_online": "Sambungkan untuk mengambil peti ini",
+ "o.badge_me": "Puncak musim: {0} · Lencana terbaik: {1}",
+ "o.badge_next": "Lencana berikutnya {0}: +{1} poin"
 }
