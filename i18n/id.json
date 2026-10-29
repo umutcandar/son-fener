@@ -1524,5 +1524,8 @@
  "o.fr_gift_sent": "Kamu sudah mengirim hadiah ke teman ini hari ini",
  "o.fr_gift_full": "Pemain ini sudah menerima 10 hadiah hari ini",
  "o.fr_gift_not_friend": "Kalian harus berteman dulu",
- "o.fr_gift_got": "🎁 {0} mengirimimu hadiah! 🐟150 🪵150 🔮30"
+ "o.fr_gift_got": "🎁 {0} mengirimimu hadiah! 🐟150 🪵150 🔮30",
+ "ui.hw_lv": "Naik level",
+ "ui.hw_star": "Bintang",
+ "ui.hw_tal": "Bakat"
 }

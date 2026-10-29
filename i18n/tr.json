@@ -1524,5 +1524,8 @@
  "o.fr_gift_sent": "Bugün bu arkadaşa zaten hediye gönderdin",
  "o.fr_gift_full": "Bu oyuncu bugünkü 10 hediyesini almış",
  "o.fr_gift_not_friend": "Önce arkadaş olmalısınız",
- "o.fr_gift_got": "🎁 {0} sana hediye gönderdi! 🐟150 🪵150 🔮30"
+ "o.fr_gift_got": "🎁 {0} sana hediye gönderdi! 🐟150 🪵150 🔮30",
+ "ui.hw_lv": "Seviye atlat",
+ "ui.hw_star": "Yıldız",
+ "ui.hw_tal": "Yetenek"
 }

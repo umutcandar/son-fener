@@ -1524,5 +1524,8 @@
  "o.fr_gift_sent": "今天已給該好友送過禮物",
  "o.fr_gift_full": "該玩家今天已收到 10 份禮物",
  "o.fr_gift_not_friend": "需要先成為好友",
- "o.fr_gift_got": "🎁 {0} 給你送了禮物！🐟150 🪵150 🔮30"
+ "o.fr_gift_got": "🎁 {0} 給你送了禮物！🐟150 🪵150 🔮30",
+ "ui.hw_lv": "升級",
+ "ui.hw_star": "升星",
+ "ui.hw_tal": "天賦"
 }

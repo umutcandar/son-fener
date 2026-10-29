@@ -1524,5 +1524,8 @@
  "o.fr_gift_sent": "Tu as déjà offert un cadeau à cet ami aujourd'hui",
  "o.fr_gift_full": "Ce joueur a déjà reçu 10 cadeaux aujourd'hui",
  "o.fr_gift_not_friend": "Vous devez d'abord être amis",
- "o.fr_gift_got": "🎁 {0} t'a envoyé un cadeau ! 🐟150 🪵150 🔮30"
+ "o.fr_gift_got": "🎁 {0} t'a envoyé un cadeau ! 🐟150 🪵150 🔮30",
+ "ui.hw_lv": "Monter",
+ "ui.hw_star": "Étoile",
+ "ui.hw_tal": "Talent"
 }

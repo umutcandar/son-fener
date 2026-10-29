@@ -1524,5 +1524,8 @@
  "o.fr_gift_sent": "Ya enviaste un regalo a este amigo hoy",
  "o.fr_gift_full": "Este jugador ya recibió 10 regalos hoy",
  "o.fr_gift_not_friend": "Primero tenéis que ser amigos",
- "o.fr_gift_got": "🎁 ¡{0} te envió un regalo! 🐟150 🪵150 🔮30"
+ "o.fr_gift_got": "🎁 ¡{0} te envió un regalo! 🐟150 🪵150 🔮30",
+ "ui.hw_lv": "Subir nivel",
+ "ui.hw_star": "Estrella",
+ "ui.hw_tal": "Talento"
 }
