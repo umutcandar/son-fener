@@ -1501,5 +1501,13 @@
  "o.hp_line": "{0} en posesión · {1} sin conexión · {2} invocaciones en servidor",
  "o.hp_ok": "Aprobar",
  "o.hp_no": "Rechazar",
- "o.pvp_nudge": "¡Tu flota está lista! Prueba tu primer saqueo o duelo de arena en el menú Guerra; la tarea diaria da gemas."
+ "o.pvp_nudge": "¡Tu flota está lista! Prueba tu primer saqueo o duelo de arena en el menú Guerra; la tarea diaria da gemas.",
+ "ui.off_cap": "Producción inactiva: {0}% de velocidad, máx. {1} h",
+ "ui.off_capped": "límite alcanzado",
+ "ui.off_today": "Objetivos de hoy",
+ "ui.off_daily": "{0}/{1} tareas diarias · {2} listas para cobrar",
+ "ui.off_login": "Tu recompensa diaria de conexión está lista",
+ "ui.off_free": "Tu invocación gratuita diaria de capitán está lista",
+ "ui.off_next": "Próximo objetivo: {0}",
+ "ui.off_boost": "Recoger ×2 (anuncio demo, 3 s)"
 }

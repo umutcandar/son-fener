@@ -1501,5 +1501,13 @@
  "o.hp_line": "{0} possédés · {1} gains hors ligne · {2} invocations serveur",
  "o.hp_ok": "Approuver",
  "o.hp_no": "Refuser",
- "o.pvp_nudge": "Ta flotte est prête ! Tente ton premier raid ou match d'arène depuis le menu Guerre ; la tâche du jour rapporte des gemmes."
+ "o.pvp_nudge": "Ta flotte est prête ! Tente ton premier raid ou match d'arène depuis le menu Guerre ; la tâche du jour rapporte des gemmes.",
+ "ui.off_cap": "Production au repos : {0} % de vitesse, max {1} h",
+ "ui.off_capped": "plafond atteint",
+ "ui.off_today": "Objectifs du jour",
+ "ui.off_daily": "{0}/{1} tâches du jour · {2} à récupérer",
+ "ui.off_login": "Ta récompense de connexion du jour est prête",
+ "ui.off_free": "Ton invocation de capitaine gratuite du jour est prête",
+ "ui.off_next": "Prochain objectif : {0}",
+ "ui.off_boost": "Récupérer ×2 (pub démo, 3 s)"
 }

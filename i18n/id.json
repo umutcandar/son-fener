@@ -1501,5 +1501,13 @@
  "o.hp_line": "{0} dimiliki · {1} didapat offline · {2} panggilan server",
  "o.hp_ok": "Setujui",
  "o.hp_no": "Tolak",
- "o.pvp_nudge": "Armadamu siap! Coba serangan atau laga arena pertamamu dari menu Perang; tugas harian memberi permata."
+ "o.pvp_nudge": "Armadamu siap! Coba serangan atau laga arena pertamamu dari menu Perang; tugas harian memberi permata.",
+ "ui.off_cap": "Produksi saat pergi: kecepatan {0}%, maks {1} jam",
+ "ui.off_capped": "batas tercapai",
+ "ui.off_today": "Target hari ini",
+ "ui.off_daily": "{0}/{1} tugas harian · {2} siap diklaim",
+ "ui.off_login": "Hadiah login harianmu siap",
+ "ui.off_free": "Panggilan kapten gratis harianmu siap",
+ "ui.off_next": "Target berikutnya: {0}",
+ "ui.off_boost": "Ambil ×2 (iklan demo, 3 dtk)"
 }

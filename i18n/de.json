@@ -1501,5 +1501,13 @@
  "o.hp_line": "{0} im Besitz · {1} Offline-Gewinne · {2} Server-Beschwörungen",
  "o.hp_ok": "Freigeben",
  "o.hp_no": "Ablehnen",
- "o.pvp_nudge": "Deine Flotte ist bereit! Probier im Kriegsmenü deinen ersten Raubzug oder dein erstes Arenamatch; die Tagesaufgabe bringt Diamanten."
+ "o.pvp_nudge": "Deine Flotte ist bereit! Probier im Kriegsmenü deinen ersten Raubzug oder dein erstes Arenamatch; die Tagesaufgabe bringt Diamanten.",
+ "ui.off_cap": "Leerlaufproduktion: {0} % Tempo, max. {1} Std.",
+ "ui.off_capped": "Limit erreicht",
+ "ui.off_today": "Heutige Ziele",
+ "ui.off_daily": "{0}/{1} Tagesaufgaben · {2} abholbereit",
+ "ui.off_login": "Deine tägliche Login-Belohnung ist bereit",
+ "ui.off_free": "Deine kostenlose tägliche Kapitänsbeschwörung ist bereit",
+ "ui.off_next": "Nächstes Ziel: {0}",
+ "ui.off_boost": "×2 einsammeln (Demo-Werbung, 3 s)"
 }

@@ -1501,5 +1501,13 @@
  "o.hp_line": "{0} owned · {1} offline grants · {2} server pulls",
  "o.hp_ok": "Approve",
  "o.hp_no": "Reject",
- "o.pvp_nudge": "Your fleet is ready! Try your first raid or arena match from the War menu; the daily task pays gems."
+ "o.pvp_nudge": "Your fleet is ready! Try your first raid or arena match from the War menu; the daily task pays gems.",
+ "ui.off_cap": "Idle production: {0}% speed, max {1} h",
+ "ui.off_capped": "limit reached",
+ "ui.off_today": "Today's goals",
+ "ui.off_daily": "{0}/{1} daily tasks · {2} ready to claim",
+ "ui.off_login": "Your daily login reward is ready",
+ "ui.off_free": "Your free daily captain summon is ready",
+ "ui.off_next": "Next goal: {0}",
+ "ui.off_boost": "Collect ×2 (demo ad, 3 s)"
 }

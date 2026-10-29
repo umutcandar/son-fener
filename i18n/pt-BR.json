@@ -1501,5 +1501,13 @@
  "o.hp_line": "{0} possuídos · {1} ganhos offline · {2} invocações no servidor",
  "o.hp_ok": "Aprovar",
  "o.hp_no": "Rejeitar",
- "o.pvp_nudge": "Sua frota está pronta! Tente seu primeiro saque ou partida de arena no menu Guerra; a tarefa diária dá gemas."
+ "o.pvp_nudge": "Sua frota está pronta! Tente seu primeiro saque ou partida de arena no menu Guerra; a tarefa diária dá gemas.",
+ "ui.off_cap": "Produção ociosa: {0}% de velocidade, máx. {1} h",
+ "ui.off_capped": "limite atingido",
+ "ui.off_today": "Metas de hoje",
+ "ui.off_daily": "{0}/{1} tarefas diárias · {2} prontas para resgatar",
+ "ui.off_login": "Sua recompensa diária de login está pronta",
+ "ui.off_free": "Sua invocação diária grátis de capitão está pronta",
+ "ui.off_next": "Próxima meta: {0}",
+ "ui.off_boost": "Coletar ×2 (anúncio demo, 3 s)"
 }

@@ -1501,5 +1501,13 @@
  "o.hp_line": "{0} kaptanı var · {1} çevrimdışı kazanım · {2} sunucu çağrısı",
  "o.hp_ok": "Onayla",
  "o.hp_no": "Reddet",
- "o.pvp_nudge": "Filon hazır! Savaş menüsünden ilk baskın ya da arena maçını dene; günlük görev elmas verir."
+ "o.pvp_nudge": "Filon hazır! Savaş menüsünden ilk baskın ya da arena maçını dene; günlük görev elmas verir.",
+ "ui.off_cap": "Boşta üretim: %{0} hız, en fazla {1} saat",
+ "ui.off_capped": "sınıra ulaşıldı",
+ "ui.off_today": "Bugünün hedefleri",
+ "ui.off_daily": "{0}/{1} günlük görev · {2} ödül alınmaya hazır",
+ "ui.off_login": "Günlük giriş ödülün hazır",
+ "ui.off_free": "Ücretsiz günlük kaptan çağrın hazır",
+ "ui.off_next": "Sıradaki hedef: {0}",
+ "ui.off_boost": "×2 topla (demo reklam, 3 sn)"
 }
