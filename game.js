@@ -450,8 +450,9 @@ function ui(){for(const r of L.RES)$('r_'+r).textContent=fmt(S.res[r]);$('r_gems
 function claimQuest(silent){const q=L.claimQuest(S);if(!q)return;ui();renderSheet();save();if(silent===true){for(const r in q.r)fly(r,innerWidth/2,200,3);SFX.coin();toast(`⭐ ${q.t} ✓ ${rwStr(q.r)}`);return}
  const nq=L.QUESTS[S.q];const lines=[...(q.say?[q.say]:[])];if(nq&&nq.c!==q.c&&!S.seen['ch'+nq.c]){S.seen['ch'+nq.c]=1;lines.push(`${tx('ui.bolum_2',[nq.c+1,L.CHAPTERS[nq.c].n])}`,...L.CHAPTERS[nq.c].say)}const go=()=>{if(lines.length)talk(lines)};closeSheet();reward(tx('ui.gorev_tamam'),q.r,{icon:'⭐',sub:q.t,cb:go})}
 let talkQ=[],talkCb=null;function talk(lines,cb){talkQ=[...lines];talkCb=cb;closeSheet();nextTalk()}
-function nextTalk(){const l=talkQ.shift();if(l===undefined){$('talk').classList.remove('on');const c=talkCb;talkCb=null;c&&c();return}$('talkT').innerHTML=`<b>${L.NPC.n}</b>${l}<small>${tx('ui.dokun')}</small>`;$('talk').classList.add('on');SFX.tap()}
-$('talk').onclick=nextTalk;
+function talkPos(){$('talk').classList.toggle('top',localStorage.getItem('sf_talkTop')==='1')}
+function nextTalk(){const l=talkQ.shift();if(l===undefined){$('talk').classList.remove('on');const c=talkCb;talkCb=null;c&&c();return}talkPos();$('talkT').innerHTML=`<span class="tc"><button data-t="mv" title="${tx('ui.talk_move')}" aria-label="${tx('ui.talk_move')}">⇅</button><button data-t="x" title="${tx('ui.talk_skip')}" aria-label="${tx('ui.talk_skip')}">✕</button></span><b>${L.NPC.n}</b>${l}<small>${tx('ui.dokun')}${talkQ.length?' · '+(talkQ.length+1):''}</small>`;$('talk').classList.add('on');SFX.tap()}
+$('talk').onclick=e=>{const b=e.target.closest('[data-t]');if(b){e.stopPropagation();if(b.dataset.t==='mv'){localStorage.setItem('sf_talkTop',localStorage.getItem('sf_talkTop')==='1'?'0':'1');talkPos()}else{talkQ=[];nextTalk()}return}nextTalk()};
 
 // ---------- KUTLAMA / ÖDÜL ----------
 const RNAME={fish:tx('ui.balik'),wood:tx('ui.kereste'),crys:tx('ui.kristal'),gems:tx('ui.elmas'),ticket:tx('ui.cagri_bileti')};
@@ -632,4 +633,10 @@ const fx7=(()=>{const gal=new THREE.Group(),lan=[];
 window.__g={get S(){return S},sheet,modal,toast,hdr,closeSheet,renderSheet,fmt,fmtT,rwStr,SFX,KEY,L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,levelUp,reward,get FIT(){return FIT}};
 
 // çevrimiçi katman (Supabase) — yüklenemezse oyun çevrimdışı devam eder
+// PWA: servis çalışanı + ana ekrana ekle
+let instEv=null;const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent),standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+function instBtn(){if(standalone||localStorage.getItem('sf_instNo')==='1')return;let b=$('sInst');if(!b){b=document.createElement('button');b.className='sb';b.id='sInst';b.style.cssText='position:fixed;left:6px;top:calc(env(safe-area-inset-top) + 202px);z-index:6';document.body.appendChild(b);b.onclick=()=>{if(instEv){instEv.prompt();instEv.userChoice.then(c=>{if(c.outcome==='accepted')b.remove();instEv=null})}else modal(`<div style="font-size:48px">📲</div><h2>${tx('ui.inst_t')}</h2><p>${tx('ui.inst_ios')}</p>`,[[tx('ui.tamam'),'o',()=>{}],[tx('ui.inst_no'),'',()=>{localStorage.setItem('sf_instNo','1');b.remove()}]])}}b.innerHTML=`📲<small>${tx('ui.inst')}</small>`}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e;instBtn()});addEventListener('appinstalled',()=>$('sInst')?.remove());
+if(isIOS&&!standalone)setTimeout(instBtn,1500);
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){navigator.serviceWorker?.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update?.();setInterval(()=>r.update().catch(()=>{}),30*60e3)}).catch(e=>console.warn('sw',e));let had=!!navigator.serviceWorker?.controller;navigator.serviceWorker?.addEventListener('controllerchange',()=>{if(had)toast('🔄 '+tx('ui.updated'));had=true})}
 import('./online.js').then(m=>m.start(window.__g)).catch(e=>console.warn('çevrimdışı mod',e));
