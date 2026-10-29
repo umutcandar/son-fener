@@ -4,7 +4,7 @@ import re,json,glob,os,sys
 R=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 langs={os.path.basename(p)[:-5]:json.load(open(p)) for p in glob.glob(R+'/i18n/*.json')}
 used=set()
-IGN={'o.a','o.c','o.d'}  # openTasks shadows T locally
+IGN={'o.a','o.c','o.d','o.w'}  # openTasks shadows T locally
 for f in glob.glob(R+'/*.js'):
   if f.endswith('i18n.js'): continue
   s=open(f,encoding='utf-8').read()

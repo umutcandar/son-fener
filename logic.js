@@ -151,7 +151,8 @@ export const QUESTS=[
  {c:5,go:'merge',t:'Sv7 bir bina yap',f:topLv,n:7,r:{ticket:2}},
  {c:5,go:'map',t:'20 ada kurtar',f:S=>S.stage-1,n:20,r:{gems:200}},
  {c:5,go:'fener',t:'Feneri Sv7 yap',f:S=>S.fener.lv,n:7,r:{gems:300},say:'Başardın evlat. Deniz yeniden ışıl ışıl. Ama ufukta… yeni sisler var. Hikâye sürecek!'}];
-export const DAILY=[{id:'collect',t:'5 kez kaynak topla',n:5,g:10},{id:'merge',t:'3 birleştirme yap',n:3,g:10},{id:'train',t:'10 tayfa eğit',n:10,g:10},{id:'battle',t:'1 deniz savaşı kazan',n:1,g:15},{id:'recruit',t:'1 kaptan çağır',n:1,g:15},{id:'boss',t:'Kraken’e 1 kez saldır',n:1,g:15}];
+export const DAILY=[{id:'collect',t:'5 kez kaynak topla',n:5,g:10},{id:'merge',t:'3 birleştirme yap',n:3,g:10},{id:'train',t:'10 tayfa eğit',n:10,g:10},{id:'battle',t:'1 deniz savaşı kazan',n:1,g:15},{id:'recruit',t:'1 kaptan çağır',n:1,g:15},{id:'boss',t:'Kraken’e 1 kez saldır',n:1,g:15},{id:'raid',t:'1 yağma ya da intikam saldırısı yap',n:1,g:15,on:1},{id:'arena',t:'1 arena ya da düello maçı yap',n:1,g:15,on:1},{id:'help',t:'Klan arkadaşlarına 3 yardım et',n:3,g:10,on:1}];
+export const WEEKLY=[{id:'battle',t:'25 deniz savaşı kazan',n:25,g:60},{id:'raid',t:'7 yağma saldırısı yap',n:7,g:80,on:1},{id:'arena',t:'10 arena maçı yap',n:10,g:80,on:1},{id:'help',t:'Klanına 15 yardım et',n:15,g:60,on:1},{id:'donate',t:'Klan teknolojisine 5 bağış yap',n:5,g:70,on:1},{id:'boss',t:'Kraken’e 7 kez saldır',n:7,g:60}];
 export const ACH=[
  {id:'m10',t:'Birleştirme Çırağı',d:'10 birleştirme',f:S=>S.st.merge,n:10,g:20},{id:'m100',t:'Birleştirme Ustası',d:'100 birleştirme',f:S=>S.st.merge,n:100,g:80},
  {id:'c50',t:'Toplayıcı',d:'50 kez kaynak topla',f:S=>S.st.collect,n:50,g:20},{id:'s10',t:'Kalabalık Ada',d:'20 kurtulan',f:S=>S.surv,n:20,g:30},
@@ -241,8 +242,8 @@ export const crysUse=S=>S.fener.on?(.8+S.fener.lv*.5)*(1-T_(S,'lens')*.1):0; // 
 export const fishUse=S=>S.surv*.5;
 export function rate(S,k,id=S.cur){const g=gridOf(S,id),b=g[k];if(!b||!KINDS[b.k].res||b.fog)return 0;const r=KINDS[b.k].res;
  let m=1+T_(S,'net')*.15*(r!=='crys')+T_(S,'cut')*.15*(r==='crys');if(r==='fish'||r==='wood'||r==='crys')m*=1+skill(S,r);m*=(ISLANDS[id].bonus||{})[r]||1;
- return (b.w||0)*KINDS[b.k].perW*(1+.5*(b.lv-1))*m*(1+vipLv(S)*.05+islandBonus(S))*(lit(S)?1:.5)*(S.res.fish<=0&&r!=='fish'?.5:1)}
-export const storeCap=(S,k,id)=>{const b=gridOf(S,id||S.cur)[k];if(b&&KINDS[b.k].res==='gems')return Math.max(5,rate(S,k,id)*900);return capN(S,k,id)};const capN=(S,k,id)=>Math.max(30,rate(S,k,id)*120*(1+T_(S,'store')*.25));
+ return (b.w||0)*KINDS[b.k].perW*(1+.5*(b.lv-1))*m*(1+vipLv(S)*.05+islandBonus(S)+clanB.prod)*(lit(S)?1:.5)*(S.res.fish<=0&&r!=='fish'?.5:1)}
+export const storeCap=(S,k,id)=>{const b=gridOf(S,id||S.cur)[k];if(b&&KINDS[b.k].res==='gems')return Math.max(5,rate(S,k,id)*900);return capN(S,k,id)};const capN=(S,k,id)=>Math.max(30,rate(S,k,id)*120*(1+T_(S,'store')*.25+clanB.store));
 export function canAfford(S,c){return Object.entries(c).every(([r,v])=>(r==='gems'?S.gems:r==='ticket'?S.tickets:S.res[r])>=v)}
 export function pay(S,c){for(const r in c)r==='gems'?S.gems-=c[r]:r==='ticket'?S.tickets-=c[r]:S.res[r]-=c[r]}
 export function addRes(S,c){for(const r in c){if(r==='gems')S.gems+=c[r];else if(r==='ticket')S.tickets+=c[r];else if(r in S.res)S.res[r]+=c[r]}}
@@ -306,7 +307,11 @@ export function applyBattle(S,res,stage,now){const lost={};for(const t in TROOPS
  let rw=null,saved=0;if(res.win){const lm=(1+T_(S,'loot')*.1+(S.gear.sail||0)*.03)*(1+skill(S,'loot'));rw=stageReward(stage);for(const r in rw)if(r!=='gems')rw[r]=Math.round(rw[r]*lm);addRes(S,rw);
   if(stage===S.stage){S.stage++;saved=Math.min(stageRescue(stage),Math.max(0,cap(S)-S.surv));S.surv+=saved}S.st.wins++;dailyInc(S,'battle',1,now);addXP(S,20)}return{lost,rw,saved}}
 export function dailyReset(S,now){const d=day(now);if(S.daily.date!==d)S.daily={date:d,p:{},c:{}}}
-export function dailyInc(S,id,n,now){dailyReset(S,now);S.daily.p[id]=(S.daily.p[id]||0)+n}
+export const weekIst=now=>{const d=new Date(now+108e5);d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)};
+export function weeklyReset(S,now){const w=weekIst(now);if(!S.weekly||S.weekly.w!==w)S.weekly={w,p:{},c:{}}}
+export function dailyInc(S,id,n,now){dailyReset(S,now);S.daily.p[id]=(S.daily.p[id]||0)+n;weeklyReset(S,now);S.weekly.p[id]=(S.weekly.p[id]||0)+n}
+export function claimWeekly(S,id,now){weeklyReset(S,now);const d=WEEKLY.find(x=>x.id===id);if(!d||S.weekly.c[id]||(S.weekly.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.weekly.c[id]=1;addXP(S,60);return null}
+export const clanB={prod:0,store:0,help:0};
 export function claimDaily(S,id){const d=DAILY.find(x=>x.id===id);if(!d||S.daily.c[id]||(S.daily.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.daily.c[id]=1;addXP(S,30);return null}
 export const questDone=S=>{const q=QUESTS[S.q];return q&&q.f(S)>=q.n};
 export function claimQuest(S){const q=QUESTS[S.q];if(!q||q.f(S)<q.n)return null;addRes(S,q.r);S.q++;addXP(S,50);return q}
