@@ -38,7 +38,7 @@ async function signIn(){let{data:{session}}=await sb.auth.getSession();if(sessio
  let cred=JSON.parse(localStorage.getItem('sf_guest')||'null');
  if(!cred){const r=await fetch(SB_URL+'/functions/v1/guest',{method:'POST',headers:{apikey:SB_KEY,'content-type':'application/json'}});if(!r.ok)throw new Error('guest');cred=await r.json();localStorage.setItem('sf_guest',JSON.stringify(cred))}
  const{data,error}=await sb.auth.signInWithPassword(cred);if(error)throw error;uid=data.user.id}
-async function afterLogin(){prof=await rpc('ensure_profile');online=true;
+async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();
  const{data:sv}=await sb.from('saves').select('data,rev,updated_at').eq('user_id',uid).maybeSingle();const S=G.S;
  if(sv&&sv.data&&(sv.data.saved||0)>(S.saved||0)+10000&&!sessionStorage.getItem('sf_adopted')){adopt(sv);return}
  if(sv)rev=sv.rev;await push();
@@ -162,7 +162,8 @@ function cardHtml(c,r){const H=G.L.HEROES||[],hn=id=>H.find(x=>x.id===id)?.n||id
  h+=`<div class="sec">⚓ ${T('captains')} · ${fmt(c.cap_power)}</div><div style="display:flex;gap:8px;justify-content:center">${(c.heroes||[]).map(x=>`<div style="text-align:center">${av(x.id,52)}<div class="sub">${esc(hn(x.id))}</div><div class="sub">${'⭐'.repeat(+x.star||1)} ${T('lv_n',[x.lv||1])}${x.tal?' · 🌟'+x.tal:''}</div></div>`).join('')||`<div class="sub">—</div>`}</div>`;
  h+=`<div class="sec">📊 ${T('stats')}</div><div class="sub">${T('stats_line',[fmt(c.st.wins),c.wins,c.losses,c.best,fmt(c.st.boss),c.st.heroes])}</div>`;return h}
 
-let refD=null;async function refSync(){try{const c=localStorage.getItem('sf_ref');if(c){localStorage.removeItem('sf_ref');try{await rpc('ref_claim',{p_code:c});toast('🤝 '+T('inv_ok'))}catch(e){err(e)}}
+let refD=null,refP=null;function refClaimNow(){const c=localStorage.getItem('sf_ref');if(!c||refP)return refP;localStorage.removeItem('sf_ref');refP=rpc('ref_claim',{p_code:c}).then(()=>{toast('🤝 '+T('inv_ok'));return true},e=>{err(e);return false});return refP}
+async function refSync(){try{const c=await refClaimNow();
  const r=await rpc('ref_collect');if(r&&r.gems>0){G.L.addRes(G.S,{gems:r.gems});G.save();G.ui();setTimeout(()=>toast('🤝 '+T('inv_rw')+' 💎'+r.gems),c?2600:0)}}catch(e){}}
 function refHtml(){if(!refD)return `<div class="sec">🤝 ${T('inv_t')}</div><div class="sub">…</div>`;const url=location.origin+location.pathname+'?ref='+refD.code;
  return `<div class="sec">🤝 ${T('inv_t')}</div><div class="card" style="flex-direction:column;align-items:stretch;gap:6px"><div class="sub">${T('inv_desc')}</div><div class="nm">${T('inv_code',[esc(refD.code)])}</div><div class="sub" style="word-break:break-all;opacity:.8">${esc(url)}</div><div class="sub">${T('inv_stats',[refD.invited,refD.done,refD.paid])}</div>${refD.by?`<div class="sub">💌 ${T('inv_by',[esc(refD.by)])}</div>`:''}<button class="btn o" data-o="invShare">📤 ${T('inv_share')}</button></div>`}
