@@ -1884,5 +1884,9 @@
  "d.VIP_PERKS.9": "VIP 10: biaya permata percepatan bangun −20%",
  "ui.tut_fort": "🏰 Ketuk Benteng dan perkuat pertahanan — musuh mendekat!",
  "ui.tut_war": "⚔️ Tekan tombol Perang dan pukul mundur musuh pertama!",
- "o.rk_kraken": "Panglima Perang"
+ "o.rk_kraken": "Panglima Perang",
+ "o.w_odds": "Kekuatan ~{0} vs ~{1}",
+ "o.w_odds_hi": "Kamu lebih kuat",
+ "o.w_odds_mid": "Seimbang",
+ "o.w_odds_lo": "Berisiko — perkuat dulu"
 }

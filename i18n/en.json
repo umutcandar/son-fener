@@ -1884,5 +1884,9 @@
  "d.VIP_PERKS.9": "VIP 10: construction speed-up gem cost −20%",
  "ui.tut_fort": "🏰 Tap the Citadel and strengthen your defenses — the enemy approaches!",
  "ui.tut_war": "⚔️ Press the War button and repel the first enemy!",
- "o.rk_kraken": "Warlord"
+ "o.rk_kraken": "Warlord",
+ "o.w_odds": "Power ~{0} vs ~{1}",
+ "o.w_odds_hi": "You're stronger",
+ "o.w_odds_mid": "Even fight",
+ "o.w_odds_lo": "Risky — grow first"
 }

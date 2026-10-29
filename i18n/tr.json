@@ -1884,5 +1884,9 @@
  "d.VIP_PERKS.9": "VIP 10: Kale hızlandırma elmas maliyeti −%20",
  "ui.tut_fort": "🏰 Kaleye dokun ve savunmayı güçlendir — düşman yaklaşıyor!",
  "ui.tut_war": "⚔️ Savaş düğmesine bas, ilk düşmanı püskürt!",
- "o.rk_kraken": "Savaş Lordu"
+ "o.rk_kraken": "Savaş Lordu",
+ "o.w_odds": "Güç ~{0} / ~{1}",
+ "o.w_odds_hi": "Üstünsün",
+ "o.w_odds_mid": "Başa baş",
+ "o.w_odds_lo": "Riskli — önce güçlen"
 }

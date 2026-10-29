@@ -1884,5 +1884,9 @@
  "d.VIP_PERKS.9": "VIP 10 : coût en gemmes de l'accélération −20 %",
  "ui.tut_fort": "🏰 Touche la Citadelle et renforce tes défenses — l'ennemi approche !",
  "ui.tut_war": "⚔️ Appuie sur le bouton Guerre et repousse le premier ennemi !",
- "o.rk_kraken": "Seigneur de guerre"
+ "o.rk_kraken": "Seigneur de guerre",
+ "o.w_odds": "Puissance ~{0} vs ~{1}",
+ "o.w_odds_hi": "Tu es plus fort",
+ "o.w_odds_mid": "Combat serré",
+ "o.w_odds_lo": "Risqué — renforce-toi d'abord"
 }

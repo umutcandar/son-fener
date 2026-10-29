@@ -1884,5 +1884,9 @@
  "d.VIP_PERKS.9": "VIP 10: custo em gemas para acelerar construção −20%",
  "ui.tut_fort": "🏰 Toque na Cidadela e reforce suas defesas — o inimigo se aproxima!",
  "ui.tut_war": "⚔️ Toque no botão Guerra e repila o primeiro inimigo!",
- "o.rk_kraken": "Senhor da guerra"
+ "o.rk_kraken": "Senhor da guerra",
+ "o.w_odds": "Poder ~{0} vs ~{1}",
+ "o.w_odds_hi": "Você é mais forte",
+ "o.w_odds_mid": "Luta equilibrada",
+ "o.w_odds_lo": "Arriscado — fortaleça-se antes"
 }

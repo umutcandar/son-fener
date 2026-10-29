@@ -1884,5 +1884,9 @@
  "d.VIP_PERKS.9": "VIP 10: Edelsteinkosten für Baubeschleunigung −20 %",
  "ui.tut_fort": "🏰 Tippe auf die Zitadelle und stärke deine Verteidigung – der Feind naht!",
  "ui.tut_war": "⚔️ Drück den Kampf-Knopf und schlag den ersten Feind zurück!",
- "o.rk_kraken": "Kriegsherr"
+ "o.rk_kraken": "Kriegsherr",
+ "o.w_odds": "Stärke ~{0} vs ~{1}",
+ "o.w_odds_hi": "Du bist stärker",
+ "o.w_odds_mid": "Ausgeglichen",
+ "o.w_odds_lo": "Riskant — erst stärker werden"
 }
