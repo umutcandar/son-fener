@@ -1636,5 +1636,7 @@
  "ui.sk_r_derin": "🦑 Kraken {0}/{1}",
  "ui.sk_r_amiral": "📅 Dias {0}/{1}",
  "ui.sk_r_kilavuz": "🔦 Navios {0}/{1}",
- "e.guide_wait": "O navio perdido ainda não apareceu"
+ "e.guide_wait": "O navio perdido ainda não apareceu",
+ "ui.war_btn": "Batalha",
+ "ui.skill_fire": "{0}: Habilidade!"
 }

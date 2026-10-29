@@ -1636,5 +1636,7 @@
  "ui.sk_r_derin": "🦑 Kraken {0}/{1}",
  "ui.sk_r_amiral": "📅 Login {0}/{1}",
  "ui.sk_r_kilavuz": "🔦 Kapal {0}/{1}",
- "e.guide_wait": "Kapal tersesat belum muncul"
+ "e.guide_wait": "Kapal tersesat belum muncul",
+ "ui.war_btn": "Perang",
+ "ui.skill_fire": "{0}: Skill!"
 }

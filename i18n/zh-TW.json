@@ -1636,5 +1636,7 @@
  "ui.sk_r_derin": "🦑 克拉肯 {0}/{1}",
  "ui.sk_r_amiral": "📅 登入 {0}/{1}",
  "ui.sk_r_kilavuz": "🔦 船隻 {0}/{1}",
- "e.guide_wait": "迷航船尚未出現"
+ "e.guide_wait": "迷航船尚未出現",
+ "ui.war_btn": "戰鬥",
+ "ui.skill_fire": "{0}：技能！"
 }

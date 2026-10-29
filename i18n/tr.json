@@ -1636,5 +1636,7 @@
  "ui.sk_r_derin": "🦑 Kraken {0}/{1}",
  "ui.sk_r_amiral": "📅 Giriş {0}/{1}",
  "ui.sk_r_kilavuz": "🔦 Gemi {0}/{1}",
- "e.guide_wait": "Kayıp gemi henüz görünmedi"
+ "e.guide_wait": "Kayıp gemi henüz görünmedi",
+ "ui.war_btn": "Savaş",
+ "ui.skill_fire": "{0}: Beceri!"
 }

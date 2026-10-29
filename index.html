@@ -245,6 +245,15 @@ body.intro #hud,body.intro #bottom,body.intro #side,body.intro #collect,body.int
 .evBar .pbar{border:2px solid #6b4a22;box-shadow:inset 0 2px 3px #0009;background:#1a1008}.evBar .pbar i{background:linear-gradient(#ffe07a,#e8a030 60%,#b86a18)}
 .evAct span{background:linear-gradient(#5a3a18,#3a2410);border:1px solid #c9a25a99;box-shadow:inset 0 1px 0 #ffe2a033}
 .evWeek div{background:linear-gradient(#2a4a5e,#123247);border:1px solid #c9a25a55}.evWeek div.on{background:linear-gradient(#a8742a,#6b4a22);border:2px solid #ffd27a;box-shadow:0 0 10px #ffd27a66}.evWeek div.past{opacity:.5}
+
+/* war pass: HUD Savaş, skill charge, */
+#warBtn{position:fixed;right:10px;bottom:calc(98px + env(safe-area-inset-bottom));z-index:6;width:86px;height:86px;border-radius:50%;border:3px solid #3a2410;background:radial-gradient(circle at 50% 35%,#e0503a,#8a1e14 70%);box-shadow:inset 0 0 0 3px #c9a25a,inset 0 4px 6px #ffffff44,0 6px 14px #0009;color:#fff;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;padding:0}
+#warBtn b{font-size:30px;line-height:1;filter:drop-shadow(0 2px 2px #0008)}#warBtn span{font-size:15px;text-shadow:0 2px 2px #000a;letter-spacing:.5px}#warBtn small{position:absolute;bottom:-16px;white-space:nowrap;font-size:10px;background:#123247ee;border:1px solid #c9a25a;border-radius:8px;padding:1px 6px;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+#warBtn.rdy{animation:warP 1.6s ease-in-out infinite}@keyframes warP{50%{box-shadow:inset 0 0 0 3px #ffd27a,inset 0 4px 6px #ffffff44,0 0 22px #ff7a3a,0 6px 14px #0009}}#warBtn:active{transform:scale(.94)}
+body.intro #warBtn{display:none!important}
+.port.skb{position:relative;cursor:pointer}.port .chg{position:absolute;inset:-4px;border-radius:inherit;pointer-events:none;background:conic-gradient(#9be7ff var(--chg,0%),#0000 0);-webkit-mask:radial-gradient(closest-side,#0000 calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(closest-side,#0000 calc(100% - 4px),#000 calc(100% - 3px));border-radius:50%}
+.port.skr{animation:skR .7s ease-in-out infinite;box-shadow:0 0 14px #9be7ff}.port.skr::after{content:'⚡';position:absolute;top:-10px;right:-6px;font-size:16px;filter:drop-shadow(0 0 4px #9be7ff)}@keyframes skR{50%{transform:scale(1.1)}}
+@media (prefers-reduced-motion:reduce){#warBtn.rdy,.port.skr{animation:none}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">
@@ -258,6 +267,7 @@ body.intro #hud,body.intro #bottom,body.intro #side,body.intro #collect,body.int
 <div id="side"><button class="sb hot" id="sPass">🎫<small>Bilet</small><i class="dot" id="pdot"></i></button><button class="sb" id="sBoss">🦑<small>Kraken</small><i class="dot" id="kdot"></i></button><button class="sb" id="sLogin">📅<small>Giriş</small><i class="dot" id="ldot"></i></button><button class="sb" id="sSet">⚙️<small>Ayarlar</small></button></div>
 <button class="btn o" id="collect">✋ Hepsini topla</button><div id="talk"><img src="img/cap_yusuf.webp" alt=""><div class="bub" id="talkT"></div></div>
 <div id="fx"></div>
+<button id="warBtn"><b>⚔️</b><span id="warT">Savaş</span><small id="warSt"></small></button>
 <div id="bottom"><button class="big" id="bWork"><span>👷</span>İşçiler</button><button class="big" id="bHero"><span>🧑‍✈️</span>Kaptanlar<i class="dot" id="hdot"></i></button><button class="big hot" id="bMap"><span>⛵</span>Deniz<i class="dot" id="mdot"></i></button><button class="big" id="bTask"><span>📋</span>Görevler<i class="dot" id="tdot"></i></button><button class="big" id="bShop"><span>🛒</span>Mağaza</button></div>
 <div id="sheet"></div>
 <div id="battle"></div>

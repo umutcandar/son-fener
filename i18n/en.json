@@ -1636,5 +1636,7 @@
  "ui.sk_r_derin": "🦑 Kraken {0}/{1}",
  "ui.sk_r_amiral": "📅 Logins {0}/{1}",
  "ui.sk_r_kilavuz": "🔦 Ships {0}/{1}",
- "e.guide_wait": "The lost ship has not appeared yet"
+ "e.guide_wait": "The lost ship has not appeared yet",
+ "ui.war_btn": "Battle",
+ "ui.skill_fire": "{0}: Skill!"
 }

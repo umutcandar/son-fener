@@ -1636,5 +1636,7 @@
  "ui.sk_r_derin": "🦑 Kraken {0}/{1}",
  "ui.sk_r_amiral": "📅 Connexions {0}/{1}",
  "ui.sk_r_kilavuz": "🔦 Navires {0}/{1}",
- "e.guide_wait": "Le navire perdu n'est pas encore apparu"
+ "e.guide_wait": "Le navire perdu n'est pas encore apparu",
+ "ui.war_btn": "Combat",
+ "ui.skill_fire": "{0} : Compétence !"
 }
