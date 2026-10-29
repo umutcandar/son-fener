@@ -134,12 +134,12 @@ export const QUESTS=[
  {c:0,go:'collect',t:'Kaynak topla',f:S=>S.st.collect,n:1,r:{wood:80,gems:5}},
  {c:0,go:'merge',t:'2 binayı birleştir',f:S=>S.st.merge,n:1,r:{crys:40,gems:10}},
  {c:0,go:'b:fisher',t:'Balıkçıya 2 işçi ata',f:S=>mx(S,'fisher'),n:2,r:{wood:120,gems:5}},
- {c:0,go:'build:hut',t:'8 kurtulana ulaş',f:S=>S.surv,n:8,r:{fish:150,ticket:1}},
+ {c:0,go:'build:hut',t:'8 kurtulana ulaş',f:S=>S.surv,n:8,r:{fish:100,wood:100,ticket:1}},
+ {c:0,go:'map',t:'İlk adayı sisten kurtar',f:S=>S.stage-1,n:1,r:{wood:80,gems:20}},
  {c:0,go:'fener',t:'Feneri Sv2 yap',f:S=>S.fener.lv,n:2,r:{gems:40,crys:60},say:'Işık uzağa vuruyor! Sis bir adım geri çekildi.'},
  // 2
- {c:1,go:'build:yard',t:'Tersane kur',f:S=>count(S,'yard'),n:1,r:{fish:80}},
+ {c:1,go:'build:yard',t:'Tersane kur',f:S=>count(S,'yard'),n:1,r:{wood:80,fish:40}},
  {c:1,go:'b:yard',t:'10 tayfa eğit',f:S=>S.st.trained,n:10,r:{wood:100}},
- {c:1,go:'map',t:'İlk adayı sisten kurtar',f:S=>S.stage-1,n:1,r:{gems:20}},
  {c:1,go:'merge',t:'Sv3 bir bina yap',f:topLv,n:3,r:{crys:60}},
  {c:1,go:'heroes',t:'Bir kaptan çağır',f:S=>S.st.recruit,n:1,r:{gems:30}},
  {c:1,go:'gear',t:'Gemiye 1 donanım yap',f:gearSum,n:1,r:{wood:120}},
@@ -249,7 +249,7 @@ export const hasJob=k=>!!JOB[k];
 export const islandBonus=S=>Math.min(.3,(S.stage-1)*.03);
 // --- kaptan yetenekleri
 export const heroCap=st=>10*st.star;
-export const heroLvCost=lv=>({fish:30*lv,wood:30*lv,crys:8*lv});
+export const heroLvCost=lv=>({fish:30*lv,wood:18*lv,crys:12*lv});
 export const skillVal=(h,st)=>h.sk.v*(1+.25*(st.star-1));
 export function skill(S,t){const pool=['atk','hp','loot'].includes(t)?team(S):HEROES.filter(h=>S.heroes[h.id]);return pool.filter(h=>h.sk.t===t).reduce((a,h)=>a+skillVal(h,S.heroes[h.id]),0)}
 export function heroUp(S,id,now=Date.now()){const st=S.heroes[id];if(!st)return'Yok';if(st.lv>=heroCap(st))return`Yıldız sınırı (Sv${heroCap(st)}) — yıldız yükselt`;const c=heroLvCost(st.lv);if(!canAfford(S,c))return'RES';pay(S,c);st.lv++;dailyInc(S,'heroup',1,now);return null}
@@ -281,7 +281,7 @@ export function merge(S,a,b,now){if(!canMerge(S,a,b))return'Birleşemez';const A
 export function move(S,a,b){if(!S.g[a]||S.g[b]||!isSafe(S,b))return'Taşınamaz';const[i,j]=unkey(b);if(!tileOK(i,j))return'Taşınamaz';S.g[b]=S.g[a];delete S.g[a];return null}
 export const upCost=(kind,lv)=>{const c={};for(const r in KINDS[kind].cost)c[r]=Math.round(KINDS[kind].cost[r]*1.6*Math.pow(2,lv));return c};
 export const upTime=(lv,S)=>Math.round(6*Math.pow(2,lv)*(1-(S?T_(S,'build'):0)*.08));
-export const fenerCost=lv=>{const L=lv+1;return{wood:60*L*L,fish:30*L*L,crys:20*L*L}};
+export const fenerCost=lv=>{const L=lv+1;return{wood:L===2?180:60*L*L,fish:30*L*L,crys:20*L*L}};
 export const fenerTime=(lv,S)=>Math.round(12*(lv+1)**2*(1-(S?T_(S,'build'):0)*.08));
 export const speedGems=(sec,S)=>S&&vipLv(S)>=4&&sec<180||sec<=60?0:Math.max(1,Math.ceil(sec/60));
 export function checkUp(S,k){const b=k==='fener'?S.fener:S.g[k];if(!b)return'Yok';if(b.end)return'Zaten inşaatta';
