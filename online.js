@@ -69,7 +69,7 @@ async function claim(){if(!online)return;let ev;try{ev=await rpc('claim_events')
  for(const e of ev){const d=e.delta||{};for(const[k,v]of Object.entries(d.res||{})){if(k==='gems')S.gems=Math.max(0,S.gems+v);else if(k in S.res)S.res[k]=Math.max(0,S.res[k]+v)}
   for(const[k,v]of Object.entries(d.troops||{}))if(k in S.troops)S.troops[k]=Math.max(0,S.troops[k]+v);
   if(d.help_sec)helpApply(S,d.help_sec*1000),toast(T('helped_by',[esc(d.from||T('clan')),d.help_sec]));
-  if(e.kind==='raided')toast(T('you_were_raided'));if(e.kind==='fw')toast(T('fw_reward_t',[d.res.gems])+(d.vali?' 👑':''));if(e.kind==='season')toast(T('season_reward',[tierN(d.tier),d.res.gems]));
+  if(e.kind==='gift')toast(T('fr_gift_got',[esc(d.from||'?')]));if(e.kind==='raided')toast(T('you_were_raided'));if(e.kind==='fw')toast(T('fw_reward_t',[d.res.gems])+(d.vali?' 👑':''));if(e.kind==='season')toast(T('season_reward',[tierN(d.tier),d.res.gems]));
   if(e.kind==='front')toast(T(d.tie?'war_rw_tie':d.win?'war_rw_win':'war_rw_lose',[d.res.gems]))}
  G.ui();G.save();push();setTimeout(mailLoad,800)}
 function helpApply(S,ms){const ts=[S.train,S.research,S.fener?.end?S.fener:null];for(const g of Object.values(S.isl||{}))for(const b of Object.values(g?.g||{}))if(b.end)ts.push(b);for(const b of Object.values(S.g))if(b.end)ts.push(b);
@@ -170,14 +170,17 @@ function cardHtml(c,r){const H=G.L.HEROES||[],hn=id=>H.find(x=>x.id===id)?.n||id
 let refD=null,refP=null;function refClaimNow(){const c=localStorage.getItem('sf_ref');if(!c||refP)return refP;localStorage.removeItem('sf_ref');refP=rpc('ref_claim',{p_code:c}).then(()=>{toast('🤝 '+T('inv_ok'));return true},e=>{err(e);return false});return refP}
 async function refSync(){try{const c=await refClaimNow();
  const r=await rpc('ref_collect');if(r&&r.gems>0){G.L.addRes(G.S,{gems:r.gems});G.save();G.ui();setTimeout(()=>toast('🤝 '+T('inv_rw')+' 💎'+r.gems),c?2600:0)}}catch(e){}}
+let frD=null;function frHtml(){const F=frD||[],ok=F.filter(f=>f.st==='ok');let h=`<div class="sec">🤝 ${T('fr_t')} · ${ok.length}/50</div><div class="sub">${T('fr_d')}</div>`;if(frD&&!F.length)h+=`<div class="sub">${T('fr_none')}</div>`;
+ for(const f of F){const on=f.last_seen&&Date.now()-new Date(f.last_seen)<6e5;h+=`<div class="card">${av(f.avatar,34)}<div class="mid"><div class="nm" data-o="prof" data-v="${f.id}">${on?'🟢 ':''}${esc(f.nick)}</div><div class="sub">⚔️ ${fmt(f.power)} · 🗺️ ${T('n_islands',[Math.max(0,(f.stage||1)-1)])}</div></div>${f.st==='in'?`<button class="btn o sm" data-o="frAcc" data-v="${f.id}">${T('fr_accept')}</button>`:f.st==='out'?`<span class="sub">${T('fr_pending')}</span>`:`<button class="btn o sm" data-o="frGift" data-v="${f.id}" ${f.sent?'disabled':''}>${f.sent?'✅':'🎁'} ${T('fr_gift')}</button>`}<button class="btn x sm" data-o="frDel" data-v="${f.id}" title="${T('remove')}">✕</button></div>`}return h}
+const frReload=async()=>{try{frD=await rpc('friend_list')}catch(e){}if(cur==='prof')G.renderSheet?.()};
 function refHtml(){if(!refD)return `<div class="sec">🤝 ${T('inv_t')}</div><div class="sub">…</div>`;const url=location.origin+location.pathname+'?ref='+refD.code;
  return `<div class="sec">🤝 ${T('inv_t')}</div><div class="card" style="flex-direction:column;align-items:stretch;gap:6px"><div class="sub">${T('inv_desc')}</div><div class="nm">${T('inv_code',[esc(refD.code)])}</div><div class="sub" style="word-break:break-all;opacity:.8">${esc(url)}</div><div class="sub">${T('inv_stats',[refD.invited,refD.done,refD.paid])}</div>${refD.by?`<div class="sub">💌 ${T('inv_by',[esc(refD.by)])}</div>`:''}<button class="btn o" data-o="invShare">📤 ${T('inv_share')}</button></div>`}
 async function openProfile(id){id=id||uid;let c=null;try{c=await rpc('player_card',{p_id:id})}catch(e){return err(e)}const p={id:c.id,nick:c.nick,avatar:c.avatar,power:c.power,stage:c.stage,region_id:c.region};const a={rating:c.rating};profC=c;
- const mine=id===uid;if(mine)rpc('ref_info').then(v=>{refD=v;if(cur==='prof')G.renderSheet?.()},()=>{});const r=a?.rating??1000;
+ const mine=id===uid;if(mine)rpc('friend_list').then(v=>{frD=v;if(cur==='prof')G.renderSheet?.()},()=>{});if(mine)rpc('ref_info').then(v=>{refD=v;if(cur==='prof')G.renderSheet?.()},()=>{});const r=a?.rating??1000;
  open('prof',()=>{let h=hdr('👤 '+esc(p.nick))+cardHtml(c,r);
-  if(mine){h+=refHtml();h+=`<div class="sec">${T('name_portrait')}</div><div class="card" style="gap:6px">${inp('pNick',T('nick_ph'),16,p.nick)}<button class="btn o" data-o="saveProf">${T('save')}</button></div><div style="display:flex;gap:6px;flex-wrap:wrap">${HERO_IDS.map(x=>`<span data-o="pAv" data-v="${x}" style="cursor:pointer;opacity:${x===(window.__pav||p.avatar)?1:.45}">${av(x,46)}</span>`).join('')}</div>
+  if(mine){h+=frHtml()+refHtml();h+=`<div class="sec">${T('name_portrait')}</div><div class="card" style="gap:6px">${inp('pNick',T('nick_ph'),16,p.nick)}<button class="btn o" data-o="saveProf">${T('save')}</button></div><div style="display:flex;gap:6px;flex-wrap:wrap">${HERO_IDS.map(x=>`<span data-o="pAv" data-v="${x}" style="cursor:pointer;opacity:${x===(window.__pav||p.avatar)?1:.45}">${av(x,46)}</span>`).join('')}</div>
    <div class="sec">${T('account')}</div><div class="sub">${T('guest_desc')}</div><div class="card" style="gap:6px;flex-wrap:wrap">${inp('pMail',T('email'),80)}${inp('pPass',T('pass_ph'),64)}<button class="btn" data-o="link">${T('link')}</button></div><div class="sub">${T('google_soon')}</div>`;if(isAdm)h+=`<button class="btn o" data-o="modOpen" style="width:100%;margin-top:8px">🛡️ ${T('mod_t')}</button>`}
-  else h+=`${c.blocks_me?`<div class="sub">🚫 ${T('blocks_you')}</div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button class="btn o" data-o="duel" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>${T('duel_btn')}</button><button class="btn" data-o="dmOpen" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>✉️ ${T('dm_btn')}</button><button class="btn x" data-o="repP" data-v="${id}">🚩 ${T('report')}</button><button class="btn x" data-o="block" data-v="${id}">${c.blocked?'✅ '+T('unblock'):'🚫 '+T('block')}</button></div>`;
+  else h+=`${c.blocks_me?`<div class="sub">🚫 ${T('blocks_you')}</div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button class="btn o" data-o="frAdd" data-v="${id}" style="grid-column:1/-1" ${c.blocked||c.blocks_me?'disabled':''}>🤝 ${T('fr_add')}</button><button class="btn o" data-o="duel" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>${T('duel_btn')}</button><button class="btn" data-o="dmOpen" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>✉️ ${T('dm_btn')}</button><button class="btn x" data-o="repP" data-v="${id}">🚩 ${T('report')}</button><button class="btn x" data-o="block" data-v="${id}">${c.blocked?'✅ '+T('unblock'):'🚫 '+T('block')}</button></div>`;
   return h})}
 const tier=r=>r>=1800?'Efsane':r>=1500?'Elmas':r>=1300?'Altın':r>=1100?'Gümüş':'Bronz';
 const TIERS=[['Bronz',0,50],['Gümüş',1100,100],['Altın',1300,180],['Elmas',1500,300],['Efsane',1800,500]];
@@ -399,6 +402,10 @@ const OA={
  tr:v=>v&&translate(v),trOrig:v=>{showOrig.add(+v);keepRender()},
  report:async v=>{try{await rpcS('report_msg',{p_msg:+v});toast(T('reported'))}catch(e){err(e)}},
  prof:v=>openProfile(v),
+ frAdd:async v=>{try{const r=await rpc('friend_req',{p_id:v});toast(T(r.st==='friends'?'fr_now':'fr_sent'))}catch(e){err(e)}},
+ frAcc:async v=>{try{await rpc('friend_accept',{p_id:v});toast(T('fr_now'));frReload()}catch(e){err(e)}},
+ frDel:async v=>{try{await rpc('friend_remove',{p_id:v});frReload()}catch(e){err(e)}},
+ frGift:async v=>{try{const r=await rpc('friend_gift',{p_id:v});toast(r.ok?T('fr_gift_ok'):T('fr_gift_'+r.err));frReload()}catch(e){err(e)}},
  clanPub:v=>openClanPub(v),
  modOpen:()=>openMod(),
  heroDec:async v=>{const[u,hr,ok]=v.split(':');try{await rpcS('hero_pending_decide',{p_user:u,p_hero:hr,p_ok:ok==='1'});toast('✅ '+T('mod_done'));openMod()}catch(e){err(e)}},modAct:async v=>{const[t,a]=v.split(':');try{await rpcS('mod_action',{p_target:t,p_act:a});toast('✅ '+T('mod_done'));openMod()}catch(e){err(e)}},
