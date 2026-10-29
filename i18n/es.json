@@ -1451,5 +1451,7 @@
  "o.srv_bad": "Invocación no válida",
  "o.srv_hero": "Capitán no válido",
  "o.srv_nosave": "Partida no encontrada — guarda primero",
- "ui.lim_edit": "Ajustar"
+ "ui.lim_edit": "Ajustar",
+ "ui.lim_note_on": "Límite de gasto activo: {0}/{1} este mes (DEMO). Ajustes → Límite de gasto.",
+ "ui.lim_note_off": "Límite de gasto desactivado (DEMO). Ajustes → Límite de gasto."
 }

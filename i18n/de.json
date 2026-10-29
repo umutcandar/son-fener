@@ -1451,5 +1451,7 @@
  "o.srv_bad": "Ungültige Beschwörung",
  "o.srv_hero": "Ungültiger Kapitän",
  "o.srv_nosave": "Spielstand fehlt — zuerst speichern",
- "ui.lim_edit": "Festlegen"
+ "ui.lim_edit": "Festlegen",
+ "ui.lim_note_on": "Ausgabenlimit an: {0}/{1} diesen Monat (DEMO). Einstellungen → Ausgabenlimit.",
+ "ui.lim_note_off": "Ausgabenlimit aus (DEMO). Einstellungen → Ausgabenlimit."
 }

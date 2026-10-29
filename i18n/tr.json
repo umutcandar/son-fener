@@ -1451,5 +1451,7 @@
  "o.srv_bad": "Geçersiz çağrı",
  "o.srv_hero": "Geçersiz kaptan",
  "o.srv_nosave": "Kayıt bulunamadı — önce oyunu kaydet",
- "ui.lim_edit": "Ayarla"
+ "ui.lim_edit": "Ayarla",
+ "ui.lim_note_on": "Harcama sınırı açık: bu ay {0}/{1} (DEMO). Ayarlar → Harcama sınırı.",
+ "ui.lim_note_off": "Harcama sınırı kapalı (DEMO). Ayarlar → Harcama sınırı."
 }

@@ -1451,5 +1451,7 @@
  "o.srv_bad": "Panggilan tidak valid",
  "o.srv_hero": "Kapten tidak valid",
  "o.srv_nosave": "Simpanan tidak ditemukan — simpan dulu",
- "ui.lim_edit": "Atur"
+ "ui.lim_edit": "Atur",
+ "ui.lim_note_on": "Batas belanja aktif: {0}/{1} bulan ini (DEMO). Pengaturan → Batas belanja.",
+ "ui.lim_note_off": "Batas belanja nonaktif (DEMO). Pengaturan → Batas belanja."
 }

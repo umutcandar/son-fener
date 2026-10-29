@@ -1451,5 +1451,7 @@
  "o.srv_bad": "Invocation invalide",
  "o.srv_hero": "Capitaine invalide",
  "o.srv_nosave": "Sauvegarde introuvable — sauvegarde d'abord",
- "ui.lim_edit": "Régler"
+ "ui.lim_edit": "Régler",
+ "ui.lim_note_on": "Limite de dépenses activée : {0}/{1} ce mois-ci (DÉMO). Paramètres → Limite.",
+ "ui.lim_note_off": "Limite de dépenses désactivée (DÉMO). Paramètres → Limite."
 }

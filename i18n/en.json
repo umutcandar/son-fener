@@ -1451,5 +1451,7 @@
  "o.srv_bad": "Invalid summon",
  "o.srv_hero": "Invalid captain",
  "o.srv_nosave": "Save not found — save the game first",
- "ui.lim_edit": "Set"
+ "ui.lim_edit": "Set",
+ "ui.lim_note_on": "Spending limit on: {0}/{1} this month (DEMO). Settings → Spending limit.",
+ "ui.lim_note_off": "Spending limit off (DEMO). Settings → Spending limit."
 }

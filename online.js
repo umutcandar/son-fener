@@ -59,7 +59,7 @@ function adopt(sv){toast(T('cloud_loading'));sessionStorage.setItem('sf_adopted'
 let pushing=false;
 async function push(){if(!online||pushing)return;pushing=true;try{G.save();const S=G.S;let r=await rpc('save_game',{p_data:S,p_rev:rev});
   if(r.conflict){if((r.data?.saved||0)>(S.saved||0)){adopt(r);return}rev=r.rev;r=await rpc('save_game',{p_data:S,p_rev:rev})}
-  if(r.ok){rev=r.rev;localStorage.setItem('sf_rev',rev);if(r.data){const d=r.data;Object.assign(S.res,d.res);S.gems=d.gems;Object.assign(S.troops,d.troops);G.ui();toast(T('save_fixed'))}if(prof)prof.power=r.power}}
+  if(r.ok){rev=r.rev;localStorage.setItem('sf_rev',rev);if(r.data){const d=r.data;Object.assign(S.res,d.res);S.gems=d.gems;Object.assign(S.troops,d.troops);if(d.heroes)S.heroes=d.heroes;for(const k of ['pity','pity2','selTok','ush'])if(d[k]!=null)S[k]=d[k];G.save();G.ui();toast(T('save_fixed'))}if(prof)prof.power=r.power}}
  catch(e){console.warn('save',e.message)}finally{pushing=false}}
 // sunucudan gelen değişiklikler (ganimet / kayıp / yardım / sezon ödülü / cephe ödülü)
 async function claim(){if(!online)return;let ev;try{ev=await rpc('claim_events')}catch(e){return}if(!ev?.length)return;const S=G.S;

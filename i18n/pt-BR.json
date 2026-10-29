@@ -1451,5 +1451,7 @@
  "o.srv_bad": "Invocação inválida",
  "o.srv_hero": "Capitão inválido",
  "o.srv_nosave": "Save não encontrado — salve primeiro",
- "ui.lim_edit": "Ajustar"
+ "ui.lim_edit": "Ajustar",
+ "ui.lim_note_on": "Limite de gastos ativo: {0}/{1} este mês (DEMO). Configurações → Limite.",
+ "ui.lim_note_off": "Limite de gastos desligado (DEMO). Configurações → Limite."
 }

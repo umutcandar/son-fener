@@ -1451,5 +1451,7 @@
  "o.srv_bad": "无效召唤",
  "o.srv_hero": "无效船长",
  "o.srv_nosave": "未找到存档——请先保存",
- "ui.lim_edit": "设置"
+ "ui.lim_edit": "设置",
+ "ui.lim_note_on": "消费上限已开启：本月 {0}/{1}（演示）。设置 → 消费上限。",
+ "ui.lim_note_off": "消费上限已关闭（演示）。设置 → 消费上限。"
 }
