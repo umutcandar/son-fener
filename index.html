@@ -168,6 +168,23 @@ body.fadeIn #app,body.fadeIn canvas{animation:gIn .7s ease both}@keyframes gIn{f
 .evWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.evWeek div{background:#0a2030aa;border:1px solid #7fd8e833;border-radius:10px;padding:4px 2px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}.evWeek b{font-size:20px}.evWeek small{font-size:8.5px;line-height:1.1;opacity:.85;overflow:hidden;text-overflow:ellipsis;max-width:100%}.evWeek .on{background:linear-gradient(#ffb347,#c8551f);border-color:#ffd27a;box-shadow:0 0 10px #ffd27a66}.evWeek .past{opacity:.45}
 .mhand{position:fixed;left:-14px;top:-6px;z-index:7;pointer-events:none;font-size:34px;opacity:0;display:none;filter:drop-shadow(0 3px 4px #0009);text-align:center;line-height:1}.mhand.on{display:block}.mhand small{display:block;font-size:10px;font-weight:800;color:#7dff8a;background:#0a2030cc;border-radius:6px;padding:2px 5px;margin-top:2px;white-space:nowrap;transform:translateX(-25%)}
 @media (prefers-reduced-motion:reduce){.evMk.rdy{animation:none}}
+
+/* v7 2D sanat: ahşap/taş çerçeveler, rota, darbe efektleri */
+.sea{border:5px solid #6b4423!important;box-shadow:inset 0 0 0 2px #c8935a,inset 0 0 24px #0008,0 4px 0 #3b2410,0 6px 12px #0006;background:repeating-radial-gradient(circle at 20% 30%,#ffffff10 0 2px,transparent 3px 22px),radial-gradient(circle at 30% 40%,#3fb8c0,#1f6f8b 60%,#14304a)!important}
+.sea::before,.sea::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffe7a0,#a8782a);box-shadow:0 1px 2px #0008;top:4px;left:4px;z-index:2}.sea::after{left:auto;right:4px}
+.sea .route{position:absolute;inset:0;width:100%;height:100%}.sea .route path{fill:none;stroke:#fff6d8;stroke-width:2.5;stroke-dasharray:6 6;opacity:.75}
+.sea .node{filter:drop-shadow(0 2px 2px #0007)}.sea .node small{background:#3b2410cc;border:1px solid #c8935a;border-radius:6px;padding:0 4px;margin-top:2px}.sea .ship{filter:drop-shadow(0 3px 2px #0008);animation:bob 1.4s ease-in-out infinite}
+#battle{background:radial-gradient(ellipse at 50% 110%,#0b2f45,transparent 60%),linear-gradient(#f39a5b,#b65f6e 22%,#3fb8c0 52%,#14506a)!important}
+#battle .top{margin:calc(env(safe-area-inset-top) + 8px) auto 0;padding:8px 22px!important;background:linear-gradient(#8a8f98,#5a606a);border:3px solid #3a3e46;border-radius:6px;box-shadow:inset 0 2px 0 #ffffff55,inset 0 -3px 0 #0004,0 4px 10px #0007;font-size:16px!important}
+#battle .side{margin:8px 12px;border-radius:16px;background:linear-gradient(#ffffff14,#5a3a1e33);border:4px solid #6b4423;box-shadow:inset 0 0 0 2px #c8935a88,inset 0 0 30px #0006,0 4px 0 #3b2410}
+#battle .hp{height:16px!important;border:3px solid #c8935a!important;outline:2px solid #3b2410;background:#1a0e06!important}.hp i{box-shadow:inset 0 3px 0 #ffffff55}
+#battle .hl{background:#3b2410cc;border:1px solid #c8935a;border-radius:8px;padding:2px 10px}
+#battle .u.ut{width:40px;height:40px;display:grid;place-items:center;font-size:24px;border-radius:50% 50% 45% 45%;background:radial-gradient(circle at 40% 30%,#4a8ad8,#1f4f8b);border:3px solid #e8c37a;box-shadow:0 3px 0 #3b2410}
+#battle .waves{background:repeating-radial-gradient(circle at 10px -6px,transparent 0 12px,#ffffff44 13px 15px,transparent 16px) 0 0/30px 30px!important;animation:wv 2s linear infinite}@keyframes wv{to{background-position:30px 0}}
+.imp{position:fixed;z-index:60;pointer-events:none;width:0;height:0}.imp .fl{position:absolute;left:-45px;top:-45px;width:90px;height:90px;border-radius:50%;animation:impf .35s ease-out forwards}.imp .rg{position:absolute;left:-20px;top:-20px;width:40px;height:40px;border-radius:50%;border:4px solid;animation:impr .5s ease-out forwards}.imp b{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:2px;transform:rotate(45deg);animation:imps .6s ease-out forwards}
+@keyframes impf{from{transform:scale(.3);opacity:1}to{transform:scale(1.4);opacity:0}}@keyframes impr{from{transform:scale(.4);opacity:1}to{transform:scale(2.6);opacity:0}}@keyframes imps{to{transform:translate(var(--x),var(--y)) rotate(200deg) scale(.3);opacity:0}}
+.cball{position:fixed;z-index:59;width:12px;height:12px;margin:-6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#888,#111);box-shadow:0 0 8px #ffb347;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.imp,.cball{display:none}#battle .waves,.sea .ship{animation:none}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">
