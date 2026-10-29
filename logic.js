@@ -88,7 +88,7 @@ export const TECH=[
 const T_=(S,id)=>S.tech[id]||0;
 export const techReqOK=(S,T)=>!T.req||Object.entries(T.req).every(([id,l])=>T_(S,id)>=l);
 export const FOES={ghost:{n:'Duman Hayaletleri',ic:'👻',img:'ghost'},octo:{n:'Duman Ahtapotu',ic:'🐙',img:'octo'},crab:{n:'Kabuklu Dev',ic:'🦀',img:'crab'},reef:{n:'Mercan Muhafızı',ic:'🪸',img:'reef'},kraken:{n:'Derin Zorba',ic:'🦑',img:'kraken'}};
-export const ISL=['Martı Kayası','Tuz Kasabası','Batık Liman','Mercan Koyu','Kurukafa Burnu','Fırtına Tepesi','Yosun Kasabası','Sessiz Körfez','Kırık Direk','Eski Hisar'];
+export const ISL=['Kartal Kayası','Tuz Kasabası','Batık Liman','Mercan Koyu','Kurukafa Burnu','Fırtına Tepesi','Yosun Kasabası','Sessiz Körfez','Kırık Direk','Eski Hisar'];
 export const islandName=n=>ISL[(n-1)%ISL.length]+(n>ISL.length?' '+(Math.floor((n-1)/ISL.length)+1):'');
 export const stageFoe=n=>n%5===0?'kraken':n%3===0?'crab':n%2?'ghost':'octo';
 export const stagePower=n=>Math.round(260*Math.pow(1.32,n-1));
