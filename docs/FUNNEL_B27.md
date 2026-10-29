@@ -45,3 +45,7 @@ There are no dead ends: every quest completes in 2 h without paying. There is st
 
 ## Return screen (batch 28)
 After ≥1 min away the screen shows: idle production at 50% speed (+10% per Offline research level), capped at 8 h (the cap is shown, with "limit reached" when hit), and an optional demo ad (3 s) for ×2. After ≥1 h away it also shows today's goals: dailies done/ready, login reward, free summon, and the next quest with its progress. Fix: the daily-login popup used to replace this screen. Login now opens after you collect.
+
+## Batch 29
+- The early gaps (#8 Shipyard, #14 Lighthouse Sv3, #23 Lighthouse Sv4) were all caused by running out of wood right after a Lighthouse upgrade. Quest rewards changed: Lighthouse Sv2 now also gives +100 wood, "Rescue 3 islands" +200 wood, and "Build 4 on the atoll" 350 wood + 150 fish. Result: #8 and #14 are under 3 min, #23 is 5.9 min.
+- Island milestone chests at 11/13/14/16/17/18/19 islands. The reward is wood 150n, fish 100n, crystal 40n, gems 10+n. The server checks it with `mile_claim` (verified stage ≥ n, each chest once) and adds it to the save allowance. The sim reaches all 40 quests in about 77 min (was 113). The longest quest gap is now #38 at 13–16 min (was 23.8); the run-to-run spread is wide. The server stage curve is unchanged.

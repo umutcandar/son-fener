@@ -136,14 +136,14 @@ export const QUESTS=[
  {c:0,go:'b:fisher',t:'Balıkçıya 2 işçi ata',f:S=>mx(S,'fisher'),n:2,r:{wood:120,gems:5}},
  {c:0,go:'build:hut',t:'8 kurtulana ulaş',f:S=>S.surv,n:8,r:{fish:100,wood:100,ticket:1}},
  {c:0,go:'map',t:'İlk adayı sisten kurtar',f:S=>S.stage-1,n:1,r:{wood:80,gems:20}},
- {c:0,go:'fener',t:'Feneri Sv2 yap',f:S=>S.fener.lv,n:2,r:{gems:40,crys:60},say:'Işık uzağa vuruyor! Sis bir adım geri çekildi.'},
+ {c:0,go:'fener',t:'Feneri Sv2 yap',f:S=>S.fener.lv,n:2,r:{gems:40,crys:60,wood:100},say:'Işık uzağa vuruyor! Sis bir adım geri çekildi.'},
  // 2
  {c:1,go:'build:yard',t:'Tersane kur',f:S=>count(S,'yard'),n:1,r:{wood:80,fish:40}},
  {c:1,go:'b:yard',t:'10 tayfa eğit',f:S=>S.st.trained,n:10,r:{wood:100}},
  {c:1,go:'merge',t:'Sv3 bir bina yap',f:topLv,n:3,r:{crys:60}},
  {c:1,go:'heroes',t:'Bir kaptan çağır',f:S=>S.st.recruit,n:1,r:{gems:30}},
  {c:1,go:'gear',t:'Gemiye 1 donanım yap',f:gearSum,n:1,r:{wood:120}},
- {c:1,go:'map',t:'3 ada kurtar',f:S=>S.stage-1,n:3,r:{gems:30},say:'Kurtardığın her ada, kıyımıza yeni insanlar getiriyor.'},
+ {c:1,go:'map',t:'3 ada kurtar',f:S=>S.stage-1,n:3,r:{gems:30,wood:200},say:'Kurtardığın her ada, kıyımıza yeni insanlar getiriyor.'},
  // 3
  {c:2,go:'fener',t:'Feneri Sv3 yap',f:S=>S.fener.lv,n:3,r:{gems:30}},
  {c:2,go:'build:lab',t:'Gözlemevi kur',f:S=>count(S,'lab'),n:1,r:{crys:80}},
@@ -154,7 +154,7 @@ export const QUESTS=[
  {c:2,go:'map',t:'5 ada kurtar',f:S=>S.stage-1,n:5,r:{gems:50},say:'Ufukta bir atol görünüyor… pembe kumlu, sahipsiz.'},
  // 4
  {c:3,go:'islands',t:'Mercan Atolü’nü sahiplen',f:S=>S.isl.mercan?.own?1:0,n:1,r:{gems:50}},
- {c:3,go:'islands',t:'Atolde 4 bina kur',f:S=>islB(S,'mercan'),n:4,r:{wood:200}},
+ {c:3,go:'islands',t:'Atolde 4 bina kur',f:S=>islB(S,'mercan'),n:4,r:{wood:350,fish:150}},
  {c:3,go:'fener',t:'Feneri Sv4 yap',f:S=>S.fener.lv,n:4,r:{gems:40}},
  {c:3,go:'boss',t:'Kraken Avı’na katıl',f:S=>S.st.boss,n:1,r:{gems:30}},
  {c:3,go:'b:lab',t:'5 araştırma seviyesi',f:techSum,n:5,r:{crys:120}},
@@ -358,6 +358,11 @@ export function claimWeekly(S,id,now){weeklyReset(S,now);const d=WEEKLY.find(x=>
 export const clanB={prod:0,store:0,help:0};
 export function claimDaily(S,id){const d=DAILY.find(x=>x.id===id);if(!d||S.daily.c[id]||(S.daily.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.ush=(S.ush||0)+2;S.daily.c[id]=1;addXP(S,30);return null}
 export const questDone=S=>{const q=QUESTS[S.q];return q&&q.f(S)>=q.n};
+// Batch 29: island milestone chests between quest islands 10-20 (server: mile_claim / sf_mile_rw)
+export const MILES=[11,13,14,16,17,18,19];
+export const mileReward=n=>({wood:150*n,fish:100*n,crys:40*n,gems:10+n});
+export const mileNext=S=>MILES.find(n=>!(S.mile||[]).includes(n));
+export function claimMileLocal(S,n){if(S.stage-1<n||(S.mile||[]).includes(n))return null;(S.mile=S.mile||[]).push(n);const r=mileReward(n);addRes(S,r);return r}
 export function claimQuest(S){const q=QUESTS[S.q];if(!q||q.f(S)<q.n)return null;addRes(S,q.r);S.q++;addXP(S,50);return q}
 export const loginReady=(S,now)=>S.login.last!==day(now);
 export function claimLogin(S,now){if(!loginReady(S,now))return null;const i=S.login.n%7,r=LOGIN[i];addRes(S,r);S.login.n++;S.login.total++;S.login.last=day(now);return{i,r}}

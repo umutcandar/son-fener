@@ -28,7 +28,7 @@ for(;t<=DUR;t+=DT){now+=DT*1000;
  if(L.loginReady(S,now))L.claimLogin(S,now);
  if(!S.fener.on&&S.res.crys>3)L.setLight(S,true);
  for(const a of L.ACH)if(!L.claimAch(S,a.id)){mom.push(t);ev(t,'ACH '+a.id)}
- let q;while(q=L.claimQuest(S)){qT.push([S.q-1,t,q.t]);mom.push(t);ev(t,'QUEST✓ '+q.t);lastGoal=t}
+ {let m;while((m=L.mileNext(S))&&L.claimMileLocal(S,m)){mom.push(t);ev(t,'MILE✓ '+m)}}let q;while(q=L.claimQuest(S)){qT.push([S.q-1,t,q.t]);mom.push(t);ev(t,'QUEST✓ '+q.t);lastGoal=t}
  for(const d of L.DAILY)if(!d.on&&!L.claimDaily(S,d.id))mom.push(t),ev(t,'daily '+d.id);
  const cq=L.QUESTS[S.q];go=cq?.go||'';const saveFener=go==='fener'&&/Sv/.test(cq.t),saveIsl=go==='islands'&&cq.f(S)<1&&cq.t.includes('sahiplen');
  const bk=go.startsWith('build:')&&go.slice(6);if(bk&&!cnt(bk)&&L.fener){L.switchIsland(S,'home');tryBuild(bk)}
