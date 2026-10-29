@@ -1,7 +1,7 @@
 // ===== Son Fener — saf oyun mantığı (DOM / THREE yok). Tüm durum tek, JSON'a çevrilebilir nesnede (S).
 // Çevrimiçi sürümde bu modül sunucuda da çalıştırılabilir: aksiyon(S, args) -> sonuç / olay listesi.
 export const RES=['fish','wood','crys'];
-export const RIC={fish:'🐟',wood:'🪵',crys:'🔮',gems:'💎',ticket:'🎟️'};
+export const RIC={fish:'🐟',wood:'🪵',crys:'🔮',gems:'💎',ticket:'🎟️',ush:'✨'};
 export const RNAME={fish:'Balık',wood:'Kereste',crys:'Işık Kristali',gems:'Elmas',ticket:'Çağrı Bileti'};
 export const GR=4; // ızgara yarıçapı (−4..4)
 export const tileOK=(i,j)=>Math.abs(i)<=GR&&Math.abs(j)<=GR&&!(Math.abs(i)===GR&&Math.abs(j)===GR)&&!(i===0&&j===0);
@@ -289,9 +289,13 @@ export const HGEAR=[{k:'k',i:'🧭',r:'wood'},{k:'s',i:'🔭',r:'fish'},{k:'c',i
 export const eqSum=st=>HGEAR.reduce((a,g)=>a+Math.min(EQ_MAX,st.eq?.[g.k]||0),0);
 export const heroMul=st=>(1+.06*Math.min(TAL_MAX,st.tal||0))*(1+.03*eqSum(st));
 export const heroPower=(h,st)=>Math.round(h.p*(1+.5*(st.star-1))*(1+.1*((st.lv||1)-1))*heroMul(st));
-export const talCost=st=>({sh:15*((st.tal||0)+1),crys:40*((st.tal||0)+1)});
+export const TAL_SH=[5,10,20,30,45],TAL_CR=[20,40,80,120,160],USH_X={crys:50,day:10};
+export const talCost=st=>{const t=Math.min(4,st.tal||0);return{sh:TAL_SH[t],crys:TAL_CR[t]}};
+export const ushOf=S=>S.ush||0;
+export function ushBuy(S,now){const d=day(now);S.ushx=S.ushx||{d:'',n:0};if(S.ushx.d!==d)S.ushx={d,n:0};if(S.ushx.n>=USH_X.day)return'MAX';if(S.res.crys<USH_X.crys)return'RES';S.res.crys-=USH_X.crys;S.ush=ushOf(S)+1;S.ushx.n++;return null}
+export function ushGive(S,id,n=1){const st=S.heroes[id];if(!st||ushOf(S)<n)return'SH';S.ush-=n;st.sh+=n;return null}
 export const eqCost=(st,g)=>{const l=st.eq?.[g.k]||0,G=HGEAR.find(x=>x.k===g.k);return{[G.r]:(G.r==='crys'?60:250)*(l+1)*(l+1)}};
-export function talUp(S,id){const st=S.heroes[id];if(!st)return'NO';if((st.tal||0)>=TAL_MAX)return'MAX';const c=talCost(st);if(st.sh<c.sh)return'SH';if(S.res.crys<c.crys)return'RES';st.sh-=c.sh;S.res.crys-=c.crys;st.tal=(st.tal||0)+1;return null}
+export function talUp(S,id){const st=S.heroes[id];if(!st)return'NO';if((st.tal||0)>=TAL_MAX)return'MAX';const c=talCost(st);if(st.sh+ushOf(S)<c.sh)return'SH';if(S.res.crys<c.crys)return'RES';const fh=Math.min(st.sh,c.sh);st.sh-=fh;S.ush=ushOf(S)-(c.sh-fh);S.res.crys-=c.crys;st.tal=(st.tal||0)+1;return null}
 export function eqUp(S,id,k){const st=S.heroes[id],g=HGEAR.find(x=>x.k===k);if(!st||!g)return'NO';st.eq=st.eq||{};if((st.eq[k]||0)>=EQ_MAX)return'MAX';const c=eqCost(st,g);if(!canAfford(S,c))return'RES';pay(S,c);st.eq[k]=(st.eq[k]||0)+1;return null}
 export const team=S=>HEROES.filter(h=>S.heroes[h.id]).sort((a,b)=>heroPower(b,S.heroes[b.id])-heroPower(a,S.heroes[a.id])).slice(0,3);
 const gearM=(S,st)=>1+Object.entries(GEAR).filter(([,G])=>G.st===st).reduce((a,[id,G])=>a+(S.gear[id]||0)*G.v,0);
@@ -303,7 +307,7 @@ export function armyPower(S){const ta=atkM(S),th=hpM(S);let p=0;for(const t in T
 export const forgeLv=S=>allB(S).filter(b=>b.k==='forge').reduce((a,b)=>a+b.lv,0);
 // Dürüst çağrı: oranlar sabit (5/25/70), her 40 çağrıda Efsanevi garanti (sayaç görünür)
 export function recruit(S,rng){S.pity++;const r=rng()*100;let rar=r<5?3:r<30?2:1;if(S.pity>=PITY)rar=3;if(rar===3)S.pity=0;const pool=HEROES.filter(h=>h.r===rar&&!h.season);const h=pool[Math.floor(rng()*pool.length)];
- let isNew=false;if(!S.heroes[h.id]){S.heroes[h.id]={star:1,sh:0,lv:1};isNew=true}else S.heroes[h.id].sh+=10;
+ let isNew=false;if(!S.heroes[h.id]){S.heroes[h.id]={star:1,sh:0,lv:1};isNew=true}else{S.heroes[h.id].sh+=10;S.ush=(S.ush||0)+2}
  S.st.recruit++;addXP(S,5);return{h,isNew}}
 export function simulate(S,stage,rng,epo){const ta=atkM(S),th=hpM(S);const hb=team(S).reduce((a,h)=>a+heroPower(h,S.heroes[h.id]),0);
  let atk=0,hp=0;for(const t in TROOPS){atk+=S.troops[t]*TROOPS[t].atk*ta;hp+=S.troops[t]*TROOPS[t].hp*th}atk+=hb*1.2;hp+=hb*2;
@@ -317,9 +321,9 @@ export function dailyReset(S,now){const d=day(now);if(S.daily.date!==d)S.daily={
 export const weekIst=now=>{const d=new Date(now+108e5);d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)};
 export function weeklyReset(S,now){const w=weekIst(now);if(!S.weekly||S.weekly.w!==w)S.weekly={w,p:{},c:{}}}
 export function dailyInc(S,id,n,now){dailyReset(S,now);S.daily.p[id]=(S.daily.p[id]||0)+n;weeklyReset(S,now);S.weekly.p[id]=(S.weekly.p[id]||0)+n}
-export function claimWeekly(S,id,now){weeklyReset(S,now);const d=WEEKLY.find(x=>x.id===id);if(!d||S.weekly.c[id]||(S.weekly.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.weekly.c[id]=1;addXP(S,60);return null}
+export function claimWeekly(S,id,now){weeklyReset(S,now);const d=WEEKLY.find(x=>x.id===id);if(!d||S.weekly.c[id]||(S.weekly.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.ush=(S.ush||0)+10;S.weekly.c[id]=1;addXP(S,60);return null}
 export const clanB={prod:0,store:0,help:0};
-export function claimDaily(S,id){const d=DAILY.find(x=>x.id===id);if(!d||S.daily.c[id]||(S.daily.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.daily.c[id]=1;addXP(S,30);return null}
+export function claimDaily(S,id){const d=DAILY.find(x=>x.id===id);if(!d||S.daily.c[id]||(S.daily.p[id]||0)<d.n)return'Hazır değil';S.gems+=d.g;S.ush=(S.ush||0)+2;S.daily.c[id]=1;addXP(S,30);return null}
 export const questDone=S=>{const q=QUESTS[S.q];return q&&q.f(S)>=q.n};
 export function claimQuest(S){const q=QUESTS[S.q];if(!q||q.f(S)<q.n)return null;addRes(S,q.r);S.q++;addXP(S,50);return q}
 export const loginReady=(S,now)=>S.login.last!==day(now);
@@ -367,4 +371,4 @@ export const convoyReward=S=>{const n=Math.max(1,S.stage-1),m=1+towerLv(S)*.08;r
 export function convoyState(S,now){S.conv=S.conv||{next:0,n:0,w:0};return{ready:S.tut>=9&&S.stage>=3&&now>=S.conv.next,left:Math.max(0,S.conv.next-now),open:S.stage>=3&&S.tut>=9}}
 export function convoyFight(S,now,rng){const c=convoyState(S,now);if(!c.open)return{err:'Ada 3 gerekli'};if(!c.ready)return{err:'Konvoy henüz görünmedi'};
  const res=simulate(S,S.stage,rng,convoyPower(S));const lost={};for(const t in TROOPS){lost[t]=Math.floor(S.troops[t]*res.lossFrac*.6);S.troops[t]-=lost[t]}
- S.conv.next=now+CONVOY_CD;S.conv.n++;let rw=null;if(res.win){rw=convoyReward(S);if(rng()<.25)rw.ticket=1;addRes(S,rw);S.conv.w++;dailyInc(S,'battle',1,now);addXP(S,15)}return{res,rw,lost}}
+ S.conv.next=now+CONVOY_CD;S.conv.n++;let rw=null;if(res.win){rw=convoyReward(S);if(rng()<.25)rw.ticket=1;addRes(S,rw);S.conv.w++;S.ush=(S.ush||0)+3;rw.ush=3;dailyInc(S,'battle',1,now);addXP(S,15)}return{res,rw,lost}}
