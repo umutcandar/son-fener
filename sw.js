@@ -1,5 +1,5 @@
 // Son Fener service worker: kod ağdan önce (no-cache ile ETag doğrulaması), görseller/fontlar önbellekten.
-const VER='sf-b20-1',CORE=['./','index.html','game.js','logic.js','i18n.js','online.js','lib/three.module.js','lib/supabase.js','manifest.webmanifest','img/icon-192.png','img/title.webp','img/cap_yusuf.webp'];
+const VER='sf-b21-1',CORE=['./','index.html','game.js','logic.js','i18n.js','online.js','lib/three.module.js','lib/supabase.js','manifest.webmanifest','img/icon-192.png','img/title.webp','img/cap_yusuf.webp'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VER).then(c=>c.addAll(CORE.map(u=>new Request(u,{cache:'reload'})))).catch(()=>{}));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VER).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==location.origin)return;
