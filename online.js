@@ -28,7 +28,7 @@ export const nickOK=n=>/^[\p{L}\p{N}_ ]{3,16}$/u.test(n.trim());
 
 async function rpcS(fn,args){const{data,error}=await sb.rpc(fn+'_s',args||{});if(error)throw error;if(data&&typeof data==='object'&&!Array.isArray(data)&&data.err)throw{message:data.err,soft:1};return data}
 async function rpc(fn,args){const{data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
-export async function start(g){G=g;window.__online={pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,test:{dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},open:{clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
+export async function start(g){G=g;window.__online={pass:{sync:()=>passSync(),claim:(i,p)=>rpc('pass_claim',{p_i:i,p_prem:!!p}),prem:async()=>passAdopt(await rpc('pass_prem_demo'))},openMail:()=>openMail(),get mails(){return mails},pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,test:{dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},open:{clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
  initErr();addButtons();if(!window.supabase){setStatus();return}
  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'sf_auth',autoRefreshToken:true}});
  try{await signIn();await afterLogin()}catch(e){console.warn('offline:',e?.message||e);online=false;setStatus()}
@@ -38,7 +38,7 @@ async function signIn(){let{data:{session}}=await sb.auth.getSession();if(sessio
  let cred=JSON.parse(localStorage.getItem('sf_guest')||'null');
  if(!cred){const r=await fetch(SB_URL+'/functions/v1/guest',{method:'POST',headers:{apikey:SB_KEY,'content-type':'application/json'}});if(!r.ok)throw new Error('guest');cred=await r.json();localStorage.setItem('sf_guest',JSON.stringify(cred))}
  const{data,error}=await sb.auth.signInWithPassword(cred);if(error)throw error;uid=data.user.id}
-async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();
+async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();mailBtn();mailLoad();passSync();setInterval(mailLoad,90000);
  const{data:sv}=await sb.from('saves').select('data,rev,updated_at').eq('user_id',uid).maybeSingle();const S=G.S;
  if(sv&&sv.data&&(sv.data.saved||0)>(S.saved||0)+10000&&!sessionStorage.getItem('sf_adopted')){adopt(sv);return}
  if(sv)rev=sv.rev;await push();
@@ -68,7 +68,7 @@ async function claim(){if(!online)return;let ev;try{ev=await rpc('claim_events')
   if(d.help_sec)helpApply(S,d.help_sec*1000),toast(T('helped_by',[esc(d.from||T('clan')),d.help_sec]));
   if(e.kind==='raided')toast(T('you_were_raided'));if(e.kind==='fw')toast(T('fw_reward_t',[d.res.gems])+(d.vali?' 👑':''));if(e.kind==='season')toast(T('season_reward',[tierN(d.tier),d.res.gems]));
   if(e.kind==='front')toast(T(d.tie?'war_rw_tie':d.win?'war_rw_win':'war_rw_lose',[d.res.gems]))}
- G.ui();G.save();push()}
+ G.ui();G.save();push();setTimeout(mailLoad,800)}
 function helpApply(S,ms){const ts=[S.train,S.research,S.fener?.end?S.fener:null];for(const g of Object.values(S.isl||{}))for(const b of Object.values(g?.g||{}))if(b.end)ts.push(b);for(const b of Object.values(S.g))if(b.end)ts.push(b);
  const x=ts.filter(x=>x&&x.end>Date.now()).sort((a,b)=>a.end-b.end)[0];if(x)x.end-=ms}
 function subscribe(){sb.channel('sf-'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'events',filter:'user_id=eq.'+uid},()=>claim())
@@ -315,7 +315,25 @@ function finish(r){const bt=$('battle');const loot=Object.entries(r.loot||{}).fi
  const close=()=>{bt.classList.remove('on');claim();if(r.kind==='front')openPvp('war');if(r.kind==='fw')OA.fw();if(r.kind==='cup')open('eqcup',cupHtml)};G.modal(`<div style="font-size:54px">${r.win?'🏆':'💀'}</div><h2>${r.kind==='cup'?esc(r.cupT||''):r.spect?esc(r.att_nick)+' ⚔️ '+esc(r.def_nick):r.win?T('victory_x'):T('defeat')}</h2><p>${body}</p>${r.kind==='duel'?`<p class="sub">⚔️ ${fmt(r.att_power)} vs ${fmt(r.def_power)} · ${T('duel_rounds',[(r.rounds||[]).length])}</p>`:''}`,r.kind==='duel'&&lastDuel?[[T('ok'),'x',close],['🔁 '+T('rematch'),'o',()=>{bt.classList.remove('on');setTimeout(()=>OA.duelGo(lastDuel),1600)}]]:[[T('ok'),'o',close]])}
 // ---------- eylemler ----------
 const val=id=>($(id)?.value||'').trim();
+// ---------- Posta kutusu (sunucu postaları, ekli ödüller, savaş sonuçları) ----------
+let mails=[];
+async function mailLoad(){if(!online)return;try{mails=await rpc('mail_list')||[]}catch(e){return}mailDot()}
+function mailDot(){const d=$('mdot');if(d)d.style.display=mails.some(m=>!m.read||(m.att&&!m.claimed))?'block':'none'}
+function mailBtn(){const side=$('side');if(!side||$('sMail'))return;const b=document.createElement('button');b.className='sb';b.id='sMail';b.innerHTML=`📬<small>${esc(T('mail_btn'))}</small><i class="dot" id="mdot"></i>`;side.insertBefore(b,$('sSet'));b.onclick=()=>{G.SFX?.tap?.();openMail()}}
+const MIC={welcome:'🎁',system:'📢',war:'⚔️',raided:'🏴‍☠️'};
+function mailHtml(){let h=G.hdr('📬 '+T('mail_t'))+`<div class="sub" style="margin:-4px 0 10px">${T('mail_d')}</div>`;
+ if(mails.some(m=>m.att&&!m.claimed))h+=`<button class="btn o" data-o="mailAll" style="width:100%;margin-bottom:8px">${T('mail_all')}</button>`;
+ if(!mails.length)h+=`<div class="sub">${T('mail_none')}</div>`;
+ for(const m of mails){const a=(m.args||[]).map(x=>esc(String(x)));h+=`<div class="card" style="${m.read?'opacity:.8':'border-color:#ffd27a'}"><div class="ic">${MIC[m.kind]||'✉️'}</div><div class="mid"><div class="nm">${t(m.tk+'_t',a)}</div><div class="sub">${t(m.tk,a)}</div><div class="sub">${m.att?'🎁 '+G.rwStr(m.att)+' · ':''}${new Date(m.created_at).toLocaleString(locale,{dateStyle:'short',timeStyle:'short'})}</div></div>${m.att?(m.claimed?'✅':`<button class="btn sm o" data-o="mailClaim" data-v="${m.id}">${T('mail_claim')}</button>`):''}</div>`}
+ return h}
+async function openMail(){await mailLoad();open('mail',mailHtml);const un=mails.filter(m=>!m.read&&!m.att);for(const m of un){m.read=true;rpc('mail_read',{p_id:m.id}).catch(()=>{})}mailDot()}
+async function mailTake(m){const rw=await rpc('mail_claim',{p_id:m.id});G.L.addRes(G.S,rw);m.claimed=m.read=true;return rw}
+// ---------- Fener Bileti sunucu eşitleme ----------
+function passAdopt(p){const P=G.S.pass;P.xp=p.xp;P.prem=p.prem?1:0;P.cl={f:{},p:{}};for(const i of p.f||[])P.cl.f[i]=1;for(const i of p.p||[])P.cl.p[i]=1;P.srv=p;G.save();return p}
+async function passSync(){if(!online)return null;const P=G.S.pass;if(!P.imp){try{const ks=o=>Object.keys(o||{}).filter(k=>o[k]).map(Number);passAdopt(await rpc('pass_import',{p_xp:P.xp|0,p_f:ks(P.cl?.f),p_p:ks(P.cl?.p),p_prem:!!P.prem}));P.imp=1;P.tq=0}catch(e){}}const n=Math.max(0,Math.min(150,P.tq||0));let p;try{p=await rpc(n?'pass_task':'pass_me',n?{p_n:n}:{});P.tq=0}catch(e){return null}return passAdopt(p)}
 const OA={
+ mailClaim:async v=>{const m=mails.find(x=>x.id==v);if(!m)return;try{const rw=await mailTake(m);G.SFX?.coin?.();toast('🎁 '+G.rwStr(rw));G.ui();G.save();push();rerender();mailDot()}catch(e){err(e)}},
+ mailAll:async()=>{let n=0;for(const m of mails.filter(x=>x.att&&!x.claimed)){try{await mailTake(m);n++}catch(e){}}if(n){G.SFX?.coin?.();toast(T('mail_got',[n]))}G.ui();G.save();push();rerender();mailDot()},
  pvpTab:v=>openPvp(v),boardTab:v=>{boardTab=v;openPvp('lb')},chTab:v=>openChat(v),goClan:()=>openClan(),
  create:async()=>{try{await rpc('create_clan',{p_name:val('cName'),p_tag:val('cTag'),p_icon:'🛡️'});toast(T('clan_created'));openClan()}catch(e){err(e)}},
  search:async()=>{clanQ=val('cQ');openClan()},

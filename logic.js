@@ -189,7 +189,7 @@ export const LOGIN=[{gems:20},{fish:200,wood:200},{gems:30},{crys:100},{ticket:1
 export const PASS_TIERS=30,PASS_XP=100;
 export const passReward=(i,prem)=>prem?(i%5===4?{ticket:1}:i%2?{gems:25}:{crys:60+i*10}):(i%5===4?{gems:30}:i%2?{wood:80+i*20}:{fish:80+i*20});
 export const passTier=S=>Math.min(PASS_TIERS,Math.floor(S.pass.xp/PASS_XP));
-export function addXP(S,n){S.pass.xp+=n}
+export function addXP(S,n){S.pass.xp+=n;S.pass.tq=Math.min(600,(S.pass.tq||0)+n)}
 export function claimPass(S,i,prem){if(i>=passTier(S))return'Kilitli';if(prem&&!S.pass.prem)return'Premium yok';const c=S.pass.cl[prem?'p':'f'];if(c[i])return'Alındı';c[i]=1;addRes(S,passReward(i,prem));return null}
 // ---------- VIP ----------
 export const VIPN=[0,100,300,700,1500,3000,6000];
