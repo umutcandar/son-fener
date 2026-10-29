@@ -11,7 +11,7 @@ async def main():
       if await pg.evaluate("()=>{const b=document.getElementById('startBtn');return !b||!b.offsetParent}"):break
     await pg.wait_for_timeout(4000)
     for _ in range(4): await pg.evaluate("()=>document.querySelector('#mbox .acts button')?.click()");await pg.wait_for_timeout(500)
-    await pg.evaluate("()=>{window.__g.talk=(a,cb)=>cb&&cb();document.querySelector('#talk [data-t=x]')?.click();const s=window.__g.S;s.stage=Math.max(s.stage,6);for(const t in s.troops)s.troops[t]=Math.max(s.troops[t],12)}")
+    await pg.evaluate("()=>{window.__g.talk=(a,cb)=>cb&&cb();document.querySelector('#talk [data-t=x]')?.click();const s=window.__g.S;s.stage=Math.max(s.stage,4);for(const t in s.troops)s.troops[t]=Math.max(s.troops[t],12)}")
     await pg.evaluate("()=>{document.getElementById('bMap').click()}");await pg.wait_for_timeout(1500)
     await pg.screenshot(path=D+'-map.png')
     await pg.evaluate("()=>document.getElementById('fightBtn')?.click()");await pg.wait_for_timeout(330);await pg.screenshot(path=D+'-battle1.png')
