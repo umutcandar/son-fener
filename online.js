@@ -9,7 +9,7 @@ let lastDuel=null,fwData=null;let G,sb,uid=null,prof=null,clan=null,arena=null,r
 const msgs={tr:[],reg:[],clan:[]};let muted=new Set();const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>G.fmt?G.fmt(n):String(n);const toast=t=>G.toast(t);
-const HERO_IDS=['kaan','mei','tunc','deniz','nene','ela','ali'];
+const HERO_IDS=['kaan','mei','tunc','deniz','nene','ela','ali','selin','lale','baris'];
 const av=(id,s=34)=>`<img src="img/cap_${HERO_IDS.includes(id)?id:'ali'}.webp" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;border:2px solid #ffd27a;flex:none" alt="">`;
 // sunucu hata mesajları Türkçe gelir -> sözlükten çevrilir (o.err.*), yoksa olduğu gibi
 const SERR={};const srvErr=m=>{const k=SERR[m];return k?T(k):m};
