@@ -117,7 +117,8 @@ function mkPearl(g,lv){P(g,'cyl',0x5fd3d0,1,.08,.9,0,.04,0);P(g,'cyl',0x2fa8b8,.
  hut(g,.42,.36,.36,0xf6e6d0,0xff8f8f);g.children.slice(-4).forEach(m=>{m.position.x+=.28;m.position.z-=.25});P(g,'cone',0xff9fb0,.12,.3,.12,-.38,.22,-.3);P(g,'cone',0xffb070,.1,.24,.1,-.28,.18,-.38)}
 function mkForge(g,lv){P(g,'dod',0x4a403c,.95,.55,.85,0,.22,-.05);P(g,'cyl',0x2e2a28,.22,.7+lv*.05,.22,.22,.6,-.15);P(g,'box',0x1a1210,.36,.28,.1,0,.2,.36);P(g,'box',0xff6a2a,.26,.18,.11,0,.18,.37,0,0,0,false,1);
  P(g,'cyl',0xff8a3a,.34,.04,.34,-.3,.06,.35,0,0,0,false,1);P(g,'cyl',0x3a3432,.38,.12,.38,-.3,.05,.35);for(let k=0;k<Math.min(lv,4);k++)P(g,'oct',0xffa040,.12,.2,.12,.38-k*.1,.1,.4,k,0,.2,false,1);g.userData.ember=1}
-const MK={hut:mkHut,fisher:mkFisher,wood:mkWood,mine:mkMine,yard:mkYard,lab:mkLab,pearl:mkPearl,forge:mkForge};
+function mkTower(g,lv){P(g,'cyl',0x8a7a66,.42,.3,.42,0,.15,0);P(g,'cyl',0xb59a76,.28,.75+lv*.08,.28,0,.6+lv*.04,0);const top=.98+lv*.08;P(g,'cyl',0x6b4a30,.4,.06,.4,0,top,0);for(let k=0;k<6;k++){const a=k/6*6.283;P(g,'box',0x6b4a30,.06,.14,.06,Math.cos(a)*.36,top+.1,Math.sin(a)*.36)}P(g,'cone',0xc0392b,.42,.32,.42,0,top+.34,0);P(g,'cyl',0x3a2a1a,.03,.32,.03,.12,top+.2,.12,0,0,.9);win(g,0,.55,.28);const f=P(g,'box',0xffd27a,.02,.12,.2,0,top+.62,.1,0,0,0,false);g.userData.flag=f}
+const MK={tower:mkTower,hut:mkHut,fisher:mkFisher,wood:mkWood,mine:mkMine,yard:mkYard,lab:mkLab,pearl:mkPearl,forge:mkForge};
 function mkScaf(g){for(const a of[-1,1])for(const b of[-1,1])P(g,'cyl',0xc08a4a,.05,1.1,.05,a*.45,.55,b*.45);P(g,'box',0xf4d03f,.95,.04,.04,0,.9,.45);P(g,'box',0xf4d03f,.95,.04,.04,0,.5,-.45)}
 function mkFoe(g,b){if(b==='octo'){P(g,'sph',0x8a5aa8,.8,.7,.8,0,.35,0);P(g,'sph',0xfff36b,.14,.14,.08,-.18,.5,.36,0,0,0,false,1);P(g,'sph',0xfff36b,.14,.14,.08,.18,.5,.36,0,0,0,false,1);
   const ts=[];for(let k=0;k<6;k++){const a=k/6*6.28;const t=P(g,'cone',0x6a3a88,.18,.9,.18,Math.cos(a)*.55,.2,Math.sin(a)*.55,0,Math.cos(a)*.5,-Math.sin(a)*.5);ts.push(t)}g.userData.ts=ts}
@@ -246,7 +247,7 @@ function openLimit(){sheet(()=>{const z=L.spendOf(S,now());let h=hdr('🛡️ '+
 function oddsThen(lbl,fn){const nm=r=>HEROES.filter(h=>h.r===r&&!h.season).map(h=>h.n).join(', ');const z=L.HEROES.find(h=>h.season);
  modal(`<h2>🎲 ${tx('m.odds_t')}</h2><table style="width:100%;font-size:13px;text-align:left;margin:6px 0"><tr><td>${RARITY[3].n}</td><td><b>5%</b></td><td class="sub">${nm(3)}</td></tr><tr><td>${RARITY[2].n}</td><td><b>25%</b></td><td class="sub">${nm(2)}</td></tr><tr><td>${RARITY[1].n}</td><td><b>70%</b></td><td class="sub">${nm(1)}</td></tr></table><p class="sub">${tx('m.odds_pity',[L.PITY,L.PITY-S.pity])}</p><p class="sub">${tx('m.odds_season',[z.n])}</p>${DEMO}`,[[tx('ui.vazgec'),'x'],[lbl,'g',fn]])}
 const SEAS_RP='₺59,99';
-function seasonCard(){const z=L.seasonOf(S),Z=L.SEASON,H=HEROES.find(h=>h.id===Z.hero),own=S.heroes[Z.hero],left=Math.max(0,Math.ceil((L.seasonEnd()-now())/864e5)),can=z.last!==L.day(now())&&left>0,per=1+(z.route?Z.routeDaily:0),rem=Math.max(0,Z.need-z.marks);
+function seasonCard(){const z=L.seasonOf(S),Z=L.SEASON,H=HEROES.find(h=>h.id===Z.hero),own=S.heroes[Z.hero],left=Math.max(0,Math.ceil((L.seasonEnd()-now())/864e5)),can=z.last!==L.dayIst(now())&&left>0,per=1+(z.route?Z.routeDaily:0),rem=Math.max(0,Z.need-z.marks);
  return `<div class="sec">🌫️ ${tx('m.season_t',[Z.id])}</div><div class="card" style="background:linear-gradient(135deg,#1d4a5a,#2a1a4a);border-color:#7fe0ff;flex-wrap:wrap"><div style="display:flex;gap:10px;align-items:center;min-width:100%">${port(H,own)}<div class="mid"><div class="nm">${H.n} <span class="tag">${tx('m.season_tag')}</span></div><div class="pbar"><i style="width:${Math.min(100,z.marks/Z.need*100)}%"></i></div><div class="sub">${own?tx('m.season_got'):tx('m.season_prog',[z.marks,Z.need,Math.ceil(rem/per)])}</div><div class="sub">${tx('m.season_end',[left,new Date(L.seasonEnd()).toLocaleDateString(locale)])}</div></div></div>
  <div class="sub" style="min-width:100%">${tx('m.season_free',[Z.need,Z.days])}</div><button class="btn o" data-a="mark" ${can?'':'disabled'}>${can?tx('m.mark_claim',[per]):tx('ui.yarin')}</button>${z.route?`<span class="tag" style="background:#3fb950">${tx('m.route_own')}</span>`:`<button class="btn g" data-a="route">🧭 ${tx('m.route')} ${SEAS_RP}</button>`}</div>`}
 
@@ -272,7 +273,7 @@ const ACT={
  trainSpeed:()=>{const rem=(S.train.end-now())/1000;spendGems(L.speedGems(rem,S),tx('ui.egitimi_hizlandir'),()=>{S.train.end=now()})},
  tech:id=>{const e=L.startResearch(S,id,now());if(resErr(e))return;SFX.build();renderSheet();ui();save()},
  techSpeed:()=>{const rem=(S.research.end-now())/1000;spendGems(L.speedGems(rem,S),tx('ui.arastirmayi_hizlandir'),()=>{S.research.end=now()})},
- call:v=>recruitN(v),fight:()=>battle(S.stage),
+ call:v=>recruitN(v),fight:()=>battle(S.stage),convoy:()=>{const r=L.convoyFight(S,now(),Math.random);if(r.err){toast(r.err==='Ada 3 gerekli'?tx('ui.cv_locked'):tx('ui.cv_wait'));return}battle(S.stage,null,r)},
  daily:id=>{if(resErr(L.claimDaily(S,id)))return;SFX.coin();fly('gems',innerWidth/2,innerHeight/2);renderSheet();ui();save()},
  quest:()=>claimQuest(),tab:v=>{taskTab=v;renderSheet()},
  ach:id=>{if(resErr(L.claimAch(S,id)))return;SFX.done();fly('gems',innerWidth/2,innerHeight/2,3);renderSheet();ui();save()},
@@ -349,7 +350,9 @@ function openMap(){sheet(()=>{const st=S.stage,B=FOES[L.stageFoe(st)],my=L.armyP
  let h=hdr(tx('ui.sisli_deniz'))+seaMap()+`<div class="card" style="flex-direction:column;align-items:stretch;background:linear-gradient(135deg,#1f6f8b,#14304a)"><div style="display:flex;align-items:center;gap:10px"><img src="img/f_${B.img}.webp" loading="lazy" style="width:64px;height:64px;object-fit:contain"><div class="mid"><div class="nm">Ada ${st}: ${L.islandName(st)}</div><div class="sub">${tx('ui.guc_filon',[B.n,fmt(need)])} <b style="color:${my>=need?'#7dff8a':'#ff8a8a'}">⚔️ ${fmt(my)}</b></div><div class="sub">Ganimet: ${costStr(L.stageReward(st))} · 👤+${L.stageRescue(st)} kurtulan</div></div></div>
  <button class="btn o" data-a="fight" style="margin-top:8px;font-size:16px" id="fightBtn" ${tr+Object.keys(S.heroes).length?'':'disabled'}>${tx('ui.filoyu_gonder')}</button></div>
  <div class="card"><div class="mid">${Object.entries(TROOPS).map(([t,T])=>`${T.ic} ${T.n}: <b>${S.troops[t]}</b>`).join(' · ')}<div class="sub">${tx('ui.kaptanlar_kurtarilan_ada_uretim',[L.team(S).map(x=>x.ic+' '+x.n).join(', ')||'—',st-1,Math.round(L.islandBonus(S)*100)])}</div></div><button class="btn" data-a="open" data-v="yard">${tx('ui.tersane')}</button></div>
- <div class="sub">${tx('ui.ipucu_adanin_aciklarindaki_isaretli')}</div>`;return h})}
+ ${convoyCard()}<div class="sub">${tx('ui.ipucu_adanin_aciklarindaki_isaretli')}</div>`;return h})}
+function convoyCard(){const c=L.convoyState(S,now());if(!c.open)return `<div class="card" style="opacity:.6"><div class="ic">🏴‍☠️</div><div class="mid"><div class="nm">${tx('ui.cv_t')}</div><div class="sub">${tx('ui.cv_locked')}</div></div></div>`;
+ return `<div class="card" style="background:linear-gradient(135deg,#5a2a2a,#22161a)"><div class="ic">🏴‍☠️</div><div class="mid"><div class="nm">${tx('ui.cv_t')}</div><div class="sub">${tx('ui.cv_d')}</div><div class="sub">⚔️ ${fmt(L.convoyPower(S))} · ${costStr(L.convoyReward(S))} · 🎟️25%</div></div>${c.ready?`<button class="btn o" data-a="convoy">${tx('ui.cv_go')}</button>`:`<button class="btn" disabled>⏳ ${fmtT(c.left/1000)}</button>`}</div>`}
 let taskTab='c',noSave=0;
 function openTasks(){sheet(()=>{L.dailyReset(S,now());const T=(v,n)=>`<button class="btn ${taskTab===v?'o':'x'}" data-a="tab" data-v="${v}">${n}</button>`;let h=hdr(tx('ui.gorevler'))+`<div class="tabs">${T('c','Hikâye')}${T('d',tx('ui.gunluk'))}${T('a',tx('ui.basarim'))}</div>`;
  if(taskTab==='d'){for(const d of L.DAILY){const v=Math.min(S.daily.p[d.id]||0,d.n),c=S.daily.c[d.id];h+=`<div class="card"><div class="ic">${c?'✅':'📌'}</div><div class="mid"><div class="nm">${d.t}</div><div class="pbar"><i style="width:${v/d.n*100}%"></i></div><div class="sub">${v}/${d.n} · ${RI('gems')}${d.g} · 🎫+30 XP</div></div>${!c&&v>=d.n?`<button class="btn o" data-a="daily" data-v="${d.id}">Al</button>`:''}</div>`}h+=`<div class="sub">${tx('ui.gunluk_gorevler_her_gun')}</div>`}
@@ -404,9 +407,9 @@ function openIslands(){sheet(()=>{let h=hdr(tx('ui.adalarim'))+`<div class="sub"
 function goIsland(id){if(resErr(L.switchIsland(S,id)))return;closeSheet();for(const k of [...meshes.keys()]){scene.remove(meshes.get(k).g);meshes.delete(k)}paintIsland(S.cur);buildIslDeco(S.cur);syncBeacon();fogR=-1;syncAll();
  SFX.wave();toast(`${L.ISLANDS[S.cur].ic} ${L.ISLANDS[S.cur].n}`);ui();save()}
 // ---------- SAVAŞ ----------
-function battle(stage,camp){closeSheet();const res=L.simulate(S,stage,Math.random);const B=FOES[L.stageFoe(stage)];const tm=L.team(S);const bt=$('battle');
+function battle(stage,camp,cv){closeSheet();const res=cv?cv.res:L.simulate(S,stage,Math.random);const B=cv?{n:tx('ui.cv_foe'),img:'pirate'}:FOES[L.stageFoe(stage)];const tm=L.team(S);const bt=$('battle');
  const icons=Object.entries(S.troops).flatMap(([t,n])=>Array(Math.min(4,Math.ceil(n/10))).fill(TROOPS[t].ic));
- bt.innerHTML=`<div class="top">⛵ Ada ${stage}: ${L.islandName(stage)}</div><div class="side"><div class="units"><img class="u big foeimg" id="beast" src="img/f_${B.img}.webp" alt="${B.n}"></div><div class="hp e"><i id="ehp" style="width:100%"></i></div><div class="hl">${B.n} · ⚔️ ${fmt(L.stagePower(stage))}</div></div>
+ bt.innerHTML=`<div class="top">${cv?'🏴‍☠️ '+tx('ui.cv_t'):`⛵ Ada ${stage}: ${L.islandName(stage)}`}</div><div class="side"><div class="units"><img class="u big foeimg" id="beast" src="img/f_${B.img}.webp" alt="${B.n}"></div><div class="hp e"><i id="ehp" style="width:100%"></i></div><div class="hl">${B.n} · ⚔️ ${fmt(cv?L.convoyPower(S):L.stagePower(stage))}</div></div>
  <div class="side"><div class="units" id="army"><span class="u">⛵</span>${icons.map(i=>`<span class="u">${i}</span>`).join('')}<span class="u">⛵</span></div><div style="display:flex;gap:8px">${tm.map(h=>port(h,S.heroes[h.id])).join('')}</div><div class="hp"><i id="mhp" style="width:100%"></i></div><div class="hl">Filon · ⚔️ ${fmt(L.armyPower(S))}</div></div><div class="waves"></div>`;
  bt.classList.add('on');SFX.horn();setTimeout(SFX.roar,500);let i=0;
  const iv=setInterval(()=>{const r=res.rounds[i];if(!r){clearInterval(iv);setTimeout(()=>finish(),500);return}
@@ -414,9 +417,11 @@ function battle(stage,camp){closeSheet();const res=L.simulate(S,stage,Math.rando
   setTimeout(()=>{beast.animate([{transform:'translateX(0)'},{transform:'translateX(-12px)'},{transform:'translateX(12px)'},{transform:'none'}],{duration:200});SFX.hit();vib(15);const b=beast.getBoundingClientRect();floatTxt(b.left+b.width/2,b.top+b.height/2,'-'+fmt(r.d1),'#ffd84a');$('ehp').style.width=(r.eHp/res.eMax*100)+'%'},150);
   if(r.d2)setTimeout(()=>{beast.animate([{transform:'translateY(0) scale(1)'},{transform:'translateY(60px) scale(1.2)'},{transform:'none'}],{duration:260});const a=army.getBoundingClientRect();floatTxt(a.left+a.width/2,a.top+a.height/2,'-'+fmt(r.d2),'#ff6b6b');$('mhp').style.width=(r.hp/res.myMax*100)+'%';bt.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:150})},450);
   i++},700);
- function finish(){const out=L.applyBattle(S,res,stage,now());ui();save();syncPeople();const lost=Object.entries(out.lost).filter(([t,n])=>n).map(([t,n])=>`${TROOPS[t].ic}${n}`).join(' ');
+ function finish(){if(cv)return cvFinish();const out=L.applyBattle(S,res,stage,now());ui();save();syncPeople();const lost=Object.entries(out.lost).filter(([t,n])=>n).map(([t,n])=>`${TROOPS[t].ic}${n}`).join(' ');
   if(res.win){SFX.done();vib([30,40,60]);if(camp)camp.g.userData.vis=false,setTimeout(()=>camp.g.userData.vis=true,90000);for(let k=0;k<Math.min(out.saved,3);k++)setTimeout(()=>sendRaft(true),k*700)}else SFX.err();
-  modal(res.win?`<div style="font-size:54px">🏝️</div><h2>${tx('ui.ada_sisten_kurtuldu')}</h2><p>Ganimet:<br><b>${costStr(out.rw)}</b>${out.saved?`<br>${tx('ui.kurtulan_filona_katildi',[out.saved])}`:''}${lost?`<br><span class="sub">${tx('ui.yarali')} `+lost+'</span>':''}</p>`:`<div style="font-size:54px">🌫️</div><h2>${tx('ui.sis_galip_geldi')}</h2><p>${tx('ui.yaratiklar_cok_gucluydu_daha')}${lost?`<br><span class="sub">${tx('ui.kayip')} `+lost+'</span>':''}</p>`,[[tx('ui.devam'),res.win?'o':'x',()=>{bt.classList.remove('on');tutCheck()}]])}}
+  modal(res.win?`<div style="font-size:54px">🏝️</div><h2>${tx('ui.ada_sisten_kurtuldu')}</h2><p>Ganimet:<br><b>${costStr(out.rw)}</b>${out.saved?`<br>${tx('ui.kurtulan_filona_katildi',[out.saved])}`:''}${lost?`<br><span class="sub">${tx('ui.yarali')} `+lost+'</span>':''}</p>`:`<div style="font-size:54px">🌫️</div><h2>${tx('ui.sis_galip_geldi')}</h2><p>${tx('ui.yaratiklar_cok_gucluydu_daha')}${lost?`<br><span class="sub">${tx('ui.kayip')} `+lost+'</span>':''}</p>`,[[tx('ui.devam'),res.win?'o':'x',()=>{bt.classList.remove('on');tutCheck()}]])}
+ function cvFinish(){ui();save();syncPeople();const lost=Object.entries(cv.lost).filter(([t,n])=>n).map(([t,n])=>`${TROOPS[t].ic}${n}`).join(' ');if(res.win){SFX.done();vib([30,40,60]);cam.shake=.15}else SFX.err();
+  modal(res.win?`<div style="font-size:54px">🏴‍☠️</div><h2>${tx('ui.cv_win')}</h2><p><b>${costStr(cv.rw)}</b>${lost?`<br><span class="sub">${tx('ui.yarali')} ${lost}</span>`:''}</p>`:`<div style="font-size:54px">🌊</div><h2>${tx('ui.cv_lose')}</h2><p>${tx('ui.cv_lose_d')}${lost?`<br><span class="sub">${tx('ui.kayip')} ${lost}</span>`:''}</p>`,[[tx('ui.devam'),res.win?'o':'x',()=>{bt.classList.remove('on')}]])}}
 // ---------- HUD ----------
 function ui(){for(const r of L.RES)$('r_'+r).textContent=fmt(S.res[r]);$('r_gems').textContent=fmt(S.gems);$('flv').textContent=S.fener.lv;$('pow').textContent=fmt(L.armyPower(S));
  const t=now(),nt=L.night(S,t),ni=L.nightIn(S,t);$('nval').textContent=nt?tx('ui.sis_gecesi'):L.lit(S)?tx('ui.fener_yaniyor'):tx('ui.fener_sonuk');
@@ -571,7 +576,7 @@ function frame(){const tn=performance.now(),dt=Math.min(.1,(tn-last)/1000);last=
   for(let n=rafts.length-1;n>=0;n--){const r=rafts[n];r.t+=dt/r.dur;r.g.position.lerpVectors(r.from,r.to,E.out(Math.min(1,r.t)));r.g.position.y=-.2+Math.sin(T*2+n)*.06;r.g.rotation.z=Math.sin(T*1.7+n)*.08;if(r.t>=1){scene.remove(r.g);rafts.splice(n,1);burst(r.to.clone().setY(0),0xffffff,10,1.5,1);syncPeople()}}
  for(const p of people){const u=p.userData;if(!u.t)pickTarget(p);const d=u.t.clone().sub(p.position);d.y=0;const L2=d.length();if(L2<.08){if(Math.random()<.02)pickTarget(p)}else{const v=Math.min(L2,dt*u.sp);p.position.addScaledVector(d.normalize(),v);p.rotation.y=Math.atan2(d.x,d.z);const ph=T*10+u.ph;u.l1.rotation.x=Math.sin(ph)*.6;u.l2.rotation.x=-Math.sin(ph)*.6;p.position.y=Math.abs(Math.sin(ph))*.03}}
  acc+=dt;if(acc>.25){const ev=L.step(S,acc,t);acc=0;handle(ev)}uiAcc+=dt;if(uiAcc>.5){uiAcc=0;ui();if($('sheet').classList.contains('on')&&$('sheet').querySelector('.pbar'))renderSheet()}
- updCam();renderer.render(scene,camera);labels();tutFrame(T);requestAnimationFrame(frame)}
+ fx7(T,dt,nf,vN,on);updCam();renderer.render(scene,camera);labels();tutFrame(T);requestAnimationFrame(frame)}
 function handle(evs){for(const e of evs){
  if(e.e==='built'){if(e.isl&&e.isl!==S.cur){toast(`${tx('ui.sv_hazir',[L.ISLANDS[e.isl].n,e.lv])}`);continue}const g=syncOne(e.k);popAnim(g,.6);SFX.done();vib([20,30,20]);burst(tpos(e.k).setY(.6),0xffd84a,16,2.5,1);shock(tpos(e.k),0xffd84a,2);toast(`${tx('ui.sv_hazir_2',[KINDS[S.g[e.k].k].n,e.lv])}`);renderSheet()}
  if(e.e==='fener'){syncFener();popAnim(fenerG,.3);SFX.light();vib([30,40,60]);cam.shake=.25;burst(new THREE.Vector3(0,beam.position.y,0),0xffe08a,30,4,1);closeSheet();setTimeout(()=>levelUp(e.lv),500)}
@@ -591,6 +596,23 @@ const sb=$('startBtn');sb.disabled=false;sb.textContent='▶ Oyna';sb.onclick=()
  if(isNew){S.seen.ch0=1;setTimeout(()=>talk(L.CHAPTERS[0].say),300)}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>openLogin(1),1200)};
 if(new URLSearchParams(location.search).has('skip'))sb.onclick();
 requestAnimationFrame(frame);setInterval(save,5000);addEventListener('visibilitychange',()=>document.hidden&&save());
+// ---------- fx7: kalyon, yağmur/şimşek, fener ışık lekesi ----------
+const fx7=(()=>{const gal=new THREE.Group(),lan=[];
+ P(gal,'box',0x6b3f22,2.2,.42,.7,0,0,0);P(gal,'box',0x4a2a16,2.26,.08,.76,0,.24,0);P(gal,'prism',0x6b3f22,.7,.42,.4,1.3,0,0,-Math.PI/2,0,Math.PI/2);P(gal,'box',0x7a4a2a,.6,.4,.72,-.85,.38,0);P(gal,'box',0xc9a05a,.62,.05,.74,-.85,.6,0);
+ for(const[x,h]of[[.55,1.9],[-.1,2.3],[-.75,1.5]]){P(gal,'cyl',0x4a2a16,.05,h,.05,x,.2+h/2,0);for(const[y,w]of[[.75,.9],[1.35,.7]])if(y<h)P(gal,'box',0xf3ead6,.04,h*.32,w,x+.04,.2+h*(y/2.3),0,0,0,0,false)}
+ const fl=P(gal,'box',0xd94a3a,.02,.16,.3,-.1,2.55,.15,0,0,0,false);
+ for(const x of[-1.1,1.45]){const m=P(gal,'sph',0xffc860,.08,.08,.08,x,.55,0,0,0,0,false,1);lan.push(m)}
+ gal.scale.setScalar(.8);scene.add(gal);
+ const RN=260,rp=new Float32Array(RN*6),rv=[];for(let i=0;i<RN;i++)rv.push({x:(Math.random()*2-1)*16,y:Math.random()*14,z:(Math.random()*2-1)*16,s:14+Math.random()*6});
+ const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.BufferAttribute(rp,3));const rm=new THREE.LineBasicMaterial({color:0xaac4e8,transparent:true,opacity:0,depthWrite:false,fog:false});const rain=new THREE.LineSegments(rg,rm);rain.frustumCulled=false;scene.add(rain);
+ const sm=new THREE.MeshBasicMaterial({color:0xffe08a,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false});const sg=new THREE.CircleGeometry(1.6,20).rotateX(-Math.PI/2);
+ const spots=[0,1].map(()=>{const m=new THREE.Mesh(sg,sm);m.renderOrder=2;scene.add(m);return m});let fl_=0,flT=6;
+ return(T,dt,nf,vN,on)=>{const a=-T*.035+1.2;gal.position.set(Math.cos(a)*17,-.15+Math.sin(T*1.1)*.06,Math.sin(a)*17);gal.rotation.y=-a-Math.PI/2+Math.PI;gal.rotation.z=Math.sin(T*.9)*.05;fl.rotation.y=Math.sin(T*3)*.4;
+  for(const m of lan)m.visible=vN>.2;
+  const rk=Math.min(1,nf*1.2);rm.opacity=rk*.45;rain.visible=rk>.02;if(rain.visible){for(let i=0;i<RN;i++){const r=rv[i];r.y-=r.s*dt;if(r.y<-.3){r.y=12+Math.random()*3;r.x=(Math.random()*2-1)*16;r.z=(Math.random()*2-1)*16}const o=i*6;rp[o]=r.x;rp[o+1]=r.y;rp[o+2]=r.z;rp[o+3]=r.x+.08;rp[o+4]=r.y+.55;rp[o+5]=r.z}rg.attributes.position.needsUpdate=true;
+   flT-=dt;if(flT<0){flT=5+Math.random()*9;fl_=1;try{SFX.wave()}catch(e){}}}
+  if(fl_>0){fl_=Math.max(0,fl_-dt*3.5);hemi.intensity+=fl_*(Math.sin(T*60)>0?1.6:.6)}
+  const th=beam.rotation.y;spots.forEach((m,i)=>{const s=i?-1:1;m.visible=on;m.position.set(Math.cos(th)*9.5*s,.02,-Math.sin(th)*9.5*s);sm.opacity=.22+Math.sin(T*4)*.05})}})();
 window.__g={get S(){return S},sheet,modal,toast,hdr,closeSheet,renderSheet,fmt,fmtT,rwStr,SFX,KEY,L,save,syncAll,syncPeople,ui,battle,openB,openFener,openShop,openHeroes,openWork,openMap,tileScr,scr:v=>scr(new THREE.Vector3(...v)),cam,sendRaft,goIsland,openPass,openBoss,openLogin,openSettings,openClan,openIslands,openHero,openTasks,talk,bossFight,levelUp,reward,get FIT(){return FIT}};
 
 // çevrimiçi katman (Supabase) — yüklenemezse oyun çevrimdışı devam eder
