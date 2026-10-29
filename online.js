@@ -246,7 +246,7 @@ let boardMe=null,wlog=null,myCap=0,targets=[],opps=[],reports=[],board=[];
 async function openPvp(tab){if(tab)pvpTab=tab;if(!online){open('pvp',()=>hdr(T('war_hdr'))+offline());return}await push();
  try{if(pvpTab==='raid')targets=await rpc('find_targets');if(pvpTab==='arena'){arena=await rpc('arena_me');opps=await rpc('arena_opponents');try{myCap=(await rpc('player_card',{p_id:uid})).cap_power||0}catch(e){};board=await rpc('arena_board');try{const ids=[...new Set([uid,...opps.map(x=>x.id),...board.map(x=>x.id)])];badges={};for(const b of await rpc('arena_badges',{p_ids:ids}))badges[b.id]=b}catch(e){}}
   if(pvpTab==='war'){await refreshClan();war=clan?await rpc('front_status'):{phase:'noclan'};war._t=Date.now();wlog=null;if(war.id)try{wlog=await rpc('front_log',{p_war:war.id})}catch(e){}}
-  if(pvpTab==='rep'){const{data}=await sb.from('battles').select('*').or(`attacker.eq.${uid},defender.eq.${uid}`).order('id',{ascending:false}).limit(30);reports=data||[]}
+  if(pvpTab==='tour')tour=await rpc('tour_me');if(pvpTab==='rep'){const{data}=await sb.from('battles').select('*').or(`attacker.eq.${uid},defender.eq.${uid}`).order('id',{ascending:false}).limit(30);reports=data||[]}
   if(pvpTab==='lb'){boardMe=null;if(boardTab==='clan')board=await rpc('clan_board',{p_wk:wk()});else{const rb=await rpc('rank_board',{p_kind:boardTab,p_wk:wk()});board=rb.rows||[];boardMe=rb.me}}
   prof=(await sb.from('profiles').select('*').eq('id',uid).single()).data||prof}catch(e){err(e)}
  open('pvp',pvpHtml);warTick()}
@@ -279,7 +279,17 @@ function warHtml(){const w=war||{phase:'none'};const isOff=clan&&['lider','yard�
  for(const e of lg)h+=`<div class="card" style="border-color:${e.mine?'#3fb95088':'#ff6b6b88'}">${av(e.a.avatar,28)}<div class="mid"><div class="nm">${esc(e.a.nick)} → ${esc(e.d.nick)}</div><div class="sub">${hm(e.t)} · ${stars(e.stars)} · ${e.dmg}%</div></div>${e.bid?`<button class="btn x" data-o="fRp" data-v="${e.bid}" title="${T('war_watch')}">▶️</button>`:''}</div>`;
  return h+rewardsHtml()}
 const rewardsHtml=()=>`<div class="sec">${T('rewards')}</div><div class="sub">🏆 ${T('rw_win')}: 💎150 🪵2500 💠300 · 🤝 ${T('rw_tie')}: 💎80 · 💀 ${T('rw_lose')}: 💎40 — ${T('rw_note')}</div>`;
-function pvpHtml(){let h=hdr(T('war_hdr'))+tabs(pvpTab,[['raid','🏴‍☠️ '+T('t_raid')],['arena','🏟️ '+T('t_arena')],['war','🌫️ '+T('t_front')],['rep','📜 '+T('t_rep')],['lb','🏆 '+T('t_lb')]],'pvpTab');
+let tour=null;function tourHtml(){const t=tour;if(!t)return `<div class="sub">…</div>`;const reg=t.dow<5,live=!!t.grp;
+ let h=`<div class="card" style="background:linear-gradient(135deg,#1d3a5a,#2a1040)"><div class="ic" style="font-size:34px">🎖️</div><div class="mid"><div class="nm">${T('tour_t')} · ${esc(t.wk)}</div><div class="sub">${T('tour_d')}</div><div class="sub">🏅 ${T('tour_rw')}</div></div></div>`;
+ const ph=[['reg','📝 '+T('tour_ph_reg')],['bat','⚔️ '+T('tour_ph_bat')],['end','📬 '+T('tour_ph_end')]],pi=live?1:reg?0:2;h+=`<div class="wtl">${ph.map(([k,n],i)=>`<div class="wst ${i===pi?'on':i<pi?'done':''}">${n}</div>`).join('<b>›</b>')}</div>`;
+ if(t.last)h+=`<div class="sub">📜 ${T('tour_last',[t.last.wk,t.last.rk])}</div>`;
+ if(!t.joined){h+=reg?`<div class="sub">${T('tour_n',[t.n])} · ⚔️ ${fmt(t.mypw)}</div><button class="btn o" data-o="tourJoin" style="width:100%;margin-top:6px" ${t.mypw>0?'':'disabled'}>📝 ${T('tour_join')}</button>`:`<div class="sub">${T('tour_closed')}</div>`;return h}
+ if(!live)return h+`<div class="sub">✅ ${T('tour_wait',[t.n])}</div>`;
+ h+=`<div class="sec">${T('tour_grp',[t.grp])}</div>`;let i=0;
+ for(const r of t.rows){i++;const me=r.id===uid;h+=`<div class="card" ${me?'style="outline:2px solid #ffcf3a"':''}><div class="ic" style="font-size:18px">${i<=3?['🥇','🥈','🥉'][i-1]:'#'+i}</div>${av(r.avatar,34)}<div class="mid"><div class="nm" data-o="prof" data-v="${r.id}">${esc(r.nick)}</div><div class="sub">⚔️ ${fmt(r.pw)} · ${T('tour_pts',[r.pts,r.w,r.l])}</div></div>${me?'':r.fought?'<span class="sub">✅</span>':`<button class="btn o sm" data-o="tourFight" data-v="${r.id}">${T('attack')}</button>`}</div>`}
+ return h}
+function pvpHtml(){let h=hdr(T('war_hdr'))+tabs(pvpTab,[['raid','🏴‍☠️ '+T('t_raid')],['arena','🏟️ '+T('t_arena')],['war','🌫️ '+T('t_front')],['rep','📜 '+T('t_rep')],['tour','🎖️ '+T('t_tour')],['lb','🏆 '+T('t_lb')]],'pvpTab');
+ if(pvpTab==='tour')return h+tourHtml();
  if(pvpTab==='war')return h+`<button class="btn o" data-o="fw" style="width:100%;margin:4px 0 8px">🏮 ${T('fw_btn')} </button>`+warHtml();
  if(pvpTab==='raid'){const sh=new Date(prof?.shield_until)>new Date();h+=`<div class="card"><div class="mid"><div class="nm">${T('fleet_power')} ⚔️ ${fmt(prof?.power||0)}</div><div class="sub">${sh?T('shield_on'):T('shield_off')} · ${T('raid_rules')} · 🌊 ${esc(regName())}</div></div><button class="btn x" data-o="pvpTab" data-v="raid">🔄</button></div>`+(prof&&!prof.has_attacked&&Date.now()-new Date(prof.created_at)<6048e5?`<div class="card"><div class="ic">🐣</div><div class="mid"><div class="nm">${T('newbie_t')}</div><div class="sub">${T('newbie_d')}</div></div><button class="btn sm r" data-o="unprotect">${T('remove')}</button></div>`:'');
   if(!targets.length)h+=`<div class="sub">${T('no_targets')}</div>`;
@@ -435,6 +445,8 @@ const OA={
  eqArena:()=>{window.__eqArena=!window.__eqArena;openPvp()},
  raid:async v=>{try{await push();const r=await rpc('raid',{p_target:v});if(r.win)inc('raid');prof&&(prof.has_attacked=true);r.kind='raid';replay(r,'🏴‍☠️ '+T('t_raid'))}catch(e){err(e)}},
  revenge:async v=>{try{await push();const r=await rpc('revenge',{p_battle:+v});if(r.win)inc('raid');r.kind='raid';replay(r,'🔥 '+T('revenge_t'))}catch(e){err(e)}},
+ tourJoin:async()=>{try{const r=await rpc('tour_join');if(r.err)return toast('⚠️ '+T('tour_e_'+r.err));toast('✅ '+T('tour_joined'));openPvp('tour')}catch(e){err(e)}},
+ tourFight:async v=>{try{await push();const r=await rpc('tour_fight',{p_target:v});if(r.err)return toast('⚠️ '+T('tour_e_'+r.err));replay(r,'🎖️ '+T('tour_t'))}catch(e){err(e)}},
  arena:async v=>{try{await push();const r=await rpcS('arena_fight',{p_target:v,p_equal:!!window.__eqArena});if(r.win)inc('arena');arena=r.arena;replay(r,'🏟️ '+T('arena_t'))}catch(e){err(e)}},
  fJoin:async()=>{try{war=await rpc('front_join');war._t=Date.now();toast(war.phase==='queue'?T('war_queued'):T('war_matched'));openPvp('war')}catch(e){err(e)}},
  fRp:async v=>{try{const r=await rpc('front_replay',{p_bid:+v});r.spect=r.att_nick!==(prof?.nick);const m=a=>Math.max(1,...(r.rounds||[]).map(x=>x[a]));r.myMax=(r.rounds[0]?.hp+r.rounds[0]?.d2)||m('hp');r.eMax=(r.rounds[0]?.eHp+r.rounds[0]?.d1)||m('eHp');replay(r,'▶️ '+T('war_t'))}catch(e){err(e)}},
