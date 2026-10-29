@@ -1232,5 +1232,18 @@
  "o.band_info": "Rentang adil: {0} – {1} kekuatan kapten. Mengalahkan yang jauh lebih lemah memberi poin lebih sedikit.",
  "o.err.arena_weak": "Lawan terlalu lemah; pilih yang ada di rentang adil",
  "o.err.blocked": "Tidak bisa: salah satu dari kalian memblokir",
- "o.err.bad_target": "Pemain tidak valid"
+ "o.err.bad_target": "Pemain tidak valid",
+ "ui.ush_t": "Debu bintang ✨ {0}",
+ "ui.ush_d": "Berlaku sebagai pecahan kapten mana pun. Didapat dari misi harian (+2), mingguan (+10), kemenangan konvoi (+3) dan kapten duplikat (+2).",
+ "ui.ush_x": "Tukar: {0} 🔮 → 1 ✨ · hari ini {1}/{2}",
+ "ui.ush_max": "Batas tukar hari ini tercapai",
+ "o.mod_t": "Moderasi",
+ "o.mod_d": "Laporan belum ditangani 14 hari terakhir. Tindakan menandainya selesai (tidak ada yang dihapus).",
+ "o.mod_players": "Laporan pemain",
+ "o.mod_msgs": "Laporan pesan",
+ "o.mod_none": "Tidak ada laporan",
+ "o.mod_line": "{0} laporan · {1} orang",
+ "o.mod_dismiss": "Abaikan",
+ "o.mod_done": "Tindakan diterapkan",
+ "o.err.not_admin": "Perlu hak admin"
 }

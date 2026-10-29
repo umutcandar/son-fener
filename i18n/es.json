@@ -1232,5 +1232,18 @@
  "o.band_info": "Rango justo: {0} – {1} de poder. Ganar a rivales mucho más débiles da menos puntos.",
  "o.err.arena_weak": "Rival demasiado débil; elige uno de tu rango justo",
  "o.err.blocked": "No es posible: uno de los dos ha bloqueado al otro",
- "o.err.bad_target": "Jugador no válido"
+ "o.err.bad_target": "Jugador no válido",
+ "ui.ush_t": "Polvo estelar ✨ {0}",
+ "ui.ush_d": "Sirve como fragmentos para cualquier capitán. Se gana con misiones diarias (+2) y semanales (+10), victorias de convoy (+3) y capitanes repetidos (+2).",
+ "ui.ush_x": "Cambio: {0} 🔮 → 1 ✨ · hoy {1}/{2}",
+ "ui.ush_max": "Límite de cambio diario alcanzado",
+ "o.mod_t": "Moderación",
+ "o.mod_d": "Denuncias sin resolver de los últimos 14 días. Al actuar se marcan como resueltas (no se borra nada).",
+ "o.mod_players": "Denuncias de jugadores",
+ "o.mod_msgs": "Mensajes denunciados",
+ "o.mod_none": "No hay denuncias pendientes",
+ "o.mod_line": "{0} denuncias · {1} personas",
+ "o.mod_dismiss": "Descartar",
+ "o.mod_done": "Acción aplicada",
+ "o.err.not_admin": "Se requieren permisos de administrador"
 }

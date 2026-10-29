@@ -1232,5 +1232,18 @@
  "o.band_info": "Fair band: {0} – {1} captain power. Beating much weaker players gives fewer points.",
  "o.err.arena_weak": "This opponent is too weak; pick someone in your fair band",
  "o.err.blocked": "Not possible: one of you has blocked the other",
- "o.err.bad_target": "Invalid player"
+ "o.err.bad_target": "Invalid player",
+ "ui.ush_t": "Stardust ✨ {0}",
+ "ui.ush_d": "Works as shards for any captain. Earned from daily (+2) and weekly (+10) quests, convoy wins (+3) and duplicate captains (+2).",
+ "ui.ush_x": "Exchange: {0} 🔮 → 1 ✨ · today {1}/{2}",
+ "ui.ush_max": "Today’s exchange limit reached",
+ "o.mod_t": "Moderation",
+ "o.mod_d": "Unresolved reports from the last 14 days. Taking an action marks them resolved (nothing is deleted).",
+ "o.mod_players": "Player reports",
+ "o.mod_msgs": "Message reports",
+ "o.mod_none": "No pending reports",
+ "o.mod_line": "{0} reports · {1} people",
+ "o.mod_dismiss": "Dismiss",
+ "o.mod_done": "Action applied",
+ "o.err.not_admin": "Admin rights required"
 }

@@ -27,7 +27,7 @@ const sameLang=(a,b)=>a&&a!=='other'&&a.slice(0,2)===b.slice(0,2)&&!(a.startsWit
 export const nickOK=n=>/^[\p{L}\p{N}_ ]{3,16}$/u.test(n.trim());
 
 async function rpc(fn,args){const{data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
-export async function start(g){G=g;window.__online={pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,open:{clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
+export async function start(g){G=g;window.__online={pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},get uid(){return uid},detectLang,nickOK,test:{dm:(peer,body)=>rpc('send_chat',{p_channel:dmCh(peer),p_body:body}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpc('mod_reports').then(()=>'ok',e=>e.message)},open:{clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
  initErr();addButtons();if(!window.supabase){setStatus();return}
  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'sf_auth',autoRefreshToken:true}});
  try{await signIn();await afterLogin()}catch(e){console.warn('offline:',e?.message||e);online=false;setStatus()}
@@ -44,7 +44,7 @@ async function afterLogin(){prof=await rpc('ensure_profile');online=true;
  const{data:mu}=await sb.from('mutes').select('muted');muted=new Set((mu||[]).map(x=>x.muted));
  region=await rpc('my_region').catch(()=>null);
  await monetSync();
- await refreshClan();await claim();subscribe();loadDm();setStatus();fwSide();fwPoll();setInterval(fwPoll,90000);
+ await refreshClan();await claim();subscribe();loadDm();rpc('is_admin').then(v=>isAdm=!!v,()=>{});setStatus();fwSide();fwPoll();setInterval(fwPoll,90000);
  setInterval(()=>{push();claim()},20000);setInterval(bossWatch,2000);lastBoss={w:G.S.boss.w,d:G.S.boss.dmg};
  addEventListener('visibilitychange',()=>document.hidden&&push())}
 // DEMO para durumu sunucuda (monet_*); çevrimdışı alımlar kuyruktan kaydedilir, sunucu esas
@@ -143,9 +143,16 @@ function onMsg(m){const ch=tabOf(m.channel);msgs[ch]=msgs[ch]||[];if(msgs[ch].so
 async function translate(id){if(trs[id]?.text){showOrig.delete(id);return keepRender()}trs[id]='…';keepRender();
  try{const{data,error}=await sb.functions.invoke('translate',{body:{id:+id,to:lang}});if(error||!data?.text)throw error||new Error('tr');trs[id]={text:data.text,src:data.src}}catch(e){trs[id]={err:1}}keepRender()}
 // ---------- PROFİL / DÜELLO ----------
-let profC=null;
+let profC=null,isAdm=false,modD=null,clanP=null;
+async function openClanPub(id){if(clan?.id===id)return openClan();try{clanP=await rpc('clan_public',{p_id:id})}catch(e){return err(e)}if(!clanP)return toast(T('err.bad_target'));open('clanP',()=>{const c=clanP;let h=hdr(`${esc(c.icon)} ${esc(c.name)} [${esc(c.tag)}]`)+`<div class="card"><div class="mid"><div class="nm">👥 ${c.members.length}/30 · ⚔️ ${T('clan_power')} ${fmt(c.power)}</div><div class="sub">🌊 ${T('sea_n',[c.region||1])}${c.descr?' · '+esc(c.descr):''}</div></div>${!clan&&c.members.length<30?`<button class="btn o" data-o="join" data-v="${c.id}">${T('join')}</button>`:''}</div><div class="sec">${T('members')}</div>`;
+ for(const m of c.members)h+=`<div class="card" data-o="prof" data-v="${m.id}" style="cursor:pointer">${av(m.avatar)}<div class="mid"><div class="nm">${esc(m.nick)} <span class="tag">${RIC[m.role]||''} ${T(ROLE[m.role]||'role_member')}</span></div><div class="sub">⚔️ ${fmt(m.power)}</div></div></div>`;return h})}
+async function openMod(){if(!isAdm)return;try{modD=await rpc('mod_reports')}catch(e){return err(e)}open('mod',()=>{let h=hdr('🛡️ '+T('mod_t'))+`<div class="sub">${T('mod_d')}</div><div class="sec">🚩 ${T('mod_players')} (${modD.players.length})</div>`;
+ if(!modD.players.length)h+=`<div class="sub">${T('mod_none')}</div>`;
+ for(const x of modD.players){const mu=x.muted_until&&new Date(x.muted_until)>new Date();h+=`<div class="card" style="flex-wrap:wrap">${av(x.avatar,40)}<div class="mid"><div class="nm" data-o="prof" data-v="${x.target}" style="cursor:pointer;text-decoration:underline">${esc(x.nick)}${mu?' 🔇':''}</div><div class="sub">${T('mod_line',[x.n,x.reporters])} · ${x.reasons.map(r=>T('rr_'+r)).join(', ')} · ${hm(x.last)}</div></div><div style="display:flex;gap:4px;width:100%;justify-content:flex-end">${[['mute1h','🔇1h'],['mute24h','🔇24h'],['unmute','🔊'],['dismiss','✅ '+T('mod_dismiss')]].map(([a,l])=>`<button class="btn sm ${a==='dismiss'?'':'x'}" data-o="modAct" data-v="${x.target}:${a}">${l}</button>`).join('')}</div></div>`}
+ h+=`<div class="sec">💬 ${T('mod_msgs')} (${modD.msgs.length})</div>`;if(!modD.msgs.length)h+=`<div class="sub">${T('mod_none')}</div>`;
+ for(const m of modD.msgs)h+=`<div class="card" style="flex-wrap:wrap"><div class="mid"><div class="nm" data-o="prof" data-v="${m.user_id}" style="cursor:pointer">${esc(m.nick||'?')} · ${esc(m.channel)} · 🚩${m.n}</div><div class="sub">“${esc(m.body)}”</div></div><button class="btn sm x" data-o="modAct" data-v="${m.user_id}:mute24h">🔇24h</button><button class="btn sm" data-o="modAct" data-v="${m.user_id}:dismiss">✅</button></div>`;return h})}
 function cardHtml(c,r){const H=G.L.HEROES||[],hn=id=>H.find(x=>x.id===id)?.n||id,wl=c.wins+c.losses,wr=wl?Math.round(c.wins/wl*100):0;
- let h=`<div class="card" style="background:linear-gradient(135deg,#1d3d5c,#2a1a40);border-color:#7ad7ff">${av(c.avatar,64)}<div class="mid"><div class="nm">${esc(c.nick)}</div><div class="sub">${c.clan?`${esc(c.clan.icon||'🛡️')} [${esc(c.clan.tag||'')}] ${esc(c.clan.name)} · ${RIC[c.clan.role]||''} ${T(ROLE[c.clan.role]||'role_member')}`:T('no_clan_p')}</div><div class="sub">🌊 ${T('sea_n',[c.region||1])} · 🗺️ ${T('n_islands',[Math.max(0,c.stage-1)])}</div></div></div>`;
+ let h=`<div class="card" style="background:linear-gradient(135deg,#1d3d5c,#2a1a40);border-color:#7ad7ff">${av(c.avatar,64)}<div class="mid"><div class="nm">${esc(c.nick)}</div><div class="sub">${c.clan?`<a data-o="clanPub" data-v="${c.clan.id}" style="color:#9fe0ff;text-decoration:underline;cursor:pointer">${esc(c.clan.icon||'🛡️')} [${esc(c.clan.tag||'')}] ${esc(c.clan.name)}</a> · ${RIC[c.clan.role]||''} ${T(ROLE[c.clan.role]||'role_member')}`:T('no_clan_p')}</div><div class="sub">🌊 ${T('sea_n',[c.region||1])} · 🗺️ ${T('n_islands',[Math.max(0,c.stage-1)])}</div></div></div>`;
  h+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0">${[['⚔️',T('power'),fmt(c.power)],['🏟️',tierN(c.tier),r],['🏆',T('win_rate'),wl?wr+'%':'—']].map(([i,k,v])=>`<div class="card" style="display:block;text-align:center;padding:8px 4px"><div style="font-size:18px">${i}</div><b>${v}</b><div class="sub">${k}</div></div>`).join('')}</div>`;
  h+=`<div class="sec">⚓ ${T('captains')} · ${fmt(c.cap_power)}</div><div style="display:flex;gap:8px;justify-content:center">${(c.heroes||[]).map(x=>`<div style="text-align:center">${av(x.id,52)}<div class="sub">${esc(hn(x.id))}</div><div class="sub">${'⭐'.repeat(+x.star||1)} ${T('lv_n',[x.lv||1])}${x.tal?' · 🌟'+x.tal:''}</div></div>`).join('')||`<div class="sub">—</div>`}</div>`;
  h+=`<div class="sec">📊 ${T('stats')}</div><div class="sub">${T('stats_line',[fmt(c.st.wins),c.wins,c.losses,c.best,fmt(c.st.boss),c.st.heroes])}</div>`;return h}
@@ -153,7 +160,7 @@ async function openProfile(id){id=id||uid;let c=null;try{c=await rpc('player_car
  const mine=id===uid;const r=a?.rating??1000;
  open('prof',()=>{let h=hdr('👤 '+esc(p.nick))+cardHtml(c,r);
   if(mine){h+=`<div class="sec">${T('name_portrait')}</div><div class="card" style="gap:6px">${inp('pNick',T('nick_ph'),16,p.nick)}<button class="btn o" data-o="saveProf">${T('save')}</button></div><div style="display:flex;gap:6px;flex-wrap:wrap">${HERO_IDS.map(x=>`<span data-o="pAv" data-v="${x}" style="cursor:pointer;opacity:${x===(window.__pav||p.avatar)?1:.45}">${av(x,46)}</span>`).join('')}</div>
-   <div class="sec">${T('account')}</div><div class="sub">${T('guest_desc')}</div><div class="card" style="gap:6px;flex-wrap:wrap">${inp('pMail',T('email'),80)}${inp('pPass',T('pass_ph'),64)}<button class="btn" data-o="link">${T('link')}</button></div><div class="sub">${T('google_soon')}</div>`}
+   <div class="sec">${T('account')}</div><div class="sub">${T('guest_desc')}</div><div class="card" style="gap:6px;flex-wrap:wrap">${inp('pMail',T('email'),80)}${inp('pPass',T('pass_ph'),64)}<button class="btn" data-o="link">${T('link')}</button></div><div class="sub">${T('google_soon')}</div>`;if(isAdm)h+=`<button class="btn o" data-o="modOpen" style="width:100%;margin-top:8px">🛡️ ${T('mod_t')}</button>`}
   else h+=`${c.blocks_me?`<div class="sub">🚫 ${T('blocks_you')}</div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button class="btn o" data-o="duel" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>${T('duel_btn')}</button><button class="btn" data-o="dmOpen" data-v="${id}" ${c.blocked||c.blocks_me?'disabled':''}>✉️ ${T('dm_btn')}</button><button class="btn x" data-o="repP" data-v="${id}">🚩 ${T('report')}</button><button class="btn x" data-o="block" data-v="${id}">${c.blocked?'✅ '+T('unblock'):'🚫 '+T('block')}</button></div>`;
   return h})}
 const tier=r=>r>=1800?'Efsane':r>=1500?'Elmas':r>=1300?'Altın':r>=1100?'Gümüş':'Bronz';
@@ -277,6 +284,9 @@ const OA={
  tr:v=>v&&translate(v),trOrig:v=>{showOrig.add(+v);keepRender()},
  report:async v=>{try{await rpc('report_msg',{p_msg:+v});toast(T('reported'))}catch(e){err(e)}},
  prof:v=>openProfile(v),
+ clanPub:v=>openClanPub(v),
+ modOpen:()=>openMod(),
+ modAct:async v=>{const[t,a]=v.split(':');try{await rpc('mod_action',{p_target:t,p_act:a});toast('✅ '+T('mod_done'));openMod()}catch(e){err(e)}},
  dmOpen:async v=>{if(!dmNames[v]&&profC?.id===v)dmNames[v]={peer:v,nick:profC.nick,avatar:profC.avatar};openChat('dm:'+v)},
  block:async v=>{try{const on=!muted.has(v);await rpc('block_player',{p_target:v,p_on:on});on?muted.add(v):muted.delete(v);toast(on?T('blocked_ok'):T('unblocked_ok'));loadDm();openProfile(v)}catch(e){err(e)}},
  repP:v=>{G.modal(`<h2>🚩 ${T('report_t')}</h2><p>${T('report_d')}</p><div style="display:grid;gap:6px">${['spam','abuse','name','cheat','other'].map(k=>`<button class="btn x" data-rr="${k}">${T('rr_'+k)}</button>`).join('')}</div>`,[[T('cancel'),'',()=>{}]]);document.querySelectorAll('[data-rr]').forEach(b=>b.onclick=async()=>{document.querySelector('#mbox .acts button')?.click();try{await rpc('report_player',{p_target:v,p_reason:b.dataset.rr});toast(T('reported'))}catch(e){err(e)}})},
@@ -311,4 +321,4 @@ function initErr(){Object.assign(SERR,{'Geçersiz bağış':'err.don_bad','Bugü
  'Savaş başladıktan sonra katıldın':'err.late','Hedef rakip klanda değil':'err.not_foe','3 saldırı hakkın bitti':'err.no_attacks','Biraz bekle':'err.wait','Kayıt yok':'err.no_save','Filon boş — önce tayfa eğit':'err.empty_fleet',
  'Kendine saldıramazsın':'err.self','Filo hâlâ dönüyor, biraz bekle':'err.fleet_back','Bugünkü baskın hakkın bitti':'err.raid_limit','Hedef kalkan altında':'err.shield','Yeni kaptan koruması (7 gün)':'err.newbie','Başka bölgede':'err.region',
  'Klan arkadaşına saldıramazsın':'err.clanmate','Bugünkü arena biletin bitti':'err.tickets','Kaptanın yok':'err.no_caps','Sohbetten geçici olarak susturuldun':'err.chat_muted','Mesaj 1-200 karakter olmalı':'err.msg_len','Çok hızlı yazıyorsun':'err.too_fast',
- 'Dakikada en fazla 12 mesaj':'err.per_min','Kanal yok':'err.channel','Kendinle savaşamazsın':'err.self','Çatışma yalnızca Cuma-Cumartesi':'err.fw_clash_only','Bugünkü saldırı hakların bitti (3/3)':'err.fw_no_attacks','Eşleşme yok':'err.fw_no_match','Bölge yok':'err.no_region','arena_weak':'err.arena_weak','blocked':'err.blocked','bad_target':'err.bad_target'})}
+ 'Dakikada en fazla 12 mesaj':'err.per_min','Kanal yok':'err.channel','Kendinle savaşamazsın':'err.self','Çatışma yalnızca Cuma-Cumartesi':'err.fw_clash_only','Bugünkü saldırı hakların bitti (3/3)':'err.fw_no_attacks','Eşleşme yok':'err.fw_no_match','Bölge yok':'err.no_region','arena_weak':'err.arena_weak','blocked':'err.blocked','bad_target':'err.bad_target','not_admin':'err.not_admin'})}

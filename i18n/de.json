@@ -1232,5 +1232,18 @@
  "o.band_info": "Fairer Bereich: {0} – {1} Kapitänsstärke. Siege gegen viel Schwächere bringen weniger Punkte.",
  "o.err.arena_weak": "Dieser Gegner ist zu schwach; wähle jemanden im fairen Bereich",
  "o.err.blocked": "Nicht möglich: einer von euch hat den anderen blockiert",
- "o.err.bad_target": "Ungültiger Spieler"
+ "o.err.bad_target": "Ungültiger Spieler",
+ "ui.ush_t": "Sternenstaub ✨ {0}",
+ "ui.ush_d": "Zählt als Splitter für jeden Kapitän. Aus täglichen (+2) und wöchentlichen (+10) Aufgaben, Konvoi-Siegen (+3) und doppelten Kapitänen (+2).",
+ "ui.ush_x": "Tausch: {0} 🔮 → 1 ✨ · heute {1}/{2}",
+ "ui.ush_max": "Tauschlimit für heute erreicht",
+ "o.mod_t": "Moderation",
+ "o.mod_d": "Offene Meldungen der letzten 14 Tage. Eine Aktion markiert sie als erledigt (nichts wird gelöscht).",
+ "o.mod_players": "Spielermeldungen",
+ "o.mod_msgs": "Nachrichtenmeldungen",
+ "o.mod_none": "Keine offenen Meldungen",
+ "o.mod_line": "{0} Meldungen · {1} Personen",
+ "o.mod_dismiss": "Verwerfen",
+ "o.mod_done": "Aktion ausgeführt",
+ "o.err.not_admin": "Adminrechte erforderlich"
 }

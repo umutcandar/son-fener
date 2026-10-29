@@ -1232,5 +1232,18 @@
  "o.band_info": "Faixa justa: {0} – {1} de poder. Vencer muito mais fracos rende menos pontos.",
  "o.err.arena_weak": "Oponente fraco demais; escolha alguém da sua faixa justa",
  "o.err.blocked": "Não é possível: um de vocês bloqueou o outro",
- "o.err.bad_target": "Jogador inválido"
+ "o.err.bad_target": "Jogador inválido",
+ "ui.ush_t": "Poeira estelar ✨ {0}",
+ "ui.ush_d": "Vale como fragmentos de qualquer capitão. Ganha em missões diárias (+2) e semanais (+10), vitórias de comboio (+3) e capitães repetidos (+2).",
+ "ui.ush_x": "Troca: {0} 🔮 → 1 ✨ · hoje {1}/{2}",
+ "ui.ush_max": "Limite de troca de hoje atingido",
+ "o.mod_t": "Moderação",
+ "o.mod_d": "Denúncias pendentes dos últimos 14 dias. Uma ação as marca como resolvidas (nada é apagado).",
+ "o.mod_players": "Denúncias de jogadores",
+ "o.mod_msgs": "Mensagens denunciadas",
+ "o.mod_none": "Nenhuma denúncia pendente",
+ "o.mod_line": "{0} denúncias · {1} pessoas",
+ "o.mod_dismiss": "Descartar",
+ "o.mod_done": "Ação aplicada",
+ "o.err.not_admin": "Requer permissão de administrador"
 }

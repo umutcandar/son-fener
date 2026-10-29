@@ -1232,5 +1232,18 @@
  "o.band_info": "Adil eşleşme aralığı: {0} – {1} kaptan gücü. Çok zayıflara karşı puan azalır.",
  "o.err.arena_weak": "Bu rakip çok zayıf; adil aralıktan birini seç",
  "o.err.blocked": "Engelleme nedeniyle bu işlem yapılamıyor",
- "o.err.bad_target": "Geçersiz oyuncu"
+ "o.err.bad_target": "Geçersiz oyuncu",
+ "ui.ush_t": "Yıldız tozu ✨ {0}",
+ "ui.ush_d": "Her kaptanın parçası yerine geçer. Günlük (+2) ve haftalık (+10) görevler, konvoy zaferleri (+3) ve tekrar çıkan kaptanlar (+2) verir.",
+ "ui.ush_x": "Takas: {0} 🔮 → 1 ✨ · bugün {1}/{2}",
+ "ui.ush_max": "Bugünkü takas sınırı doldu",
+ "o.mod_t": "Moderasyon",
+ "o.mod_d": "Son 14 günün çözülmemiş şikâyetleri. İşlem yapınca şikâyetler çözüldü olarak işaretlenir (silinmez).",
+ "o.mod_players": "Oyuncu şikâyetleri",
+ "o.mod_msgs": "Mesaj şikâyetleri",
+ "o.mod_none": "Bekleyen şikâyet yok",
+ "o.mod_line": "{0} şikâyet · {1} kişi",
+ "o.mod_dismiss": "Kapat",
+ "o.mod_done": "İşlem uygulandı",
+ "o.err.not_admin": "Bu işlem için yönetici yetkisi gerekir"
 }
