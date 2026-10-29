@@ -1,4 +1,4 @@
-// ===== Son Fener — saf oyun mantığı (DOM / THREE yok). Tüm durum tek, JSON'a çevrilebilir nesnede (S).
+// ===== Starfort — saf oyun mantığı (DOM / THREE yok). Tüm durum tek, JSON'a çevrilebilir nesnede (S).
 // Çevrimiçi sürümde bu modül sunucuda da çalıştırılabilir: aksiyon(S, args) -> sonuç / olay listesi.
 export const RES=['fish','wood','crys'];
 export const RIC={fish:'🌾',wood:'🪵',crys:'🔮',gems:'💎',ticket:'🎟️',ush:'✨'};
@@ -41,12 +41,12 @@ export const safeR=S=>S.cur==='home'?Math.min(GR,S.fener.lv+1):Math.min(GR,1+S.i
 export const maxLv=S=>S.cur==='home'?S.fener.lv+1:Math.min(S.fener.lv+1,S.isl[S.cur].lv+2);
 export const isSafe=(S,k)=>ring(k)<=safeR(S);
 // ---------- birlikler, kaptanlar, donanım ----------
-export const TROOPS={tayfa:{n:'Mızrakçı',ic:'🎖️',atk:10,hp:40,cost:{fish:8,wood:4},t:2},zipkin:{n:'Tüfekçiler',ic:'🔱',atk:14,hp:28,cost:{fish:10,wood:6},t:3},topcu:{n:'Topçular',ic:'💣',atk:19,hp:18,cost:{fish:12,wood:8,crys:1},t:4}};
+export const TROOPS={tayfa:{n:'Mızrakçı',ic:'🎖️',atk:10,hp:40,cost:{fish:8,wood:4},t:2},zipkin:{n:'Tüfekçiler',ic:'🎯',atk:14,hp:28,cost:{fish:10,wood:6},t:3},topcu:{n:'Topçular',ic:'💣',atk:19,hp:18,cost:{fish:12,wood:8,crys:1},t:4}};
 // sk.t: atk/hp/loot -> takımda (ilk 3) iken; fish/train/night -> sahipken çalışır
 export const HEROES=[
  {id:'kaan',n:'Kara Kaan',ic:'🏴‍☠️',img:'kaan',r:3,role:'Topçular',p:120,sk:{n:'Top Yağmuru',t:'atk',v:.15,d:'Ordu saldırısı'}},
  {id:'mei',n:'Mei Rüzgar',ic:'🔭',img:'mei',r:3,role:'Gözcü',p:115,sk:{n:'Keskin Dürbün',t:'hp',v:.18,d:'Ordu dayanıklılığı'}},
- {id:'tunc',n:'Tunç Tüfek',ic:'🔱',img:'tunc',r:2,role:'Tüfekçiler',p:72,sk:{n:'İlk Darbe',t:'atk',v:.08,d:'Ordu saldırısı'}},
+ {id:'tunc',n:'Tunç Tüfek',ic:'🎯',img:'tunc',r:2,role:'Tüfekçiler',p:72,sk:{n:'İlk Darbe',t:'atk',v:.08,d:'Ordu saldırısı'}},
  {id:'deniz',n:'Sınır Al',ic:'🌾',img:'deniz',r:2,role:'Mızrakçı',p:66,sk:{n:'Bereketli Ağ',t:'fish',v:.12,d:'Tahıl üretimi'}},
  {id:'nene',n:'Pusula Nene',ic:'🧭',img:'nene',r:2,role:'Rotacı',p:60,sk:{n:'Eski Haritalar',t:'loot',v:.15,d:'Savaş ganimeti'}},
  {id:'ela',n:'Ela Çark',ic:'⚙️',img:'ela',r:1,role:'Usta',p:42,sk:{n:'Hızlı Kızak',t:'train',v:.12,d:'Eğitim hızı'}},
@@ -76,7 +76,7 @@ export const TECH=[
  {id:'beam',br:'Hisar',n:'Arındırıcı Hüzme',ic:'✨',d:'Dumandan arındırma −15%/sv',max:3,req:{lens:2}},
  {id:'build',br:'Hisar',n:'Hızlı İnşaat',ic:'🏗️',d:'Yükseltme süresi −8%/sv',max:5,req:{ward:1}},
  {id:'glow',br:'Hisar',n:'Parlak Gece',ic:'🌟',d:'Duman Gecesini püskürtünce +5💎/sv',max:3,req:{ward:3}},
- {id:'harp',br:'Donanma',n:'Çelik Tüfek',ic:'🔱',d:'Ordu saldırısı +10%/sv',max:5},
+ {id:'harp',br:'Donanma',n:'Çelik Tüfek',ic:'🎯',d:'Ordu saldırısı +10%/sv',max:5},
  {id:'hull',br:'Donanma',n:'Meşe Gövde',ic:'🪵',d:'Ordu dayanıklılığı +10%/sv',max:5,req:{harp:1}},
  {id:'drill',br:'Donanma',n:'Talim',ic:'🥁',d:'Eğitim süresi −10%/sv',max:3,req:{hull:1}},
  {id:'loot',br:'Donanma',n:'Ganimet Ağları',ic:'🪙',d:'Savaş ganimeti +10%/sv',max:3,req:{harp:2}},

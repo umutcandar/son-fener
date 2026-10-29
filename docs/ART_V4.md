@@ -1,4 +1,4 @@
-# Son Fener — Art v4 style brief
+# Starfort — Art v4 style brief
 
 ## Hedef his
 Sıcak, boyalı (painted) görünümlü, okunaklı bir **kale-şehir üssü**. Referans *türü*: Whiteout Survival / Castle Clash / Legend Online tarzı izometrik üs oyunları. Hiçbir asset, isim, yerleşim ya da UI kopyalanmaz; sadece tür dilinden ilham alınır: merkezde bir kale, etrafında parseller, yollar, sur ve kapılar, her yerde küçük hayat.

@@ -1,4 +1,4 @@
-// ===== Son Fener — Dünya Haritası (2B tuval, sadece görüntü). Veri bir "adaptör"den gelir.
+// ===== Starfort — Dünya Haritası (2B tuval, sadece görüntü). Veri bir "adaptör"den gelir.
 // Toplu akış (batch) sunucu koordinatlarını sağladığında: window.__sfWorld.setAdapter({me(),islands(),marches(),forts(),ruins(),attack?(id)})
 // Şekil: island {id,x,y,lv,name,clan,clanColor,shield(bool|ms),me?} · march {id,from:[x,y],to:[x,y],t0,t1,mine?,rally?}
 // fort {id,x,y,lv,clan,clanColor,hp(0..1),attacked(bool),r} · ruin {id,x,y,owner?} · koordinatlar 0..1000 dünya birimi.

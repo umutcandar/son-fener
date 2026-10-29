@@ -1,4 +1,4 @@
-# Savaş Revizyonu — "Son Fener Kalesi"
+# Savaş Revizyonu — "Starfort Kalesi"
 
 **Tema (30 Eki 2026):** Son fener, sis orduları ve deniz leviathanlarının kuşattığı yanan bir savaş kalesine dönüşür. Ton karanlık, bosslar dev. Oyunun adı ve mevcut sistemler aynı kalır.
 **Kurallar:** her şey sunucuda doğrulanır (RLS sıkı, yalnızca anon anahtar). Ödemeler DEMO'dur, olasılıklar dürüsttür, sahte fiyat ya da sahte sayaç yoktur. F2P oynanabilir kalır. Eski kayıtlar veri kaybı olmadan taşınır.
@@ -26,7 +26,7 @@ Kurallar:
 
 | anahtar | Bina | Rol | Maks | Şart |
 |---|---|---|---|---|
-| `kale` | Son Fener Kalesi (Citadel) | her şeyi kilitler; seviye başına +2% güç | 30 | Kışla ve Sur ≥ sv−1 |
+| `kale` | Starfort Kalesi (Citadel) | her şeyi kilitler; seviye başına +2% güç | 30 | Kışla ve Sur ≥ sv−1 |
 | `kisla` | Kışla | Abordajcı hattı: eğitim hızı, birlik kapasitesi +300/sv | 30 | Kale ≥ sv |
 | `zkule` | Zıpkıncı Kulesi | Zıpkıncı hattı: kapasite +300/sv | 30 | Kale ≥ sv, Kale 3 |
 | `dokum` | Top Dökümhanesi | Topçu (kuşatma) hattı: kapasite +300/sv, kale hasarı +2%/sv | 30 | Kale 5 |

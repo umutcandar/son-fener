@@ -1,4 +1,4 @@
-# Son Fener — Barut Çağı
+# Starfort — Barut Çağı
 
 Tarayıcıda (mobil öncelikli, PWA) oynanan bir **barut çağı kale-şehir strateji oyunu**. 1600–1800'ler: surlarla çevrili bir şehri büyüt, mızrakçı, tüfekçi, süvari ve topçu birlikleri yetiştir, kara haritasında komşu kasabaları fethet ve klanınla birlikte savaş.
 

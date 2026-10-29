@@ -1,4 +1,4 @@
-// ===== Son Fener — Kılavuz Işığı mini oyunu (2B tuval). Kural/ödül logic.js'te (claimGuide); burası sadece oynanış + çizim.
+// ===== Starfort — Kılavuz Işığı mini oyunu (2B tuval). Kural/ödül logic.js'te (claimGuide); burası sadece oynanış + çizim.
 // Sisin içinde yolunu kaybetmiş bir gemi var. Dönen fener huzmesi gemiye değdiği anda dokun: gemi bir sonraki işarete ilerler.
 // 3 isabet = liman. Boşa dokunuş gemiyi kayalıklara iter (3 hata = gemi kaybolur). Huzmenin tam ortası = "tam isabet".
 const css=`#guide{position:fixed;inset:0;z-index:60;background:#04121c;display:flex;flex-direction:column;align-items:center;touch-action:none;user-select:none;-webkit-user-select:none;font-family:inherit;color:#eaf6fa;opacity:0;transition:opacity .25s}

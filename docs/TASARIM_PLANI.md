@@ -1,4 +1,4 @@
-# Son Fener: Sis Denizi — Rakip Analizi ve Tasarım Planı (29 Ekim 2026)
+# Starfort — Rakip Analizi ve Tasarım Planı (29 Ekim 2026)
 
 ## Pazar özeti
 - 2025'te Last War (~2,4 Mr $) ve Whiteout Survival (~2,2 Mr $) dünyada en çok kazanan iki mobil oyun; strateji kategorisi ~15 Mr $ (Sensor Tower: https://sensortower.com/blog/top-grossing-mobile-games-live-ops-strategies-2025-report)
@@ -21,7 +21,7 @@
 Ortak bağımlılık kaynakları: ittifak/klan aidiyeti, sunucu kimliği ("bizim eyalet"), takvimli etkinlik ritmi, sıralama, kademeli kişisel teklifler.
 Ortak nefret: sınırsız harcama farkı, yeni nesil kahramanla güç enflasyonu, aldatıcı reklam, harcayanın harcamayanı sürekli soyması.
 
-## Son Fener'in özgün farkı (konumlandırma)
+## Starfort'in özgün farkı (konumlandırma)
 "Rekabetçi ama adil 4X": Sis Denizi'nde fener ağı + birleştirme + kaptan filosu. Harcama hız ve kolaylık getirir; kazanma stratejiyle olur.
 
 ## Öncelikli özellikler

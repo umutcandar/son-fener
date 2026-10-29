@@ -1,4 +1,4 @@
-// ===== Son Fener — i18n (çok dilli metin katmanı)
+// ===== Starfort — i18n (çok dilli metin katmanı)
 // API:  t('ui.key', [p0,p1]) / t('ui.key', {name:v})  -> "{0}" / "{name}" yer tutucuları doldurulur.
 //       lang  (aktif dil kodu) · setLang('en') (kaydeder + sayfayı yeniler) · LANGS · fmtNum(n) · fmtDate(d) · tl(serbestMetin)
 // Sözlükler: i18n/<kod>.json (düz anahtar->metin). Eksik anahtar -> tr.json -> anahtarın kendisi.

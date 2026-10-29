@@ -1,4 +1,4 @@
-// ===== Son Fener — çevrimiçi katman (Supabase): hesap, bulut kayıt, klan, sohbet (dünya/bölge/klan + çeviri), baskın, arena, düello, Sis Cephesi, sıralama.
+// ===== Starfort — çevrimiçi katman (Supabase): hesap, bulut kayıt, klan, sohbet (dünya/bölge/klan + çeviri), baskın, arena, düello, Sis Cephesi, sıralama.
 // Yalnızca herkese açık (publishable) anahtar kullanılır; tüm hassas işlemler sunucudaki RPC'lerde doğrulanır.
 import {t,lang,locale,tl} from './i18n.js';
 const SB_URL='https://ftbbzqzgafmallrfimnt.supabase.co',SB_KEY='sb_publishable_Z46YoAdDJSnL3RYmX61vBg_XUbiAfuZ';
@@ -234,7 +234,7 @@ function cupCard(){const c=cupD.cup,W=1080,H=1350,cv=document.createElement('can
   for(const m of ms){const me=m.a.id===uid||m.b.id===uid;x.fillStyle=me?'rgba(255,216,74,.22)':'rgba(255,255,255,.08)';x.beginPath();x.roundRect?x.roundRect(120,y-36,W-240,52,16):x.rect(120,y-36,W-240,52);x.fill();
    x.font=F(30,700);x.fillStyle=m.w===0?'#fff':'rgba(255,255,255,.5)';x.textAlign='right';x.fillText((m.w===0?'🏆 ':'')+cupNm(m.a),W/2-40,y);x.fillStyle='#9fb8d0';x.textAlign='center';x.fillText('vs',W/2,y);
    x.fillStyle=m.w===1?'#fff':'rgba(255,255,255,.5)';x.textAlign='left';x.fillText(cupNm(m.b)+(m.w===1?' 🏆':''),W/2+40,y);x.textAlign='center';y+=60}y+=16});
- x.fillStyle='#ffd84a';x.font=F(44);x.fillText('Son Fener',W/2,H-80);x.fillStyle='#cfe6ff';x.font=F(28,600);x.fillText(location.host+location.pathname,W/2,H-40);return cv}
+ x.fillStyle='#ffd84a';x.font=F(44);x.fillText('Starfort',W/2,H-80);x.fillStyle='#cfe6ff';x.font=F(28,600);x.fillText(location.host+location.pathname,W/2,H-40);return cv}
 function leagueHtml(){const a=arena||{rating:1000,best:1000,wins:0,losses:0,season:''},r=a.rating,ti=TIERS.findIndex(x=>x[0]===tier(r)),nx=TIERS[ti+1],end=seasonEndTs(),left=Math.max(0,Math.ceil((end-Date.now())/864e5));
  let h=`<h3><span><button class="btn x sm" data-o="pvpTab" data-v="arena">‹</button> 🏆 ${T('league_t')}</span><button class="btn x close">✕</button></h3>`;
  h+=`<div class="card" style="background:linear-gradient(135deg,#5a3a10,#1a1030)"><div class="ic" style="font-size:34px">${TIC[TIERS[ti][0]]}</div><div class="mid"><div class="nm">${tierN(TIERS[ti][0])} · ${r}</div>${nx?`<div class="pbar"><i style="width:${Math.min(100,(r-TIERS[ti][1])/(nx[1]-TIERS[ti][1])*100)}%"></i></div><div class="sub">${T('league_next',[nx[1]-r,tierN(nx[0])])}</div>`:`<div class="sub">${T('league_top')}</div>`}<div class="sub">${T('league_best',[a.best,a.wins,a.losses])}</div></div></div>`;
@@ -442,9 +442,9 @@ const OA={
  league:()=>open('league',leagueHtml),
  cupRp:v=>{const[ri,mi]=String(v).split(',').map(Number),m=cupD?.cup?.bracket?.[ri]?.[mi];if(!m||!m.r)return;replay({kind:'cup',win:m.w===0,rounds:m.r,myMax:m.am,eMax:m.bm,att_nick:cupNm(m.a),att_avatar:m.a.avatar,att_power:m.a.pw,def_nick:cupNm(m.b),def_avatar:m.b.avatar,def_power:m.b.pw,cupT:T(['cup_r1','cup_r2','cup_r3'][ri])},'⚖️🏆 '+T(['cup_r1','cup_r2','cup_r3'][ri]))},
  cupShare:async()=>{if(!cupD?.cup)return;const cv=cupCard();window.__cupCv=cv;const blob=await new Promise(r=>cv.toBlob(r,'image/png'));const f=new File([blob],'son-fener-cup-'+cupD.week+'.png',{type:'image/png'});
-  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Son Fener',text:T('cup_share_txt',[T(CUP_PN[cupD.cup.place])])+' '+location.origin+location.pathname});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Starfort',text:T('cup_share_txt',[T(CUP_PN[cupD.cup.place])])+' '+location.origin+location.pathname});return}}catch(e){if(e&&e.name==='AbortError')return}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast(T('cup_saved'))},
- invShare:async()=>{if(!refD)return;const url=location.origin+location.pathname+'?ref='+refD.code,txt=T('inv_msg',[refD.code]);try{if(navigator.share){await navigator.share({title:'Son Fener',text:txt,url});return}}catch(e){if(e&&e.name==='AbortError')return}
+ invShare:async()=>{if(!refD)return;const url=location.origin+location.pathname+'?ref='+refD.code,txt=T('inv_msg',[refD.code]);try{if(navigator.share){await navigator.share({title:'Starfort',text:txt,url});return}}catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(txt+' '+url);toast(T('inv_copied'))}catch(e){prompt(T('inv_t'),url)}},
  eqcup:async()=>{cupD=null;open('eqcup',cupHtml);try{cupD=await rpc('eq_cup_get');if(cur==='eqcup')G.renderSheet()}catch(e){err(e)}},
  cupGo:async()=>{try{cupD=await rpc('eq_cup_run');const rw=cupD.cup.reward;G.L.addRes(G.S,rw);if(rw.ush)G.S.ush=(G.S.ush||0)+rw.ush;G.save();G.ui();G.SFX&&G.SFX.win&&G.SFX.win();G.toast('🏆 '+T('cup_you',[T({1:'cup_p1',2:'cup_p2',3:'cup_p3',5:'cup_p5'}[cupD.cup.place])])+' '+rwTxt(rw));if(cur==='eqcup')G.renderSheet()}catch(e){err(e)}},
@@ -553,7 +553,7 @@ OA.world=()=>openWorld();
 // Savaş Revizyonu Faz B/C: ordu (kademe/revir/karşı-tip), dizilim, PvP, keşif, kalkan, rally, Klan Kalesi, kadim fenerler
 Object.assign(SERR,{'Kaynak yetersiz':'w_e_res','Yeterli birlik yok':'w_e_troops','Geçersiz':'w_e_bad','Sefer kuyruğu dolu':'w_qfull','Revir boş':'w_e_revir','En üst kademe':'w_e_max','Klan gerekli':'w_e_clan','Savaş penceresi kapalı':'w_e_window','Klanın zaten bir toplu saldırı hazırlıyor':'w_e_rally1','Toplu saldırı kapandı':'w_e_rclosed','Zaten katıldın':'w_e_joined','Toplu saldırı dolu':'w_e_rfull','Yalnızca klan lideri':'w_e_lead','Klanın zaten bir kalesi var':'w_e_hasfort','Kasabana çok uzak':'w_e_far','Konum dolu':'w_e_taken','Kale yok':'w_e_nofort','En üst seviye':'w_e_max','Garnizonda birliğin yok':'w_e_nogar','Kale sağlam':'w_e_intact','Sefer sürerken kalkan açılamaz':'w_e_shmarch','Hedef yok':'w_e_notgt','Geçersiz konum':'w_e_taken','Bu kamp zaten temizlendi':'w_e_cleared','Sefer sürerken taşınamazsın':'w_e_shmarch'});
 let AR=null,FT=null,WR=[],WS={},fTimer=0,fPoll=0;const WSC={};
-const WTY=['tayfa','zipkin','topcu'],WTIC={tayfa:'🎖️',zipkin:'🔱',topcu:'💣'},WBEAT={tayfa:'zipkin',zipkin:'topcu',topcu:'tayfa'},WRIC={wood:'🪵',fish:'🌾',crys:'🔮'};
+const WTY=['tayfa','zipkin','topcu'],WTIC={tayfa:'🎖️',zipkin:'🎯',topcu:'💣'},WBEAT={tayfa:'zipkin',zipkin:'topcu',topcu:'tayfa'},WRIC={wood:'🪵',fish:'🌾',crys:'🔮'};
 const tyN=t=>T('w_ty_'+t),fmtR=o=>Object.entries(o||{}).filter(([,n])=>+n).map(([k,n])=>G.fmt(+n)+(WRIC[k]||'')).join(' '),trStr=o=>WTY.map(t=>WTIC[t]+' '+G.fmt(Math.floor(+(o?.[t]||0)))).join(' ');
 function wAdopt(r){if(!r)return;const S=G.S;if(r.rev!=null){rev=r.rev;localStorage.setItem('sf_rev',rev)}if(r.saved!=null)localStorage.setItem('sf_ssv',r.saved);if(r.res)for(const k in r.res)if(k in S.res)S.res[k]=+r.res[k];if(r.troops)for(const k in r.troops)if(k in S.troops)S.troops[k]=+r.troops[k];if(r.gems!=null)S.gems=+r.gems;G.save();G.ui()}
 // --- Ordu ---
@@ -627,8 +627,8 @@ OA.fGar=()=>openSend('gar',null,'🏯 '+T('f_t'));
 OA.fJoin=v=>openSend('join',v,'🚩 '+T('w_rally'));
 OA.fPlace=async v=>{if(!W.conf){W.conf=2;return rerender()}W.conf=0;const[x,y]=v.split(',').map(Number);try{FT=await rpc('fort_place',{p_x:x,p_y:y});G.toast('🏯 '+T('f_placed'));await wLoad();rerender()}catch(e){err(e)}};
 async function wExtra(){try{W.x=await rpc('world_extra',{p_x:W.vx,p_y:W.vy,p_w:WV,p_h:WV});wEmit('extra',W.x)}catch(e){}}
-// --- Son Fener Kalesi: şehir (sunucu kilitli) — görseller sanat akışında: __online.city / __online.army.lines ---
-const CB=['kale','kisla','zkule','dokum','tezgah','revir','akademi','sur','ambar'],CIC={kale:'🏰',kisla:'⚔️',zkule:'🔱',dokum:'💣',tezgah:'🐎',revir:'🏥',akademi:'📜',sur:'🧱',ambar:'🏦'};
+// --- Starfort Kalesi: şehir (sunucu kilitli) — görseller sanat akışında: __online.city / __online.army.lines ---
+const CB=['kale','kisla','zkule','dokum','tezgah','revir','akademi','sur','ambar'],CIC={kale:'🏰',kisla:'⚔️',zkule:'🎯',dokum:'💣',tezgah:'🐎',revir:'🏥',akademi:'📜',sur:'🧱',ambar:'🏦'};
 let CT=null,CTt=0;const cL=new Set();const cEmit=()=>{for(const f of cL)try{f(CT)}catch(e){}};
 async function citySync(){if(!PY)paySync().catch(()=>{});CT=await rpc('city_info');CT.list.sort((x,y)=>CB.indexOf(x.key)-CB.indexOf(y.key));CTt=Date.now()-new Date(CT.now).getTime();cEmit();return CT}
 const cNow=()=>Date.now()-CTt,cLeft=u=>Math.max(0,Math.ceil((new Date(u).getTime()-cNow())/1e3));

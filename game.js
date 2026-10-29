@@ -1,4 +1,4 @@
-// ===== Son Fener — görüntü + arayüz katmanı. Kurallar logic.js'te (saf). Durum: tek nesne S.
+// ===== Starfort — görüntü + arayüz katmanı. Kurallar logic.js'te (saf). Durum: tek nesne S.
 import * as THREE from './lib/three.module.js';
 import * as L from './logic.js';
 import {t as tx,tl,lang,LANGS,setLang,localizeData,applyDom,locale,RTL} from './i18n.js';
