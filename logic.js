@@ -119,7 +119,7 @@ export function reefFight(S,now,rng){if(!reefOpen(S))return{err:'locked'};const 
  let rw=null;if(res.win){rw={...REEF.st[i].rw};const u=rw.ush||0;delete rw.ush;addRes(S,rw);if(u){S.ush=(S.ush||0)+u;rw.ush=u}S.reef={n:i+1};S.st.wins++;dailyInc(S,'battle',1,now);addXP(S,REEF.st[i].boss?80:30)}return{res,rw,lost,i,boss:!!REEF.st[i].boss}}
 // ---------- bölümler + hikâye + görevler ----------
 export const CHAPTERS=[
- {n:'İlk Işık',say:['Uyan evlat! Duman bu gece yine geldi. Ben Hisarcı Yusuf — kırk yıldır bu hisarı yakarım.','Hisarı yak, kristal çıkar, insanları doyur. Işık sönerse duman her şeyi yutar.']},
+ {n:'İlk Işık',say:['Uyan evlat! Duman bu gece yine geldi. Ben Hisarcı Yusuf — kırk yıldır bu hisarı yakarım.','Kale sancağını dik, kristal çıkar, halkını doyur. Surlar düşerse duman her şeyi yutar.']},
  {n:'Talimhane',say:['Kasaba nefes alıyor. Ama ufuktaki kasabalarda hâlâ insanlar dumana hapsolmuş.','Bir talimhane kur, mızrakçı eğit. Komutanlar ışığın peşinden gelir — onları çağır.']},
  {n:'Gözlemevi',say:['Eski gözlemevi planlarını buldum! Yıldızlar dumanın sırrını saklıyor olabilir.','Araştırma ağacını büyüt: ekonomi, hisar ve donanma. Her dal bir yol.']},
  {n:'Yeni Ufuklar',say:['Kızıl Tepe dumandan kurtuldu ve sahipsiz. Bereketli topraklar orada!','Kendi kasaban gibi kur, birleştir, büyüt. Bir de… derinlerden bir Zorba sesi geliyor.']},
@@ -133,7 +133,7 @@ const heroMaxStar=S=>Math.max(0,...Object.values(S.heroes).map(h=>h.star));
 const islB=(S,id)=>Object.keys(gridOf(S,id)).length;
 export const QUESTS=[
  // 1
- {c:0,go:'fener',t:'Hisarı yak',f:S=>S.fener.on?1:0,n:1,r:{wood:60,gems:5}},
+ {c:0,go:'fener',t:'Kale sancağını dik',f:S=>S.tut>=5?1:0,n:1,r:{wood:60,gems:5}},
  {c:0,go:'b:mine',t:'Madene 2 işçi ata',f:S=>mx(S,'mine'),n:2,r:{fish:60,gems:5}},
  {c:0,go:'collect',t:'Kaynak topla',f:S=>S.st.collect,n:1,r:{wood:80,gems:5}},
  {c:0,go:'merge',t:'2 binayı birleştir',f:S=>S.st.merge,n:1,r:{crys:40,gems:10}},
@@ -237,7 +237,7 @@ export function migrate(S,now){
  S.cur=S.cur||'home';S.isl=S.isl||{};if(!S.isl.home)S.isl.home={own:1,lv:1,g:null};
  S.gear=S.gear||{cannon:0,plate:0,sail:0};S.pity=S.pity||0;S.pity2=S.pity2||0;S.selTok=S.selTok||0;S.tickets=S.tickets||0;
  S.boss=S.boss||{w:-1,dmg:0,day:'',n:0,ref:0};S.login=S.login||{n:0,last:'',total:0};
- S.pass=S.pass||{xp:0,prem:0,cl:{f:{},p:{}}};S.ach=S.ach||{};S.seen=S.seen||{};
+ S.pass=S.pass||{xp:0,prem:0,cl:{f:{},p:{}}};if(!S.fener.flag){S.fener.flag=1;S.fener.on=true}S.ach=S.ach||{};S.seen=S.seen||{};
  S.set={snd:1,mus:1,vib:1,lang:'tr',...S.set};for(const id in S.heroes)S.heroes[id].lv=S.heroes[id].lv||1;
  fixWorkers(S);return S}
 export const day=now=>new Date(now).toISOString().slice(0,10);
@@ -264,7 +264,7 @@ export const night=(S,now)=>S.tut>=9&&nt(S,now)%NIGHT_EVERY>NIGHT_EVERY-NIGHT_LE
 export const nightIn=(S,now)=>{const t=nt(S,now)%NIGHT_EVERY;return night(S,now)?-(NIGHT_EVERY-t):NIGHT_EVERY-NIGHT_LEN-t};
 export const nightPhase=(S,now)=>S.tut<9?0:(nt(S,now)%NIGHT_EVERY)/NIGHT_EVERY; // 0..1, son NIGHT_LEN kısmı gece
 export const nightNeed=S=>Math.max(1,Math.round(12*S.fener.lv*(1-T_(S,'ward')*.08)*(1-Math.min(.4,skill(S,'night')))));
-export const lit=S=>S.fener.on&&S.res.crys>0;
+export const lit=S=>S.fener.on!==false;
 export const crysUse=S=>S.fener.on?(.8+S.fener.lv*.5)*(1-T_(S,'lens')*.1):0; // /dk
 export const fishUse=S=>S.surv*.5;
 export function rate(S,k,id=S.cur){const g=gridOf(S,id),b=g[k];if(!b||!KINDS[b.k].res||b.fog)return 0;const r=KINDS[b.k].res;
@@ -376,7 +376,7 @@ export const achReady=S=>ACH.filter(a=>!S.ach[a.id]&&a.f(S)>=a.n);
 export function claimAch(S,id){const a=ACH.find(x=>x.id===id);if(!a||S.ach[id]||a.f(S)<a.n)return'Hazır değil';S.ach[id]=1;S.gems+=a.g;return null}
 // Zaman adımı: olay listesi döndürür (UI tepki verir).
 export function step(S,dt,now,rng=Math.random){const ev=[];const m=dt/60;
- if(S.fener.on){S.res.crys=Math.max(0,S.res.crys-crysUse(S)*m);if(S.res.crys<=0){S.fener.on=false;ev.push({e:'dark'})}}
+ if(S.fener.on){S.res.crys=Math.max(0,S.res.crys-crysUse(S)*m);}
  S.res.fish=Math.max(0,S.res.fish-fishUse(S)*m);
  if(S.fener.end&&now>=S.fener.end){S.fener.end=0;S.fener.lv++;ev.push({e:'fener',lv:S.fener.lv})}
  const auto=vipLv(S)>=6;
