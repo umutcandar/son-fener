@@ -1457,7 +1457,7 @@
  "o.z_t": "Deniz Bölgeleri",
  "o.z_cta": "Bölge seç, nüfuz topla, Vali seç",
  "o.z_help": "Klan lideri bir ana bölge seçer. Nüfuz, bu haftaki Deniz Yılanı hasarı ve üye sayısından sunucuda hesaplanır. Lider ve subaylar oy verir; oy ağırlığı klan nüfuzunun kareköküdür.",
- "o.z_rules": "Seçim her pazartesi 00:00 (UTC+3) kapanır. Bir klan aynı bölgede üst üste en fazla 2 hafta Vali olabilir. Vali unvanı şimdilik yalnızca görseldir; satın alınamaz.",
+ "o.z_rules": "Seçim her pazartesi 00:00 (UTC+3) kapanır. Bir klan aynı bölgede üst üste en fazla 2 hafta Vali olabilir. Vali klanı üyeleri +%5 üretim (sınırlı) ve 👑 rozeti alır; satın alınamaz.",
  "o.z_kuzey": "Kuzey Akıntısı",
  "o.z_mercan": "Mercan Sığlığı",
  "o.z_sis": "Sis Körfezi",
@@ -1482,5 +1482,12 @@
  "o.srv_zfirst": "Önce ana bölge seçilmeli",
  "o.srv_zcand": "Aday bu bölgede değil",
  "o.srv_z3": "Bu klan üst üste 3. kez Vali olamaz",
- "o.srv_noclan": "Önce bir klana katıl"
+ "o.srv_noclan": "Önce bir klana katıl",
+ "ui.need_online": "Kaptan çağırmak için bağlantı gerekli",
+ "o.gov_badge": "Vali klanı",
+ "o.gov_of": "{0} Valisi",
+ "mail.gov_win_t": "Klanın Vali seçildi!",
+ "mail.gov_win": "Klanın bu hafta {0} Valisi. Üyeler +%5 üretim kazanır. Ödülünü al.",
+ "mail.gov_lost_t": "Seçim sonucu",
+ "mail.gov_lost": "{0} bölgesinde Vali [{1}] oldu. Gelecek hafta tekrar dene!"
 }

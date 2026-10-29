@@ -1457,7 +1457,7 @@
  "o.z_t": "Zonas marítimas",
  "o.z_cta": "Elige zona, gana influencia, elige Gobernador",
  "o.z_help": "El líder elige una zona base. La influencia se calcula en el servidor con el daño a la Serpiente de esta semana y los miembros. Líderes y oficiales votan; el peso es la raíz cuadrada de la influencia del clan.",
- "o.z_rules": "Las elecciones cierran cada lunes a las 00:00 (UTC+3). Un clan puede gobernar la misma zona como máximo 2 semanas seguidas. El título es cosmético por ahora y no se puede comprar.",
+ "o.z_rules": "Las elecciones cierran cada lunes a las 00:00 (UTC+3). Un clan puede gobernar la misma zona como máximo 2 semanas seguidas. Los miembros del clan Gobernador obtienen +5 % de producción (limitado) y una insignia 👑; no se puede comprar.",
  "o.z_kuzey": "Corriente del Norte",
  "o.z_mercan": "Bajíos de coral",
  "o.z_sis": "Bahía de la Niebla",
@@ -1482,5 +1482,12 @@
  "o.srv_zfirst": "Elige primero una zona base",
  "o.srv_zcand": "Ese clan no está en esta zona",
  "o.srv_z3": "Ese clan no puede gobernar 3 semanas seguidas",
- "o.srv_noclan": "Únete primero a un clan"
+ "o.srv_noclan": "Únete primero a un clan",
+ "ui.need_online": "Invocar requiere conexión",
+ "o.gov_badge": "Clan Gobernador",
+ "o.gov_of": "Gobernador de {0}",
+ "mail.gov_win_t": "¡Tu clan es Gobernador!",
+ "mail.gov_win": "Tu clan gobierna {0} esta semana. Los miembros obtienen +5 % de producción. Reclama tu recompensa.",
+ "mail.gov_lost_t": "Resultado de la elección",
+ "mail.gov_lost": "[{1}] es ahora Gobernador de {0}. ¡Inténtalo la próxima semana!"
 }

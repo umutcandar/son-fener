@@ -1457,7 +1457,7 @@
  "o.z_t": "Zona Laut",
  "o.z_cta": "Pilih zona, kumpulkan pengaruh, pilih Gubernur",
  "o.z_help": "Pemimpin klan memilih zona asal. Pengaruh dihitung di server dari damage Ular minggu ini dan jumlah anggota. Pemimpin dan perwira memilih; bobot suara adalah akar kuadrat pengaruh klan.",
- "o.z_rules": "Pemilihan ditutup setiap Senin 00:00 (UTC+3). Klan bisa menjadi Gubernur zona yang sama maksimal 2 minggu berturut-turut. Gelar ini untuk sementara kosmetik dan tidak bisa dibeli.",
+ "o.z_rules": "Pemilihan ditutup setiap Senin 00:00 (UTC+3). Klan bisa jadi Gubernur zona yang sama paling lama 2 minggu berturut-turut. Anggota klan Gubernur dapat +5% produksi (terbatas) dan lencana 👑; tidak bisa dibeli.",
  "o.z_kuzey": "Arus Utara",
  "o.z_mercan": "Dangkalan Karang",
  "o.z_sis": "Teluk Kabut",
@@ -1482,5 +1482,12 @@
  "o.srv_zfirst": "Pilih zona asal dulu",
  "o.srv_zcand": "Klan itu tidak di zona ini",
  "o.srv_z3": "Klan itu tidak bisa memerintah 3 minggu berturut-turut",
- "o.srv_noclan": "Gabung klan dulu"
+ "o.srv_noclan": "Gabung klan dulu",
+ "ui.need_online": "Memanggil butuh koneksi",
+ "o.gov_badge": "Klan Gubernur",
+ "o.gov_of": "Gubernur {0}",
+ "mail.gov_win_t": "Klanmu jadi Gubernur!",
+ "mail.gov_win": "Klanmu memerintah {0} minggu ini. Anggota dapat +5% produksi. Klaim hadiahmu.",
+ "mail.gov_lost_t": "Hasil pemilihan",
+ "mail.gov_lost": "[{1}] menjadi Gubernur {0}. Coba lagi minggu depan!"
 }

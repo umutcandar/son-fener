@@ -1457,7 +1457,7 @@
  "o.z_t": "Sea Zones",
  "o.z_cta": "Pick a zone, earn influence, elect a Governor",
  "o.z_help": "Your clan leader picks a home zone. Influence is computed on the server from this week's Serpent damage and member count. Leaders and officers vote; vote weight is the square root of the clan's influence.",
- "o.z_rules": "Elections close every Monday 00:00 (UTC+3). A clan can be Governor of the same zone at most 2 weeks in a row. The Governor title is cosmetic for now and can't be bought.",
+ "o.z_rules": "Elections close every Monday 00:00 (UTC+3). A clan can be Governor of the same zone at most 2 weeks in a row. Governor clan members get +5% production (capped) and a 👑 badge; it can't be bought.",
  "o.z_kuzey": "North Current",
  "o.z_mercan": "Coral Shallows",
  "o.z_sis": "Fog Bay",
@@ -1482,5 +1482,12 @@
  "o.srv_zfirst": "Pick a home zone first",
  "o.srv_zcand": "That clan isn't in this zone",
  "o.srv_z3": "That clan can't govern a 3rd week in a row",
- "o.srv_noclan": "Join a clan first"
+ "o.srv_noclan": "Join a clan first",
+ "ui.need_online": "Summoning needs a connection",
+ "o.gov_badge": "Governor clan",
+ "o.gov_of": "Governor of {0}",
+ "mail.gov_win_t": "Your clan is Governor!",
+ "mail.gov_win": "Your clan governs {0} this week. Members get +5% production. Claim your reward.",
+ "mail.gov_lost_t": "Election result",
+ "mail.gov_lost": "[{1}] became Governor of {0}. Try again next week!"
 }

@@ -1457,7 +1457,7 @@
  "o.z_t": "Zones maritimes",
  "o.z_cta": "Choisis une zone, gagne de l'influence, élis un gouverneur",
  "o.z_help": "Le chef de clan choisit une zone. L'influence est calculée sur le serveur à partir des dégâts au Serpent de la semaine et du nombre de membres. Chefs et officiers votent ; le poids est la racine carrée de l'influence du clan.",
- "o.z_rules": "Les élections se terminent chaque lundi à 00:00 (UTC+3). Un clan peut être gouverneur d'une même zone 2 semaines d'affilée au plus. Le titre est pour l'instant cosmétique et ne s'achète pas.",
+ "o.z_rules": "Les élections se terminent chaque lundi à 00:00 (UTC+3). Un clan peut gouverner la même zone 2 semaines d'affilée au maximum. Les membres du clan gouverneur gagnent +5 % de production (plafonné) et un badge 👑 ; non achetable.",
  "o.z_kuzey": "Courant du Nord",
  "o.z_mercan": "Hauts-fonds coralliens",
  "o.z_sis": "Baie des Brumes",
@@ -1482,5 +1482,12 @@
  "o.srv_zfirst": "Choisis d'abord une zone",
  "o.srv_zcand": "Ce clan n'est pas dans cette zone",
  "o.srv_z3": "Ce clan ne peut pas gouverner 3 semaines d'affilée",
- "o.srv_noclan": "Rejoins d'abord un clan"
+ "o.srv_noclan": "Rejoins d'abord un clan",
+ "ui.need_online": "L'invocation nécessite une connexion",
+ "o.gov_badge": "Clan gouverneur",
+ "o.gov_of": "Gouverneur de {0}",
+ "mail.gov_win_t": "Ton clan est gouverneur !",
+ "mail.gov_win": "Ton clan gouverne {0} cette semaine. Les membres gagnent +5 % de production. Récupère ta récompense.",
+ "mail.gov_lost_t": "Résultat de l'élection",
+ "mail.gov_lost": "[{1}] est devenu gouverneur de {0}. Retente la semaine prochaine !"
 }

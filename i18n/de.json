@@ -1457,7 +1457,7 @@
  "o.z_t": "Meereszonen",
  "o.z_cta": "Zone wählen, Einfluss sammeln, Gouverneur wählen",
  "o.z_help": "Der Clanführer wählt eine Heimatzone. Einfluss wird auf dem Server aus dem Schlangenschaden dieser Woche und der Mitgliederzahl berechnet. Anführer und Offiziere stimmen ab; das Gewicht ist die Wurzel des Clan-Einflusses.",
- "o.z_rules": "Wahlen enden jeden Montag 00:00 (UTC+3). Ein Clan kann höchstens 2 Wochen in Folge Gouverneur derselben Zone sein. Der Titel ist vorerst kosmetisch und nicht käuflich.",
+ "o.z_rules": "Wahlen enden jeden Montag 00:00 (UTC+3). Ein Clan kann dieselbe Zone höchstens 2 Wochen in Folge regieren. Mitglieder des Gouverneursclans erhalten +5 % Produktion (begrenzt) und ein 👑-Abzeichen; nicht käuflich.",
  "o.z_kuzey": "Nordströmung",
  "o.z_mercan": "Korallenuntiefe",
  "o.z_sis": "Nebelbucht",
@@ -1482,5 +1482,12 @@
  "o.srv_zfirst": "Zuerst eine Heimatzone wählen",
  "o.srv_zcand": "Clan ist nicht in dieser Zone",
  "o.srv_z3": "Clan kann nicht 3 Wochen in Folge regieren",
- "o.srv_noclan": "Tritt zuerst einem Clan bei"
+ "o.srv_noclan": "Tritt zuerst einem Clan bei",
+ "ui.need_online": "Beschwören braucht eine Verbindung",
+ "o.gov_badge": "Gouverneursclan",
+ "o.gov_of": "Gouverneur von {0}",
+ "mail.gov_win_t": "Dein Clan ist Gouverneur!",
+ "mail.gov_win": "Dein Clan regiert diese Woche {0}. Mitglieder erhalten +5 % Produktion. Hol dir deine Belohnung.",
+ "mail.gov_lost_t": "Wahlergebnis",
+ "mail.gov_lost": "[{1}] wurde Gouverneur von {0}. Nächste Woche neuer Versuch!"
 }
