@@ -157,13 +157,21 @@ let fenerG=null,fenerSig='';const beam=new THREE.Group();scene.add(beam);
  for(const r of[0,Math.PI]){const m=new THREE.Mesh(bg,bm);m.rotation.y=r;m.rotation.z=r?.0:0;beam.add(m)}beam.children.forEach(m=>m.rotateZ(-.08))}
 const glowTex=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d');const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,230,140,1)');g.addColorStop(.3,'rgba(255,200,90,.5)');g.addColorStop(1,'rgba(255,180,60,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(cv)})();
 const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));scene.add(halo);
-function syncFener(){const sig=S.fener.lv+'|'+(S.fener.end?1:0);if(sig===fenerSig)return fenerG;fenerSig=sig;if(fenerG){scene.remove(fenerG);disposeObj(fenerG)}fenerG=new THREE.Group();mkFener(fenerG,S.fener.lv);if(S.fener.end)mkScaf(fenerG);scene.add(fenerG);
+function syncFener(){const sig=S.fener.lv+'|'+(S.fener.end?1:0);if(sig===fenerSig)return fenerG;fenerSig=sig;if(fenerG){scene.remove(fenerG);disposeObj(fenerG)}fenerG=new THREE.Group();mkFener(fenerG,S.fener.lv);mergeStatic(fenerG);if(S.fener.end)mkScaf(fenerG);scene.add(fenerG);
  const y=fenerG.userData.lampY;beam.position.y=y;lamp.position.set(0,y,0);halo.position.set(0,y,0);return fenerG}
 // bina senkronu
 const meshes=new Map();
+// Statik parçaları malzemeye göre tek geometride birleştir (animasyonlu, userData ile referans verilen parçalar hariç) → bina başına çok daha az çizim çağrısı
+function mergeStatic(root){const keep=new Set();root.traverse(o=>{for(const v of Object.values(o.userData||{})){(Array.isArray(v)?v:[v]).forEach(x=>{if(x&&x.isObject3D)x.traverse(y=>keep.add(y))})}});
+ root.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(root.matrixWorld).invert(),bk=new Map(),m4=new THREE.Matrix4();
+ root.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||keep.has(o)||!o.visible||Array.isArray(o.material)||o.parent!==root&&keep.has(o.parent))return;const k=o.material.uuid+'|'+o.castShadow+'|'+o.receiveShadow;if(!bk.has(k))bk.set(k,[]);bk.get(k).push(o)});
+ for(const arr of bk.values()){if(arr.length<2)continue;let nV=0;const gs=arr.map(o=>{const g=(o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone());g.applyMatrix4(m4.multiplyMatrices(inv,o.matrixWorld));nV+=g.attributes.position.count;return g});
+  if(!gs.every(g=>g.attributes.normal))continue;const pos=new Float32Array(nV*3),nor=new Float32Array(nV*3);let off=0;for(const g of gs){pos.set(g.attributes.position.array,off*3);nor.set(g.attributes.normal.array,off*3);off+=g.attributes.position.count;g.dispose()}
+  const mg=new THREE.BufferGeometry();mg.setAttribute('position',new THREE.BufferAttribute(pos,3));mg.setAttribute('normal',new THREE.BufferAttribute(nor,3));mg.computeBoundingSphere();
+  const mm=new THREE.Mesh(mg,arr[0].material);mm.castShadow=arr[0].castShadow;mm.receiveShadow=arr[0].receiveShadow;arr.forEach(o=>o.parent.remove(o));root.add(mm)}}
 function syncOne(k){const b=S.g[k];const cur=meshes.get(k);if(!b){if(cur){scene.remove(cur.g);disposeObj(cur.g);meshes.delete(k)}return null}
  const sig=`${b.k}|${b.lv}|${b.end?1:0}|${b.fog?1:0}`;if(cur&&cur.sig===sig)return cur.g;if(cur){scene.remove(cur.g);disposeObj(cur.g)}
- const g=new THREE.Group();g.position.copy(tpos(k));const inner=new THREE.Group();inner.scale.setScalar(.8+Math.min(b.lv,8)*.05);g.add(inner);MK[b.k](inner,b.lv);deco(inner,b.lv);if(b.end)mkScaf(g);
+ const g=new THREE.Group();g.position.copy(tpos(k));const inner=new THREE.Group();inner.scale.setScalar(.8+Math.min(b.lv,8)*.05);g.add(inner);MK[b.k](inner,b.lv);deco(inner,b.lv);mergeStatic(inner);if(b.end)mkScaf(g);
  const bd=sprite(String(b.lv),'#1f6f8b',.3,true,'#ffe08a');bd.position.set(.5,.15,.5);g.add(bd);
  if(b.fog){const f=new THREE.Mesh(G.sph,new THREE.MeshBasicMaterial({color:0x6a4a8a,transparent:true,opacity:.45,depthWrite:false}));f.scale.set(1.3,1,1.3);f.position.y=.4;g.add(f);const gh=sprite('👻','#4a2a6acc',.45,false,'#b98cff');gh.position.y=1.2;g.add(gh);g.userData.gh=gh}
  if(KINDS[b.k].res&&!b.fog){const bub=new THREE.Sprite(new THREE.SpriteMaterial({map:bubTex(KINDS[b.k].res),depthTest:false}));bub.scale.set(.36,.36,1);bub.renderOrder=10;bub.position.y=1.3;bub.visible=false;g.add(bub);g.userData.bub=bub}
@@ -189,6 +197,7 @@ const gulls=[];for(let i=0;i<7;i++){const g=new THREE.Group();P(g,'sph',0xffffff
 const islDeco=new THREE.Group();scene.add(islDeco);
 function buildIslDeco(id){islDeco.clear();window.__palms.forEach(m=>m.visible=id!=='volkan');
  if(id==='mercan')for(let k=0;k<26;k++){const a=k/26*6.28+rnd(k)*.2,r=7.9+rnd(k+3)*1.2;P(islDeco,k%3?'dod':'ico',[0xff7f7f,0xffa06b,0xff6fae,0xffd06b][k%4],.3+rnd(k)*.3,.3+rnd(k+1)*.4,.3,Math.cos(a)*r,-.35,Math.sin(a)*r,a)}
+const _bID=buildIslDeco;buildIslDeco=function(id){_bID(id);mergeStatic(islDeco)};
  if(id==='volkan'){const v=new THREE.Mesh(new THREE.ConeGeometry(4,4.5,9,1,true),mat(0x4a403c));v.position.set(-9,1,-9);islDeco.add(v);P(islDeco,'cyl',0xff6a2a,1.2,.2,1.2,-9,3.2,-9,0,0,0,false,1);
   for(let k=0;k<5;k++){const sm=new THREE.Sprite(new THREE.SpriteMaterial({map:fogTex,transparent:true,depthWrite:false,opacity:.6,color:0x555555}));sm.position.set(-9+k*.3,4+k*1.1,-9-k*.2);sm.scale.set(2+k,1.5+k*.6,1);islDeco.add(sm)}
   for(let k=0;k<16;k++){const a=k/16*6.28,r=6.6+rnd(k)*1.2;P(islDeco,'dod',0x3a3432,.4+rnd(k)*.4,.35+rnd(k)*.5,.4,Math.cos(a)*r,-.1,Math.sin(a)*r)}}}
