@@ -196,6 +196,26 @@ body.fadeIn #app,body.fadeIn canvas{animation:gIn .7s ease both}@keyframes gIn{f
 .stars{display:flex;justify-content:center;gap:6px;margin:-4px 0 4px}.stars b{font-size:40px;color:#3a3a46;text-shadow:0 2px 0 #0008}.stars b.on{color:#ffd84a;text-shadow:0 0 12px #ffb347,0 2px 0 #a8782a;animation:stp .45s backwards cubic-bezier(.3,1.8,.5,1)}@keyframes stp{from{transform:scale(0) rotate(-90deg)}}
 @media (prefers-reduced-motion:reduce){.stars b.on{animation:none}}
 .card img[src*="img/f_"]{border-radius:10px;border:3px solid #c8935a;outline:2px solid #3b2410;box-shadow:0 3px 6px #0008;background:#14304a;object-fit:cover!important}
+
+/* v10: framed HUD + rarity portrait frames + upgrade banner */
+.pill{background:linear-gradient(#5a3a1e,#3b2410);border:2px solid #c8935a;border-radius:10px;box-shadow:inset 0 1px 0 #ffd9a055,inset 0 -2px 0 #0005,0 0 0 1px #2a1606,0 3px 8px #0007;position:relative;padding:3px 10px 3px 5px}
+.pill::before,.pill::after{content:'';position:absolute;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f3f6fa,#7c8794);box-shadow:0 0 1px #000}
+.pill::before{left:-4px}.pill::after{right:-4px}
+.pill img.ri{filter:drop-shadow(0 1px 1px #000)}
+#prof{background:linear-gradient(90deg,#3b2410f0,#3b241000);border:2px solid #c8935a;border-right:0}
+#prof .av{border:3px solid #ffd27a;box-shadow:0 0 0 2px #5a3a1e,0 2px 6px #0008}
+.port{border:3px solid #9aa6b4;border-radius:10px;box-shadow:0 0 0 2px #1a2230,0 3px 8px #0007,inset 0 0 0 1px #fff6}
+.port img{border-radius:6px}
+.port::after{content:'';position:absolute;inset:-3px;border-radius:10px;pointer-events:none;box-shadow:inset 0 0 0 1px #0006}
+.port.r1{border-color:#6fc3ff;box-shadow:0 0 0 2px #0e3a66,0 0 8px #3fa7e088,0 3px 8px #0007}
+.port.r2{border-color:#c99bff;box-shadow:0 0 0 2px #3a1a6e,0 0 10px #a77cf5aa,0 3px 8px #0007}
+.port.r3{border-color:#ffd76b;box-shadow:0 0 0 2px #6a3e0a,0 0 12px #ffcf3acc,0 3px 8px #0007}
+.port.r3::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:14px;height:9px;background:linear-gradient(#fff3b0,#e0a020);clip-path:polygon(0 100%,15% 20%,35% 70%,50% 0,65% 70%,85% 20%,100% 100%);filter:drop-shadow(0 1px 1px #000)}
+.dban{position:absolute;transform:translate(-50%,-50%);pointer-events:none;z-index:6;animation:dban 2.3s ease-out forwards;white-space:nowrap}
+.dban b{display:block;background:linear-gradient(#ffcf5a,#e08a1e);color:#3b1a00;font-weight:900;font-size:15px;padding:6px 18px;border:2px solid #fff3c0;border-radius:6px;box-shadow:0 0 0 2px #6a3e0a,0 4px 14px #000a;clip-path:polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%)}
+@keyframes dban{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}20%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-90%)}100%{opacity:0;transform:translate(-50%,-110%)}}
+@media (prefers-reduced-motion:reduce){.dban{animation:none;opacity:1}}
+#battle .hl.tick{animation:tick .35s ease-out}@keyframes tick{0%{transform:scale(1.15);color:#ffd84a}100%{transform:none}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud">

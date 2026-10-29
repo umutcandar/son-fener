@@ -193,7 +193,13 @@ function mkFener(g,lv){const t=TIER(lv),st=STONE[t],tr=t===2?0xe8b64a:0x6b4426;
 function mkScaf(g){const s=new THREE.Group();for(const a of[-1,1])for(const b of[-1,1])P(s,'cyl',0xc08a4a,.045,1.15,.045,a*.46,.57,b*.46);
  for(const y of[.38,.78])for(const a of[-1,1]){P(s,'box',0xc08a4a,.94,.035,.035,0,y,a*.46);P(s,'box',0xc08a4a,.035,.035,.94,a*.46,y,0)}
  P(s,'box',0xd9b27a,.94,.03,.2,0,.8,.48);for(const a of[-1,1])P(s,'box',0xa8733e,.03,.03,1.0,a*.47,.58,0,0,.42*a);P(s,'box',0xf4d03f,.9,.05,.02,0,1.0,.47);P(s,'box',0x333333,.9,.05,.02,0,.95,.47);
- crate(s,.55,.55,.14);crate(s,.58,.36,.12);P(s,'box',0x9a9286,.16,.08,.1,-.6,.04,.5);mergeStatic(s);g.add(s)}
+ crate(s,.55,.55,.14);crate(s,.58,.36,.12);P(s,'box',0x9a9286,.16,.08,.1,-.6,.04,.5);
+ const arms=[];for(const[wx,wy,wz,c,ph]of[[-.22,.82,.5,0x3f7fc0,0],[.6,.04,.12,0xc04a3a,1.6]]){P(s,'box',c,.09,.15,.07,wx,wy+.09,wz);P(s,'sph',0xf0c8a0,.085,.085,.085,wx,wy+.22,wz);P(s,'box',0xf4d03f,.1,.035,.1,wx,wy+.28,wz,0,0,0,false);
+  const a=new THREE.Group();a.position.set(wx+.06,wy+.15,wz+.03);P(a,'box',0x7a5030,.025,.16,.025,0,.08,0,0,0,0,false);P(a,'box',0x555b66,.07,.04,.04,0,.16,0,0,0,0,false);a.userData.ph=ph;s.add(a);arms.push(a)}
+ for(const a of arms)s.remove(a);mergeStatic(s);for(const a of arms)s.add(a);g.add(s);g.userData.ham=arms}
+function hamUpd(T){if(HRM)return;for(const[,o]of meshes){const h=o.g.userData.ham;if(!h||!o.g.visible)continue;for(const a of h){const k=(T*2.6+a.userData.ph)%1;a.rotation.x=k<.25?-1.3*k/.25:-1.3*(1-(k-.25)/.75)}}}
+const HRM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function doneBanner(k,t){const p=tileScr(k,1.5),d=document.createElement('div');d.className='dban';d.innerHTML='<b>🏗️ '+t+'</b>';d.style.left=p.x+'px';d.style.top=p.y+'px';$('fx').appendChild(d);setTimeout(()=>d.remove(),2300)}
 // taban: arnavut kaldırımı meydan, palisat duvar, kapılar, meşaleler, iskele
 function buildBase(){const B=new THREE.Group();const R=GR*TS+TS/2;
  const pl=new THREE.Mesh((()=>{const sh=new THREE.Shape();for(let i=0;i<=64;i++){const t=i/64*Math.PI*2,c=Math.cos(t),n=Math.sin(t),f=6.15/Math.cbrt(Math.abs(c)**3+Math.abs(n)**3);i?sh.lineTo(c*f,-n*f):sh.moveTo(c*f,-n*f)}return new THREE.ShapeGeometry(sh).rotateX(-Math.PI/2)})(),mat(0xc2b08c));pl.position.y=.055;pl.receiveShadow=true;B.add(pl);
@@ -571,7 +577,7 @@ function bossFight(){const r=L.bossAttack(S,now(),Math.random);if(r.err){resErr(
  const B={n:FOES.kraken.n,img:'kraken'},tm=L.team(S),hits=[.15,.2,.25,.4],eMax=Math.max(1,r.dmg*2.5);let e=eMax;const rounds=hits.map(h=>{const d1=Math.round(r.dmg*h);e=Math.max(0,e-d1);return{d1,d2:0,hp:1,eHp:e}});
  bt.innerHTML=bsHtml(tx('ui.kraken_avi'),B,tx('ui.toplam_hasar',[fmt(S.boss.dmg-r.dmg)]),tm);bt.classList.remove('reefB');bt.classList.add('on');SFX.boss();cam.shake=.2;
  const icons=Object.entries(S.troops).flatMap(([t,n])=>Array(Math.min(4,Math.ceil(n/10))).fill(TROOPS[t].ic));
- battleScene(bt,{win:true,rounds,myMax:1,eMax,boss:1},B,tm,icons,()=>{$('bdmg').textContent=tx('ui.toplam_hasar_2')+fmt(S.boss.dmg);setTimeout(()=>{ui();save();modal(`<img src="img/f_kraken.webp" style="width:90px"><h2>${fmt(r.dmg)} hasar!</h2><p>${tx('ui.haftalik_toplam')} <b>${fmt(S.boss.dmg)}</b><br>${tx('ui.loot')} ${rwStr(r.rw)}</p>`,[[tx('ui.siralama'),'o',()=>{bt.classList.remove('on');openBoss()}]])},400)})}
+ let acc=S.boss.dmg-r.dmg;const bd=$('bdmg');battleScene(bt,{win:true,rounds,myMax:1,eMax,boss:1,onHit:d=>{acc+=d;bd.textContent=B.n+' · ⚔️ '+tx('ui.toplam_hasar',[fmt(Math.min(acc,S.boss.dmg))]);bd.classList.remove('tick');void bd.offsetWidth;bd.classList.add('tick')}},B,tm,icons,()=>{$('bdmg').textContent=tx('ui.toplam_hasar_2')+fmt(S.boss.dmg);setTimeout(()=>{ui();save();modal(`<img src="img/f_kraken.webp" style="width:90px"><h2>${fmt(r.dmg)} hasar!</h2><p>${tx('ui.haftalik_toplam')} <b>${fmt(S.boss.dmg)}</b><br>${tx('ui.loot')} ${rwStr(r.rw)}</p>`,[[tx('ui.siralama'),'o',()=>{bt.classList.remove('on');openBoss()}]])},400)})}
 function openLogin(auto){const ready=L.loginReady(S,now()),cur=S.login.n%7;modal(`<h2>${tx('ui.7_gunluk_giris')}</h2><p class="sub">${tx('ui.her_gun_gel_odulu')}</p><p class="sub">🔥 ${tx('ui.login_total',[S.login.total])} · ${tx('ui.login_honest')}</p><div class="cal">${L.LOGIN.map((r,i)=>`<div class="${i<cur?'ok':i===cur&&ready?'now':''} ${i===6?'d7':''}">${tx('ui.gun',[i+1])}<br>${rwStr(r)}${i<cur?'<br>✅':''}</div>`).join('')}</div>`,
  ready?[[tx('ui.odulu_al'),'o',()=>{const o=L.claimLogin(S,now());if(o){ui();save();setTimeout(()=>reward(`${tx('ui.gun_odulu',[o.i+1])}`,o.r,{icon:'📅'}),200)}}]]:[[tx('ui.yarin_gel'),'x']])}
 // Batch 30: opt-in local reminders (no push server). Fired by the service worker; scheduled with Notification Triggers where supported, else while the game runs in the background.
@@ -626,7 +632,7 @@ function battleScene(bt,res,B,tm,icons,done){const RM=matchMedia('(prefers-reduc
  const bS=$('bSpd'),bK=$('bSkip');bS.onclick=()=>{spd=spd===1?2:1;bS.textContent='▶ x'+spd};bK.onclick=()=>{skip=true};
  const RD=900;const sp=(px,py,c,n,big)=>{if(RM)return;for(let k=0;k<n;k++){const a=Math.random()*6.28,v=(big?160:90)*(.4+Math.random());P.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,l:.5+Math.random()*.3,c})}};
  const ft=(px,py,t,c)=>F.push({x:px,y:py,t,c,l:1});
- function evt(r,ph){const pB=en[0];if(ph===1){eHp=r.eHp/res.eMax;$('ehp').style.width=eHp*100+'%';SFX.hit();vib(12);sp(pB.x,pB.y+20,'#ffd84a',14,r.d1>res.eMax*.12);ft(pB.x,pB.y-30,'-'+fmt(r.d1),'#ffd84a');shake=RM?0:6;
+ function evt(r,ph){const pB=en[0];if(ph===1){eHp=r.eHp/res.eMax;$('ehp').style.width=eHp*100+'%';if(res.onHit)res.onHit(r.d1);SFX.hit();vib(12);sp(pB.x,pB.y+20,'#ffd84a',14,r.d1>res.eMax*.12);ft(pB.x,pB.y-30,'-'+fmt(r.d1),'#ffd84a');shake=RM?0:6;
    if(hs.length&&(ri===1||ri===Math.min(3,res.rounds.length-1))){const o=hs[(ri===1?0:1)%hs.length];sk={o,l:1};fl=RM?0:1;sp(pB.x,pB.y,'#9be7ff',26,true);SFX.done&&0}}
   if(ph===2){for(const m of en){if(m.t!=='m'||(m.al??1)<.5)continue;const tg=my[Math.floor(Math.random()*my.length)];EP.push({x:m.x,y:m.y,tx:tg.x,ty:tg.y,q:0,kd:m.kd})}}
   if(ph===2&&r.d2){mHp=r.hp/res.myMax;$('mhp').style.width=mHp*100+'%';const u=my[Math.floor(Math.random()*my.length)];sp(u.x,u.y,'#ff6b6b',10);ft(W*.5,H*.72,'-'+fmt(r.d2),'#ff6b6b');shake=RM?0:4}}
@@ -831,9 +837,9 @@ let fN=0;function frame(){if(document.hidden){last=performance.now();setTimeout(
   for(let n=rafts.length-1;n>=0;n--){const r=rafts[n];r.t+=dt/r.dur;r.g.position.lerpVectors(r.from,r.to,E.out(Math.min(1,r.t)));r.g.position.y=-.2+Math.sin(T*2+n)*.06;r.g.rotation.z=Math.sin(T*1.7+n)*.08;if(r.t>=1){scene.remove(r.g);disposeObj(r.g);rafts.splice(n,1);burst(r.to.clone().setY(0),0xffffff,10,1.5,1);syncPeople()}}
  for(const p of people){const u=p.userData;if(!u.t)pickTarget(p);const d=u.t.clone().sub(p.position);d.y=0;const L2=d.length();if(L2<.08){if(Math.random()<.02)pickTarget(p)}else{const v=Math.min(L2,dt*u.sp);p.position.addScaledVector(d.normalize(),v);p.rotation.y=Math.atan2(d.x,d.z);const ph=T*10+u.ph;u.l1.rotation.x=Math.sin(ph)*.6;u.l2.rotation.x=-Math.sin(ph)*.6;p.position.y=Math.abs(Math.sin(ph))*.03}}
  acc+=dt;if(acc>.25){const ev=L.step(S,acc,t);acc=0;handle(ev)}uiAcc+=dt;if(uiAcc>.5){uiAcc=0;ui();if($('sheet').classList.contains('on')&&$('sheet').querySelector('.pbar'))renderSheet()}
- fx7(T,dt,nf,vN,on);updCam();pimUpd();if(QL!=='low'||(++fN&1))renderer.render(scene,camera);labels();tutFrame(T);requestAnimationFrame(frame)}
+ fx7(T,dt,nf,vN,on);hamUpd(T);updCam();pimUpd();if(QL!=='low'||(++fN&1))renderer.render(scene,camera);labels();tutFrame(T);requestAnimationFrame(frame)}
 function handle(evs){for(const e of evs){
- if(e.e==='built'){if(e.isl&&e.isl!==S.cur){toast(`${tx('ui.sv_hazir',[L.ISLANDS[e.isl].n,e.lv])}`);continue}const g=syncOne(e.k);popAnim(g,.6);SFX.done();vib([20,30,20]);burst(tpos(e.k).setY(.6),0xffd84a,16,2.5,1);pillar(tpos(e.k));shock(tpos(e.k),0xffd84a,2);toast(`${tx('ui.sv_hazir_2',[KINDS[S.g[e.k].k].n,e.lv])}`);renderSheet()}
+ if(e.e==='built'){if(e.isl&&e.isl!==S.cur){toast(`${tx('ui.sv_hazir',[L.ISLANDS[e.isl].n,e.lv])}`);continue}const g=syncOne(e.k);popAnim(g,.6);SFX.done();vib([20,30,20]);burst(tpos(e.k).setY(.6),0xffd84a,16,2.5,1);pillar(tpos(e.k));shock(tpos(e.k),0xffd84a,2);{const tt=`${tx('ui.sv_hazir_2',[KINDS[S.g[e.k].k].n,e.lv])}`;toast(tt);doneBanner(e.k,tt)}renderSheet()}
  if(e.e==='fener'){syncFener();popAnim(fenerG,.3);SFX.light();vib([30,40,60]);cam.shake=.25;burst(new THREE.Vector3(0,beam.position.y,0),0xffe08a,30,4,1);pillar(new THREE.Vector3(0,0,0));closeSheet();setTimeout(()=>levelUp(e.lv),500)}
  if(e.e==='dark'){SFX.err();toast(tx('ui.kristal_bitti_fener_sondu'))}
  if(e.e==='trained'){SFX.done();toast(`${tx('ui.hazir',[e.n,TROOPS[e.t].n])}`)}
