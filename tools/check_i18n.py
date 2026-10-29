@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fails (exit 1) if any i18n key used in code is missing from any language file."""
+"""Fails (exit 1) if any i18n key used in code is missing from any language file,
+or if game.js/online.js/logic.js contain hardcoded UI text not routed through i18n."""
 import re,json,glob,os,sys
 R=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 langs={os.path.basename(p)[:-5]:json.load(open(p)) for p in glob.glob(R+'/i18n/*.json')}
@@ -24,5 +25,7 @@ for l,d in sorted(langs.items()):
   miss=[k for k in dk if k not in d]
   if miss: bad=1;print(f'{l}: {len(miss)} untranslated logic.js data strings: {" ".join(miss[:40])}')
 used|=set(dk)
+hc=json.loads(subprocess.run(['node',R+'/tools/scan_hardcoded.mjs'],cwd=R,capture_output=True,text=True,check=True).stdout)
+if hc: bad=1;print(f'{len(hc)} hardcoded UI strings (move to i18n keys or ALLOW in tools/scan_hardcoded.mjs):');[print('  '+x) for x in hc[:60]]
 print(f'{len(used)} keys checked across {len(langs)} languages: '+('FAIL' if bad else 'OK'))
 sys.exit(bad)
