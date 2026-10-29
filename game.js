@@ -288,6 +288,12 @@ function seasonCard(){const z=L.seasonOf(S),Z=L.SEASON,H=HEROES.find(h=>h.id===Z
 function limNote(){const z=L.spendOf(S,now());return `<p class="sub">🛡️ ${z.on?tx('ui.lim_note_on',[z.sum,z.lim]):tx('ui.lim_note_off')}</p>`}
 function spendGems(n,what,fn,ln){if(S.gems<n){modal(`<h2>${tx('ui.elmas_yetmiyor')}</h2><p>${tx('ui.icin_gerekli_sende_var',[what,n,S.gems])}</p>`,[[tx('ui.kapat'),'x'],[tx('ui.magaza'),'g',openShop]]);return}
  modal(`<h2>${what}</h2><p><b>${n} 💎</b> ${tx('ui.harcansin_mi')}</p>${ln?limNote():''}`,[[tx('ui.vazgec'),'x'],[tx('ui.gem_spend',[n]),'g',()=>{S.gems-=n;fn();ui();save()}]])}
+let retPend=0;function returnScreen(o){retPend=1;L.dailyReset(S,now());const on=!!window.__online?.on,D=L.DAILY.filter(d=>on||!d.on),done=D.filter(d=>S.daily.c[d.id]).length,ready=D.filter(d=>!S.daily.c[d.id]&&(S.daily.p[d.id]||0)>=d.n).length,q=L.QUESTS[S.q];
+ let h=`<div style="font-size:50px">🌙</div><h2>${tx('ui.tekrar_hos_geldin')}</h2><p>${tx('ui.sen_yokken_dk_iscilerin',[o.min])}<br><b style="font-size:18px">${costStr(o.g)}</b></p><p class="sub" style="font-size:11px">${tx('ui.off_cap',[o.pct,L.OFF_CAP_H])}${o.capped?' · ⏳ '+tx('ui.off_capped'):''}</p>`;
+ if(o.away>=60){const it=[];it.push(`📋 ${tx('ui.off_daily',[done,D.length,ready])}`);if(L.loginReady(S,now()))it.push('🎁 '+tx('ui.off_login'));if(S.freeCall!==L.day(now()))it.push('🧑‍✈️ '+tx('ui.off_free'));if(q)it.push(`⭐ ${tx('ui.off_next',[q.t])} (${Math.min(q.f(S),q.n)}/${q.n})`);
+  h+=`<div style="text-align:start;background:#0003;border-radius:10px;padding:8px 10px;margin:6px 0;font-size:12px;line-height:1.6"><b>${tx('ui.off_today')}</b><br>${it.join('<br>')}</div>`}
+ const take=m=>{retPend=0;if(m>1)for(const k in o.g)o.g[k]*=m;L.addRes(S,o.g);ui();save();if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>openLogin(1),350);else if(o.away>=60&&ready)setTimeout(()=>{taskTab='d';openTasks()},350)};
+ modal(h,[[tx('ui.take'),'',()=>take(1)],['📺 '+tx('ui.off_boost'),'o',()=>watchAd(()=>take(2))]])}
 function watchAd(fn){if(S.buy.noads){fn();return}$('ad').classList.add('on');let n=3;const f=()=>$('adt').textContent=tx('ui.reklam_oynatiliyor')+n;f();const iv=setInterval(()=>{n--;f();if(n<=0){clearInterval(iv);$('ad').classList.remove('on');fn();SFX.coin()}},1000)}
 function popAnim(g,a=.5){if(!g)return;tween(550,t=>{const e=E.el(t);const s=1+(1-e)*a*(t<.15?-1:1);g.scale.set(1/Math.sqrt(Math.abs(s)),s,1/Math.sqrt(Math.abs(s)))},()=>g.scale.set(1,1,1))}
 const closeSheet=()=>{$('sheet').classList.remove('on');sheetFn=null};let sheetFn=null;
@@ -649,13 +655,13 @@ function handle(evs){for(const e of evs){
  if(e.e==='wreck'&&!$('modal').classList.contains('on')&&!$('battle').classList.contains('on')){const room=L.cap(S)-S.surv;modal(`<div style="font-size:50px">🚢</div><h2>${tx('ui.batik_gemi')}</h2><p>${tx('ui.kiyiya_bir_enkaz_vurdu',[e.n])}${room<e.n?`<br><span style="color:#ff8a8a">${tx('ui.barinaklarda_sadece_yer_var',[Math.max(0,room)])}</span>`:''}</p>`,[[tx('ui.birak'),'x'],[tx('ui.kurtar'),'o',()=>{const k=Math.min(e.n,Math.max(0,room));S.surv+=k;for(let i=0;i<k;i++)setTimeout(()=>sendRaft(false),i*500);toast(`${tx('ui.kurtulan_katildi',[k])}`);ui()}]])}}}
 // ---------- BAŞLAT ----------
 resize();buildTiles();buildFog();fogR=L.safeR(S);syncAll();syncPeople();ui();
-if(!isNew){const o=L.offline(S,now());if(o)setTimeout(()=>modal(`<div style="font-size:50px">🌙</div><h2>${tx('ui.tekrar_hos_geldin')}</h2><p>${tx('ui.sen_yokken_dk_iscilerin',[o.min])}<br><b style="font-size:18px">${costStr(o.g)}</b></p>`,[[tx('ui.take'),'',()=>{L.addRes(S,o.g);ui();save()}],['📺 '+tx('ui.take_x2'),'o',()=>watchAd(()=>{for(const k in o.g)o.g[k]*=2;L.addRes(S,o.g);ui();save()})]]),600)}
+if(!isNew){const o=L.offline(S,now());if(o)setTimeout(()=>returnScreen(o),600)}
 paintIsland(S.cur);buildIslDeco(S.cur);syncBeacon();
 {const bw=L.bossWeek(S,now());if(bw)setTimeout(()=>modal(`<img src="img/f_kraken.webp" style="width:90px"><h2>${tx('ui.kraken_haftasi_bitti')}</h2><p>${tx('ui.siran_2')} <b>#${bw.rank}</b><br>${tx('ui.odul',[rwStr(bw.rw)])}</p>`,[[tx('ui.harika_2'),'o']]),900)}
 {const side=$('side');if(side&&!$('sMute')){const b=document.createElement('button');b.className='sb';b.id='sMute';b.setAttribute('aria-label','mute');b.onclick=e=>{e.stopPropagation();toggleMute()};side.appendChild(b)}muteLbl()}
 const sb=$('startBtn');window.__ldp&&window.__ldp(100);{const ld=$('loading'),tp=$('ldTip');setTimeout(()=>ld&&ld.classList.add('ready'),700);if(tp){let ti=Math.floor(Math.random()*6);const sh=()=>{tp.classList.remove('on');setTimeout(()=>{tp.textContent='💡 '+tx(['ui.ltip0','ui.ltip1','ui.ltip2','ui.ltip3','ui.ltip4','ui.ltip5'][ti++%6]);tp.classList.add('on')},350)};sh();const iv=setInterval(()=>{if(!$('ldTip'))clearInterval(iv);else sh()},5000)}}
 sb.disabled=false;sb.textContent='▶ '+tx('ui.play');sb.onclick=()=>{ac();if(S.set.mus)startMusic();setVol();{const ld=$('loading');sb.onclick=null;ld.classList.add('out');document.body.classList.add('fadeIn');setTimeout(()=>ld.remove(),620)}
- if(isNew){S.seen.ch0=1;setTimeout(()=>talk(L.CHAPTERS[0].say),300)}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>openLogin(1),1200)};
+ if(isNew){S.seen.ch0=1;setTimeout(()=>talk(L.CHAPTERS[0].say),300)}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>{if(!retPend)openLogin(1)},1200)};
 if(new URLSearchParams(location.search).has('skip'))sb.onclick();
 applyQ();requestAnimationFrame(frame);setInterval(save,5000);addEventListener('visibilitychange',()=>document.hidden&&save());
 // ---------- FENER TAKVİMİ (haftalık tema günleri, günlük 3 sandık) ----------
