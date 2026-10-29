@@ -417,3 +417,26 @@ export function convoyState(S,now){S.conv=S.conv||{next:0,n:0,w:0};return{ready:
 export function convoyFight(S,now,rng){const c=convoyState(S,now);if(!c.open)return{err:'Ada 3 gerekli'};if(!c.ready)return{err:'Konvoy henüz görünmedi'};
  const res=simulate(S,S.stage,rng,convoyPower(S));const lost={};for(const t in TROOPS){lost[t]=Math.floor(S.troops[t]*res.lossFrac*.6);S.troops[t]-=lost[t]}
  S.conv.next=now+CONVOY_CD;S.conv.n++;let rw=null;if(res.win){rw=convoyReward(S);if(rng()<.25)rw.ticket=1;addRes(S,rw);S.conv.w++;S.ush=(S.ush||0)+3;rw.ush=3;dailyInc(S,'battle',1,now);addXP(S,15)}return{res,rw,lost}}
+
+// ---------- Kılavuz Işığı (sisteki kayıp gemiyi fener huzmesiyle limana getirme mini oyunu) ----------
+export const GUIDE_DAY=5,GUIDE_CD=180e3,GUIDE_HITS=3;
+export function guideState(S,now){const d=dayIst(now);S.guide=S.guide||{d,n:0,t:0,tot:0,best:0};const g=S.guide;if(g.d!==d){g.d=d;g.n=0;g.t=0}
+ const open=S.tut>=9;return{open,left:Math.max(0,GUIDE_DAY-g.n),wait:Math.max(0,g.t-now),ready:open&&g.n<GUIDE_DAY&&now>=g.t,tot:g.tot,best:g.best}}
+// hits: limana yaklaştıran isabet (0..3), perf: tam huzme ortası isabet sayısı
+export const guideReward=(S,hits,perf)=>{const f=S.fener.lv,h=Math.max(0,Math.min(GUIDE_HITS,hits|0)),p=Math.max(0,Math.min(h,perf|0));
+ if(h<GUIDE_HITS)return{fish:20+f*10};const r={fish:60+f*45,wood:60+f*45,crys:10+f*8+p*(4+f*2)};if(p>=GUIDE_HITS)r.gems=3;return r};
+export function claimGuide(S,hits,perf,now){const g=guideState(S,now);if(!g.ready)return{err:'Kayıp gemi henüz görünmedi'};const z=S.guide,win=hits>=GUIDE_HITS;
+ z.n++;z.t=now+GUIDE_CD;const rw=guideReward(S,hits,perf);addRes(S,rw);let surv=0;if(win){z.tot++;z.best=Math.max(z.best,perf|0);if(S.surv<cap(S)){S.surv++;surv=1}dailyInc(S,'collect',1,now)}return{win,rw,surv}}
+
+// ---------- Fener Görünümleri (sadece kozmetik, güç vermez) ----------
+// s: şerit renkleri, d: kubbe, l: fener camı, b: huzme, h: hale rgb
+export const SKINS=[
+ {id:'klasik',s:[0xd8433a,0xf6f2ea],d:0xc0392b,l:0xfff1b0,b:0xffe08a,h:'255,214,120',f:()=>1,n:1},
+ {id:'mercan',s:[0xf08a7a,0xfbe7d3],d:0x2a9d8f,l:0xfff0e6,b:0xffb7a6,h:'255,170,150',f:S=>S.isl.mercan?.own?1:0,n:1},
+ {id:'kor',s:[0x3a3436,0xe8732c],d:0xb5651d,l:0xffc27a,b:0xff9a4a,h:'255,140,60',f:S=>S.isl.volkan?.own?1:0,n:1},
+ {id:'derin',s:[0x1d4e6b,0x7fd8e8],d:0x5b3f8c,l:0xd8fbff,b:0x8ff0ff,h:'120,230,255',f:S=>S.st.boss||0,n:10},
+ {id:'amiral',s:[0x1f2f55,0xf4efe2],d:0xe8b64a,l:0xffffff,b:0xfff6d8,h:'255,245,210',f:S=>S.login?.total||0,n:14},
+ {id:'kilavuz',s:[0xf4f1ea,0x2b3a67],d:0xc9d3e0,l:0xe6f0ff,b:0xbcd8ff,h:'190,215,255',f:S=>S.guide?.tot||0,n:15},
+];
+export const skinOf=S=>SKINS.find(x=>x.id===S.skin&&x.f(S)>=x.n)||SKINS[0];
+export function setSkin(S,id){const k=SKINS.find(x=>x.id===id);if(!k)return'Yok';if(k.f(S)<k.n)return'Kilitli';S.skin=id;return null}
