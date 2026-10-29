@@ -56,7 +56,7 @@ async function monetSync(){try{const S=G.S,L=G.L;let st=await rpc('monet_me');
  for(const q of [...((S.spend&&S.spend.q)||[])]){try{st=await rpc('monet_purchase',{p_price:q.p,p_item:q.i||'',p_offline:true})}catch(e){console.warn('monet q',e.message)}S.spend.q.shift()}
  const z=S.season;if(z&&z.offl&&z.offl!==st.season.last){try{st=await rpc('monet_claim_mark')}catch(e){}}
  L.applyMonet(S,st);G.save();monetOk=true}catch(e){console.warn('monet',e.message)}}
-window.__monet={ok:()=>online&&monetOk,purchase:(p,i)=>rpc('monet_purchase',{p_price:p,p_item:i||'',p_offline:false}),setLimit:(l,on)=>rpc('monet_set_limit',{p_lim:l,p_on:on}),claimMark:()=>rpc('monet_claim_mark'),me:()=>rpc('monet_me')};
+window.__monet={ok:()=>online&&monetOk,purchase:(p,i)=>rpc('monet_purchase',{p_price:p,p_item:i||'',p_offline:false}),claimMark:()=>rpc('monet_claim_mark'),me:()=>rpc('monet_me')};
 function adopt(sv){toast(T('cloud_loading'));sessionStorage.setItem('sf_adopted','1');window.__noSave=1;localStorage.setItem('sonfener1',JSON.stringify(sv.data));localStorage.setItem('sf_rev',sv.rev);setTimeout(()=>location.reload(),300)}
 let pushing=false;
 async function push(){if(!online||pushing)return;pushing=true;try{G.save();const S=G.S;let r=await rpc('save_game',{p_data:S,p_rev:rev});
