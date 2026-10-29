@@ -1551,5 +1551,14 @@
  "mail.tour": "Torneio {0}: você ficou em #{1} num grupo de {2}. Seu prêmio está anexado.",
  "o.cr_est": "Faltam ≈{0} golpes do clã (média {1})",
  "mail.refund_t": "Reembolso de gemas",
- "mail.refund": "Um erro cobrou suas gemas duas vezes ao invocar capitães. As {0} 💎 extras foram reembolsadas. Desculpe!"
+ "mail.refund": "Um erro cobrou suas gemas duas vezes ao invocar capitães. As {0} 💎 extras foram reembolsadas. Desculpe!",
+ "o.cs_t": "Loja do clã",
+ "o.cs_cta": "Troque pontos de doação por recompensas semanais",
+ "o.cs_bal": "Seus pontos de clã: {0} 🏅",
+ "o.cs_how": "Cada doação à tecnologia do clã rende pontos (🔮 ×3).",
+ "o.cs_reset": "Limites semanais reiniciam em {0}d {1}h",
+ "o.cs_left": "Restam nesta semana: {0}/{1}",
+ "o.cs_e_lim": "Limite semanal atingido para este item",
+ "o.cs_e_pts": "Pontos de clã insuficientes",
+ "o.cs_e_noclan": "Entre em um clã primeiro"
 }

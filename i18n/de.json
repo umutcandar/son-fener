@@ -1551,5 +1551,14 @@
  "mail.tour": "Turnier {0}: Platz {1} in einer {2}er-Gruppe. Deine Belohnung ist angehängt.",
  "o.cr_est": "Noch ≈{0} Clan-Treffer bis zum Sieg (Ø {1})",
  "mail.refund_t": "Edelstein-Erstattung",
- "mail.refund": "Ein Fehler hat beim Beschwören von Kapitänen deine Edelsteine doppelt abgezogen. Die zusätzlichen {0} 💎 werden erstattet. Entschuldigung!"
+ "mail.refund": "Ein Fehler hat beim Beschwören von Kapitänen deine Edelsteine doppelt abgezogen. Die zusätzlichen {0} 💎 werden erstattet. Entschuldigung!",
+ "o.cs_t": "Clan-Laden",
+ "o.cs_cta": "Tausche Spendenpunkte gegen Wochenbelohnungen",
+ "o.cs_bal": "Deine Clanpunkte: {0} 🏅",
+ "o.cs_how": "Jede Spende an die Clan-Technik bringt Punkte (🔮 ×3).",
+ "o.cs_reset": "Wochenlimits in {0}T {1}Std zurückgesetzt",
+ "o.cs_left": "Diese Woche übrig: {0}/{1}",
+ "o.cs_e_lim": "Wochenlimit für diesen Artikel erreicht",
+ "o.cs_e_pts": "Nicht genug Clanpunkte",
+ "o.cs_e_noclan": "Tritt zuerst einem Clan bei"
 }

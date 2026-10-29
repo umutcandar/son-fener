@@ -1551,5 +1551,14 @@
  "mail.tour": "Torneo {0}: quedaste #{1} en un grupo de {2}. Tu premio va adjunto.",
  "o.cr_est": "Faltan ≈{0} golpes del clan (prom. {1})",
  "mail.refund_t": "Reembolso de gemas",
- "mail.refund": "Un error cobró tus gemas dos veces al invocar capitanes. Se reembolsan las {0} 💎 extra. ¡Lo sentimos!"
+ "mail.refund": "Un error cobró tus gemas dos veces al invocar capitanes. Se reembolsan las {0} 💎 extra. ¡Lo sentimos!",
+ "o.cs_t": "Tienda del clan",
+ "o.cs_cta": "Cambia puntos de donación por premios semanales",
+ "o.cs_bal": "Tus puntos de clan: {0} 🏅",
+ "o.cs_how": "Cada donación a la tecnología del clan da puntos (🔮 ×3).",
+ "o.cs_reset": "Los límites semanales se reinician en {0}d {1}h",
+ "o.cs_left": "Quedan esta semana: {0}/{1}",
+ "o.cs_e_lim": "Límite semanal alcanzado para este artículo",
+ "o.cs_e_pts": "No tienes suficientes puntos de clan",
+ "o.cs_e_noclan": "Únete primero a un clan"
 }

@@ -1551,5 +1551,14 @@
  "mail.tour": "Turnamen {0}: kamu peringkat #{1} dari {2}. Hadiah terlampir.",
  "o.cr_est": "≈{0} serangan klan lagi untuk menumbangkannya (rata-rata {1})",
  "mail.refund_t": "Pengembalian permata",
- "mail.refund": "Sebuah bug memotong permatamu dua kali saat memanggil kapten. Kelebihan {0} 💎 dikembalikan. Maaf!"
+ "mail.refund": "Sebuah bug memotong permatamu dua kali saat memanggil kapten. Kelebihan {0} 💎 dikembalikan. Maaf!",
+ "o.cs_t": "Toko Klan",
+ "o.cs_cta": "Tukar poin donasi dengan hadiah mingguan",
+ "o.cs_bal": "Poin klanmu: {0} 🏅",
+ "o.cs_how": "Setiap donasi teknologi klan memberi poin (🔮 ×3).",
+ "o.cs_reset": "Batas mingguan direset dalam {0}h {1}j",
+ "o.cs_left": "Sisa minggu ini: {0}/{1}",
+ "o.cs_e_lim": "Batas mingguan item ini tercapai",
+ "o.cs_e_pts": "Poin klan tidak cukup",
+ "o.cs_e_noclan": "Gabung klan dulu"
 }
