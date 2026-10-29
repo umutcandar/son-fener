@@ -928,7 +928,7 @@ function intro(cb){const RMi=matchMedia('(prefers-reduced-motion: reduce)').matc
  (function st(){if(done)return;const k=Math.min(1,(performance.now()-t0)/D),e=1-Math.pow(1-k,3);cam.az=A.az+2.2*(1-e);cam.dist=A.d*(.55+.45*e);cam.pol=A.p-.32*(1-e);if(k>=1)fin();else requestAnimationFrame(st)})()}
 window.__intro=intro;window.__siege=()=>playSiege({tx});
 sb.disabled=false;sb.textContent='▶ '+tx('ui.play');sb.onclick=()=>{ac();if(S.set.mus)startMusic();setVol();{const ld=$('loading');sb.onclick=null;ld.classList.add('out');document.body.classList.add('fadeIn');setTimeout(()=>ld.remove(),620)}
- if(isNew||new URLSearchParams(location.search).has('siege')){S.seen.ch0=1;playSiege({tx,mute:()=>S.set.snd===false,done:()=>intro(()=>setTimeout(()=>talk(L.CHAPTERS[0].say),300))})}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>{if(!retPend)openLogin(1)},1200)};
+ if(new URLSearchParams(location.search).has('siege')){S.seen.ch0=1;playSiege({tx,mute:()=>S.set.snd===false,done:()=>intro(()=>setTimeout(()=>talk(L.CHAPTERS[0].say),300))})}else if(isNew){S.seen.ch0=1;intro(()=>setTimeout(()=>talk(L.CHAPTERS[0].say),300))}else if(S.tut>=9&&L.loginReady(S,now()))setTimeout(()=>{if(!retPend)openLogin(1)},1200)};
 if(new URLSearchParams(location.search).has('skip'))sb.onclick();
 applyQ();requestAnimationFrame(frame);setInterval(save,5000);addEventListener('visibilitychange',()=>document.hidden&&save());
 // ---------- FENER TAKVİMİ (haftalık tema günleri, günlük 3 sandık) ----------
