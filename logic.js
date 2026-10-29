@@ -84,7 +84,7 @@ export const TECH=[
 const T_=(S,id)=>S.tech[id]||0;
 export const techReqOK=(S,T)=>!T.req||Object.entries(T.req).every(([id,l])=>T_(S,id)>=l);
 export const FOES={ghost:{n:'Sis Hayaletleri',ic:'👻',img:'ghost'},octo:{n:'Sis Ahtapotu',ic:'🐙',img:'octo'},crab:{n:'Kabuklu Dev',ic:'🦀',img:'crab'},kraken:{n:'Derin Kraken',ic:'🦑',img:'kraken'}};
-const ISL=['Martı Kayası','Tuz Adası','Batık Liman','Mercan Koyu','Kurukafa Burnu','Fırtına Tepesi','Yosun Adası','Sessiz Körfez','Kırık Direk','Eski Fener'];
+export const ISL=['Martı Kayası','Tuz Adası','Batık Liman','Mercan Koyu','Kurukafa Burnu','Fırtına Tepesi','Yosun Adası','Sessiz Körfez','Kırık Direk','Eski Fener'];
 export const islandName=n=>ISL[(n-1)%ISL.length]+(n>ISL.length?' '+(Math.floor((n-1)/ISL.length)+1):'');
 export const stageFoe=n=>n%5===0?'kraken':n%3===0?'crab':n%2?'ghost':'octo';
 export const stagePower=n=>Math.round(260*Math.pow(1.32,n-1));

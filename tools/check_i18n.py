@@ -16,5 +16,13 @@ bad=0
 for l,d in sorted(langs.items()):
   miss=sorted(k for k in used if k not in d)
   if miss: bad=1;print(f'{l}: {len(miss)} missing: {" ".join(miss[:40])}')
+import subprocess
+js=r'''import * as L from './logic.js';const o=[];const go=(x,p)=>{for(const k in x){const v=x[k],kk=p+'.'+k;if(typeof v==='string'){if(/[a-zA-Z\u00c0-\u017f]{3}/.test(v)&&/\s|[\u00c0-\u017f]/.test(v))o.push(kk)}else if(v&&typeof v==='object')go(v,kk)}};for(const k in L){const v=L[k];if(v&&typeof v==='object'&&!Object.isFrozen(v))go(v,'d.'+k)}console.log(JSON.stringify(o))'''
+dk=json.loads(subprocess.run(['node','--input-type=module','-e',js],cwd=R,capture_output=True,text=True,check=True).stdout)
+for l,d in sorted(langs.items()):
+  if l=='tr': continue
+  miss=[k for k in dk if k not in d]
+  if miss: bad=1;print(f'{l}: {len(miss)} untranslated logic.js data strings: {" ".join(miss[:40])}')
+used|=set(dk)
 print(f'{len(used)} keys checked across {len(langs)} languages: '+('FAIL' if bad else 'OK'))
 sys.exit(bad)
