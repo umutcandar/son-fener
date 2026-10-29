@@ -30,7 +30,7 @@ export const nickOK=n=>/^[\p{L}\p{N}_ ]{3,16}$/u.test(n.trim());
 
 async function rpcS(fn,args){const{data,error}=await sb.rpc(fn+'_s',args||{});if(error)throw error;if(data&&typeof data==='object'&&!Array.isArray(data)&&data.err)throw{message:data.err,soft:1};return data}
 async function rpc(fn,args){const{data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
-export async function start(g){G=g;G.openWorld=()=>openWorld();G.onBattleEvent=f=>{const h=(t,d)=>{if(t==='battle')(d.log||[]).forEach((e,i)=>setTimeout(()=>{try{f(e,d)}catch(x){}},i*350))};wL.add(h);return()=>wL.delete(h)};window.__online={mile:n=>online?rpc('mile_claim',{p_n:n}):Promise.reject(new Error('offline')),summon:{sync:()=>summonSync(),call:(n,pay)=>sumCall('summon',{p_n:n,p_pay:pay}),pick:id=>sumCall('summon_pick',{p_id:id})},pass:{sync:()=>passSync(),claim:(i,p)=>rpc('pass_claim',{p_i:i,p_prem:!!p}),prem:async()=>passAdopt(await rpc('pass_prem_demo'))},openMail:()=>openMail(),get mails(){return mails},pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},retry:()=>online?Promise.resolve(true):signIn().then(afterLogin).then(()=>online,()=>false),get uid(){return uid},detectLang,nickOK,test:{push:()=>push(),srv:async()=>{const{data}=await sb.from('saves').select('data,rev').eq('user_id',uid).maybeSingle();return data},dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},world:worldApi,city:cityApi,army:{lines:lineApi,info:()=>rpc("army_info")},open:{world:openWorld,cal:openCal,craid:openCraid,zones:openZones,clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
+export async function start(g){G=g;G.openWorld=()=>openWorld();G.onBattleEvent=f=>{const h=(t,d)=>{if(t==='battle')(d.log||[]).forEach((e,i)=>setTimeout(()=>{try{f(e,d)}catch(x){}},i*350))};wL.add(h);return()=>wL.delete(h)};window.__online={mile:n=>online?rpc('mile_claim',{p_n:n}):Promise.reject(new Error('offline')),summon:{sync:()=>summonSync(),call:(n,pay)=>sumCall('summon',{p_n:n,p_pay:pay}),pick:id=>sumCall('summon_pick',{p_id:id})},pass:{sync:()=>passSync(),claim:(i,p)=>rpc('pass_claim',{p_i:i,p_prem:!!p}),prem:async()=>passAdopt(await rpc('pass_prem_demo'))},openMail:()=>openMail(),get mails(){return mails},pve:(k,st)=>online?rpc('pve_win',{p_kind:k,p_stage:st}):Promise.resolve(null),bossHtml,push:()=>push(),claim:()=>claim(),get on(){return online},retry:()=>online?Promise.resolve(true):signIn().then(afterLogin).then(()=>online,()=>false),get uid(){return uid},detectLang,nickOK,test:{push:()=>push(),srv:async()=>{const{data}=await sb.from('saves').select('data,rev').eq('user_id',uid).maybeSingle();return data},dm:(peer,body)=>rpcS('send_chat',{p_channel:dmCh(peer),p_body:body,p_lang:'tr'}).then(()=>'ok',e=>e.message),isAdm:()=>isAdm,reAdm:()=>rpc('is_admin').then(v=>isAdm=!!v,()=>false),mod:()=>rpcS('mod_reports').then(()=>'ok',e=>e.message),refClaim:c=>rpc('ref_claim',{p_code:c}).then(()=>'ok',e=>(err(e),'err')),refInfo:()=>rpc('ref_info'),refSync:()=>refSync(),rpc:(f,a)=>rpc(f,a).then(v=>v,e=>({err:String(e.message||e)}))},world:worldApi,city:cityApi,pay:payApi,army:{lines:lineApi,info:()=>rpc("army_info")},open:{world:openWorld,cal:openCal,craid:openCraid,zones:openZones,clanPub:openClanPub,mod:openMod,clan:openClan,chat:openChat,pvp:openPvp,profile:openProfile,war:()=>openPvp('war')}};
  initErr();addButtons();if(!window.supabase){setStatus();return}
  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'sf_auth',autoRefreshToken:true}});
  try{await signIn();await afterLogin()}catch(e){console.warn('offline:',e?.message||e);online=false;setStatus()}
@@ -42,7 +42,7 @@ async function signIn(){let{data:{session}}=await sb.auth.getSession();if(sessio
  const{data,error}=await sb.auth.signInWithPassword(cred);if(error)throw error;uid=data.user.id}
 async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();summonSync();craidLoad();mailBtn();mailLoad();passSync();setInterval(mailLoad,90000);
  const{data:sv}=await sb.from('saves').select('data,rev,updated_at').eq('user_id',uid).maybeSingle();const S=G.S;
- if(sv&&sv.data&&(sv.data.saved||0)>(S.saved||0)+10000&&!sessionStorage.getItem('sf_adopted')){adopt(sv);return}
+ if(sv&&sv.data&&(srvNew(sv.data)||(sv.data.saved||0)>(S.saved||0)+10000&&!sessionStorage.getItem('sf_adopted'))){adopt(sv);return}
  if(sv)rev=sv.rev;await push();
  const{data:mu}=await sb.from('mutes').select('muted');muted=new Set((mu||[]).map(x=>x.muted));
  region=await rpc('my_region').catch(()=>null);
@@ -57,12 +57,13 @@ async function monetSync(){try{const S=G.S,L=G.L;let st=await rpc('monet_me');
  const z=S.season;if(z&&z.offl&&z.offl!==st.season.last){try{st=await rpc('monet_claim_mark')}catch(e){}}
  L.applyMonet(S,st);G.save();monetOk=true}catch(e){console.warn('monet',e.message)}}
 window.__monet={ok:()=>online&&monetOk,purchase:(p,i)=>rpc('monet_purchase',{p_price:p,p_item:i||'',p_offline:false}),claimMark:()=>rpc('monet_claim_mark'),me:()=>rpc('monet_me')};
-function adopt(sv){toast(T('cloud_loading'));sessionStorage.setItem('sf_adopted','1');window.__noSave=1;localStorage.setItem('sonfener1',JSON.stringify(sv.data));localStorage.setItem('sf_rev',sv.rev);setTimeout(()=>location.reload(),300)}
+const SSV=()=>+localStorage.getItem('sf_ssv')||0,srvNew=d=>SSV()>0&&(d?.saved||0)>SSV()+1;
+function adopt(sv){localStorage.setItem('sf_ssv',sv.data?.saved||0);toast(T('cloud_loading'));sessionStorage.setItem('sf_adopted','1');window.__noSave=1;localStorage.setItem('sonfener1',JSON.stringify(sv.data));localStorage.setItem('sf_rev',sv.rev);setTimeout(()=>location.reload(),300)}
 let pushing=false;
 let pushP=null,pushAgain=false;function push(){if(!online)return Promise.resolve();if(pushing){pushAgain=true;return pushP}pushing=true;return pushP=push0()}
 async function push0(){try{G.save();const S=G.S;let r=await rpc('save_game',{p_data:S,p_rev:rev});
-  if(r.conflict){if((r.data?.saved||0)>(S.saved||0)){adopt(r);return}rev=r.rev;r=await rpc('save_game',{p_data:S,p_rev:rev})}
-  if(r.ok){rev=r.rev;localStorage.setItem('sf_rev',rev);if(r.data){const d=r.data;Object.assign(S.res,d.res);S.gems=d.gems;Object.assign(S.troops,d.troops);if(d.heroes)S.heroes=d.heroes;for(const k of ['pity','pity2','selTok','ush'])if(d[k]!=null)S[k]=d[k];G.save();G.ui();toast(T('save_fixed'))}if(prof)prof.power=r.power}}
+  if(r.conflict){if(srvNew(r.data)||(r.data?.saved||0)>(S.saved||0)){adopt(r);return}rev=r.rev;r=await rpc('save_game',{p_data:S,p_rev:rev})}
+  if(r.ok){rev=r.rev;localStorage.setItem('sf_rev',rev);localStorage.setItem('sf_ssv',S.saved||0);if(r.data){const d=r.data;Object.assign(S.res,d.res);S.gems=d.gems;Object.assign(S.troops,d.troops);if(d.heroes)S.heroes=d.heroes;for(const k of ['pity','pity2','selTok','ush'])if(d[k]!=null)S[k]=d[k];G.save();G.ui();toast(T('save_fixed'))}if(prof)prof.power=r.power}}
  catch(e){console.warn('save',e.message)}finally{pushing=false}if(pushAgain){pushAgain=false;pushing=true;await (pushP=push0())}}
 // sunucudan gelen değişiklikler (ganimet / kayıp / yardım / sezon ödülü / cephe ödülü)
 async function claim(){if(!online)return;let ev;try{ev=await rpc('claim_events')}catch(e){return}if(!ev?.length)return;const S=G.S;
@@ -512,7 +513,7 @@ let W={me:null,v:null,vx:0,vy:0,sel:null,res:[],conf:0,busy:0},wdTimer=0,wdPoll=
 const wEmit=(type,data)=>{for(const f of wL)try{f(type,data)}catch(e){console.warn(e)}};
 async function wLoad(){try{[W.v]=await Promise.all([rpc('world_view',{p_x:W.vx,p_y:W.vy,p_w:WV,p_h:WV}),wExtra()]);wEmit('view',W.v)}catch(e){err(e)}}
 async function wResolve(){try{const r=await rpc('world_resolve');if(r&&r.length){W.res=[...r,...W.res].slice(0,5);for(const b of r){wEmit('battle',b);G.toast((b.win?'🏆 ':'💀 ')+(b.lvl?T(b.win?'w_won':'w_lost',[b.lvl]):T(b.win?'w_pvp_won':'w_pvp_lost',[b.def||b.relic||''])))}W.me=await rpc('world_me')}}catch(e){}}
-async function openWorld(){if(!online){open('world',()=>hdr('🗺️ '+T('w_t'))+offline());return}
+async function openWorld(){if(!online){open('world',()=>hdr('🗺️ '+T('w_t'))+offline());return}if(!PY)paySync().catch(()=>{});
  try{W.me=await rpc('world_me')}catch(e){return err(e)}W.vx=W.me.x-(WV>>1);W.vy=W.me.y-(WV>>1);W.sel=null;if(clan)rpc('fort_info').then(r=>{FT=r}).catch(()=>{});await wResolve();await wLoad();open('world',worldHtml);
  clearInterval(wdTimer);wdTimer=setInterval(()=>{if(!sheetIs('world'))return clearInterval(wdTimer);const t=Date.now();if((W.me?.marches||[]).some(m=>!m.done&&m.arrive<=t))wResolve().then(wLoad);if(++wdPoll%5===0)wLoad().then(rerender);else rerender()},1000)}
 function wCell(x,y){const v=W.v||{},e=W.x||{};return{isl:(v.isl||[]).find(i=>i.x===x&&i.y===y),camp:(v.camps||[]).find(c=>c.x===x&&c.y===y),fort:(e.forts||[]).find(f=>f.x===x&&f.y===y),relic:(e.relics||[]).find(r=>r.x===x&&r.y===y)}}
@@ -535,7 +536,7 @@ function wSelHtml(now){const s=W.sel;if(!s)return `<div class="sub" style="text-
  const card=(ic,nm,sub,btns)=>`<div class="card" style="flex-wrap:wrap"><div class="ic">${ic}</div><div class="mid"><div class="nm">${nm}</div><div class="sub">${sub}</div></div><div style="display:flex;gap:4px;flex-wrap:wrap;width:100%;margin-top:6px">${btns}</div></div>`;
  const win=!!W.x?.window;if(fort){const p=Math.round(100*fort.dur/Math.max(1,fort.max));return card(fort.burn?'🔥':'🏯',T('w_fort',['['+esc(fort.tag)+']',fort.lvl]),`🧱 ${G.fmt(fort.dur)}/${G.fmt(fort.max)} (${p}%)${fort.burn?' · 🔥':''} · 📏 ${fort.r}`,fort.mine?`<button class="btn sm g" data-o="fort">🏯 ${T('f_t')}</button>`:`<button class="btn sm r" data-o="wRallyF" data-v="${fort.cid}" ${win&&clan?'':'disabled'}>🚩 ${T('w_rally')}</button>${win?'':`<span class="sub">🕒 ${T('w_window_off')}</span>`}`)}
  if(relic)return card('🗼',T('w_relic',[relic.id]),`${relic.tag?'['+esc(relic.tag)+']':T('w_relic_free')} · ${T('w_relic_d')}`,relic.mine?'':`<button class="btn sm r" data-o="wRallyR" data-v="${relic.id}" ${win&&clan?'':'disabled'}>🚩 ${T('w_rally')}</button>${win?'':`<span class="sub">🕒 ${T('w_window_off')}</span>`}`);
- if(isl){if(isl.me)return card('🏰',isl.nick+' · '+T('w_you'),`📍 ${s.x},${s.y} · ⚔️ ${G.fmt(isl.pw)}${isl.sh?' · 🛡️ '+T('w_shield'):''}`,`<button class="btn sm" data-o="wShield" data-v="8">🛡️ ${T('w_shield_buy',[8])} · 💎150</button><button class="btn sm" data-o="wShield" data-v="24">🛡️ ${T('w_shield_buy',[24])} · 💎350</button><button class="btn sm" data-o="wArmy">🪖 ${T('w_army')}</button>`);
+ if(isl){if(isl.me)return card('🏰',isl.nick+' · '+T('w_you'),`📍 ${s.x},${s.y} · ⚔️ ${G.fmt(isl.pw)}${isl.sh?' · 🛡️ '+T('w_shield'):''}`,`<button class="btn sm" data-o="wShield" data-v="8">🛡️ ${T('w_shield_buy',[8])} · 💎${vipD(9,150)}</button><button class="btn sm" data-o="wShield" data-v="24">🛡️ ${T('w_shield_buy',[24])} · 💎${vipD(9,350)}</button><button class="btn sm" data-o="wArmy">🪖 ${T('w_army')}</button>`);
   return card(isl.sh?'🛡️':'🏝️',(isl.tag?`[${isl.tag}] `:'')+isl.nick,`${T('w_lvp',[isl.lv||1,G.fmt(isl.pw||0)])}${isl.sh?' · 🛡️ '+T('w_shield'):''}${isl.mate?' · 🤝 '+T('w_mate'):''}`,
    (WSC[isl.id]?`<div class="sub" style="width:100%">🔭 ${trStr(WSC[isl.id].troops)} · ${fmtR(WSC[isl.id].res)}</div>`:'')+`<button class="btn sm" data-o="wScout" data-v="${isl.id}">🔭 ${T('w_scout')} · 50🐟</button><button class="btn sm r" data-o="wAtk" data-v="${isl.id}" ${isl.sh||isl.mate?'disabled':''}>⚔️ ${T('w_attack')}</button><button class="btn sm r" data-o="wRallyP" data-v="${isl.id}" ${isl.sh||isl.mate||!clan?'disabled':''}>🚩 ${T('w_rally')}</button><button class="btn sm" data-o="wProf" data-v="${isl.id}">👤</button><button class="btn sm" data-o="dmOpen" data-v="${isl.id}">✉️ ${T('w_msg')}</button><button class="btn sm g" data-o="frAdd" data-v="${isl.id}">➕ ${T('w_friend')}</button>`)}
  if(camp){const est=Math.round(100*Math.max(0.03,Math.min(0.97,0.5+(myPw-camp.pw)/(2*Math.max(camp.pw,myPw,1)))));const busy=(me.marches||[]).some(m=>!m.done);
@@ -554,15 +555,15 @@ Object.assign(SERR,{'Kaynak yetersiz':'w_e_res','Yeterli birlik yok':'w_e_troops
 let AR=null,FT=null,WR=[],WS={},fTimer=0,fPoll=0;const WSC={};
 const WTY=['tayfa','zipkin','topcu'],WTIC={tayfa:'⚓',zipkin:'🔱',topcu:'💣'},WBEAT={tayfa:'zipkin',zipkin:'topcu',topcu:'tayfa'},WRIC={wood:'🪵',fish:'🐟',crys:'🔮'};
 const tyN=t=>T('w_ty_'+t),fmtR=o=>Object.entries(o||{}).filter(([,n])=>+n).map(([k,n])=>G.fmt(+n)+(WRIC[k]||'')).join(' '),trStr=o=>WTY.map(t=>WTIC[t]+' '+G.fmt(Math.floor(+(o?.[t]||0)))).join(' ');
-function wAdopt(r){if(!r)return;const S=G.S;if(r.rev!=null){rev=r.rev;localStorage.setItem('sf_rev',rev)}if(r.res)for(const k in r.res)if(k in S.res)S.res[k]=+r.res[k];if(r.troops)for(const k in r.troops)if(k in S.troops)S.troops[k]=+r.troops[k];if(r.gems!=null)S.gems=+r.gems;G.save();G.ui()}
+function wAdopt(r){if(!r)return;const S=G.S;if(r.rev!=null){rev=r.rev;localStorage.setItem('sf_rev',rev)}if(r.saved!=null)localStorage.setItem('sf_ssv',r.saved);if(r.res)for(const k in r.res)if(k in S.res)S.res[k]=+r.res[k];if(r.troops)for(const k in r.troops)if(k in S.troops)S.troops[k]=+r.troops[k];if(r.gems!=null)S.gems=+r.gems;G.save();G.ui()}
 // --- Ordu ---
-async function openArmy(){if(!online)return open('army',()=>hdr('🪖 '+T('w_army'))+offline());try{AR=await rpc('army_info')}catch(e){return err(e)}open('army',armyHtml)}
+async function openArmy(){if(!online)return open('army',()=>hdr('🪖 '+T('w_army'))+offline());try{if(!PY)await paySync().catch(()=>{});AR=await rpc('army_info')}catch(e){return err(e)}open('army',armyHtml)}
 function armyHtml(){const S=G.S,a=AR||{tier:{},revir:{}};let h=hdr('🪖 '+T('w_army'))+`<div class="sub" style="margin-bottom:6px">🔁 ${T('w_counter_d')}<br>📜 ${T('c_ak_d')}</div>`;
  for(const t of WTY){const tr=+(a.tier?.[t]||1),c={fish:600*tr*tr,wood:450*tr*tr,crys:80*tr*tr};
   h+=`<div class="card"><div class="ic">${WTIC[t]}</div><div class="mid"><div class="nm">${tyN(t)} · T${tr}</div><div class="sub">${G.fmt(Math.floor(S.troops[t]||0))} · ×${(1+.3*(tr-1)).toFixed(1)} · ${T('w_beats',[tyN(WBEAT[t])])}</div></div>${tr<5?`<button class="btn sm" data-o="wTier" data-v="${t}">⬆️ T${tr+1}<br><small>${fmtR(c)}</small></button>`:`<span class="tag">T5</span>`}</div>`}
  const rv=a.revir||{},rn=WTY.reduce((x,t)=>x+Math.floor(+(rv[t]||0)),0);
  h+=`<div class="sec">🏥 ${T('w_revir')} · ${G.fmt(rn)}/${G.fmt(a.cap||0)}</div><div class="sub">${T('w_revir_d')}</div>`;
- if(rn)h+=`<div class="card"><div class="mid"><div class="nm">${trStr(rv)}</div></div></div><div style="display:flex;gap:6px;margin-top:4px"><button class="btn g" data-o="wHeal" data-v="0">💊 ${T('w_heal')} · ${fmtR({fish:2*rn,wood:rn})}</button><button class="btn o" data-o="wHeal" data-v="1">💎 ${Math.ceil(rn/10)}</button></div>`;else h+=`<div class="sub">${T('w_revir_e')}</div>`;
+ if(rn)h+=`<div class="card"><div class="mid"><div class="nm">${trStr(rv)}</div></div></div><div style="display:flex;gap:6px;margin-top:4px"><button class="btn g" data-o="wHeal" data-v="0">💊 ${T('w_heal')} · ${fmtR({fish:2*rn,wood:rn})}</button><button class="btn o" data-o="wHeal" data-v="1">💎 ${Math.ceil(rn/10*((PY?.vip??0)>=8?.75:1))}</button></div>`;else h+=`<div class="sub">${T('w_revir_e')}</div>`;
  const b=a.buff||{};return h+`<div class="sec">✨ ${T('w_buffs')}</div><div class="sub">⚔️ ×${b.m||1} · 🏯 +${Math.round((b.fort||0)*100)}% · 🗼 +${Math.round((b.relic||0)*100)}%</div>`}
 OA.wArmy=()=>openArmy();
 OA.wTier=async t=>{try{await push();const r=await rpc('army_tier_up',{p_t:t});wAdopt(r);AR.tier=r.tier;G.toast('⬆️ '+T('w_tier_ok',[tyN(t),r.tier[t]]));rerender()}catch(e){err(e)}};
@@ -629,15 +630,15 @@ async function wExtra(){try{W.x=await rpc('world_extra',{p_x:W.vx,p_y:W.vy,p_w:W
 // --- Son Fener Kalesi: şehir (sunucu kilitli) — görseller sanat akışında: __online.city / __online.army.lines ---
 const CB=['kale','kisla','zkule','dokum','tezgah','revir','akademi','sur','ambar'],CIC={kale:'🏰',kisla:'⚔️',zkule:'🔱',dokum:'💣',tezgah:'⛵',revir:'🏥',akademi:'📜',sur:'🧱',ambar:'🏦'};
 let CT=null,CTt=0;const cL=new Set();const cEmit=()=>{for(const f of cL)try{f(CT)}catch(e){}};
-async function citySync(){CT=await rpc('city_info');CT.list.sort((x,y)=>CB.indexOf(x.key)-CB.indexOf(y.key));CTt=Date.now()-new Date(CT.now).getTime();cEmit();return CT}
+async function citySync(){if(!PY)paySync().catch(()=>{});CT=await rpc('city_info');CT.list.sort((x,y)=>CB.indexOf(x.key)-CB.indexOf(y.key));CTt=Date.now()-new Date(CT.now).getTime();cEmit();return CT}
 const cNow=()=>Date.now()-CTt,cLeft=u=>Math.max(0,Math.ceil((new Date(u).getTime()-cNow())/1e3));
 const cDur=s=>s>=3600?Math.floor(s/3600)+'h'+String(Math.floor(s%3600/60)).padStart(2,'0'):s>=60?Math.floor(s/60)+'m'+String(s%60).padStart(2,'0'):s+'s';
 let cTim=0;async function openCity(){if(!online)return open('city',()=>hdr('🏰 '+T('c_t'))+offline());try{await citySync()}catch(e){return err(e)}open('city',cityHtml);
  clearInterval(cTim);cTim=setInterval(()=>{if(!sheetIs('city')&&!sheetIs('cform'))return clearInterval(cTim);if(CT?.q?.some(e=>cLeft(e.until)<=0))citySync().then(rerender).catch(()=>{});else if(sheetIs('city'))rerender()},1000)}
-function cityHtml(){const c=CT;let h=hdr('🏰 '+T('c_t'))+`<div class="sub" style="margin-bottom:6px">${T('c_d')} · 🔨 ${c.q.length}/${c.slots}${c.slots<2?' · '+T('c_vip2'):''}</div>
+function cityHtml(){const c=CT;let h=hdr('🏰 '+T('c_t'))+`<div class="sub" style="margin-bottom:6px">${T('c_d')} · 🔨 ${c.q.length}/${c.slots}${c.slots<2?' · '+T('c_vip2'):''}</div>${c.slots<2?`<button class="btn sm o" data-o="cQ2" style="margin-bottom:6px">🔨 ${T('c_q2')} · 💎500</button>`:''}
  <div style="display:flex;gap:6px;margin-bottom:6px"><button class="btn sm o" data-o="cForm">🧭 ${T('c_form')}</button><button class="btn sm" data-o="wArmy">📜 ${T('c_research')}</button></div>`;
  for(const b of c.list){const n=b.next,bl=b.until?cLeft(b.until):0;let btn='';
-  if(b.until)btn=`<button class="btn sm o" data-o="cSpeed" data-v="${b.key}">⏩ 💎${Math.max(1,Math.ceil(bl/60))}</button>`;
+  if(b.until)btn=`<button class="btn sm o" data-o="cSpeed" data-v="${b.key}">⏩ 💎${vipD(10,Math.max(1,Math.ceil(bl/60)))}</button>`;
   else if(n&&!n.req)btn=`<button class="btn sm g" data-o="cUp" data-v="${b.key}" ${c.q.length>=c.slots?'disabled':''}>⬆️ ${b.lvl?T('c_up'):T('c_build')}</button>`;
   const rq=n?.req==='kale'?T('c_req_kale',[Math.max(b.unlock,b.lvl+1)]):n?.req==='kisla_sur'?T('c_req_ks',[b.lvl]):'';
   h+=`<div class="card"><div class="ic">${CIC[b.key]}</div><div class="mid"><div class="nm">${T('c_b_'+b.key)} · ${b.lvl?T('c_lv',[b.lvl]):T('c_none')}</div><div class="sub">${T('c_x_'+b.key)}</div>
@@ -663,4 +664,33 @@ OA.cFormSave=async()=>{try{CT=await rpc('city_form',{p_cells:CF.cells,p_hero:CF.
 const cityApi={list:async()=>{if(!CT)await citySync();return CT.list.map(b=>({key:b.key,lvl:b.lvl,max:b.max,until:b.until,next:b.next}))},state:()=>CT,sync:()=>citySync(),on:f=>{cL.add(f);return()=>cL.delete(f)},open:()=>openCity(),upgrade:k=>OA.cUp(k),keys:CB};
 const lineApi=async()=>{if(!CT)await citySync();const S=G.S;return WTY.map(k=>({key:k,tier:+(CT.base?.[k]||1),eff:+(CT.tier?.[k]||1),n:Math.floor(S.troops?.[k]||0),beats:WBEAT[k]}))};
 Object.assign(SERR,{'Zaten inşa ediliyor':'c_e_busy','İnşaat sırası dolu':'c_e_queue','En üst seviye':'c_e_max','Kale seviyesi yetersiz':'c_e_kale','İnşaat yok':'c_e_none','Diziliş dolu':'c_e_form','Kaptan yok':'c_e_hero','Akademi seviyesi yetersiz':'c_e_ak'});
+// --- Faz D: sunucu VIP, DEMO paketler, ilk yükleme, etkinlik çubuğu, harcama sandıkları ---
+let PY=null;const PIC={starter:'🎁',monthly:'🗓️',g1:'💎',g2:'💰',g3:'🏆',g4:'👑',noads:'🚫',b_war:'⚔️',b_build:'🧱',b_heal:'🏥'};
+const pPrice=p=>'₺'+(+p).toFixed(2).replace('.',',');
+function payAdopt(r){if(!r)return;const S=G.S;if(r.vipPts!=null)S.vipPts=Math.max(+S.vipPts||0,+r.vipPts);if(r.builders!=null)S.builders=+r.builders;if(r.monthly!=null)S.monthly=+r.monthly;if(r.buy)Object.assign(S.buy,r.buy);if(r.pay)PY=r.pay;wAdopt(r)}
+async function paySync(){PY=await rpc('pay_info');if(PY&&G.S.vipPts<+PY.pts){G.S.vipPts=+PY.pts;G.save()}return PY}
+async function openPay(tab){if(!online)return open('pay',()=>hdr('👑 '+T('p_t'))+offline());try{await paySync()}catch(e){return err(e)}PY.tab=tab||PY.tab||'shop';open('pay',payHtml)}
+const pRw=x=>[x.g?'💎'+x.g:'',fmtR(x.r||{})].filter(Boolean).join(' · ');
+function payHtml(){const p=PY,v=p.vip,nx=p.vipn[v+1];let h=hdr('👑 '+T('p_t'))+`<div class="demo">${T('p_demo')}</div>
+ <div class="card"><div class="ic">👑</div><div class="mid"><div class="nm">VIP ${v}</div><div class="sub">${nx!=null?T('p_vip_next',[G.fmt(+p.pts),G.fmt(nx),v+1]):T('p_vip_max')}</div></div></div>
+ <div style="display:flex;gap:4px;margin:6px 0">${['shop','act','spend'].map(t=>`<button class="btn sm ${p.tab===t?'o':''}" data-o="pTab" data-v="${t}">${T('p_tab_'+t)}</button>`).join('')}</div>`;
+ if(p.tab==='shop'){if(!p.first)h+=`<div class="card" style="border-color:#ffd27a"><div class="ic">✨</div><div class="mid"><div class="nm">${T('p_first')}</div><div class="sub">${T('p_first_d',[p.firstb.gx,fmtR(p.firstb.r)])}</div></div></div>`;
+  for(const[k,c]of Object.entries(p.cat)){const own=c.once&&(p.buys[k]||0)>0;
+   h+=`<div class="card"><div class="ic">${PIC[k]||'💎'}</div><div class="mid"><div class="nm">${T('p_sku_'+k)}</div><div class="sub">${[c.g?'💎'+c.g:'',fmtR(c.r||{}),c.x?T('p_x_'+k):''].filter(Boolean).join(' · ')}</div><div class="sub">👑 +${c.v} VIP${c.g?' · '+(c.g/c.p).toFixed(1)+' 💎/₺':''}${p.buys[k]?' · ×'+p.buys[k]:''}</div></div><button class="btn sm g" data-o="pBuy" data-v="${k}" ${own?'disabled':''}>${own?'✅':pPrice(c.p)}</button></div>`}
+  h+=`<div class="sub">${T('p_honest')}</div>`}
+ else if(p.tab==='act'){const a=p.act;h+=`<div class="sub">${T('p_act_d')}</div><div style="height:12px;background:#0008;border-radius:6px;margin:8px 0;overflow:hidden"><div style="height:100%;width:${a.pts}%;background:linear-gradient(90deg,#ffb340,#ff5a2a)"></div></div><div class="nm">⚡ ${a.pts}/100</div>`;
+  a.ch.forEach((c,i)=>{const got=a.cl.includes(String(i)),ok=a.pts>=c.t;h+=`<div class="card"><div class="ic">${got?'✅':ok?'🎁':'🔒'}</div><div class="mid"><div class="nm">${c.t} ⚡</div><div class="sub">${pRw(c)}</div></div><button class="btn sm g" data-o="pAct" data-v="${i}" ${got||!ok?'disabled':''}>${T('p_claim')}</button></div>`});
+  h+=`<div class="sec">${T('p_act_how')}</div>`+Object.entries(a.def).map(([k,d])=>`<div class="sub">${T('p_a_'+k)} · +${d[0]} (${a.k[k]||0}/${d[1]})</div>`).join('')}
+ else{const s=p.spend;h+=`<div class="sub">${T('p_spend_d',[pPrice(p.spent)])}</div>`;
+  s.ch.forEach((c,i)=>{const got=s.cl.includes(String(i)),ok=+p.spent>=c.t;h+=`<div class="card"><div class="ic">${got?'✅':ok?'🎁':'🔒'}</div><div class="mid"><div class="nm">${pPrice(c.t)}</div><div class="sub">${pRw(c)}</div></div><button class="btn sm g" data-o="pSpend" data-v="${i}" ${got||!ok?'disabled':''}>${T('p_claim')}</button></div>`})}
+ return h}
+OA.pay=()=>openPay();OA.pTab=t=>{PY.tab=t;rerender()};
+async function payBuy(k){await push();const r=await rpc('shop_buy_demo',{p_sku:k});payAdopt(r);G.toast((r.first?'✨ ':'✅ ')+T('p_bought',[pRw(r.got)]));return r}
+OA.pBuy=k=>{const c=PY.cat[k];G.modal(`<h2>${PIC[k]||'💎'} ${T('p_sku_'+k)}</h2><p>${[c.g?'💎'+c.g:'',fmtR(c.r||{})].filter(Boolean).join(' · ')}</p><div class="demo">${T('p_demo')}</div>`,[[T('cancel'),'x'],[pPrice(c.p),'g',()=>payBuy(k).then(()=>rerender()).catch(err)]])};
+OA.pAct=async i=>{try{const r=await rpc('act_claim',{p_i:+i});payAdopt(r);G.toast('🎁');rerender()}catch(e){err(e)}};
+OA.pSpend=async i=>{try{const r=await rpc('pay_spend_claim',{p_i:+i});payAdopt(r);G.toast('🎁');rerender()}catch(e){err(e)}};
+OA.cQ2=async()=>{try{await push();const r=await rpc('city_queue_buy');cAdopt(r);G.toast('🔨 +1');rerender()}catch(e){err(e)}};
+const payApi={sync:()=>paySync(),state:()=>PY,open:t=>openPay(t),buy:k=>payBuy(k),vip:()=>PY?.vip??null};
+const vipD=(l,c)=>Math.max(1,Math.ceil(c*((PY?.vip??0)>=l?(l===8?.75:.8):1)));
+Object.assign(SERR,{'Zaten alındı':'p_e_got','Henüz açılmadı':'p_e_locked'});
 const worldApi={army:()=>rpc('army_info'),fort:()=>rpc('fort_info'),extra:()=>W.x,reports:()=>rpc('war_reports'),openArmy:()=>openArmy(),openFort:()=>openFort(),state:()=>W,on:f=>{wL.add(f);return()=>wL.delete(f)},view:(x,y,w,h)=>rpc('world_view',{p_x:x,p_y:y,p_w:w,p_h:h}),me:()=>rpc('world_me')};
