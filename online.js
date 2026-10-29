@@ -38,7 +38,7 @@ async function signIn(){let{data:{session}}=await sb.auth.getSession();if(sessio
  let cred=JSON.parse(localStorage.getItem('sf_guest')||'null');
  if(!cred){const r=await fetch(SB_URL+'/functions/v1/guest',{method:'POST',headers:{apikey:SB_KEY,'content-type':'application/json'}});if(!r.ok)throw new Error('guest');cred=await r.json();localStorage.setItem('sf_guest',JSON.stringify(cred))}
  const{data,error}=await sb.auth.signInWithPassword(cred);if(error)throw error;uid=data.user.id}
-async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();mailBtn();mailLoad();passSync();setInterval(mailLoad,90000);
+async function afterLogin(){prof=await rpc('ensure_profile');online=true;refClaimNow();craidLoad();mailBtn();mailLoad();passSync();setInterval(mailLoad,90000);
  const{data:sv}=await sb.from('saves').select('data,rev,updated_at').eq('user_id',uid).maybeSingle();const S=G.S;
  if(sv&&sv.data&&(sv.data.saved||0)>(S.saved||0)+10000&&!sessionStorage.getItem('sf_adopted')){adopt(sv);return}
  if(sv)rev=sv.rev;await push();
@@ -234,12 +234,12 @@ function leagueHtml(){const a=arena||{rating:1000,best:1000,wins:0,losses:0,seas
  return h+`<div class="sub" style="margin:6px 2px">${T('league_note')}</div>`}
 const TIC={Bronz:'🥉',Gümüş:'🥈',Altın:'🥇',Elmas:'💎',Efsane:'👑'};
 // ---------- SAVAŞ: baskın, arena, Sis Cephesi, raporlar, sıralama ----------
-let wlog=null,myCap=0,targets=[],opps=[],reports=[],board=[];
+let boardMe=null,wlog=null,myCap=0,targets=[],opps=[],reports=[],board=[];
 async function openPvp(tab){if(tab)pvpTab=tab;if(!online){open('pvp',()=>hdr(T('war_hdr'))+offline());return}await push();
  try{if(pvpTab==='raid')targets=await rpc('find_targets');if(pvpTab==='arena'){arena=await rpc('arena_me');opps=await rpc('arena_opponents');try{myCap=(await rpc('player_card',{p_id:uid})).cap_power||0}catch(e){};board=await rpc('arena_board')}
   if(pvpTab==='war'){await refreshClan();war=clan?await rpc('front_status'):{phase:'noclan'};war._t=Date.now();wlog=null;if(war.id)try{wlog=await rpc('front_log',{p_war:war.id})}catch(e){}}
   if(pvpTab==='rep'){const{data}=await sb.from('battles').select('*').or(`attacker.eq.${uid},defender.eq.${uid}`).order('id',{ascending:false}).limit(30);reports=data||[]}
-  if(pvpTab==='lb')board=boardTab==='kraken'?await rpc('leaderboard',{p_kind:'kraken',p_wk:wk()}):boardTab==='clan'?await rpc('clan_board',{p_wk:wk()}):await rpc('leaderboard',{p_kind:'power'});
+  if(pvpTab==='lb'){boardMe=null;if(boardTab==='clan')board=await rpc('clan_board',{p_wk:wk()});else{const rb=await rpc('rank_board',{p_kind:boardTab,p_wk:wk()});board=rb.rows||[];boardMe=rb.me}}
   prof=(await sb.from('profiles').select('*').eq('id',uid).single()).data||prof}catch(e){err(e)}
  open('pvp',pvpHtml);warTick()}
 const dur=ms=>{ms=Math.max(0,ms);const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4),s=Math.floor(ms%6e4/1e3);return h?T('dur_hm',[h,m]):T('dur_ms',[m,s])};
@@ -285,8 +285,10 @@ function pvpHtml(){let h=hdr(T('war_hdr'))+tabs(pvpTab,[['raid','🏴‍☠️ '
  if(pvpTab==='rep'){if(!reports.length)h+=`<div class="sub">${T('no_battles')}</div>`;for(const b of reports){const att=b.attacker===uid,won=att?b.win:!b.win,K={raid:'🏴‍☠️ '+T('t_raid'),arena:'🏟️ '+T('t_arena'),duel:'🤺 '+T('duel'),front:'🌫️ '+T('t_front')}[b.kind]||b.kind;
   const loot=b.kind==='raid'?Object.entries(b.loot||{}).filter(([,v])=>v).map(([k,v])=>`${G.L.RIC[k]}${fmt(v)}`).join(' '):b.kind==='arena'?T('n_points',[`${b.loot.rating>0?'+':''}${att?b.loot.rating:-Math.trunc(b.loot.rating/2)}`]):b.kind==='front'?stars(b.loot.stars||0):'';
   h+=`<div class="card" style="border-color:${won?'#3fb950':'#ff6b6b'}"><div class="ic">${won?'🏆':'💀'}</div><div class="mid"><div class="nm">${K} · ${att?'→ '+esc(b.def_nick):'← '+esc(b.att_nick)}</div><div class="sub">${won?T('victory'):T('defeat')} · ${loot?(att||b.kind!=='raid'?'':T('lost')+' ')+loot+' · ':''}${new Date(b.created_at).toLocaleString(locale,{dateStyle:'short',timeStyle:'short'})}</div></div><button class="btn sm" data-o="replay" data-v="${b.id}">▶️</button>${!att&&b.kind==='raid'&&!b.revenged&&Date.now()-new Date(b.created_at)<864e5?`<button class="btn sm r" data-o="revenge" data-v="${b.id}">${T('revenge')}</button>`:''}</div>`}}
- if(pvpTab==='lb'){h+=tabs(boardTab,[['power','⚔️ '+T('power')],['kraken','🦑 Kraken'],['clan','🛡️ '+T('clan_kraken')]],'boardTab')+'<div class="board">';
-  board.forEach((r,i)=>h+=boardTab==='clan'?`<div class="card ${clan&&r.tag===clan.tag?'me':''}"><b style="width:26px">#${i+1}</b><div class="ic">${esc(r.icon)}</div><div class="mid">${esc(r.name)} [${esc(r.tag)}]</div><b>${fmt(r.dmg)}</b></div>`:`<div class="card ${r.id===uid?'me':''}"><b style="width:26px">#${i+1}</b>${av(r.avatar,26)}<div class="mid" data-o="prof" data-v="${r.id}">${esc(r.nick)}${r.tag?` <span class="tag">[${esc(r.tag)}]</span>`:''}</div><b>${fmt(r.val)}</b></div>`);
+ if(pvpTab==='lb'){h+=`<div style="overflow-x:auto">`+tabs(boardTab,[['power','⚔️ '+T('power')],['stage','🏝️ '+T('rk_stage')],['pass','🎫 '+T('rk_pass')],['craid','🐉 '+T('rk_craid')],['kraken','🦑 Kraken'],['clan','🛡️ '+T('clan_kraken')]],'boardTab')+`</div><div class="sub">🌐 ${T('rk_h_'+boardTab)}</div>`;
+  if(boardTab!=='clan')h+=`<div class="card me" style="position:sticky;top:0;z-index:2"><b>${T('rk_me')}</b><div class="mid"></div><b>${boardMe?`#${boardMe.rank} · ${fmt(boardMe.val)}`:T('rk_none')}</b></div>`;
+  h+='<div class="board">';
+  board.forEach((r,i)=>h+=boardTab==='clan'||boardTab==='craid'?`<div class="card ${clan&&r.tag===clan.tag?'me':''}"><b style="width:26px">#${i+1}</b><div class="ic">${esc(r.icon)}</div><div class="mid">${esc(r.name)} [${esc(r.tag)}]${boardTab==='craid'?`<div class="sub">${T('cr_lvl',[r.lvl])}${r.killed?' · 💀 '+T('cr_killed'):''}</div>`:''}</div><b>${fmt(r.dmg??r.val)}</b></div>`:`<div class="card ${r.id===uid?'me':''}"><b style="width:26px">${['🥇','🥈','🥉'][(r.rk||i+1)-1]||'#'+(r.rk||i+1)}</b>${av(r.avatar,26)}<div class="mid" data-o="prof" data-v="${r.id}">${esc(r.nick)}${r.tag?` <span class="tag">[${esc(r.tag)}]</span>`:''}</div><b>${fmt(r.val)}</b></div>`);
   h+='</div>'+(board.length?'':`<div class="sub">${T('no_records')}</div>`)}
  return h}
 // Kraken sheet'inde gerçek sıralama (bot yerine)
@@ -318,7 +320,8 @@ function finish(r){const bt=$('battle');const loot=Object.entries(r.loot||{}).fi
 const val=id=>($(id)?.value||'').trim();
 // ---------- Klan Baskın Canavarı (Derin Yılan) ----------
 let craid=null;
-async function craidLoad(){try{craid=await rpc('craid_me')}catch(e){craid=null}}
+let cfeed=null,crTimer=null;async function craidLoad(){try{[craid,cfeed]=await Promise.all([rpc('craid_me'),rpc('craid_feed').catch(()=>null)])}catch(e){craid=null}craidDot()}
+function craidDot(){const on=!!(craid&&!craid.killed&&craid.left>0);document.querySelectorAll('#bClan').forEach(b=>{let d=b.querySelector('.crdot');if(!d){b.style.position='relative';d=document.createElement('i');d.className='crdot';d.style.cssText='position:absolute;top:4px;right:10px;width:9px;height:9px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 2px #0008';b.appendChild(d)}d.style.display=on?'block':'none'})}
 function craidHtml(){const r=craid;let h=G.hdr('🐉 '+T('cr_t'));if(!r)return h+`<div class="sub">${T('cr_noclan')}</div>`;
  const pct=Math.max(0,r.hp/r.hp_max*100),left=Math.max(0,r.end-Date.now()),tot=r.board.reduce((a,b)=>a+b.dmg,0)||1;
  h+=`<div class="card" style="flex-direction:column;align-items:stretch;background:linear-gradient(160deg,#06343a,#140828);border-color:#5fe0c0"><div style="text-align:center;font-size:72px;line-height:1;${r.killed?'filter:grayscale(1);opacity:.5':''}">🐉</div>
@@ -328,8 +331,12 @@ function craidHtml(){const r=craid;let h=G.hdr('🐉 '+T('cr_t'));if(!r)return h
  <div class="sub">${T('cr_rules')}</div><div class="sec">🏆 ${T('cr_board')}</div>`;
  if(!r.board.length)h+=`<div class="sub">${T('cr_none')}</div>`;
  r.board.forEach((b,i)=>{h+=`<div class="card" style="${b.id===uid?'border-color:#ffd27a':''}"><div class="ic">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div>${av(b.avatar)}<div class="mid"><div class="nm">${esc(b.nick)}</div><div class="sub">⚔️ ${fmt(b.dmg)} · ${Math.round(b.dmg/tot*100)}% · ${T('cr_hits',[b.hits])}</div></div></div>`});
+ const f=cfeed||{};if(f.prev)h+=`<div class="card"><div class="ic">${f.prev.killed?'🏆':'🌊'}</div><div class="mid"><div class="nm">${T('cr_prev')}</div><div class="sub">${f.prev.killed?T('cr_prev_win',[f.prev.lvl]):T('cr_prev_end',[f.prev.lvl,f.prev.pct])}</div></div></div>`;
+ h+=`<div class="sec">📜 ${T('cr_feed')}</div>`;if(!(f.log||[]).length)h+=`<div class="sub">${T('cr_none')}</div>`;
+ (f.log||[]).forEach(l=>{h+=`<div class="sub" style="display:flex;justify-content:space-between;padding:3px 4px;border-bottom:1px solid #ffffff14"><span>⚔️ <b>${esc(l.nick)}</b> −${fmt(l.dmg)}</span><span>${new Date(l.at).toLocaleTimeString(locale,{hour:'2-digit',minute:'2-digit'})}</span></div>`});
  h+=`<div class="sec">🎁 ${T('cr_rw_t')}</div><div class="sub">${T('cr_rw')}</div>`;return h}
-async function openCraid(){await craidLoad();open('craid',craidHtml)}
+function craidFloat(d,c){const e=document.createElement('div');e.textContent=(c?'💥 ':'−')+fmt(d);e.style.cssText=`position:fixed;left:50%;top:30%;transform:translateX(-50%);z-index:9999;font:900 ${c?34:26}px system-ui;color:${c?'#ffd27a':'#ff6b6b'};text-shadow:0 2px 6px #000;pointer-events:none;transition:all 1.1s ease-out`;document.body.appendChild(e);requestAnimationFrame(()=>{e.style.top='18%';e.style.opacity='0'});setTimeout(()=>e.remove(),1200)}
+async function openCraid(){await craidLoad();open('craid',craidHtml);clearInterval(crTimer);crTimer=setInterval(async()=>{if(!sheetIs('craid'))return clearInterval(crTimer);await craidLoad();if(sheetIs('craid'))rerender()},20000)}
 // ---------- Posta kutusu (sunucu postaları, ekli ödüller, savaş sonuçları) ----------
 let mails=[];
 async function mailLoad(){if(!online)return;try{mails=await rpc('mail_list')||[]}catch(e){return}mailDot()}
@@ -348,7 +355,7 @@ function passAdopt(p){const P=G.S.pass,t0=P.srv?Math.min(30,Math.floor(P.srv.xp/
 async function passSync(){if(!online)return null;const P=G.S.pass;if(!P.imp){try{const ks=o=>Object.keys(o||{}).filter(k=>o[k]).map(Number);passAdopt(await rpc('pass_import',{p_xp:P.xp|0,p_f:ks(P.cl?.f),p_p:ks(P.cl?.p),p_prem:!!P.prem}));P.imp=1;P.tq=0}catch(e){}}const n=Math.max(0,Math.min(150,P.tq||0));let p;try{p=await rpc(n?'pass_task':'pass_me',n?{p_n:n}:{});P.tq=0}catch(e){return null}return passAdopt(p)}
 const OA={
  craid:()=>openCraid(),
- craidHit:async(v,b)=>{if(b)b.disabled=true;try{const r=await rpc('craid_hit');craid=r;G.SFX?.coin?.();toast((r.crit?'💥 '+T('cr_crit')+' ':'⚔️ ')+T('cr_dmg',[fmt(r.dmg)]));if(r.killed){toast('🐉 '+T('cr_win'));setTimeout(mailLoad,800)}rerender()}catch(e){err(e);if(b)b.disabled=false}},
+ craidHit:async(v,b)=>{if(b)b.disabled=true;try{const r=await rpc('craid_hit');craid=r;cfeed=await rpc('craid_feed').catch(()=>cfeed);craidDot();craidFloat(r.dmg,r.crit);G.SFX?.coin?.();toast((r.crit?'💥 '+T('cr_crit')+' ':'⚔️ ')+T('cr_dmg',[fmt(r.dmg)]));if(r.killed){toast('🐉 '+T('cr_win'));setTimeout(mailLoad,800)}rerender()}catch(e){err(e);if(b)b.disabled=false}},
  mailClaim:async v=>{const m=mails.find(x=>x.id==v);if(!m)return;try{const rw=await mailTake(m);G.SFX?.coin?.();toast('🎁 '+G.rwStr(rw));G.ui();G.save();push();rerender();mailDot()}catch(e){err(e)}},
  mailAll:async()=>{let n=0;for(const m of mails.filter(x=>x.att&&!x.claimed)){try{await mailTake(m);n++}catch(e){}}if(n){G.SFX?.coin?.();toast(T('mail_got',[n]))}G.ui();G.save();push();rerender();mailDot()},
  pvpTab:v=>openPvp(v),boardTab:v=>{boardTab=v;openPvp('lb')},chTab:v=>openChat(v),goClan:()=>openClan(),
