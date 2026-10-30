@@ -24,8 +24,12 @@
     <main class="world" id="world">
       <div class="world-heading"><div><span class="eyebrow">KUZEY SINIRI · YILDIZ VADİSİ</span><h1>Yıldız Hisarı</h1><p>Bir yıldızın çevresinde yükselen krallığın.</p></div><button class="icon-button" id="recenter" aria-label="Şehrin tamamını göster" title="Şehrin tamamını göster"></button></div>
       <div class="city-viewport">
-      <canvas id="world-canvas" aria-label="Yıldız Hisarı, üç boyutlu kale görünümü. Bina seçmek için alttaki bina düğmelerini de kullanabilirsiniz."></canvas>
-      <div id="city-labels" class="city-labels" aria-label="Şehirdeki binalar"></div>
+      <div id="city-stage" class="city-stage" aria-label="Yıldız Hisarı. Binalara dokunarak geliştir, haritayı sürükleyerek gez.">
+        <div id="city-scene" class="city-scene">
+          <img class="city-backdrop" src="assets/city-backdrop.webp" alt="">
+          <div id="city-labels" class="city-labels" aria-label="Şehirdeki binalar"></div>
+        </div>
+      </div>
       </div>
       <div class="city-controls" aria-label="Harita kontrolleri"><button data-city-zoom="1.2" aria-label="Yakınlaştır" title="Yakınlaştır">+</button><button data-city-zoom="0.833333" aria-label="Uzaklaştır" title="Uzaklaştır">−</button><button data-city-labels aria-pressed="true" title="Bina adlarını göster veya gizle">Adlar</button></div>
       <button class="city-collect" data-collect><span>✦ Üretimi topla</span><small id="city-production">Kaynaklar birikiyor</small></button>

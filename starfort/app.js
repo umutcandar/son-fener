@@ -1,5 +1,5 @@
 import * as R from './rules.js';
-import { createScene } from './scene.js';
+import { createCity2D, CITY_SPOTS } from './city-2d.js';
 import { ROLES, HERO_LORE, CHAPTERS } from './content.js';
 import { BUILDING_EVOLUTION } from './building-evolution.js';
 import { battleMarkup } from './battle-view.js';
@@ -114,14 +114,15 @@ function renderPicker() {
   for (const building of R.BUILDINGS) {
     let label = cityLabelNodes.get(building.id);
     if (!label) {
-      label = document.createElement('button'); label.className = 'city-label'; label.dataset.building = building.id;
-      label.innerHTML = `<span class="city-label-level"></span><span class="city-label-name"></span>`;
-      $('#city-labels').append(label); cityLabelNodes.set(building.id, label);
+      label = document.querySelector(`.city-sprite[data-building="${building.id}"] .city-label`);
+      if (!label) continue;
+      cityLabelNodes.set(building.id, label);
     }
+    const spot = CITY_SPOTS[building.id];
+    if (spot) { label.closest('.city-sprite').style.zIndex = selectedBuilding === building.id ? '3' : '1'; }
     label.querySelector('.city-label-level').textContent = state.buildings[building.id];
     label.querySelector('.city-label-name').textContent = building.name.replace('Karaorman ', '').replace('Yıldız Rasathanesi', 'Rasathane').replace('Kor ', '');
     label.classList.toggle('selected', selectedBuilding === building.id);
-    label.setAttribute('aria-label', `${building.name}, seviye ${state.buildings[building.id]}, geliştirmeyi aç`);
   }
   renderCityProduction();
 }
@@ -436,15 +437,10 @@ $('#battle-dialog').addEventListener('click', event => { if (event.target === $(
 $('#battle-dialog').addEventListener('cancel', () => { combatRunner.pause(); if(!trialState)persist(); });
 $('#battle-dialog').addEventListener('close', () => { combatRunner.pause(); if(trialState) { trialState=null; activeView='shop'; render(); } else persist(); });
 try {
-  scene = createScene($('#world-canvas'), { onSelect: openBuilding, onProject: (id,x,y,visible) => {
-    const label=cityLabelNodes.get(id); if(!label)return;
-    label.hidden=!visible;
-    const transform=`translate(${Math.round(x)}px,${Math.round(y)}px) translate(-50%,0)`;
-    if(label.style.transform!==transform)label.style.transform=transform;
-  } });
+  scene = createCity2D($('#city-stage'), { onSelect: openBuilding });
 } catch (error) {
-  console.warn('Starfort 3D scene unavailable:', error);
-  $('#world-canvas').hidden = true; $('#city-labels').hidden = true; $('.city-controls').hidden = true; $('#world-fallback').hidden = false;
+  console.warn('Starfort city unavailable:', error);
+  $('#city-labels').hidden = true; $('.city-controls').hidden = true; $('#world-fallback').hidden = false;
 }
 $('#recenter').addEventListener('click', () => { activeView = 'keep'; scene?.overview(); render(); });
 if (state.battle?.status === 'active') { R.prepareLiveBattle(state); persist(); renderBattle(); }
