@@ -606,7 +606,7 @@ dialog, #building-dialog, #battle-dialog {
 }
 .nav-item.active { background: transparent; box-shadow: none; color: #f3efe6; }
 .nav-item.active svg {
-  background: radial-gradient(circle at 35% 28%, #ffe7a6, #7d8794 46%, #3a4658);
+  background: radial-gradient(circle at 35% 28%, #e7eef4, #7d8794 46%, #243044);
   color: #3a2408;
   border-color: #e4e8ee;
 }
@@ -773,7 +773,7 @@ dialog, #building-dialog, #battle-dialog {
 }
 .raise-spark {
   position: absolute; bottom: 30%; width: 6px; height: 6px; border-radius: 50%;
-  background: #ffe7a4; pointer-events: none;
+  background: #7ec8d4; pointer-events: none;
   animation: spark-up .9s ease-out forwards;
 }
 @keyframes spark-up {
