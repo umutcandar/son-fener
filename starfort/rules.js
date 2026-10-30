@@ -34,6 +34,13 @@ export const SPECIAL_HEROES = [
   { id:'nyxara',name:'Nyxara',title:'Tutulma Kâhini',role:'mage',color:'#b895db',premium:true,hp:105,attack:32,description:'Tutulmanın iki yüzünü de gören yıldız büyücüsü.',skill:'Tutulma: Her düşmana %75 hasar; kendine saldırısının %30’u kadar can yeniler.' },
 ];
 export const ALL_HEROES = [...HEROES,...SPECIAL_HEROES];
+const LATER_GOALS = {
+  9: 'priority', 11: 'priority', 12: 'survive', 13: 'survive', 14: 'protect',
+  15: 'priority', 16: 'survive', 17: 'protect', 18: 'priority', 19: 'priority',
+  21: 'survive', 22: 'protect', 23: 'survive', 24: 'priority', 25: 'priority',
+  26: 'survive', 27: 'protect', 28: 'survive', 29: 'priority',
+};
+const SURVIVE_MS = { 12: 22000, 13: 28000, 16: 34000, 21: 22000, 23: 28000, 26: 34000, 28: 22000 };
 export const STAGES = [
   { id: 1, chapter: 1, name: 'Kül Geçidi', description: 'Kaleye yaklaşan ilk akıncıları durdur.', enemyName: 'Kül Akıncısı', enemyCount: 3, recommendedPower: 250, reward: { gold: 120, wood: 60, stone: 35, aether: 12 } },
   { id: 2, chapter: 1, name: 'Kırık Şapel', description: 'Mira’yı gölge kuşatmasından kurtar.', enemyName: 'Gölge Müridi', enemyCount: 3, recommendedPower: 310, reward: { gold: 160, wood: 70, stone: 50, aether: 18 } },
@@ -71,10 +78,11 @@ function laterStages() {
     [30, 'Yıldız Kuyusu', 'Kuyu Hükümdarı', 'boss', 'Kuyunun dibindeki yıldızsız iradeyi boz.'],
   ];
   return rows.map(([id, name, enemyName, rank, description]) => {
-    const objective = rank === 'boss' ? null : id % 10 === 3 || id % 10 === 6 ? 'survive' : id % 10 === 7 ? 'protect' : id % 10 === 5 || id % 10 === 9 ? 'priority' : null;
-    const goal = objective === 'survive' ? ' Görev: 28 saniye dayan.' : objective === 'protect' ? ' Görev: Emanet’i koru.' : objective === 'priority' ? ' Görev: işaretli hedefi indir.' : '';
+    const objective = LATER_GOALS[id] || null;
+    const surviveMs = objective === 'survive' ? SURVIVE_MS[id] : null;
+    const goal = objective === 'survive' ? ` Görev: ${Math.round(surviveMs / 1000)} saniye dayan.` : objective === 'protect' ? ' Görev: Emanet’i koru.' : objective === 'priority' ? ' Görev: işaretli hedefi indir.' : '';
     return {
-    id, chapter: id <= 10 ? 1 : id <= 20 ? 2 : 3, name, enemyName, description: description + goal, rank, objective,
+    id, chapter: id <= 10 ? 1 : id <= 20 ? 2 : 3, name, enemyName, description: description + goal, rank, objective, surviveMs,
     enemyCount: rank === 'boss' ? 5 : 4,
     recommendedPower: 980 + (id - 8) * 85,
     reward: { gold: 520 + (id - 8) * 35, wood: 210 + (id - 8) * 16, stone: 190 + (id - 8) * 14, aether: 68 + (id - 8) * 3 },
@@ -224,6 +232,20 @@ export function upgradeBuilding(state, id, now = state.lastCollected) {
   return { ok: true };
 }
 
+export function nextStep(state) {
+  const hero = state.team
+    .map(id => ({ id, cost: heroCost(state, id), hero: heroById(id) }))
+    .filter(item => item.cost && state.heroes[item.id].level < MAX_HERO_LEVEL && canPay(state, item.cost))
+    .sort((a, b) => a.cost.gold - b.cost.gold)[0];
+  if (hero) return { kind: 'hero', id: hero.id, detail: `${hero.hero.name} şimdi geliştirilebilir. Bir sonraki deneme buna dayanır.` };
+  const building = BUILDINGS
+    .map(item => ({ item, cost: upgradeCost(state, item.id) }))
+    .filter(({ item, cost }) => cost && state.buildings[item.id] < item.maxLevel && (item.id === 'keep' || state.buildings[item.id] < state.buildings.keep + 1) && canPay(state, cost))
+    .sort((a, b) => (a.cost.gold || 0) - (b.cost.gold || 0))[0];
+  if (building) return { kind: 'building', id: building.item.id, detail: `${building.item.name} şimdi geliştirilebilir. Tepede yeni bir iz bırakır.` };
+  if (Object.values(production(state)).some(amount => amount > 0)) return { kind: 'collect', detail: 'Birikmiş üretimi topla. Sonraki geliştirme ona bağlı.' };
+  return { kind: 'wait', detail: 'Üretim birikince topla, sonra en ucuz kahramanı geliştir.' };
+}
 export function heroCost(state, id) {
   if (!heroById(id) || !state.heroes[id]) return null;
   const level = state.heroes[id].level;
@@ -454,7 +476,10 @@ function newBattle(state, stage, combatVersion=2) {
     starCharge: 40, log: [`${stage.name}: Kahramanlar savaşa hazır.`], reward: clone(stage.reward), rewardApplied: false, loot: null };
   if (stage.objective) {
     battle.objective = stage.objective;
-    if (stage.objective === 'survive') { battle.surviveRounds = 5; battle.surviveMs = 28000; }
+    if (stage.objective === 'survive') {
+      battle.surviveMs = stage.surviveMs || 28000;
+      battle.surviveRounds = Math.max(4, Math.round(battle.surviveMs / 5600));
+    }
     if (stage.objective === 'priority' && battle.enemies[0]) {
       battle.enemies[0].objective = true;
       battle.enemies[0].name = `${stage.enemyName} · Hedef`;

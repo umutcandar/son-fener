@@ -10,6 +10,7 @@ const sprites = {
   raider:['enemies',0,512], caster:['enemies',512,528], boss:['enemies',1040,496],
 };
 function spriteStyle(id) {
+  if (id === 'ward') return `--sheet:url('assets/emanet.webp');--atlas-size:100%;--atlas-x:0%;--sprite-ratio:.62`;
   const [sheet,x,width]=sprites[id]||sprites.raider;
   return `--sheet:url('assets/battle-${sheet==='enemies'?'enemies':`heroes-${sheet}`}.webp');--atlas-size:${1536/width*100}%;--atlas-x:${x/(1536-width)*100}%;--sprite-ratio:${width/1024}`;
 }
@@ -42,7 +43,7 @@ function abilityCard(hero,battle) {
     <span class="ability-energy"><i style="width:${status.energy}%"></i></span><span class="ability-status">${dead?'Savaş dışı':status.cooldown>0?`${Math.ceil(status.cooldown/1000)} sn yenileniyor`:status.ready?'HAZIR · KULLAN':`Enerji %${Math.floor(status.energy)}`}</span>
   </button>`;
 }
-export function battleMarkup({battle,trial=false,fx=null,speed=1,running=false}) {
+export function battleMarkup({battle,trial=false,fx=null,speed=1,running=false,advice=''}) {
   const stage=R.STAGES[battle.stageId-1], done=battle.status!=='active';
   const target=battle.enemies.find(enemy=>enemy.id===battle.targetId&&enemy.hp>0);
   const threats=done?[]:battle.enemies.filter(enemy=>enemy.hp>0&&R.liveEnemyIntent(battle,enemy).danger);
@@ -54,12 +55,13 @@ export function battleMarkup({battle,trial=false,fx=null,speed=1,running=false})
   const chapter = battle.towerFloor ? ({ ash:1, brand:2, siphon:3 }[battle.affix] || 1) : (stage?.chapter || 1);
   const eyebrow = battle.towerFloor ? `YILDIZ KULESİ · ${battle.towerFloor}. KAT${affixLabel ? ' · '+affixLabel : ''}` : `BÖLGE ${String(stage.id).padStart(2,'0')} · ${trial?'EĞİTİM DENEMESİ':stage.rank==='boss'?'BÖLÜM SONU':stage.rank==='elite'?'SEÇKİN':'YILDIZ SEFERİ'}${goal ? ' · '+goal : ''}`;
   const title = battle.towerFloor ? `Kat ${battle.towerFloor}` : stage.name;
-  const goalLine = battle.objective==='survive' ? '28 saniye dayan. Süre dolunca kalan saflar dağılır.' : battle.objective==='protect' ? 'Emanet’i hayatta tut. Düşerse sefer biter.' : battle.objective==='priority' ? 'İşaretli hedefi indir. Diğerleri kaçınca zafer sayılır.' : '';
+  const hold = Math.round((battle.surviveMs || stage?.surviveMs || 28000) / 1000);
+  const goalLine = battle.objective==='survive' ? `${hold} saniye dayan. Süre dolunca kalan saflar dağılır.` : battle.objective==='protect' ? 'Emanet’i hayatta tut. Düşerse sefer biter.' : battle.objective==='priority' ? 'İşaretli hedefi indir. Diğerleri kaçınca zafer sayılır.' : '';
   return `<section class="combat-shell chapter-${chapter} ${['star','eclipse','sun','frost'].includes(fx?.kind)?'star-burst':''} ${fx?.kind==='shield'?'guard-burst':''}">
     <header class="combat-heading"><div><span class="eyebrow">${eyebrow}</span><h2 id="battle-title">${title}</h2></div><div class="combat-tools">${!done?`<button class="combat-pause" data-combat-toggle aria-label="${running?'Savaşı duraklat':'Savaşa devam et'}" title="${running?'Taktik mola':'Devam et'}">${running?'Ⅱ':'▶'}</button>`:''}<button class="combat-speed" data-battle-speed aria-label="Savaş hızı: ${speed} kat">${speed}×</button><button class="combat-dismiss" data-close-battle aria-label="Savaşı kapat ve duraklat">×</button></div></header>
     ${trial?'<p class="combat-trial">Ücretsiz deneme · İlerlemen ve kaynakların değişmez.</p>':''}
     <div class="combat-arena chapter-${chapter} ${battle.enemies.length>3?'large-encounter':''} ${!running&&!done?'arena-paused':''}" aria-label="Savaş alanı">
-      <div class="arena-vignette"></div><div class="arena-rune" aria-hidden="true">✧</div>
+      <div class="arena-vignette"></div><div class="stage-light" aria-hidden="true"></div><div class="stage-props" aria-hidden="true"><i></i><i></i><i></i></div><div class="arena-rune" aria-hidden="true">✧</div>
       <div class="round-pill"><b class="battle-clock">${clock}</b><span>${label}</span></div>
       <div class="formation-side allies">${battle.allies.map((hero,index)=>fighter(hero,index,'ally',battle,fx)).join('')}</div>
       <div class="formation-side hostiles">${battle.enemies.map((enemy,index)=>fighter(enemy,index,'enemy',battle,fx)).join('')}</div>
@@ -67,7 +69,7 @@ export function battleMarkup({battle,trial=false,fx=null,speed=1,running=false})
       ${done?`<div class="combat-outcome ${battle.status}"><span>${battle.status==='won'?'✦':'◇'}</span><h3>${battle.status==='won'?'ZAFER':'YENİDEN DOĞ'}</h3><p>${battle.status==='won'?'Karanlık bir adım geri çekildi.':'Yemin henüz bitmedi.'}</p></div>`:''}
     </div>
     <div class="combat-command live-command">
-      ${done?`<div class="combat-rewards"><p>${trial?'Deneme tamamlandı. Kahramanın savaş tarzını gördün.':battle.status==='won'?storyFor(stage).victory:'Kahramanlarını ve ekipmanlarını geliştirerek yeniden deneyebilirsin. Kaynak kaybetmedin.'}</p>${battle.status==='won'&&!trial?`<div class="reward-chips">${Object.entries(battle.reward).map(([id,value])=>`<span>+${value} ${R.RESOURCES[id].name}</span>`).join('')}${battle.loot?`<span class="loot-chip">✧ ${R.itemById(battle.loot).name}</span>`:''}</div>`:''}</div><div class="combat-controls result-controls"><button class="combat-action attack-action" data-close-battle><b>${trial?'Mağazaya dön':'Köye dön'}</b><small>${trial?'Denemeyi bitir':'Kahramanların seni bekliyor'}</small></button>${trial?'':`<button class="combat-action defend-action" data-retry-stage="${stage.id}"><b>Yeniden savaş</b><small>Bu bölgeye tekrar gir</small></button>`}</div>`:
+      ${done?`<div class="combat-rewards"><p>${trial?'Deneme tamamlandı. Kahramanın savaş tarzını gördün.':battle.status==='won'?storyFor(stage).victory:`Kaynak kaybetmedin. ${advice||'Kahramanlarını ve ekipmanlarını geliştirerek yeniden deneyebilirsin.'}`}</p>${battle.status==='won'&&!trial?`<div class="reward-chips">${Object.entries(battle.reward).map(([id,value])=>`<span>+${value} ${R.RESOURCES[id].name}</span>`).join('')}${battle.loot?`<span class="loot-chip">✧ ${R.itemById(battle.loot).name}</span>`:''}</div>`:''}</div><div class="combat-controls result-controls"><button class="combat-action attack-action" data-close-battle><b>${trial?'Mağazaya dön':'Köye dön'}</b><small>${trial?'Denemeyi bitir':'Kahramanların seni bekliyor'}</small></button>${trial?'':`<button class="combat-action defend-action" data-retry-stage="${stage.id}"><b>Yeniden savaş</b><small>Bu bölgeye tekrar gir</small></button>`}</div>`:
       `<div class="tactical-line ${threats.length?'threat-line':''}"><span>${threats.length?(heavy?'YIKIM HAZIRLANIYOR':'BÜYÜ HAZIRLANIYOR'):running?'OTOMATİK ÇATIŞMA':'TAKTİK MOLA'}</span><p>${threats.length?'Hazır bir kesme yeteneği kullan veya kalkanla takımını koru.':!running?'Savaş duraklatıldı. Hedef veya yetenek seçebilir, ▶ ile devam edebilirsin.':target?`${esc(target.name)} hedefte. Kahramanlar kendileri saldırır; hazır yeteneğe dokun.`:'Kahramanlar kendileri saldırır. Hedefi ve özel yeteneklerin zamanını sen seç.'}</p></div>
       ${goalLine?`<p class="objective-line">${goalLine}</p>`:''}
       <div class="ability-belt" aria-label="Kahraman yetenekleri">${battle.allies.filter(hero=>R.HERO_ABILITIES[hero.id]).map(hero=>abilityCard(hero,battle)).join('')}</div>

@@ -203,7 +203,7 @@ function renderBuildingDialog() {
     <div class="building-dialog-body"><p class="building-dialog-description">${building.description}</p>
     <div class="building-levels" aria-label="Bina seviyesi ${level}">${Array.from({length:building.maxLevel},(_,i)=>`<span class="${i < level ? 'built' : ''}">${i+1}</span>`).join('')}</div>
     <div class="building-benefit"><span>${buildingBenefit(building,level)}</span>${maxed ? '' : `<span class="benefit-arrow">→</span><strong>${buildingBenefit(building,level+1)}</strong>`}</div>
-    <div class="evolution-note"><span>${svg('keepMenu')}</span><div><small>${maxed ? 'TAMAMLANAN YAPI' : 'SONRAKİ SEVİYE'}</small><strong>${BUILDING_EVOLUTION[building.id][maxed ? level-1 : level]}</strong><p>${maxed ? 'Bu yapının bütün geliştirmeleri tamam.' : 'Seviye, üretimi ve yapının etkisini artırır.'}</p></div></div>
+    <div class="evolution-note"><span>${svg('keepMenu')}</span><div><small>${maxed ? 'TAMAMLANAN YAPI' : 'SONRAKİ SEVİYE'}</small><strong>${BUILDING_EVOLUTION[building.id][maxed ? level-1 : level]}</strong><p>${maxed ? 'Bu yapının bütün geliştirmeleri tamam.' : level < 2 ? 'İlk geliştirme yapıya sancak ve ışık ekler.' : level < 5 ? 'Beşinci seviye iskele ve kule izi bırakır.' : 'Seviye, üretimi ve yapının etkisini artırmaya devam eder.'}</p></div></div>
     ${maxed ? '' : `<div class="upgrade-costs">${Object.entries(cost).map(([id,amount])=>`<div class="${state.res[id] < amount ? 'short' : ''}">${svg(resourceIcon[id])}<span><b>${number(amount)}</b><small>${resourceName[id]}</small></span></div>`).join('')}</div>`}
     <p class="upgrade-reason" role="status">${reason || 'Kaynaklar hazır. Geliştirme anında tamamlanır.'}</p>
     <button class="primary wide" data-upgrade-building="${building.id}" ${reason ? 'disabled' : ''}>${maxed ? 'En yüksek seviye' : `Seviye ${level+1} · Geliştir`}</button>
@@ -232,7 +232,8 @@ function renderQuest() {
   const oathChip = oath
     ? `<button class="goal-chip" ${R.oathStatus(state, oath.id) === 'ready' ? `data-claim-oath="${oath.id}"` : 'data-open-board'}><small>YEMİN ${state.oaths.length + 1}/${R.OATHS.length}</small><b>${oath.name}</b><span>${R.oathStatus(state, oath.id) === 'ready' ? 'Ödülü al' : 'Bak'}</span></button>`
     : '';
-  questEl.innerHTML = `${oathChip}${march}<button class="goal-chip daily-chip" data-open-board><small>GÜNLÜK</small><b>${state.daily.streak ? `${state.daily.streak}. gün` : 'Armağan'}</b><span>Aç</span></button>`;
+  const step = state.battle?.status === 'lost' ? R.nextStep(state) : null;
+  questEl.innerHTML = `${oathChip}${march}<button class="goal-chip daily-chip" data-open-board><small>GÜNLÜK</small><b>${state.daily.streak ? `${state.daily.streak}. gün` : 'Armağan'}</b><span>Aç</span></button>${step ? `<p class="quest-step">${step.detail}</p>` : ''}`;
 }
 function renderBoard() {
   const dayKey = (() => { const date = new Date(); return `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`; })();
@@ -322,7 +323,7 @@ function renderBattle(fx=null) {
   if(!battle) return;
   const wasOpen=dialog.open, focused=document.activeElement;
   const focusSelector=focused?.dataset.ability?`[data-ability="${focused.dataset.ability}"]`:focused?.dataset.target?`[data-target="${focused.dataset.target}"]`:focused?.hasAttribute('data-combat-toggle')?'[data-combat-toggle]':focused?.hasAttribute('data-battle-speed')?'[data-battle-speed]':null;
-  const markup=battleMarkup({battle,trial:Boolean(trialState),fx,speed:battleSpeed,running:combatRunner.running});
+  const markup=battleMarkup({battle,trial:Boolean(trialState),fx,speed:battleSpeed,running:combatRunner.running,advice:battle.status==='lost'&&!trialState?R.nextStep(state).detail:''});
   const previous=$('.combat-shell',dialog);
   if(wasOpen&&previous&&battle.status==='active'&&!$('.combat-outcome',previous)) {
     // Keep interactive targets and skill buttons alive while combat updates around them.

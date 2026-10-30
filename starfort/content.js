@@ -8,7 +8,7 @@ export function storyFor(stage) {
   const written = CHAPTERS[stage.id - 1];
   if (written) return written;
   const goalTactic = {
-    survive: '28 saniye dayan. Süre dolunca kalan düşmanlar dağılır.',
+    survive: `${Math.round((stage.surviveMs || 28000) / 1000)} saniye dayan. Süre dolunca kalan düşmanlar dağılır.`,
     protect: 'Emanet düşünce sefer biter. Darbeleri ondan uzak tut.',
     priority: 'İşaretli hedef düşünce diğerleri kaçar.',
   }[stage.objective];

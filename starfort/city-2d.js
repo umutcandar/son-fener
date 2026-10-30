@@ -12,7 +12,7 @@ export const CITY_SPOTS = {
 };
 const SMOKE_IDS = new Set(['keep', 'forge', 'farm', 'lumber', 'tavern']);
 
-const tierOf = level => (level <= 2 ? 'a' : level <= 5 ? 'b' : 'c');
+const tierOf = level => (level <= 1 ? 'a' : level <= 4 ? 'b' : 'c');
 
 export function createCity2D(stage, { onSelect = () => {} } = {}) {
   const scene = stage.querySelector('#city-scene');
@@ -36,6 +36,11 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     label.className = 'city-label';
     label.innerHTML = '<span class="city-label-level"></span><span class="city-label-name"></span>';
     button.append(label);
+    const dress = document.createElement('span');
+    dress.className = 'town-dress';
+    dress.setAttribute('aria-hidden', 'true');
+    dress.innerHTML = '<i class="dress-banner"></i><i class="dress-light"></i><i class="dress-scaffold"></i><i class="dress-tower"></i>';
+    button.append(dress);
     const baked = scene.classList.contains('baked');
     if (!baked) {
       const img = document.createElement('img');
@@ -62,7 +67,8 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
   }
   function clampPan() {
     const { w, h, rect } = sceneSize();
-    if (w <= rect.width) x = (rect.width - w) / 2;
+    const room = Math.max(240, rect.width - panelReserve());
+    if (w <= room) x = Math.max(0, (room - w) / 2);
     else x = Math.min(0, Math.max(rect.width - w, x));
     if (h <= rect.height) y = (rect.height - h) / 2;
     else y = Math.min(0, Math.max(rect.height - h, y));
@@ -78,18 +84,30 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     clampPan();
     apply();
   }
+  function panelReserve() {
+    const inspector = document.querySelector('#inspector');
+    if (!inspector || inspector.hidden) return 0;
+    const style = getComputedStyle(inspector);
+    if (style.display === 'none' || style.position !== 'absolute') return 0;
+    const panel = inspector.getBoundingClientRect();
+    const bounds = stage.getBoundingClientRect();
+    if (panel.width < 180 || panel.height < 180 || panel.left < bounds.left + bounds.width * 0.45) return 0;
+    const overlap = bounds.right - panel.left;
+    return overlap > 8 ? overlap + 18 : 0;
+  }
   function layout(reset = true) {
     const rect = stage.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) return;
     const aspect = 16 / 9;
-    let w = rect.width;
+    const reserve = panelReserve();
+    let w = Math.max(240, rect.width - reserve);
     let h = w / aspect;
-    if (h > rect.height) { h = rect.height; w = h * aspect; }
+    if (h > rect.height - 12) { h = rect.height - 12; w = h * aspect; }
     scene.style.width = `${w}px`;
     scene.style.height = `${h}px`;
     if (reset) {
       scale = 1;
-      x = (rect.width - w) / 2;
+      x = Math.max(0, (rect.width - reserve - w) / 2);
       y = (rect.height - h) / 2;
       clampPan();
       apply();
@@ -101,6 +119,7 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
       const src = `assets/buildings/${id}-${tierOf(level)}.webp`;
       const img = button.querySelector('img');
       if (img && img.getAttribute('src') !== src) img.src = src;
+      button.dataset.tier = tierOf(level);
       button.classList.toggle('is-selected', id === selected);
       button.style.zIndex = String((id === selected ? 40 : 0) + 20 + Math.round(CITY_SPOTS[id].y));
       button.setAttribute('aria-label', `${id} seviye ${level}`);

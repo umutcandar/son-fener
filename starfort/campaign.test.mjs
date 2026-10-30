@@ -47,6 +47,12 @@ test('later stages use different formations, goals, and wounded boss phases', ()
   assert.equal(R.STAGES.find(stage => stage.id === 15).objective, 'priority');
   assert.equal(R.STAGES.find(stage => stage.id === 17).objective, 'protect');
   assert.equal(R.STAGES[0].objective, undefined);
+  const late = R.STAGES.filter(stage => stage.id >= 9 && stage.rank !== 'boss');
+  assert.ok(late.every(stage => stage.objective));
+  assert.equal(new Set(late.map(stage => stage.objective)).size, 3);
+  assert.equal(R.STAGES.find(stage => stage.id === 12).surviveMs, 22000);
+  assert.equal(R.STAGES.find(stage => stage.id === 16).surviveMs, 34000);
+  assert.equal(R.STAGES.find(stage => stage.id === 10).objective, null);
   const seal = { role: 'boss', chapter: 1, stageId: 10, hp: 40, maxHp: 100 };
   assert.equal(enemyIntent({ round: 1, combatVersion: 2 }, seal).type, 'crush');
   assert.equal(enemyIntent({ round: 1, combatVersion: 2 }, { ...seal, hp: 80 }).type, 'strike');
@@ -125,6 +131,25 @@ test('a live survive fight ends on the clock and a fallen ward ends a protect fi
   R.advanceCombat(escort, 1000);
   assert.equal(escort.battle.status, 'lost');
   assert.equal(escort.res.gold, held);
+});
+
+test('a lost march names the next affordable step', () => {
+  const ready = fresh();
+  assert.equal(R.nextStep(ready).kind, 'hero');
+  assert.match(R.nextStep(ready).detail, /Aldren/);
+  ready.res = { gold: 0, wood: 0, stone: 0, aether: 0 };
+  ready.lastCollected = Date.now() - 120000;
+  assert.equal(R.nextStep(ready).kind, 'collect');
+  const broke = fresh();
+  broke.res = { gold: 0, wood: 0, stone: 0, aether: 0 };
+  broke.lastCollected = Date.now();
+  assert.equal(R.nextStep(broke).kind, 'wait');
+  const state = fresh();
+  state.cleared = Array.from({ length: 11 }, (_, index) => index + 1);
+  assert.equal(R.startBattle(state, 12).ok, true);
+  assert.equal(state.battle.objective, 'survive');
+  assert.equal(state.battle.surviveMs, 22000);
+  assert.equal(state.battle.surviveRounds, 4);
 });
 
 test('later stages stay locked until the road is contiguous', () => {
