@@ -1,9 +1,10 @@
 import * as R from './rules.js';
-import { createScene } from './scene.js';
-import { ROLES, HERO_LORE, CHAPTERS } from './content.js';
+import { createCity2D, CITY_SPOTS } from './city-2d.js';
+import { ROLES, HERO_LORE, CAMPAIGN, storyFor } from './content.js';
 import { BUILDING_EVOLUTION } from './building-evolution.js';
 import { battleMarkup } from './battle-view.js';
 import { createBattleRunner } from './battle-runner.js';
+import { createMixer } from './audio.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -27,66 +28,148 @@ const iconPaths = {
   wood: '<path d="m5 4 14 16M8 7l3-3M11 10l4-4M14 13l3-3M17 16l3-3"/>',
   stone: '<path d="m12 3 8 4v10l-8 4-8-4V7zM4 7l8 5 8-5M12 12v9"/>',
 };
-const svg = (name, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name] || iconPaths.star}</svg>`;
+const svg = (name, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name] || iconPaths.star}</svg>`;
 const resourceIcon = { gold: 'coin', wood: 'wood', stone: 'stone', aether: 'star' };
 const resourceName = { gold: 'Altın', wood: 'Kereste', stone: 'Taş', aether: 'Yıldız özü' };
-const navItems = [ ['keep', 'keep', 'Hisar'], ['heroes', 'heroes', 'Yeminliler'], ['expedition', 'expedition', 'Seferler'], ['armory', 'forge', 'Cephanelik'], ['shop', 'shop', 'Mağaza'], ['journal', 'journal', 'Kronik'] ];
+const navItems = [ ['keep', 'keep', 'Köy'], ['heroes', 'heroes', 'Kahramanlar'], ['expedition', 'expedition', 'Seferler'], ['armory', 'forge', 'Cephanelik'], ['shop', 'shop', 'Mağaza'], ['journal', 'journal', 'Kronik'] ];
+const sourceBuilding = { gold: 'farm', wood: 'lumber', stone: 'quarry', aether: 'observatory' };
 let state;
+let campaignChapter = 1;
 try { state = R.restoreState(localStorage.getItem(R.STORAGE_KEY)); } catch { state = R.createState(); }
 let battleSpeed=1, battleFxExpires=0;
 let activeView = 'keep', selectedBuilding = 'keep', toastTimer, scene, selectedSlot = 0, selectedArmoryHero = 'aldren', trialState = null;
 const cityLabelNodes = new Map();
 const resourcesEl = $('#resources'), navEl = $('#navigation'), inspectorEl = $('#inspector'), workspaceEl = $('#workspace'), questEl = $('#next-quest');
+const mixer = createMixer();
 const combatRunner=createBattleRunner({
   advance:tickCombat,
   canRun:()=>$('#battle-dialog').open&&!document.hidden&&(trialState||state).battle?.status==='active',
   onPause:()=>{if(!trialState)persist(); if($('#battle-dialog').open)renderBattle();},
 });
 
+let saveLabel = 'Yerel kayıt hazır';
 function persist() {
-  try { localStorage.setItem(R.STORAGE_KEY, JSON.stringify(state)); $('#save-status').textContent = 'Yerel kayıt hazır'; }
-  catch { $('#save-status').textContent = 'Kayıt alanı dolu'; }
+  try { localStorage.setItem(R.STORAGE_KEY, JSON.stringify(state)); saveLabel = 'Yerel kayıt hazır'; }
+  catch { saveLabel = 'Kayıt alanı dolu'; }
+  const status = $('#save-status'); if (status) status.textContent = saveLabel;
 }
 function notify(message) {
   const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
 }
+const motionOK = () => !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function flyLoot(origin, gain) {
+  if (!motionOK() || !origin) return;
+  for (const [id, amount] of Object.entries(gain || {})) {
+    if (!amount) continue;
+    const target = document.querySelector(`.resource[data-res="${id}"]`);
+    if (!target) continue;
+    const end = target.getBoundingClientRect();
+    const count = Math.min(4, Math.max(2, Math.ceil(amount / 80)));
+    for (let i = 0; i < count; i++) {
+      const token = document.createElement('span');
+      token.className = 'loot-token';
+      token.innerHTML = svg(resourceIcon[id]);
+      token.style.left = `${origin.left + origin.width / 2}px`;
+      token.style.top = `${origin.top + origin.height / 2}px`;
+      document.body.append(token);
+      const dx = end.left + end.width / 2 - (origin.left + origin.width / 2) + (i - (count - 1) / 2) * 14;
+      const dy = end.top + end.height / 2 - (origin.top + origin.height / 2);
+      const anim = token.animate([
+        { transform: 'translate(-50%, -50%) scale(.55)', opacity: 0 },
+        { transform: `translate(calc(-50% + ${dx * .25}px), calc(-50% - 28px)) scale(1)`, opacity: 1, offset: .35 },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.4)`, opacity: .05 },
+      ], { duration: 620 + i * 45, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
+      anim.onfinish = () => token.remove();
+    }
+    target.classList.add('loot-hit');
+    setTimeout(() => target.classList.remove('loot-hit'), 420);
+  }
+}
+function markRaised(id) {
+  const sprite = document.querySelector(`.city-sprite[data-building="${id}"]`);
+  if (!sprite || !motionOK()) return;
+  sprite.classList.add('is-raising');
+  for (let i = 0; i < 5; i++) {
+    const spark = document.createElement('i');
+    spark.className = 'raise-spark';
+    spark.style.left = `${18 + i * 14}%`;
+    spark.style.animationDelay = `${i * 80}ms`;
+    sprite.append(spark);
+    spark.addEventListener('animationend', () => spark.remove());
+  }
+  setTimeout(() => sprite.classList.remove('is-raising'), 1400);
+}
 function result(action, success) { if (!action.ok) { notify(action.error); return false; } if (success) notify(success); persist(); render(); return true; }
 function renderResources() {
-  resourcesEl.innerHTML = Object.entries(R.RESOURCES).map(([id, item]) => `<div class="resource" data-res="${id}">${svg(resourceIcon[id])}<span><b>${number(state.res[id])}</b><small>${item.name}</small></span></div>`).join('');
+  resourcesEl.innerHTML = Object.entries(R.RESOURCES).map(([id, item]) => `<div class="resource" data-res="${id}">${svg(resourceIcon[id])}<span><b>${number(state.res[id])}</b><small>${item.name}</small></span><button type="button" class="res-plus" data-building="${sourceBuilding[id]}" aria-label="${item.name} yapısını aç">+</button></div>`).join('');
+}
+function renderAccount() {
+  const mark = document.querySelector('.avatar-mark');
+  if (!mark) return;
+  if (!mark.querySelector('img')) mark.innerHTML = '<img src="assets/aldren.webp" alt="Köy muhafızı"><b></b>';
+  mark.querySelector('b').textContent = state.buildings.keep;
+  const status = $('#save-status'); if (status) status.textContent = saveLabel;
+  const power = $('#power-chip'); if (power) power.textContent = `✦ ${number(R.teamPower(state))}`;
 }
 function renderNav() {
-  navEl.innerHTML = navItems.map(([id, icon, label]) => `<button class="nav-item ${activeView === id ? 'active' : ''}" data-view="${id}" aria-label="${label}" aria-current="${activeView === id ? 'page' : 'false'}">${svg(icon)}<span>${label}</span></button>`).join('') + '<div class="rail-foot">✦ &nbsp; V 0.7</div>';
+  const prodReady = Object.values(R.production(state)).some(amount => amount > 0);
+  const marchReady = state.cleared.length < R.STAGES.length && state.battle?.status !== 'active';
+  navEl.innerHTML = navItems.map(([id, icon, label]) => {
+    const dot = (id === 'keep' && prodReady) || (id === 'expedition' && marchReady);
+    return `<button class="nav-item ${activeView === id ? 'active' : ''}" data-view="${id}" aria-label="${label}" aria-current="${activeView === id ? 'page' : 'false'}">${svg(icon)}<span>${label}</span>${dot ? '<i class="nav-dot" aria-hidden="true"></i>' : ''}</button>`;
+  }).join('') + '<div class="rail-foot">✦ &nbsp; V 0.7</div>';
 }
 function renderPicker() {
   $('#building-picker').innerHTML = R.BUILDINGS.map(building => `<button class="building-choice ${selectedBuilding === building.id ? 'active' : ''}" data-building="${building.id}" aria-label="${building.name}, seviye ${state.buildings[building.id]}">${svg(building.id)}<span>${building.name.replace('Karaorman ', '').replace('Yıldız ', '').replace('Kor ', '').replace('Aytaşı ', '')}</span></button>`).join('');
-  $('#keep-caption').textContent = `Kale seviyesi ${state.buildings.keep}`;
+  $('#keep-caption').textContent = `Köy seviyesi ${state.buildings.keep}`;
   for (const building of R.BUILDINGS) {
     let label = cityLabelNodes.get(building.id);
     if (!label) {
-      label = document.createElement('button'); label.className = 'city-label'; label.dataset.building = building.id;
-      label.innerHTML = `<span class="city-label-level"></span><span class="city-label-name"></span>`;
-      $('#city-labels').append(label); cityLabelNodes.set(building.id, label);
+      label = document.querySelector(`.city-sprite[data-building="${building.id}"] .city-label`);
+      if (!label) continue;
+      cityLabelNodes.set(building.id, label);
     }
+    const spot = CITY_SPOTS[building.id];
+    if (spot) label.closest('.city-sprite').style.zIndex = String((selectedBuilding === building.id ? 40 : 0) + 20 + Math.round(spot.y));
     label.querySelector('.city-label-level').textContent = state.buildings[building.id];
     label.querySelector('.city-label-name').textContent = building.name.replace('Karaorman ', '').replace('Yıldız Rasathanesi', 'Rasathane').replace('Kor ', '');
     label.classList.toggle('selected', selectedBuilding === building.id);
-    label.setAttribute('aria-label', `${building.name}, seviye ${state.buildings[building.id]}, geliştirmeyi aç`);
   }
   renderCityProduction();
 }
 function renderCityProduction() {
   const gain = R.production(state);
   const total = Object.values(gain).reduce((sum, n) => sum+n, 0);
-  $('#city-production').textContent = total ? Object.entries(gain).filter(([,n])=>n).map(([id,n])=>`${number(n)} ${resourceName[id]}`).join(' · ') : 'Kaynaklar birikiyor';
-  $('.city-collect').classList.toggle('ready', total > 0);
+  const summary = $('#city-production');
+  if (summary) summary.textContent = total ? Object.entries(gain).filter(([,n])=>n).map(([id,n])=>`${number(n)} ${resourceName[id]}`).join(' · ') : 'Kaynaklar birikiyor';
+  $('.city-collect')?.classList.toggle('ready', total > 0);
+  for (const building of R.BUILDINGS) {
+    const sprite = document.querySelector(`.city-sprite[data-building="${building.id}"]`);
+    if (!sprite) continue;
+    const amount = building.production ? gain[building.production.resource] : 0;
+    let bubble = sprite.querySelector('.town-bubble');
+    if (amount > 0) {
+      if (!bubble) {
+        bubble = document.createElement('button');
+        bubble.type = 'button';
+        bubble.className = 'town-bubble';
+        bubble.setAttribute('data-collect', '');
+        bubble.innerHTML = '<span></span>';
+        sprite.append(bubble);
+      }
+      bubble.hidden = false;
+      bubble.querySelector('span').textContent = `+${number(amount)}`;
+      bubble.setAttribute('aria-label', `${building.name} üretimini topla`);
+    } else if (bubble) bubble.hidden = true;
+  }
 }
 function costHtml(cost, reward = false) {
   return Object.entries(cost || {}).map(([id, amount]) => `<span class="cost ${!reward && state.res[id] < amount ? 'short' : ''}" title="${resourceName[id]}">${svg(resourceIcon[id])}${reward ? '+' : ''}${number(amount)}</span>`).join('');
 }
 
 function buildingProduction() {
-  return `<div class="production-box"><div class="production-top"><strong>Hisarın üretimi</strong><small>En çok 4 saat</small></div><div class="cost-list" id="production-gain">${costHtml(R.production(state), true)}</div><button class="secondary wide" data-collect>Biriken kaynakları topla</button></div>`;
+  return `<div class="production-box"><div class="production-top"><strong>Köyün üretimi</strong><small>En çok 4 saat</small></div><div class="cost-list" id="production-gain">${costHtml(R.production(state), true)}</div><button class="secondary wide" data-collect>Biriken kaynakları topla</button></div>`;
 }
 
 function heroCard(hero) {
@@ -97,7 +180,7 @@ function heroCard(hero) {
   return `<article class="hero-card ${inTeam ? 'selected' : ''} ${unlocked ? '' : 'locked'}" style="--hero:${hero.color}">
     <div class="hero-portrait">${heroPortrait(hero)}<span class="role-tag">${ROLES[hero.role]}</span><span class="hero-level">${unlocked ? 'SEV. '+level : 'KİLİTLİ'}</span><div class="portrait-title"><small>${hero.title}</small><h3>${hero.name}</h3></div></div>
     <div class="hero-card-content"><p>${HERO_LORE[hero.id]}</p><div class="hero-stats"><span>⚔ ${attack} saldırı</span><span>♡ ${hp} can</span></div><div class="skill">${R.HERO_ABILITIES[hero.id].name}: ${R.HERO_ABILITIES[hero.id].description}</div>
-    ${unlocked ? `<button class="${inTeam ? 'secondary' : 'primary'}" data-team="${hero.id}" ${state.battle?.status === 'active' ? 'disabled' : ''}>${state.team[selectedSlot] === hero.id ? 'Bu konumda' : `${selectedSlot + 1}. konuma ${inTeam ? 'taşı' : 'al'}`}</button><div class="cost-list">${costHtml(cost)}</div><button class="secondary" data-upgrade-hero="${hero.id}" ${canUpgrade ? '' : 'disabled'}>${level >= 20 ? 'En yüksek seviye' : 'Kahramanı geliştir'}</button><button class="text-button wide" data-armory-hero="${hero.id}">Ekipmanlarını düzenle</button>` : `<div class="unlock-note">${svg('expedition')} ${R.STAGES[hero.unlockStage - 1].name} zaferiyle katılır</div>`}</div></article>`;
+    ${unlocked ? `<p class="star-rank" aria-label="${state.heroes[hero.id].stars || 0} yıldız">${'✦'.repeat(state.heroes[hero.id].stars || 0)}${'✧'.repeat(5 - (state.heroes[hero.id].stars || 0))}</p><button class="${inTeam ? 'secondary' : 'primary'}" data-team="${hero.id}" ${state.battle?.status === 'active' ? 'disabled' : ''}>${state.team[selectedSlot] === hero.id ? 'Bu konumda' : `${selectedSlot + 1}. konuma ${inTeam ? 'taşı' : 'al'}`}</button><div class="cost-list">${costHtml(cost)}</div><button class="secondary" data-upgrade-hero="${hero.id}" ${canUpgrade ? '' : 'disabled'}>${level >= 20 ? 'En yüksek seviye' : 'Kahramanı geliştir'}</button><div class="cost-list">${costHtml(R.heroStarCost(state, hero.id))}</div><button class="secondary" data-hero-star="${hero.id}" ${(state.heroes[hero.id].stars || 0) >= 5 || state.battle?.status === 'active' || Object.entries(R.heroStarCost(state, hero.id)).some(([rid, amount]) => state.res[rid] < amount) ? 'disabled' : ''}>${(state.heroes[hero.id].stars || 0) >= 5 ? 'En yüksek yıldız' : 'Yıldız yükselt'}</button><button class="text-button wide" data-armory-hero="${hero.id}">Ekipmanlarını düzenle</button>` : `<div class="unlock-note">${svg('expedition')} ${R.STAGES[hero.unlockStage - 1].name} zaferiyle katılır</div>`}</div></article>`;
 }
 
 function heroPortrait(hero) {
@@ -122,7 +205,7 @@ function renderBuildingDialog() {
     <div class="building-dialog-body"><p class="building-dialog-description">${building.description}</p>
     <div class="building-levels" aria-label="Bina seviyesi ${level}">${Array.from({length:building.maxLevel},(_,i)=>`<span class="${i < level ? 'built' : ''}">${i+1}</span>`).join('')}</div>
     <div class="building-benefit"><span>${buildingBenefit(building,level)}</span>${maxed ? '' : `<span class="benefit-arrow">→</span><strong>${buildingBenefit(building,level+1)}</strong>`}</div>
-    <div class="evolution-note"><span>${svg('keepMenu')}</span><div><small>${maxed ? 'TAMAMLANAN YAPI' : 'SONRAKİ GÖRÜNÜM'}</small><strong>${BUILDING_EVOLUTION[building.id][maxed ? level-1 : level]}</strong><p>${maxed ? 'Tüm mimari geliştirmeler tamamlandı.' : 'Geliştirdiğinde bu bölüm binaya eklenir.'}</p></div></div>
+    <div class="evolution-note"><span>${svg('keepMenu')}</span><div><small>${maxed ? 'TAMAMLANAN YAPI' : 'SONRAKİ SEVİYE'}</small><strong>${BUILDING_EVOLUTION[building.id][maxed ? level-1 : level]}</strong><p>${maxed ? 'Bu yapının bütün geliştirmeleri tamam.' : level < 2 ? 'İlk geliştirme yapıya sancak ve ışık ekler.' : level < 5 ? 'Beşinci seviye iskele ve kule izi bırakır.' : 'Seviye, üretimi ve yapının etkisini artırmaya devam eder.'}</p></div></div>
     ${maxed ? '' : `<div class="upgrade-costs">${Object.entries(cost).map(([id,amount])=>`<div class="${state.res[id] < amount ? 'short' : ''}">${svg(resourceIcon[id])}<span><b>${number(amount)}</b><small>${resourceName[id]}</small></span></div>`).join('')}</div>`}
     <p class="upgrade-reason" role="status">${reason || 'Kaynaklar hazır. Geliştirme anında tamamlanır.'}</p>
     <button class="primary wide" data-upgrade-building="${building.id}" ${reason ? 'disabled' : ''}>${maxed ? 'En yüksek seviye' : `Seviye ${level+1} · Geliştir`}</button>
@@ -139,37 +222,69 @@ function renderInspector() {
   const building = R.BUILDINGS.find(item => item.id === selectedBuilding) || R.BUILDINGS[0], level = state.buildings[building.id], cost = R.upgradeCost(state, building.id);
   const blocked = level >= building.maxLevel || (building.id !== 'keep' && level >= state.buildings.keep + 1) || Object.entries(cost).some(([id, amount]) => state.res[id] < amount) || state.battle?.status === 'active';
   const team = state.team.map(id => R.HEROES.find(hero => hero.id === id));
-  inspectorEl.innerHTML = `<div class="building-details"><div class="section-head"><small>KALE YÖNETİMİ</small><span class="level-badge">SEVİYE ${level}</span></div><div class="building-portrait">${svg(building.id)}</div><h2>${building.name}</h2><p class="building-description">${building.description}</p><div class="stat-line"><span>Gelişim</span><b>${level} / ${building.maxLevel}</b></div>${building.production ? `<div class="stat-line"><span>Üretim hızı</span><b>${number(building.production.perMinute * level * (1 + (state.buildings.keep - 1) * .05))} ${resourceName[building.production.resource]} / dk</b></div>` : `<div class="stat-line"><span>Hisar etkisi</span><b>${building.id === 'keep' ? '+%5 üretim / seviye' : building.id === 'forge' ? '+%5 saldırı / seviye' : '+%4 can / seviye'}</b></div>`}<div class="cost-list">${costHtml(cost)}</div><button class="primary wide" data-upgrade-building="${building.id}" ${blocked ? 'disabled' : ''}>${level >= building.maxLevel ? 'En yüksek seviye' : `Yapıyı geliştir · ${number(cost.gold || 0)} altın`}</button>${buildingProduction(building)}</div><div class="squad-block"><div class="squad-heading"><h3>Yeminliler</h3><button class="text-button" data-view="heroes">Dizilimi düzenle</button></div><div class="squad">${team.map(hero => `<div class="squad-member">${heroPortrait(hero)}<span>${hero.name}</span><small>Lv.${state.heroes[hero.id].level}</small></div>`).join('')}</div><div class="team-power"><span>Dizilim gücü</span><strong>${number(R.teamPower(state))} ✦</strong></div></div><p class="inspector-note">Yapılar yükseldikçe görünüşleri değişir. Üretim çevrimdışı olarak en çok 4 saat birikir.</p>`;
+  inspectorEl.innerHTML = `<div class="building-details"><div class="section-head"><small>KÖY YÖNETİMİ</small><span class="level-badge">SEVİYE ${level}</span></div><div class="building-portrait">${svg(building.id)}</div><h2>${building.name}</h2><p class="building-description">${building.description}</p><div class="stat-line"><span>Gelişim</span><b>${level} / ${building.maxLevel}</b></div>${building.production ? `<div class="stat-line"><span>Üretim hızı</span><b>${number(building.production.perMinute * level * (1 + (state.buildings.keep - 1) * .05))} ${resourceName[building.production.resource]} / dk</b></div>` : `<div class="stat-line"><span>Köy etkisi</span><b>${building.id === 'keep' ? '+%5 üretim / seviye' : building.id === 'forge' ? '+%5 saldırı / seviye' : '+%4 can / seviye'}</b></div>`}<div class="cost-list">${costHtml(cost)}</div><button class="primary wide" data-upgrade-building="${building.id}" ${blocked ? 'disabled' : ''}>${level >= building.maxLevel ? 'En yüksek seviye' : `Yapıyı geliştir · ${number(cost.gold || 0)} altın`}</button>${buildingProduction(building)}</div><div class="squad-block"><div class="squad-heading"><h3>Kahramanlar</h3><button class="text-button" data-view="heroes">Dizilimi düzenle</button></div><div class="squad">${team.map(hero => `<div class="squad-member">${heroPortrait(hero)}<span>${hero.name}</span><small>Lv.${state.heroes[hero.id].level}</small></div>`).join('')}</div><div class="team-power"><span>Dizilim gücü</span><strong>${number(R.teamPower(state))} ✦</strong></div></div><p class="inspector-note">Yapılar yükseldikçe görünüşleri değişir. Üretim çevrimdışı olarak en çok 4 saat birikir.</p>`;
 }
 function renderQuest() {
+  const oath = R.currentOath(state);
   const active = state.battle?.status === 'active';
   const stage = active ? R.STAGES[state.battle.stageId - 1] : R.STAGES[state.cleared.length];
-  if (!stage) { questEl.innerHTML = '<div class="quest-seal">✦</div><div class="quest-copy"><small>KUZEY SINIRI KURTARILDI</small><h3>Yemin yerine getirildi</h3><p>Sekiz bölge temizlendi. Seferleri yeniden oynayabilirsin.</p></div><button class="primary" data-action="open-expedition">Seferler</button>'; return; }
-  questEl.innerHTML = `<div class="quest-seal">${svg('expedition')}</div><div class="quest-copy"><small>${active ? 'DEVAM EDEN SAVAŞ' : 'SIRADAKİ SEFER'}</small><h3>${stage.name}</h3><p>${active ? 'Savaş sürüyor; yeminlilerini yönet.' : `${stage.description} · Önerilen güç ${stage.recommendedPower}`}</p></div><button class="primary" data-action="${active ? 'resume-battle' : 'open-expedition'}">${active ? 'Savaşa dön' : 'Seferi aç'} ${svg('expedition')}</button>`;
+  const march = !stage
+    ? `<button class="goal-chip" data-action="open-expedition"><small>SINIR TAMAM</small><b>Seferler</b><span>Aç</span></button>`
+    : `<button class="goal-chip" data-action="${active ? 'resume-battle' : 'open-expedition'}"><small>${active ? 'SAVAŞ' : 'SEFER'}</small><b>${stage.name}</b><span>${active ? 'Dön' : 'Aç'}</span></button>`;
+  const oathChip = oath
+    ? `<button class="goal-chip" ${R.oathStatus(state, oath.id) === 'ready' ? `data-claim-oath="${oath.id}"` : 'data-open-board'}><small>YEMİN ${state.oaths.length + 1}/${R.OATHS.length}</small><b>${oath.name}</b><span>${R.oathStatus(state, oath.id) === 'ready' ? 'Ödülü al' : 'Bak'}</span></button>`
+    : '';
+  const step = state.battle?.status === 'lost' ? R.nextStep(state) : null;
+  questEl.innerHTML = `${oathChip}${march}<button class="goal-chip daily-chip" data-open-board><small>GÜNLÜK</small><b>${state.daily.streak ? `${state.daily.streak}. gün` : 'Armağan'}</b><span>Aç</span></button>${step ? `<p class="quest-step">${step.detail}</p>` : ''}`;
+}
+function renderBoard() {
+  const dayKey = (() => { const date = new Date(); return `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`; })();
+  const canLogin = state.daily.lastLogin !== dayKey;
+  $('#board-content').innerHTML = `<header class="building-dialog-head"><div><span class="eyebrow">KÖYÜN İŞLERİ</span><h2 id="board-title">Yeminler ve günlük</h2></div><button class="icon-button" data-close-board aria-label="Panoyu kapat">×</button></header>
+    <div class="board-body">
+      <section><h3>İlk yeminler</h3><ol class="oath-list">${R.OATHS.map(oath => {
+        const status = R.oathStatus(state, oath.id);
+        return `<li class="oath-${status}"><span><b>${oath.name}</b><small>${oath.detail}</small></span>${status === 'ready' ? `<button class="primary" data-claim-oath="${oath.id}">Ödülü al</button>` : `<em>${status === 'claimed' ? 'Alındı' : status === 'open' ? 'Sürüyor' : 'Sırada'}</em>`}</li>`;
+      }).join('')}</ol></section>
+      <section><h3>Günlük armağan</h3><p>Seri: ${state.daily.streak || 0} gün. Yedinci gün en dolu çanta.</p><button class="primary" data-claim-login ${canLogin ? '' : 'disabled'}>${canLogin ? 'Bugünün armağanını al' : 'Bugün alındı'}</button></section>
+      <section><h3>Günlük işler</h3><ul class="oath-list">${R.DAILY_TASKS.map(task => {
+        const done = (state.daily.tasks[task.id] || 0) >= task.need;
+        const taken = state.daily.claimedTasks.includes(task.id);
+        return `<li><span><b>${task.name}</b><small>${Math.min(task.need, state.daily.tasks[task.id] || 0)} / ${task.need}</small></span>${taken ? '<em>Alındı</em>' : `<button class="primary" data-daily-task="${task.id}" ${done ? '' : 'disabled'}>Ödülü al</button>`}</li>`;
+      }).join('')}</ul></section>
+    </div>`;
 }
 function renderHeroes() {
   const chosen = state.team.map(id => R.HEROES.find(hero => hero.id === id));
-  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KÜL GECESİNDEN SAĞ KALANLAR</span><h2>Yıldız Yeminlileri</h2><p>Bir kalkan. Bir kıvılcım. Birlikte tutulan bir yemin.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KÜL GECESİNDEN SAĞ KALANLAR</span><h2>Kahramanlar</h2><p>Bir kalkan. Bir kıvılcım. Birlikte tutulan bir yemin.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
     <div class="team-editor"><div><span class="eyebrow">SAVAŞ DİZİLİMİ</span><p>Konumu seç, ardından kahramanı yerleştir.</p></div><strong>${number(R.teamPower(state))}<small>TAKIM GÜCÜ</small></strong></div>
     <div class="formation">${chosen.map((hero, index) => `<button class="formation-slot ${selectedSlot === index ? 'active' : ''}" data-select-slot="${index}" aria-pressed="${selectedSlot === index}">${heroPortrait(hero)}<span><small>${String(index+1).padStart(2,'0')} · ${ROLES[hero.role]}</small><b>${hero.name}</b></span><span class="slot-marker">${selectedSlot === index ? '✦' : '+'}</span></button>`).join('')}</div>
     ${state.battle?.status === 'active' ? '<p class="inline-note">Dizilimi değiştirmek için devam eden savaşı tamamla.</p>' : ''}<div class="hero-grid">${R.HEROES.map(heroCard).join('')}</div>`;
 }
 
 function renderExpedition() {
-  const next = Math.min(state.cleared.length + 1, R.STAGES.length), currentStage = R.STAGES[next-1], chapter = CHAPTERS[next-1];
-  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KUZEY SINIRI · BİRİNCİ BÖLÜM</span><h2>Küllerden doğan yol</h2><p>Hisarın ışığını karanlığın unuttuğu topraklara taşı.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
-    <div class="campaign-hero"><div><span class="eyebrow">${String(next).padStart(2,'0')} / 08 · ${chapter.name}</span><h3>${currentStage.name}</h3><p>${chapter.brief}</p><span class="tactic">${chapter.tactic}</span></div></div>
-    <div class="progress-banner"><span>${state.cleared.length} / 8 bölge temizlendi</span><div class="progress-track"><span style="width:${state.cleared.length / 8 * 100}%"></span></div><span>Takım gücü ${number(R.teamPower(state))}</span></div>
-    <div class="stage-list">${R.STAGES.map(stage => {
-      const done = state.cleared.includes(stage.id), locked = stage.id > next, resume = state.battle?.status === 'active' && state.battle.stageId === stage.id;
-      return `<article class="stage-card ${done ? 'done' : stage.id === next ? 'current' : 'locked'}"><div class="stage-number">${done ? '✓' : String(stage.id).padStart(2, '0')}</div><div><span class="eyebrow">${CHAPTERS[stage.id-1].name}</span><h3>${stage.name}</h3><p>${stage.description} · ${stage.enemyCount} düşman · Önerilen güç ${stage.recommendedPower}</p><div class="cost-list">${costHtml(stage.reward, true)}</div>${R.FIRST_CLEAR_LOOT[stage.id]?`<p class="loot-preview">${svg('forge')} İlk zafer: ${R.itemById(R.FIRST_CLEAR_LOOT[stage.id]).name}${done?' · Alındı':''}</p>`:''}</div><button class="${done ? 'secondary' : 'primary'}" ${resume ? 'data-action="resume-battle"' : `data-stage="${stage.id}"`} ${locked || (state.battle?.status === 'active' && !resume) ? 'disabled' : ''}>${resume ? 'Savaşa dön' : done ? 'Yeniden oyna' : locked ? 'Kilitli' : 'Savaşa gir'}</button></article>`;
-    }).join('')}</div>`;
+  const nextId = Math.min(state.cleared.length + 1, R.STAGES.length);
+  const nextStage = R.STAGES[nextId - 1];
+  if (!CAMPAIGN.some(chapter => chapter.id === campaignChapter)) campaignChapter = nextStage?.chapter || 1;
+  const chapter = CAMPAIGN[campaignChapter - 1];
+  const nodes = R.STAGES.filter(stage => stage.chapter === campaignChapter);
+  const focus = nodes.find(stage => stage.id === nextId) || nodes[0];
+  const tale = storyFor(focus);
+  workspaceEl.innerHTML = `<header><div><span class="eyebrow">${chapter.land.toUpperCase()}</span><h2>${chapter.name}</h2><p>${chapter.brief}</p></div><button class="secondary" data-close-view>Köye dön</button></header>
+    <div class="world-map"><img src="assets/world-map.webp" alt=""><div class="map-chapters">${CAMPAIGN.map(item => `<button class="${item.id === campaignChapter ? 'active' : ''}" data-chapter="${item.id}">${item.name}<small>${item.land}</small></button>`).join('')}</div><div class="map-nodes">${nodes.map(stage => {
+      const done = state.cleared.includes(stage.id), locked = stage.id > nextId, current = stage.id === nextId;
+      const stars = state.stars[stage.id] || 0;
+      return `<button class="map-node ${stage.rank || 'fight'} ${done ? 'done' : ''} ${current ? 'current' : ''}" data-stage="${stage.id}" ${locked || (state.battle?.status === 'active' && state.battle.stageId !== stage.id) ? 'disabled' : ''}><b>${stage.id}</b><span>${stage.name}</span><i>${'✦'.repeat(stars)}</i></button>`;
+    }).join('')}</div></div>
+    <div class="progress-banner"><span>${state.cleared.length} / ${R.STAGES.length} bölge</span><div class="progress-track"><span style="width:${state.cleared.length / R.STAGES.length * 100}%"></span></div><span>Takım gücü ${number(R.teamPower(state))}</span></div>
+    <article class="stage-card current"><div class="stage-number">${String(focus.id).padStart(2,'0')}</div><div><span class="eyebrow">${focus.rank === 'boss' ? 'BÖLÜM SONU' : focus.rank === 'elite' ? 'SEÇKİN' : 'SEFER'}${focus.objective === 'survive' ? ' · DAYAN' : focus.objective === 'protect' ? ' · KORU' : focus.objective === 'priority' ? ' · HEDEF' : ''}</span><h3>${focus.name}</h3><p>${tale.brief}</p><span class="tactic">${tale.tactic}</span><div class="cost-list">${costHtml(focus.reward, true)}</div></div><button class="primary" ${state.battle?.stageId === focus.id ? 'data-action="resume-battle"' : `data-stage="${focus.id}"`} ${focus.id > nextId || (state.battle?.status === 'active' && state.battle.stageId !== focus.id) ? 'disabled' : ''}>${state.battle?.stageId === focus.id ? 'Savaşa dön' : focus.id < nextId ? 'Yeniden oyna' : 'Savaşa gir'}</button></article>
+    <section class="tower-card"><div><span class="eyebrow">HAFTALIK · ${{ash:'Kül',brand:'Damga',siphon:'Kuyu'}[R.towerAffix(state.tower.floor)]}</span><h3>Yıldız Kulesi</h3><p>Bu hafta ${state.tower.floor}. kat. Rekor ${state.tower.best}. Katlar her hafta sıfırlanır, rekor kalır. Damga tek hedefi ezer, kuyu düşmanı iyileştirir.</p></div><button class="primary" data-start-tower ${state.battle?.status === 'active' ? 'disabled' : ''}>Kuleye gir</button></section>`;
 }
 
 function renderJournal() {
-  workspaceEl.innerHTML = `<header><div><span class="eyebrow">HİSAR ARŞİVİ</span><h2>Kül Gecesi kronikleri</h2><p>Kazandığın her sefer, kaybolmuş dünyanın bir parçasını geri getirir.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KÖY ARŞİVİ</span><h2>Kül Gecesi kronikleri</h2><p>Kazandığın her sefer, kaybolmuş dünyanın bir parçasını geri getirir.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
   <div class="journal-prologue"><span class="eyebrow">BAŞLANGIÇ</span><h3>Gökyüzü kırıldığında</h3><p>Yıldızlar düştüğünde krallar surlarını yükseltti. Sabah olmadı. Şimdi vadinin ortasında tek bir hisar parlıyor. İçindeki çekirdek, karanlığı uzakta tutuyor; her gece biraz daha zorlanarak.</p><p>Senin yeminin, bu ışığın sönmesine izin vermemek.</p></div>
-  <div class="journal-grid">${CHAPTERS.map((chapter,index) => `<article class="journal-card ${state.cleared.includes(index+1) ? 'done' : ''}"><span class="eyebrow">${String(index+1).padStart(2,'0')} · ${R.STAGES[index].name}</span><h3>${chapter.name}</h3><p>${state.cleared.includes(index+1) ? chapter.victory : 'Bu kayıt, bölge kurtarıldığında günlüğe eklenecek.'}</p><span class="level-badge">${state.cleared.includes(index+1) ? 'KAYDA GEÇTİ' : 'KEŞFEDİLMEDİ'}</span></article>`).join('')}</div>`;
+  <div class="journal-grid">${R.STAGES.map(stage => { const tale = storyFor(stage); const done = state.cleared.includes(stage.id); return `<article class="journal-card ${done ? 'done' : ''}"><span class="eyebrow">${String(stage.id).padStart(2,'0')} · ${CAMPAIGN[stage.chapter-1].name}</span><h3>${tale.name}</h3><p>${done ? tale.victory : 'Bu kayıt, bölge kurtarıldığında günlüğe eklenecek.'}</p><span class="level-badge">${done ? 'KAYDA GEÇTİ' : 'KEŞFEDİLMEDİ'}</span></article>`; }).join('')}</div>`;
 }
 
 function itemStats(item) {
@@ -183,7 +298,7 @@ function itemArt(item) {
 function renderArmory() {
   if(!state.heroes[selectedArmoryHero]) selectedArmoryHero=state.team[0];
   const hero=R.HEROES.find(hero=>hero.id===selectedArmoryHero), stats=R.heroStats(state,hero.id), gear=R.equipmentStats(state,hero.id);
-  workspaceEl.innerHTML=`<header><div><span class="eyebrow">KOR DEMİRHANESİ · SEVİYE ${state.buildings.forge}</span><h2>Yeminlilerin cephaneliği</h2><p>Ekipman üret, sefer ganimetini kuşan ve kahramanının gücünü değiştir.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML=`<header><div><span class="eyebrow">KOR DEMİRHANESİ · SEVİYE ${state.buildings.forge}</span><h2>Kahramanların cephaneliği</h2><p>Ekipman üret, sefer ganimetini kuşan ve kahramanının gücünü değiştir.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
     <div class="armory-heroes" aria-label="Ekipman kahramanı">${R.HEROES.filter(hero=>state.heroes[hero.id]).map(hero=>`<button class="armory-hero ${selectedArmoryHero===hero.id?'active':''}" data-armory-hero="${hero.id}" aria-pressed="${selectedArmoryHero===hero.id}">${heroPortrait(hero)}<span>${hero.name}</span></button>`).join('')}</div>
     <section class="loadout-summary"><div><span class="eyebrow">${hero.title}</span><h3>${hero.name}</h3><p>⚔ ${stats.attack} saldırı · ♡ ${stats.maxHp} can · %${gear.armor} zırh · +${gear.healing} şifa</p></div><div class="loadout-slots">${Object.entries(R.SLOTS).map(([slot,label])=>{const item=R.itemById(state.loadouts[hero.id]?.[slot]);return `<div class="loadout-slot"><small>${label}</small>${item?`${itemArt(item)}<strong>${item.name}</strong><button class="text-button" data-unequip="${slot}" ${state.battle?.status==='active'?'disabled':''}>Çıkar</button>`:'<span class="empty-slot">+</span><strong>Boş konum</strong>'}</div>`;}).join('')}</div></section>
     <p class="armory-tip">${state.battle?.status==='active'?'Ekipman değiştirmek ve üretmek için devam eden savaşı tamamla. ':''}İlk sefer zaferleri ekipman kazandırır. Şifa bonusu yalnızca iyileştirme yeteneği olan kahramanlarda etkilidir. Aynı eşyanın bir kopyası tek kahramana takılabilir.</p>
@@ -195,10 +310,10 @@ function renderArmory() {
     }).join('')}</div>`;
 }
 function renderShop() {
-  workspaceEl.innerHTML=`<header><div><span class="eyebrow">YILDIZ PAZARI</span><h2>Efsanevi yeminler</h2><p>Özel kahramanların yeteneklerini eğitim savaşında keşfet.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML=`<header><div><span class="eyebrow">YILDIZ PAZARI</span><h2>Efsanevi yeminler</h2><p>Özel kahramanların yeteneklerini eğitim savaşında keşfet.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
     <div class="shop-status"><strong>Mağaza önizlemesi</strong><span>Gerçek para satışı henüz açık değil. Eğitim denemeleri ücretsizdir ve ilerlemeni değiştirmez.${state.battle?.status==='active'?' Önce devam eden seferini tamamla.':''}</span></div>
     <div class="premium-grid">${R.SPECIAL_HEROES.map(hero=>`<article class="premium-card"><div class="premium-portrait">${heroPortrait(hero)}<span class="premium-seal">EFSANEVİ</span><div class="portrait-title"><small>${hero.title}</small><h3>${hero.name}</h3></div></div><div class="premium-copy"><span class="eyebrow">${ROLES[hero.role]} · ÖZEL KAHRAMAN</span><h3>${hero.name}</h3><p>${hero.description}</p><p class="skill">${R.HERO_ABILITIES[hero.id].name}: ${R.HERO_ABILITIES[hero.id].description}</p><div class="hero-stats"><span>Seviye 1 · ⚔ ${hero.attack} saldırı</span><span>♡ ${hero.hp} can</span></div><p class="trial-note">Denemede takımının ortalama seviyesine uyarlanır.</p><button class="primary wide" data-trial="${hero.id}" ${state.battle?.status==='active'?'disabled':''}>Eğitim savaşında dene</button><button class="secondary wide" disabled>Satış henüz açık değil</button></div></article>`).join('')}</div>
-    <div class="shop-armory"><div><span class="eyebrow">HİSAR USTALARININ ESERLERİ</span><h3>Gücünü kendin döv</h3><p>9 silah, zırh ve tılsım. Seferlerden kazan veya oyun içi kaynaklarla üret.</p></div><button class="secondary" data-view="armory">Cephaneliğe git →</button></div>`;
+    <div class="shop-armory"><div><span class="eyebrow">KÖY USTALARININ ESERLERİ</span><h3>Gücünü kendin döv</h3><p>9 silah, zırh ve tılsım. Seferlerden kazan veya oyun içi kaynaklarla üret.</p></div><button class="secondary" data-view="armory">Cephaneliğe git →</button></div>`;
 }
 
 function renderWorkspace() {
@@ -210,7 +325,7 @@ function renderBattle(fx=null) {
   if(!battle) return;
   const wasOpen=dialog.open, focused=document.activeElement;
   const focusSelector=focused?.dataset.ability?`[data-ability="${focused.dataset.ability}"]`:focused?.dataset.target?`[data-target="${focused.dataset.target}"]`:focused?.hasAttribute('data-combat-toggle')?'[data-combat-toggle]':focused?.hasAttribute('data-battle-speed')?'[data-battle-speed]':null;
-  const markup=battleMarkup({battle,trial:Boolean(trialState),fx,speed:battleSpeed,running:combatRunner.running});
+  const markup=battleMarkup({battle,trial:Boolean(trialState),fx,speed:battleSpeed,running:combatRunner.running,advice:battle.status==='lost'&&!trialState?R.nextStep(state).detail:'',coach:!trialState&&battle.stageId===1&&state.tutorial<R.LESSONS.length});
   const previous=$('.combat-shell',dialog);
   if(wasOpen&&previous&&battle.status==='active'&&!$('.combat-outcome',previous)) {
     // Keep interactive targets and skill buttons alive while combat updates around them.
@@ -316,8 +431,32 @@ function castHeroSkill(heroId) {
   presentBattleEvents(used.events);
 }
 
+function syncAudio() {
+  mixer.setMuted(!!state.muted);
+  const fighting = state.battle?.status === 'active' && $('#battle-dialog')?.open;
+  const chapter = fighting ? (R.STAGES[state.battle.stageId - 1]?.chapter || 1) : 0;
+  mixer.scene(fighting ? `battle-${chapter}` : 'town');
+  const toggle = $('#sound-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', String(!!state.muted));
+    toggle.setAttribute('aria-label', state.muted ? 'Sesi aç' : 'Sesi kapat');
+    toggle.textContent = state.muted ? '✕' : '♪';
+  }
+}
+function renderLesson() {
+  const slot = $('#lesson');
+  if (!slot) return;
+  const lesson = !$('#battle-dialog')?.open && R.lessonFor(state);
+  slot.hidden = !lesson;
+  if (!lesson) return;
+  slot.innerHTML = `<img src="assets/${lesson.hero}.webp" alt=""><div><small>${lesson.name}</small><p>${lesson.line}</p></div><button type="button" data-lesson-next>Devam</button>`;
+}
 function render() {
-  renderResources(); renderNav(); renderPicker(); renderInspector(); renderQuest(); renderWorkspace();
+  if (R.syncDaily(state)) persist();
+  renderAccount(); renderResources(); renderNav(); renderPicker(); renderInspector(); renderQuest(); renderWorkspace();
+  renderLesson();
+  syncAudio();
+  if ($('#board-dialog')?.open) renderBoard();
   scene?.update(state);
   if ($('#building-dialog').open) renderBuildingDialog();
 }
@@ -328,10 +467,21 @@ function openBattle(stageId) {
   }
   if(state.battle?.status==='active')R.prepareLiveBattle(state);
   persist(); render(); renderBattle();
-  combatRunner.resume(); renderBattle();
+  const coach = stageId !== undefined && Number(stageId) === 1 && state.tutorial < R.LESSONS.length;
+  if (coach) {
+    if (state.tutorial === 2) state.tutorial = R.LESSONS.length;
+    combatRunner.pause();
+    persist();
+  } else combatRunner.resume();
+  renderBattle();
+  syncAudio();
 }
 function dispatch(action) {
   const button = action.target.closest('button'); if (!button) return;
+  mixer.resume();
+  if (!button.id || button.id !== 'sound-toggle') mixer.play('tap');
+  if (button.id === 'sound-toggle') { state.muted = !state.muted; persist(); syncAudio(); return; }
+  if (button.hasAttribute('data-lesson-next')) { R.advanceLesson(state); persist(); render(); return; }
   if(button.dataset.cityZoom) { scene?.zoomBy(Number(button.dataset.cityZoom)); return; }
   if(button.hasAttribute('data-city-labels')) { const visible=button.getAttribute('aria-pressed')!=='true'; button.setAttribute('aria-pressed',String(visible)); $('#city-labels').classList.toggle('names-hidden',!visible); return; }
   if(button.hasAttribute('data-battle-speed')) { battleSpeed=battleSpeed===1?2:1; combatRunner.setSpeed(battleSpeed); renderBattle(); return; }
@@ -343,18 +493,45 @@ function dispatch(action) {
   if(button.dataset.equip) { result(R.equipItem(state,selectedArmoryHero,button.dataset.equip),'Ekipman kuşanıldı. Savaş gücü güncellendi.'); return; }
   if(button.dataset.unequip) { result(R.unequipItem(state,selectedArmoryHero,button.dataset.unequip),'Ekipman çantaya alındı.'); return; }
   if(button.dataset.trial) { if(state.battle?.status==='active') return notify('Önce devam eden savaşı tamamla.'); trialState=R.createHeroTrial(state,button.dataset.trial); renderBattle(); combatRunner.resume(); renderBattle(); return; }
-  if (button.dataset.view) { activeView = button.dataset.view; render(); return; }
-  if (button.dataset.building) { openBuilding(button.dataset.building); return; }
+  if (button.dataset.view) {
+    activeView = button.dataset.view;
+    if (activeView === 'expedition') {
+      const nextId = Math.min(state.cleared.length + 1, R.STAGES.length);
+      campaignChapter = R.STAGES[nextId - 1]?.chapter || 1;
+    }
+    render();
+    return;
+  }
+  if (button.dataset.building) {
+    if (button.classList.contains('city-sprite') && motionOK()) {
+      button.classList.remove('is-tapped');
+      void button.offsetWidth;
+      button.classList.add('is-tapped');
+    }
+    openBuilding(button.dataset.building);
+    return;
+  }
   if (button.hasAttribute('data-close-building')) { $('#building-dialog').close(); return; }
   if (button.dataset.upgradeBuilding) {
     selectedBuilding = button.dataset.upgradeBuilding;
     const upgraded = R.upgradeBuilding(state, selectedBuilding, Date.now());
     if (upgraded.ok) $('#building-dialog').close();
     const building = R.BUILDINGS.find(item => item.id === selectedBuilding);
-    result(upgraded, `${building.name} · Seviye ${state.buildings[selectedBuilding]} — ${BUILDING_EVOLUTION[selectedBuilding][state.buildings[selectedBuilding]-1]}`);
+    if (result(upgraded, `${building.name} · Seviye ${state.buildings[selectedBuilding]} — ${BUILDING_EVOLUTION[selectedBuilding][state.buildings[selectedBuilding]-1]}`)) {
+      markRaised(selectedBuilding);
+      mixer.play('upgrade');
+      if (selectedBuilding === 'farm' && state.tutorial === 1) { R.advanceLesson(state); render(); }
+    }
     return;
   }
   if (button.dataset.upgradeHero) { result(R.upgradeHero(state, button.dataset.upgradeHero), 'Kahraman güçlendi.'); return; }
+  if (button.dataset.heroStar) { result(R.raiseHeroStar(state, button.dataset.heroStar), 'Kahramanın yıldızı parladı. Gücü arttı.'); return; }
+  if (button.dataset.claimOath) { result(R.claimOath(state, button.dataset.claimOath), 'Yemin ödülü kasaya girdi.'); return; }
+  if (button.hasAttribute('data-claim-login')) { result(R.claimLogin(state), 'Günün armağanı alındı.'); return; }
+  if (button.dataset.dailyTask) { result(R.claimDailyTask(state, button.dataset.dailyTask), 'Günlük ödül alındı.'); return; }
+  if (button.dataset.starChest) { result(R.claimStarChest(state, Number(button.dataset.starChest)), 'Yıldız sandığı açıldı.'); return; }
+  if (button.hasAttribute('data-open-board')) { renderBoard(); if (!$('#board-dialog').open) $('#board-dialog').showModal(); return; }
+  if (button.hasAttribute('data-close-board')) { $('#board-dialog').close(); return; }
   if (button.dataset.selectSlot !== undefined) { selectedSlot = Number(button.dataset.selectSlot); renderHeroes(); return; }
   if (button.dataset.team) {
     const id = button.dataset.team, team = [...state.team], previousIndex = team.indexOf(id);
@@ -362,15 +539,41 @@ function dispatch(action) {
     else team[selectedSlot] = id;
     result(R.setTeam(state, team), 'Savaş dizilimi güncellendi.'); return;
   }
-  if (button.hasAttribute('data-collect')) { const collected = R.collect(state); result(collected, `Üretim toplandı: ${Object.entries(collected.gain).filter(([, n]) => n).map(([id, n]) => `+${number(n)} ${resourceName[id]}`).join(' · ') || 'Henüz biriken kaynak yok.'}`); return; }
-  if (button.dataset.action === 'open-expedition') { activeView = 'expedition'; render(); return; }
+  if (button.hasAttribute('data-collect')) {
+    const origin = button.getBoundingClientRect();
+    const collected = R.collect(state);
+    const summary = Object.entries(collected.gain || {}).filter(([, n]) => n).map(([id, n]) => `+${number(n)} ${resourceName[id]}`).join(' · ');
+    if (result(collected, `Üretim toplandı: ${summary || 'Henüz biriken kaynak yok.'}`)) {
+      flyLoot(origin, collected.gain);
+      if (Object.values(collected.gain || {}).some(amount => amount > 0)) mixer.play('collect');
+      if (state.tutorial === 0) { R.advanceLesson(state); render(); }
+    }
+    return;
+  }
+  if (button.dataset.action === 'open-expedition') {
+    activeView = 'expedition';
+    const nextId = Math.min(state.cleared.length + 1, R.STAGES.length);
+    campaignChapter = R.STAGES[nextId - 1]?.chapter || 1;
+    render();
+    return;
+  }
   if (button.dataset.action === 'resume-battle') { openBattle(); return; }
+  if (button.dataset.chapter) { campaignChapter = Number(button.dataset.chapter); activeView = 'expedition'; render(); return; }
+  if (button.hasAttribute('data-start-tower')) {
+    const started = R.startTower(state);
+    if (!started.ok) return notify(started.error);
+    R.prepareLiveBattle(state);
+    persist(); render(); renderBattle();
+    combatRunner.resume();
+    return;
+  }
   if (button.dataset.stage) { openBattle(button.dataset.stage); return; }
   if (button.dataset.closeView !== undefined) { activeView = 'keep'; render(); return; }
   if (button.dataset.closeBattle !== undefined) { closeBattle(); render(); return; }
   if (button.dataset.retryStage) { openBattle(button.dataset.retryStage); return; }
 }
 
+document.addEventListener('pointerdown', () => mixer.resume(), { once: false });
 document.addEventListener('click', dispatch);
 $('#recenter').innerHTML = svg('keepMenu');
 let buildingBackdropDown = false;
@@ -380,19 +583,14 @@ $('#battle-dialog').addEventListener('click', event => { if (event.target === $(
 $('#battle-dialog').addEventListener('cancel', () => { combatRunner.pause(); if(!trialState)persist(); });
 $('#battle-dialog').addEventListener('close', () => { combatRunner.pause(); if(trialState) { trialState=null; activeView='shop'; render(); } else persist(); });
 try {
-  scene = createScene($('#world-canvas'), { onSelect: openBuilding, onProject: (id,x,y,visible) => {
-    const label=cityLabelNodes.get(id); if(!label)return;
-    label.hidden=!visible;
-    const transform=`translate(${Math.round(x)}px,${Math.round(y)}px) translate(-50%,0)`;
-    if(label.style.transform!==transform)label.style.transform=transform;
-  } });
+  scene = createCity2D($('#city-stage'), { onSelect: openBuilding });
 } catch (error) {
-  console.warn('Starfort 3D scene unavailable:', error);
-  $('#world-canvas').hidden = true; $('#city-labels').hidden = true; $('.city-controls').hidden = true; $('#world-fallback').hidden = false;
+  console.warn('Starfort city unavailable:', error);
+  $('#city-labels').hidden = true; $('.city-controls').hidden = true; $('#world-fallback').hidden = false;
 }
 $('#recenter').addEventListener('click', () => { activeView = 'keep'; scene?.overview(); render(); });
 if (state.battle?.status === 'active') { R.prepareLiveBattle(state); persist(); renderBattle(); }
 render();
-setInterval(() => { const pending = $('#production-gain'); if (pending) pending.innerHTML = costHtml(R.production(state), true); renderCityProduction(); }, 3000);
+setInterval(() => { const pending = $('#production-gain'); if (pending) pending.innerHTML = costHtml(R.production(state), true); renderCityProduction(); renderNav(); }, 3000);
 document.addEventListener('visibilitychange', () => { if(document.hidden){combatRunner.pause();persist();} });
 window.addEventListener('pagehide', () => {combatRunner.pause();persist();});

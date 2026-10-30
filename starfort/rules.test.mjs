@@ -30,7 +30,8 @@ test('new game has separate storage, seven buildings and three independent heroe
   assert.equal(R.STORAGE_KEY, 'starfort:v1');
   assert.equal(a.version, 1);
   assert.equal(R.BUILDINGS.length, 7);
-  assert.equal(R.STAGES.length, 8);
+  assert.equal(R.STAGES.length, 30);
+  assert.deepEqual(R.CAMPAIGN_CHAPTERS.map(chapter => chapter.id), [1, 2, 3]);
   assert.deepEqual(a.buildings, Object.fromEntries(R.BUILDINGS.map(building => [building.id, 1])));
   assert.deepEqual(Object.keys(a.heroes), ['aldren', 'lyra', 'rovan']);
   assert.deepEqual(a.team, ['aldren', 'lyra', 'rovan']);
@@ -253,14 +254,14 @@ test('all eight stages can be cleared with local upgrades and Doran unlocks at s
   const state = fresh();
   state.res = { gold: 1e7, wood: 1e7, stone: 1e7, aether: 1e7 };
   for (const id of state.team) for (let i = 0; i < 8; i++) assert.equal(R.upgradeHero(state, id).ok, true);
-  for (const stage of R.STAGES) {
+  for (const stage of R.STAGES.filter(item => item.id <= 8)) {
     assert.equal(R.startBattle(state, stage.id).ok, true);
     assert.equal(clearBattle(state), 'won', stage.name);
     assert.equal(Boolean(state.heroes.mira), stage.id >= 2);
     assert.equal(Boolean(state.heroes.doran), stage.id >= 4);
     assert.ok(Object.values(state.res).every(amount => amount >= 0));
   }
-  assert.deepEqual(state.cleared, R.STAGES.map(stage => stage.id));
+  assert.deepEqual(state.cleared, [1, 2, 3, 4, 5, 6, 7, 8]);
   assert.deepEqual(restored(state), state);
 });
 

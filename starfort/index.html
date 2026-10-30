@@ -3,28 +3,48 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111918">
+  <meta name="theme-color" content="#12161f">
   <meta name="description" content="Starfort: yıldızın etrafında kaleni yükselt, kahramanlarını topla ve karanlığa karşı savaş.">
-  <title>Starfort — Yıldız Hisarı</title>
+  <title>Starfort — Yıldız Köyü</title>
   <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="art.css">
   <link rel="stylesheet" href="battle.css">
   <link rel="stylesheet" href="city.css">
+  <link rel="stylesheet" href="game-ui.css">
 </head>
 <body>
   <div class="app">
     <header class="topbar">
+      <div class="account">
+        <span class="avatar-mark">A</span>
+        <span class="player-meta">Köy Muhafızı<small id="save-status">Yerel kayıt hazır</small></span>
+        <b class="power-chip" id="power-chip">✦ 0</b>
+        <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false" aria-label="Sesi kapat" title="Sesi kapat">♪</button>
+      </div>
       <a class="brand" href="./" aria-label="Starfort ana ekran"><img src="icon.svg" alt=""><span>STARFORT<small>YILDIZIN SON MUHAFIZLARI</small></span></a>
       <div class="resources" id="resources" aria-label="Kaynaklar"></div>
-      <div class="account"><span class="avatar-mark">A</span><span>Hisar Muhafızı<small id="save-status">Yerel kayıt hazır</small></span></div>
     </header>
     <nav class="rail" aria-label="Ana menü" id="navigation"></nav>
     <main class="world" id="world">
-      <div class="world-heading"><div><span class="eyebrow">KUZEY SINIRI · YILDIZ VADİSİ</span><h1>Yıldız Hisarı</h1><p>Bir yıldızın çevresinde yükselen krallığın.</p></div><button class="icon-button" id="recenter" aria-label="Şehrin tamamını göster" title="Şehrin tamamını göster"></button></div>
+      <div class="world-heading"><div><span class="eyebrow">KUZEY SINIRI · YILDIZ VADİSİ</span><h1>Yıldız Köyü</h1><p>Fırtına altındaki karanlık krallığın.</p></div><button class="icon-button" id="recenter" aria-label="Şehrin tamamını göster" title="Şehrin tamamını göster"></button></div>
       <div class="city-viewport">
-      <canvas id="world-canvas" aria-label="Yıldız Hisarı, üç boyutlu kale görünümü. Bina seçmek için alttaki bina düğmelerini de kullanabilirsiniz."></canvas>
-      <div id="city-labels" class="city-labels" aria-label="Şehirdeki binalar"></div>
+      <div id="city-stage" class="city-stage" aria-label="Yıldız Köyü. Binalara dokunarak geliştir, haritayı sürükleyerek gez.">
+        <div id="city-scene" class="city-scene baked">
+          <img class="city-backdrop" src="assets/city-backdrop.webp" alt="">
+          <div class="town-life" aria-hidden="true">
+            <i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i>
+            <i class="pond-shimmer"></i>
+            <i class="torch-glow t1"></i><i class="torch-glow t2"></i>
+            <i class="gate-banner gb1"></i><i class="gate-banner gb2"></i>
+            <i class="garden-plot"></i>
+            <i class="villager v1"></i><i class="villager v2"></i><i class="villager v3"></i>
+          </div>
+          <div id="city-labels" class="city-labels" aria-label="Şehirdeki binalar"></div>
+          <div class="town-sky" aria-hidden="true"><i class="bird b1"></i><i class="bird b2"></i><i class="bird b3"></i></div>
+        </div>
+      </div>
       </div>
       <div class="city-controls" aria-label="Harita kontrolleri"><button data-city-zoom="1.2" aria-label="Yakınlaştır" title="Yakınlaştır">+</button><button data-city-zoom="0.833333" aria-label="Uzaklaştır" title="Uzaklaştır">−</button><button data-city-labels aria-pressed="true" title="Bina adlarını göster veya gizle">Adlar</button></div>
       <button class="city-collect" data-collect><span>✦ Üretimi topla</span><small id="city-production">Kaynaklar birikiyor</small></button>
@@ -37,12 +57,21 @@
     </main>
     <aside class="inspector" id="inspector" aria-label="Kale yönetimi"></aside>
   </div>
+  <div id="lesson" class="lesson" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="rotate-lock" role="status">
+    <div class="rotate-card">
+      <span class="rotate-phone" aria-hidden="true"></span>
+      <strong>Telefonu yatay çevir</strong>
+      <p>Köy manzarası yatay ekranda oynanır.</p>
+    </div>
+  </div>
   <dialog id="building-dialog" aria-labelledby="building-title"><div id="building-content"></div></dialog>
+  <dialog id="board-dialog" aria-labelledby="board-title"><div id="board-content"></div></dialog>
   <dialog id="battle-dialog" aria-labelledby="battle-title"><div id="battle-content"></div></dialog>
   <script>
     if (location.protocol === 'file:') {
-      document.body.innerHTML = '<main style="max-width:560px;margin:15vh auto;padding:28px;font-family:system-ui"><h1>Starfort</h1><p>Oyunu yerel önizleme adresinden aç.</p><a style="display:inline-block;padding:14px 22px;background:#d3b986;color:#151d29" href="http://127.0.0.1:8767/starfort/">Yıldız Hisarı’na gir →</a><p style="color:#a0aab2">Sunucu kapalıysa proje klasöründe çalıştır:<br><code>python3 -m http.server 8767 --bind 127.0.0.1</code></p></main>';
+      document.body.innerHTML = '<main style="max-width:560px;margin:15vh auto;padding:28px;font-family:system-ui"><h1>Starfort</h1><p>Oyunu yerel önizleme adresinden aç.</p><a style="display:inline-block;padding:14px 22px;background:#d3b986;color:#151d29" href="http://127.0.0.1:8767/starfort/">Yıldız Köyü’ne gir →</a><p style="color:#a0aab2">Sunucu kapalıysa proje klasöründe çalıştır:<br><code>python3 -m http.server 8767 --bind 127.0.0.1</code></p></main>';
     } else { const script = document.createElement('script'); script.type = 'module'; script.src = 'app.js'; document.body.append(script); }
   </script>
 </body>

@@ -1,4 +1,30 @@
 // World writing and encounter guidance, kept separate from the economy and save schema.
+export const CAMPAIGN = [
+  { id: 1, name: 'Kül Yolu', land: 'Kuzey sınırı', brief: 'Kül geçidinden yıldızsız tahta, sonra kuzey mührüne.' },
+  { id: 2, name: 'Kırık Taç', land: 'Batı harabeleri', brief: 'Çökmüş bir krallığın safları hâlâ bir taht bekliyor.' },
+  { id: 3, name: 'Yıldız Kuyusu', land: 'Güney uçurumu', brief: 'Kuyunun dibinde sönmeyi reddeden bir irade var.' },
+];
+export function storyFor(stage) {
+  const written = CHAPTERS[stage.id - 1];
+  if (written) return written;
+  const goalTactic = {
+    survive: `${Math.round((stage.surviveMs || 28000) / 1000)} saniye dayan. Süre dolunca kalan düşmanlar dağılır.`,
+    protect: 'Emanet düşünce sefer biter. Darbeleri ondan uzak tut.',
+    priority: 'İşaretli hedef düşünce diğerleri kaçar.',
+  }[stage.objective];
+  const bossTactic = stage.id === 10 ? 'Mühür Lordu yarı canın altında yıkımı daha sık hazırlar. Yıldız çağrısı bozar.'
+    : stage.id === 20 ? 'Yarı canın altında Taç öfkesi damgalar. Kalkan ağırlığı keser.'
+    : stage.id === 30 ? 'Yarı canın altında kuyu emişi takıma vurur ve hükümdarı iyileştirir.'
+    : stage.rank === 'boss' ? 'Hükümdar yıkım hazırlar. Yıldız çağrısı ya da kalkanla takımı koru.'
+    : stage.rank === 'elite' ? 'Seçkin çift kılıç hazırlar. Yıldız çağrısı yarmayı bozar.'
+    : 'Kahramanlar kendileri saldırır. Hazır yeteneği kritik anda kullan.';
+  return {
+    name: stage.name,
+    brief: stage.description,
+    tactic: goalTactic || bossTactic,
+    victory: stage.victory || `${stage.name} sessizleşti. Yol bir basamak daha açıldı.`,
+  };
+}
 export const ROLES = { tank: 'Muhafız', mage: 'Büyücü', ranger: 'İzci', healer: 'Şifacı', fighter: 'Savaşçı', assassin: 'Suikastçı' };
 export const HERO_LORE = {
   aldren: 'Kül Gecesi’nde kuzey kapısını son ana kadar tutan muhafız. Kırılan kalkanındaki yıldız, terk etmediği yeminin izi.',

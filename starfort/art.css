@@ -1,5 +1,5 @@
 /* Starfort art direction: moonlit slate, worn brass, warm parchment. */
-:root { --bg:#0d141d; --panel:#141e29; --panel2:#1b2835; --line:#34404a; --text:#f2ecdf; --muted:#a0aab2; --gold:#d3b986; --aqua:#91ccd4; }
+:root { --bg:#0d141d; --panel:#141e29; --panel2:#1b2835; --line:#34404a; --text:#f2ecdf; --muted:#a0aab2; --gold:#c5ced6; --aqua:#7ec8d4; }
 body { background:var(--bg); }
 svg { width:22px; height:22px; }
 .topbar,.rail { background:#101923; }

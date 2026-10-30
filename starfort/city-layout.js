@@ -25,5 +25,8 @@ export const CITY_LINKS = [
   ['crossing','tavern',1.8], ['crossing','laneFront',1.2], ['laneFront','laneBack',1.2], ['laneBack','upper',1.2], ['upper','keepStair',1.5], ['keepStair','keep',1.8],
   ['laneBack','observatoryStair',1.2], ['observatoryStair','observatory',1.7],
 ];
-export const CITY_VIEW = { target: [0, 1.5, 1], offset: [20, 24, 30], halfWidth: 16.3, halfHeight: 12.1 };
-export const CITY_PALETTE = { stone:'#b5b9aa', dark:'#64746e', edge:'#d9d1b9', roof:'#367080', gold:'#d5b16c', wood:'#6d4c39', plaster:'#d2bea0', cyan:'#73e4f0', ember:'#ffbc67', grass:'#6e8560' };
+export const CITY_VIEW = { target: [0, 2.4, 5.2], offset: [22, 26, 32], halfWidth: 17.6, halfHeight: 13.4 };
+export const CITY_PALETTE = {
+  stone:'#c4a57a', dark:'#4a3b30', edge:'#ead3a4', roof:'#b33a2c', gold:'#e2b14a',
+  wood:'#8a4e28', plaster:'#f0d2a8', cyan:'#7ec8d6', ember:'#ff9a3c', grass:'#3f9a34', water:'#1d6ea0',
+};

@@ -50,6 +50,41 @@
       "id": "nyxara",
       "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy RPG hero portrait for Starfort. Portrait 2:3 waist-up, face fully visible in upper central third. Highly detailed painterly semi-realistic game art, tactile engraved metal and ornate fabric, cinematic blue moon rim light and warm brass highlights. Starry midnight gothic fortress backdrop. No text, frame, UI, logos or watermark. Match refined medieval fantasy RPG portrait art, distinct silhouette, no cartoon or plastic appearance. Subject: Nyxara, Eclipse Oracle, an adult female sorceress with deep brown skin, long flowing black hair adorned with a delicate crescent headdress, confident gaze, elegant deep violet layered robes with complex silver constellation embroidery, luminous amethyst orb floating above an open palm, tall obsidian staff with interlocking silver rings. Purple nebula mist and a distant pale moon.",
       "file": "nyxara.webp"
+    },
+    {
+      "id": "bg-hall",
+      "prompt": "Original Starfort environment, no people or text. Wide night great hall: ashlar walls, iron braziers, one arched window with a single bright star, crimson banners with a geometric eight-point star, empty dark flagstone floor. Painterly semi-realistic, warm torchlight against cool starlight.",
+      "file": "bg-hall.webp"
+    },
+    {
+      "id": "bg-vista",
+      "prompt": "Original Starfort environment, no people or text. Wide night vista of a walled hillside citadel, terracotta roofs, gatehouse and moat, pine forest, blue mountains, indigo sky with a warm horizon and one falling star. Painterly semi-realistic, darker foreground.",
+      "file": "bg-vista.webp"
+    },
+    {
+      "id": "bg-forge",
+      "prompt": "Original Starfort environment, no people or text. Wide night fortress forge: stone walls, coal fire, anvil, sword racks, chains, moonlight from a high slit. Painterly semi-realistic, warm ember against cool stone.",
+      "file": "bg-forge.webp"
+    },
+    {
+      "id": "bg-bazaar",
+      "prompt": "Original Starfort environment, no people or text. Wide moonlit cloister bazaar: empty stalls in indigo and claret, brass lanterns, crystals, a pale moon through the arches. Painterly semi-realistic jewel tones, dark foreground.",
+      "file": "bg-bazaar.webp"
+    },
+    {
+      "id": "bg-scriptorium",
+      "prompt": "Original Starfort environment, no people and no readable writing. Wide night scriptorium: stone library, closed books, blank parchment on an oak table, candles, blue starlight from a round window. Painterly semi-realistic, dark lower half.",
+      "file": "bg-scriptorium.webp"
+    },
+    {
+      "id": "city-backdrop",
+      "prompt": "Original Starfort town plate. Open terraced castle green, no filler houses. Keep terrace at the crown, six lawn terraces along a path, trees, gardens, a pond, curtain wall, dusk mountains. No text or people.",
+      "file": "city-backdrop.webp"
+    },
+    {
+      "id": "city-buildings",
+      "prompt": "Original Starfort isometric building sprites, tiers a/b/c. High three-quarter view matching the hillside town, each already grand at tier a, with its own terrace, steps and contact shadow, cut from magenta. Tier c grows upward. No text.",
+      "file": "buildings/*.webp"
     }
   ]
 }

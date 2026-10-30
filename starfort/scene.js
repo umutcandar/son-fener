@@ -8,17 +8,40 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMapping = THREE.AgXToneMapping;
+  renderer.toneMappingExposure = 1.22;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#91afbb');
-  scene.fog = new THREE.Fog('#91afbb', 57, 110);
   const camera = new THREE.OrthographicCamera(-16, 16, 12, -12, .1, 180);
   const target = new THREE.Vector3(...CITY_VIEW.target), goal = target.clone();
   const offset = new THREE.Vector3(...CITY_VIEW.offset), ray = new THREE.Raycaster(), pointer = new THREE.Vector2();
   const geometries = new Set(), materials = new Set(), textures = new Set(), geometryCache = new Map(), materialCache = new Map();
+  scene.background = paintSky();
+  scene.fog = new THREE.Fog('#1a3d66', 120, 260);
+  function paintSky() {
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+    const gtx = c.getContext('2d');
+    const sky = gtx.createLinearGradient(0, 0, 0, 512);
+    sky.addColorStop(0, '#071833'); sky.addColorStop(.34, '#1a5a9a'); sky.addColorStop(.58, '#3c92d4'); sky.addColorStop(.8, '#f0a05a'); sky.addColorStop(1, '#d26432');
+    gtx.fillStyle = sky; gtx.fillRect(0, 0, 1024, 512);
+    const dust = gtx.createRadialGradient(120, 300, 10, 200, 340, 280);
+    dust.addColorStop(0, 'rgba(255, 170, 70, .45)'); dust.addColorStop(1, 'rgba(255, 140, 50, 0)');
+    gtx.fillStyle = dust; gtx.fillRect(0, 140, 520, 372);
+    const halo = gtx.createRadialGradient(786, 86, 8, 786, 86, 64);
+    halo.addColorStop(0, 'rgba(220, 230, 240, .2)'); halo.addColorStop(1, 'rgba(220, 230, 240, 0)');
+    gtx.fillStyle = halo; gtx.fillRect(700, 10, 180, 160);
+    gtx.fillStyle = '#e7eef8'; gtx.beginPath(); gtx.arc(786, 86, 20, 0, Math.PI * 2); gtx.fill();
+    gtx.fillStyle = '#121a2c'; gtx.beginPath(); gtx.arc(798, 78, 16, 0, Math.PI * 2); gtx.fill();
+    gtx.fillStyle = 'rgba(236, 232, 214, .92)';
+    for (const [x, y] of [[92, 40], [168, 88], [246, 34], [318, 76], [404, 28], [488, 96], [560, 42], [688, 30], [860, 52], [940, 96], [196, 124], [530, 118]]) gtx.fillRect(x, y, 2, 2);
+    gtx.fillStyle = '#f7f3e6'; gtx.fillRect(612, 46, 3, 3);
+    gtx.strokeStyle = 'rgba(186, 214, 232, .75)'; gtx.lineWidth = 1.4;
+    gtx.beginPath(); gtx.moveTo(628, 38); gtx.lineTo(548, 96); gtx.stroke();
+    gtx.fillStyle = 'rgba(214, 224, 232, .12)';
+    for (const [x, y, w, h] of [[240, 168, 150, 22], [520, 198, 200, 26], [760, 156, 120, 18]]) { gtx.beginPath(); gtx.ellipse(x, y, w, h, 0, 0, Math.PI * 2); gtx.fill(); }
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; textures.add(tex); return tex;
+  }
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const models = new Map(), levels = new Map(), worldAnimations = [];
   const palette = CITY_PALETTE;
@@ -26,27 +49,96 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   const locations = CITY_PLOTS, projected = new THREE.Vector3();
   const hash = n => { const v = Math.sin(n * 127.1 + 17.7) * 43758.5453; return v - Math.floor(v); };
   // Procedural material detail; shared maps are freed with the scene.
+  // High-key maps so the material color stays saturated. Dark joints supply the contrast.
   function surface(kind) {
     const c = document.createElement('canvas'); c.width = c.height = 256;
-    const ctx = c.getContext('2d'); ctx.fillStyle = '#b7b7b7'; ctx.fillRect(0, 0, 256, 256);
-    for (let y = 0; y < 256; y += 4) for (let x = 0; x < 256; x += 4) {
-      const tone = Math.floor(160 + hash(x * 31 + y * 97) * 65);
-      ctx.fillStyle = `rgb(${tone},${tone},${tone})`; ctx.fillRect(x, y, 4, 4);
-    }
-    ctx.lineWidth = kind === 'roof' ? 2 : 3;
-    for (let y = 0; y < 256; y += kind === 'roof' ? 24 : 32) {
-      ctx.strokeStyle = '#777'; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(256, y); ctx.stroke();
-      for (let x = (y / 32 % 2) * 32; x < 256; x += 64) {
-        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 32); ctx.stroke();
+    const ctx = c.getContext('2d');
+    if (kind === 'roof') {
+      ctx.fillStyle = '#2a1814'; ctx.fillRect(0, 0, 256, 256);
+      for (let y = 0; y < 256; y += 16) {
+        for (let x = 0; x < 256; x += 28) {
+          const n = hash(x * 3 + y * 11);
+          const v = 214 + n * 40;
+          ctx.fillStyle = `rgb(${v},${v - 18},${v - 36})`;
+          ctx.fillRect(x + (y / 16 % 2) * 14, y, 24, 11);
+          ctx.fillStyle = '#5a3018'; ctx.fillRect(x + (y / 16 % 2) * 14, y + 11, 24, 3);
+        }
       }
-      ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, y + 3); ctx.lineTo(256, y + 3); ctx.stroke();
+    } else if (kind === 'wood') {
+      ctx.fillStyle = '#f0e2cc'; ctx.fillRect(0, 0, 256, 256);
+      for (let x = 0; x < 256; x++) {
+        const n = hash(x * 13);
+        const band = 200 + Math.floor(n * 55) - (x % 11 === 0 ? 90 : 0);
+        ctx.fillStyle = `rgb(${band + 20},${band},${band - 28})`;
+        ctx.fillRect(x, 0, 1, 256);
+      }
+      for (let i = 0; i < 5; i++) {
+        const x = 30 + hash(i + 4) * 190, y = 40 + hash(i + 8) * 160;
+        ctx.fillStyle = '#6a3a18'; ctx.beginPath(); ctx.ellipse(x, y, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (kind === 'grass') {
+      ctx.fillStyle = '#e7f0c8'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 700; i++) {
+        const x = hash(i * 5) * 256, y = hash(i * 9 + 2) * 256;
+        const g = 150 + hash(i) * 80;
+        ctx.fillStyle = `rgb(${70 + hash(i + 3) * 40},${g},${40})`;
+        ctx.fillRect(x, y, 2, 7 + hash(i + 1) * 8);
+      }
+    } else if (kind === 'plaster') {
+      ctx.fillStyle = '#f7f1e4'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 80; i++) {
+        const x = hash(i) * 256, y = hash(i + 20) * 256;
+        ctx.fillStyle = `rgba(120,80,40,${0.08 + hash(i + 3) * 0.15})`;
+        ctx.fillRect(x, y, 8 + hash(i + 4) * 18, 3);
+      }
+      ctx.strokeStyle = '#8a6844'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(20, 40); ctx.lineTo(80, 46); ctx.moveTo(140, 180); ctx.lineTo(200, 150); ctx.stroke();
+    } else {
+      ctx.fillStyle = '#3a322a'; ctx.fillRect(0, 0, 256, 256);
+      const bw = 64, bh = 32;
+      for (let row = 0; row < 8; row++) {
+        const off = (row % 2) * 32;
+        for (let col = -1; col < 5; col++) {
+          const x = col * bw + off, y = row * bh;
+          const n = hash(row * 19 + col * 7 + 3);
+          const v = 226 + n * 28;
+          ctx.fillStyle = `rgb(${v},${v - 8 - n * 10},${v - 22 - n * 16})`;
+          ctx.fillRect(x + 2, y + 2, bw - 5, bh - 5);
+          if (n > 0.72) { ctx.fillStyle = 'rgba(40,70,30,.35)'; ctx.fillRect(x + 6, y + bh - 8, 14, 4); }
+        }
+      }
     }
     const texture = new THREE.CanvasTexture(c); texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); texture.colorSpace = THREE.SRGBColorSpace;
     textures.add(texture); return texture;
   }
-  const masonry = surface('stone'), roofTiles = surface('roof');
-  const surfaceMaps = new Map([[palette.stone, masonry], [palette.edge, masonry], [palette.dark, masonry], [palette.roof, roofTiles]]);
+  const maps = { stone: surface('stone'), roof: surface('roof'), wood: surface('wood'), grass: surface('grass'), plaster: surface('plaster') };
+  const tileOf = { stone: 1.7, roof: 2.4, wood: 2.8, grass: 2.2, plaster: 1.5 };
+  const roughOf = { stone: .74, roof: .48, wood: .55, grass: .9, plaster: .68 };
+  const grassColors = new Set(['#3f9a34', '#2f8a3c', '#1f6b32', '#49a84a', '#237a34', '#3c8f38', '#2e8a38']);
+  const woodColors = new Set(['#8a4e28', '#7d5640', '#6b4330', '#3a2c24', '#5c4034', '#6b4a38', '#7a5340', '#a67c40', '#b08948']);
+  const roofColors = new Set(['#b33a2c', '#7a3040', '#7a3a34', '#7a4038', '#8d342c', '#9a3a2e']);
+  const clothColors = new Set(['#8e2f36', '#7a2830', '#7c4655']);
+  function textureKind(color) {
+    if (clothColors.has(color) || color === palette.gold || color === palette.cyan || color === palette.ember || color === palette.water) return null;
+    if (roofColors.has(color) || color === palette.roof) return 'roof';
+    if (woodColors.has(color) || color === palette.wood) return 'wood';
+    if (color === palette.plaster) return 'plaster';
+    if (grassColors.has(color) || color === palette.grass) return 'grass';
+    return 'stone';
+  }
+  function bindTriplanar(material, tile) {
+    const tileText = tile.toFixed(2);
+    material.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <uv_pars_vertex>', '#include <uv_pars_vertex>\nvarying vec3 vWPos;\nvarying vec3 vWNorm;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvWNorm = mat3(modelMatrix) * normal;');
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <uv_pars_fragment>', '#include <uv_pars_fragment>\nvarying vec3 vWPos;\nvarying vec3 vWNorm;')
+        .replace('#include <map_fragment>', `vec3 bw = abs(normalize(vWNorm));\nbw /= max(bw.x + bw.y + bw.z, 1e-4);\nfloat tile = ${tileText};\nvec4 tx = texture2D(map, vWPos.zy * tile);\nvec4 ty = texture2D(map, vWPos.xz * tile);\nvec4 tz = texture2D(map, vWPos.xy * tile);\nvec4 sampledDiffuseColor = tx * bw.x + ty * bw.y + tz * bw.z;\ndiffuseColor *= sampledDiffuseColor;`);
+    };
+    material.customProgramCacheKey = () => `triplanar-${tileText}`;
+  }
   function geometry(type) {
     if (geometryCache.has(type)) return geometryCache.get(type);
     const g = ({ box: () => new THREE.BoxGeometry(1, 1, 1), cylinder: () => new THREE.CylinderGeometry(.5, .5, 1, 24),
@@ -61,9 +153,14 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   function material(color, glow = 0) {
     const key = `${color}/${glow}`;
     if (!materialCache.has(key)) {
-      const map = surfaceMaps.get(color);
-      const m = new THREE.MeshStandardMaterial({ color, map, bumpMap: map, bumpScale: map ? .065 : 0, roughness: .84, metalness: glow ? .22 : .08,
-        emissive: glow ? color : '#000000', emissiveIntensity: glow, flatShading: true });
+      const kind = textureKind(color);
+      const map = kind ? maps[kind] : null;
+      const brass = color === palette.gold, water = color === palette.water;
+      const m = new THREE.MeshStandardMaterial({ color, map, bumpMap: kind === 'stone' || kind === 'roof' ? map : null, bumpScale: kind === 'roof' ? .12 : .09,
+        roughness: water ? .15 : brass ? .34 : glow ? .32 : (kind ? roughOf[kind] : .72),
+        metalness: water ? .62 : brass ? .55 : kind === 'roof' ? .06 : glow ? .16 : .03,
+        emissive: glow ? color : '#000000', emissiveIntensity: glow ? Math.min(glow, .55) : 0, flatShading: true });
+      if (map) bindTriplanar(m, tileOf[kind]);
       materials.add(m); materialCache.set(key, m);
     }
     return materialCache.get(key);
@@ -95,11 +192,13 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       pieces.forEach(m => m.removeFromParent()); group.add(merged);
     }
   }
-  const hemisphere = new THREE.HemisphereLight('#e0eced', '#6e785b', 1.7); scene.add(hemisphere);
-  const sun = new THREE.DirectionalLight('#ffe2b5', 2.5); sun.position.set(-16, 28, 14); sun.castShadow = true;
-  sun.shadow.mapSize.set(1536, 1536); Object.assign(sun.shadow.camera, { left: -19, right: 19, top: 19, bottom: -19, near: 1, far: 75 });
-  sun.shadow.bias = -.0005; sun.shadow.normalBias = .035; scene.add(sun);
-  const rim = new THREE.DirectionalLight('#a9d3df', .9); rim.position.set(10, 8, -12); scene.add(rim);
+  const hemisphere = new THREE.HemisphereLight('#7ea4d0', '#2a1a10', .38); scene.add(hemisphere);
+  const sun = new THREE.DirectionalLight('#ffc07a', 4.6); sun.position.set(-16, 18, 12); sun.castShadow = true;
+  const shadowPixels = Math.min(window.innerWidth || 1280, window.innerHeight || 800) < 760 ? 1024 : 1536;
+  sun.shadow.mapSize.set(shadowPixels, shadowPixels); Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 96 });
+  sun.shadow.bias = -.00035; sun.shadow.normalBias = .02; scene.add(sun);
+  const rim = new THREE.DirectionalLight('#6e92c8', .22); rim.position.set(18, 10, -20); scene.add(rim);
+  const fill = new THREE.DirectionalLight('#ffb060', .12); fill.position.set(10, 8, 24); scene.add(fill);
 
   function torch(g, x, y, z, animations) {
     box(g, '#393640', [.08, .55, .08], [x, y + .25, z]);
@@ -148,7 +247,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
         windowPane(g, x, 1.5, 1.025, .64);
       }
       for (const x of [-1.18, 1.18]) {
-        box(g, '#613447', [.28, .82, .07], [x, 1.35, 1.23]);
+        box(g, '#8e2f36', [.28, .82, .07], [x, 1.35, 1.23]);
         part(g, 'crystal', palette.gold, [.13, .2, .04], [x, 1.4, 1.275]);
       }
       tower(g, 0, -.9, 3.5 + tier * .2, .63);
@@ -173,7 +272,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       for (let i = 0; i < 4; i++) { const b = box(sails, '#c9bfa6', [.13, .65, .045], [0, .34, 0]); b.rotation.z = i * Math.PI / 2; b.position.set(-Math.sin(b.rotation.z) * .34, Math.cos(b.rotation.z) * .34, 0); }
       animations.push({ type: 'mill', object: sails });
     } else if (id === 'lumber') {
-      house(g, -.15, -.25, 1.25, .8, .95, '#425746');
+      house(g, -.15, -.25, 1.25, .8, .95, '#5c4034');
       for (let i = 0; i < 7; i++) { const log = part(g, 'cylinder', i % 2 ? '#98734d' : '#765a40', [.23, 1.1, .23], [-.55 + (i % 4) * .28, .18 + Math.floor(i / 4) * .22, .73]); log.rotation.x = Math.PI / 2; }
       box(g, palette.wood, [.7, .1, .5], [1, .56, .1]); box(g, palette.wood, [.13, .55, .13], [1, .28, .1]);
       part(g, 'cylinder', '#a2aab0', [.52, .045, .52], [1, .69, .1]).rotation.x = Math.PI / 2;
@@ -186,7 +285,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       for (let i = 0; i < 3; i++) part(g, 'crystal', '#9ac6d7', [.17, .45, .17], [.55 + i * .18, .85, -.15 + i * .1], i, .15);
       torch(g, -.78, .1, .8, animations);
     } else if (id === 'forge') {
-      house(g, -.2, -.2, 1.45, .9, 1.1, '#4b4852');
+      house(g, -.2, -.2, 1.45, .9, 1.1, '#3f3a38');
       box(g, palette.dark, [.5, 1.85, .5], [.52, .96, -.43]); box(g, palette.edge, [.62, .16, .6], [.52, 1.9, -.43]);
       box(g, '#222a38', [.53, .53, .1], [-.15, .42, .4]);
       part(g, 'box', '#ff9856', [.38, .32, .12], [-.15, .38, .43], 0, .9);
@@ -194,7 +293,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       part(g, 'pyramid', '#9298a2', [.35, .18, .28], [1.08, .63, .7]).rotation.z = -Math.PI / 2;
       torch(g, -.95, .1, .6, animations);
     } else if (id === 'tavern') {
-      house(g, 0, -.15, 1.65, 1.2, 1.15, '#6c3d50');
+      house(g, 0, -.15, 1.65, 1.2, 1.15, '#7a3040');
       box(g, palette.wood, [1.9, .12, .65], [0, .13, .68]);
       for (const x of [-.7, .7]) box(g, palette.wood, [.08, .86, .08], [x, .56, .88]);
       part(g, 'roof', '#96604f', [1.9, .35, .65], [0, .95, .72]);
@@ -223,15 +322,15 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   glowGradient.addColorStop(0, '#fff'); glowGradient.addColorStop(.12, '#c2f2ff'); glowGradient.addColorStop(.4, '#69bcd455'); glowGradient.addColorStop(1, '#69bcd400');
   glowCtx.fillStyle = glowGradient; glowCtx.fillRect(0, 0, 64, 64);
   const glowMap = new THREE.CanvasTexture(glowCanvas); textures.add(glowMap);
-  const auraMaterial = new THREE.SpriteMaterial({ map: glowMap, color: '#7ce5ff', transparent: true, opacity: .7, blending: THREE.AdditiveBlending, depthWrite: false }); materials.add(auraMaterial);
+  const auraMaterial = new THREE.SpriteMaterial({ map: glowMap, color: '#d7eef4', transparent: true, opacity: .42, blending: THREE.AdditiveBlending, depthWrite: false }); materials.add(auraMaterial);
   const aura = new THREE.Sprite(auraMaterial); aura.position.set(locations.keep.x, locations.keep.y + 4.6, locations.keep.z); aura.scale.set(2.3, 2.3, 1); scene.add(aura);
-  const crystalLight = new THREE.PointLight('#72d5ff', 7, 8, 2); crystalLight.position.copy(aura.position); scene.add(crystalLight);
-  const moteGeo = new THREE.BufferGeometry(), motePositions = new Float32Array(70 * 3);
-  for (let i = 0; i < 70; i++) { motePositions[i*3] = (hash(i+400)-.5)*18; motePositions[i*3+1] = .8+hash(i+500)*6; motePositions[i*3+2] = (hash(i+600)-.5)*18; }
+  const crystalLight = new THREE.PointLight('#9fd7e4', 3.2, 8, 2); crystalLight.position.copy(aura.position); scene.add(crystalLight);
+  const moteGeo = new THREE.BufferGeometry(), motePositions = new Float32Array(22 * 3);
+  for (let i = 0; i < 22; i++) { motePositions[i*3] = (hash(i+400)-.5)*16; motePositions[i*3+1] = 4.2+hash(i+500)*4.5; motePositions[i*3+2] = (hash(i+600)-.5)*16; }
   moteGeo.setAttribute('position', new THREE.BufferAttribute(motePositions,3)); geometries.add(moteGeo);
-  const moteMat = new THREE.PointsMaterial({ map: glowMap, size: .12, color: '#c1dddc', transparent:true, opacity:.7, depthWrite:false, blending:THREE.AdditiveBlending }); materials.add(moteMat);
+  const moteMat = new THREE.PointsMaterial({ map: glowMap, size: .07, color: '#efe6d4', transparent:true, opacity:.4, depthWrite:false, blending:THREE.AdditiveBlending }); materials.add(moteMat);
   const motes = new THREE.Points(moteGeo,moteMat); scene.add(motes);
-  const selectionMaterial = new THREE.MeshBasicMaterial({ color: '#8ce8e4', transparent: true, opacity: .6, depthWrite: false }); materials.add(selectionMaterial);
+  const selectionMaterial = new THREE.MeshBasicMaterial({ color: '#e4c98a', transparent: true, opacity: .7, depthWrite: false }); materials.add(selectionMaterial);
   const selection = new THREE.Mesh(geometry('ring'), selectionMaterial); selection.rotation.x = -Math.PI / 2; selection.position.y = .18; scene.add(selection);
   function removeModel(g) { g.traverse(o => { if (o.geometry?.userData.starfortMerged) { o.geometry.dispose(); geometries.delete(o.geometry); } }); g.removeFromParent(); }
   function update(state) {
