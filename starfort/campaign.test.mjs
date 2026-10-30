@@ -22,6 +22,21 @@ test('the campaign is three chapters of ten stages and the first eight stay in p
   assert.equal(cleave.type, 'cleave');
 });
 
+test('chapter casters and tower floors do not share one trick', () => {
+  const crown = encounterEnemies(R.STAGES[11]).find(enemy => enemy.role === 'caster');
+  const well = encounterEnemies(R.STAGES[21]).find(enemy => enemy.role === 'caster');
+  const ash = encounterEnemies(R.STAGES[1]).find(enemy => enemy.role === 'caster');
+  assert.equal(enemyIntent({ round: 2, combatVersion: 2 }, crown).type, 'brand');
+  assert.equal(enemyIntent({ round: 1, combatVersion: 2 }, well).type, 'siphon');
+  assert.equal(enemyIntent({ round: 1, combatVersion: 2 }, ash).type, 'volley');
+  assert.equal(R.towerAffix(1), 'ash');
+  assert.equal(R.towerAffix(2), 'brand');
+  assert.equal(R.towerAffix(3), 'siphon');
+  const state = fresh();
+  R.startTower(state, NOW);
+  assert.equal(state.battle.affix, 'ash');
+});
+
 test('later stages stay locked until the road is contiguous', () => {
   const state = fresh();
   assert.equal(R.startBattle(state, 9).ok, false);

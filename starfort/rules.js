@@ -393,6 +393,9 @@ function towerEnemies(floor) {
     return { id: `enemy-${index + 1}`, name, role, hp: scaledHp, maxHp: scaledHp, attack: scaledAttack };
   });
 }
+export function towerAffix(floor) {
+  return floor % 3 === 2 ? 'brand' : floor % 3 === 0 ? 'siphon' : 'ash';
+}
 export function towerReward(floor) {
   return { gold: 30 + floor * 18, wood: 10 + floor * 6, aether: 2 + Math.floor(floor / 2) };
 }
@@ -403,6 +406,7 @@ export function startTower(state, now = Date.now()) {
   state.tower = tower;
   const battle = newBattle(state, STAGES[0]);
   battle.towerFloor = tower.floor;
+  battle.affix = towerAffix(tower.floor);
   battle.enemies = towerEnemies(tower.floor);
   battle.reward = towerReward(tower.floor);
   battle.log = [`Yıldız Kulesi ${tower.floor}. kat: nöbetçiler hazır.`];
@@ -641,7 +645,12 @@ export function battleTurn(state, action) {
         events.push(`${enemy.name}, ${target.name} için ${damage} hasar verdi.`);
       }
       frame(enemy.id,intent.type,intent.label);
-
+      if (intent.type === 'siphon' && aliveEnemies().length) {
+        const wounded = aliveEnemies().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+        const healed = Math.min(wounded.maxHp - wounded.hp, Math.round(enemy.attack * (intent.heal || 0.45)));
+        wounded.hp += healed;
+        if (healed) events.push(`${enemy.name}, kuyudan ${wounded.name} için ${healed} can çekti.`);
+      }
     }
     finishBattle(state, events);
   }

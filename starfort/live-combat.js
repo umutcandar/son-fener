@@ -168,19 +168,31 @@ function enemyAttack(battle,enemy) {
   const cast=unit.casting;
   if(!cast) {
     unit.attacks++;
-    const kind=enemy.role==='boss'&&unit.attacks%3===0?'crush':enemy.role==='elite'&&unit.attacks%3===0?'cleave':enemy.role==='caster'&&unit.attacks%2===0?'volley':null;
+    const chapter = enemy.chapter || 1;
+    const affix = battle.affix;
+    const kind=enemy.role==='boss'&&unit.attacks%3===0?'crush'
+      :enemy.role==='elite'&&unit.attacks%3===0?'cleave'
+      :enemy.role==='caster'&&(affix==='brand'||chapter===2)&&unit.attacks%3===0?'brand'
+      :enemy.role==='caster'&&(affix==='siphon'||chapter===3)&&unit.attacks%2===0?'siphon'
+      :enemy.role==='caster'&&unit.attacks%2===0?'volley':null;
     if(kind) {
       const duration=kind==='crush'?2400:kind==='cleave'?1800:1500;
       unit.casting={kind,startedAt:now,endsAt:now+duration}; unit.nextAt=now+duration;
-      return record(battle,enemy.id,'windup',`${enemy.name} · ${kind==='crush'?'Yıkım hazırlanıyor!':kind==='cleave'?'Çift kılıç hazırlanıyor!':'Gölge yağmuru hazırlanıyor!'}`,()=>{});
+      const wind=kind==='crush'?'Yıkım hazırlanıyor!':kind==='cleave'?'Çift kılıç hazırlanıyor!':kind==='brand'?'Damga hazırlanıyor!':kind==='siphon'?'Kuyu emişi hazırlanıyor!':'Gölge yağmuru hazırlanıyor!';
+      return record(battle,enemy.id,'windup',`${enemy.name} · ${wind}`,()=>{});
     }
   }
   unit.casting=null; unit.nextAt=now+enemyPeriod(enemy);
   return record(battle,enemy.id,cast?.kind||'strike',`${enemy.name} · ${cast?.kind==='crush'?'Yıkım dalgası':cast?.kind==='cleave'?'Çift kılıç':cast?'Gölge yağmuru':'Saldırı'}`,()=>{
     const allies=living(battle.allies), tank=allies.find(hero=>hero.id==='aldren')||allies.find(hero=>hero.id==='aurelion');
-    const targets=cast?allies:[tank||allies.sort((a,b)=>a.hp-b.hp)[0]];
-    const ratio=cast?.kind==='crush'?1.3:cast?.kind==='cleave'?0.6:cast?.kind==='volley'?0.75:1;
-    targets.forEach(hero=>damageHero(battle,hero,enemy.attack*ratio));
+    const ratio=cast?.kind==='crush'?1.3:cast?.kind==='cleave'?0.6:cast?.kind==='brand'?1.25:cast?.kind==='siphon'?0.4:cast?.kind==='volley'?0.75:1;
+    const hitAll = cast && cast.kind !== 'brand';
+    const chosen = hitAll ? allies : [tank||allies.sort((a,b)=>a.hp-b.hp)[0]];
+    chosen.forEach(hero=>damageHero(battle,hero,enemy.attack*ratio));
+    if(cast?.kind==='siphon') {
+      const foe=living(battle.enemies).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];
+      if(foe) foe.hp=Math.min(foe.maxHp, foe.hp+Math.round(enemy.attack*0.45));
+    }
   });
 }
 

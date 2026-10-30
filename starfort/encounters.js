@@ -34,7 +34,7 @@ export function encounterEnemies(stage, version=2) {
     const name=role==='boss'?(bossNames[stage.id]||`${stage.name} Efendisi`):
       role==='elite'?`${stage.enemyName}`:
       role==='caster'?`Gölge Büyücüsü ${index+1}`:`${stage.enemyName} ${index+1}`;
-    return {id:`enemy-${index+1}`,name,role,hp,maxHp:hp,attack};
+    return {id:`enemy-${index+1}`,name,role,chapter:stage.chapter||1,hp,maxHp:hp,attack};
   });
 }
 export function enemyIntent(battle,enemy) {
@@ -43,6 +43,10 @@ export function enemyIntent(battle,enemy) {
     return {type:'crush',label:'Yıkım dalgası',detail:'Bu tur bütün takıma ağır darbe. Savun veya Yıldız ile boz.',danger:true,multiplier:.95};
   if(battle.combatVersion!==1 && enemy.role==='elite' && round%3===0)
     return {type:'cleave',label:'Çift kılıç',detail:'Seçkin bu tur her kahramana yarır. Yıldız çağrısı bunu bozar.',danger:true,multiplier:.55};
+  if(battle.combatVersion!==1 && enemy.role==='caster' && (battle.affix==='brand' || enemy.chapter===2) && round%3===0)
+    return {type:'brand',label:'Damga',detail:'Kırık Taç bu tur tek kahramanı damgalar. Kalkan ağırlığı keser.',danger:true,multiplier:1.35};
+  if(battle.combatVersion!==1 && enemy.role==='caster' && (battle.affix==='siphon' || enemy.chapter===3) && round%2===0)
+    return {type:'siphon',label:'Kuyu emişi',detail:'Yıldız Kuyusu takıma vurur ve en yaralı düşmanı iyileştirir.',danger:true,multiplier:.4,heal:.45};
   if(battle.combatVersion!==1 && enemy.role==='caster' && round%2===0)
     return {type:'volley',label:'Gölge yağmuru',detail:'Bu tur bütün kahramanlara büyü saldırısı.',danger:true,multiplier:.55};
   return {type:'strike',label:enemy.role==='boss'?'Ağır kesiş':'Ön safa saldırı',detail:'Ayaktaki muhafıza, yoksa en yaralı kahramana saldırır.',danger:false,multiplier:1};
