@@ -1232,3 +1232,117 @@ dialog h2, .workspace header h2, .inspector h2 { font-size: 26px; line-height: 1
   .nav-item span { font-size: 9px; }
   .goal-chip b { font-size: 13px; text-shadow: var(--ink-shadow); }
 }
+
+/* The scene is the screen. HUD floats. Boxes stay off until something is tapped. */
+.app { display: block; background: #070910; }
+.world { position: absolute; inset: 0; height: 100%; min-height: 0; z-index: 0; }
+.world:before { display: none; }
+.topbar {
+  position: absolute; top: 10px; left: 10px; right: 10px; min-height: 0; height: auto;
+  padding: 0; gap: 8px; background: transparent; box-shadow: none; border: 0;
+  pointer-events: none; flex-wrap: nowrap; z-index: 12;
+}
+.topbar > * { pointer-events: auto; }
+.brand, .player-meta, .power-chip { display: none; }
+.account { margin: 0; }
+.avatar-mark { width: 40px; height: 40px; border: 0; border-radius: 50%; clip-path: none; background: rgba(12,14,18,.72); }
+.resources { flex: 1; justify-content: flex-end; gap: 6px; background: transparent; }
+.resource, .resource:last-child {
+  border: 0; border-radius: 999px; background: rgba(12,14,18,.62);
+  box-shadow: none; padding: 4px 10px 4px 8px; backdrop-filter: blur(8px);
+}
+.resource small { display: none; }
+.sound-toggle {
+  width: 40px; height: 40px; border-radius: 50%; border: 0; padding: 0;
+  background: rgba(12,14,18,.72); color: #e7e2d8; font-size: 16px;
+}
+.rail {
+  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+  width: auto; height: auto; padding: 0; gap: 8px; border: 0; box-shadow: none;
+  background: transparent; z-index: 12; flex-direction: row;
+}
+.nav-item {
+  flex: none; width: 46px; height: 46px; max-width: none; border-radius: 50%;
+  background: rgba(12,14,18,.72); color: #e7e2d8; box-shadow: none; border: 0;
+}
+.nav-item span, .rail-foot { display: none; }
+.nav-item.active { background: #8e2f36; color: #f3ead9; box-shadow: none; }
+.nav-item svg { width: 20px; height: 20px; padding: 0; }
+.inspector { display: none !important; }
+.world-heading > div, .world-help, .world-caption, .building-picker { display: none; }
+.world-heading { position: absolute; inset: 0; pointer-events: none; background: none; }
+#recenter, .city-controls button, .icon-button {
+  width: 42px; height: 42px; min-width: 42px; min-height: 42px; border-radius: 50%;
+  border: 0; background: rgba(12,14,18,.72); box-shadow: none; color: #e7e2d8;
+}
+#recenter { position: absolute; top: 58px; right: 12px; pointer-events: auto; z-index: 12; }
+.city-controls { top: 58px; right: 62px; background: transparent; border: 0; box-shadow: none; gap: 8px; }
+.city-collect {
+  display: inline-flex; left: 12px; top: 58px; bottom: auto; height: auto; max-width: none; width: auto;
+  border: 0; border-radius: 999px; background: rgba(142,47,54,.92); box-shadow: none;
+  padding: 8px 14px; color: #f3ead9;
+}
+.app:has(.lesson:not([hidden])) .next-quest { visibility: hidden; }
+.world:has(.workspace:not([hidden])) .next-quest,
+.world:has(.workspace:not([hidden])) .city-collect,
+.world:has(.workspace:not([hidden])) .lesson,
+.world:has(.workspace:not([hidden])) #recenter,
+.world:has(.workspace:not([hidden])) .city-controls { display: none; }
+.next-quest, .goal-chip {
+  background: transparent; border: 0; box-shadow: none;
+}
+.next-quest { left: 12px; right: auto; bottom: 70px; background: transparent; }
+.goal-chip {
+  border-radius: 999px; background: rgba(12,14,18,.72); padding: 6px 10px;
+}
+.workspace {
+  background: linear-gradient(180deg, rgba(7,9,16,.25), rgba(7,9,16,.55)) !important;
+  background-image: none !important;
+}
+.hero-card, .stage-card, .journal-card, .item-card, .premium-card, .formation-slot,
+.loadout-slot, .armory-hero, .workspace header, .world-map, .map-node, .progress-banner,
+dialog, #building-dialog, #board-dialog {
+  border: 0; box-shadow: none; background-image: none;
+}
+.hero-card, .stage-card, .journal-card, .premium-card, .formation-slot, .map-node {
+  background: transparent;
+}
+.world-map { min-height: 0; margin: 0; }
+.world-map img { height: min(52vh, 420px); border-radius: 0; }
+.map-node { border-radius: 999px; background: rgba(12,14,18,.72); min-height: 40px; }
+.city-label {
+  background: rgba(12,14,18,.72) !important; clip-path: none !important;
+  border-radius: 999px !important; filter: none !important; box-shadow: none !important;
+  min-height: 0 !important; padding: 2px 10px 2px 2px !important;
+}
+.city-scene.baked .city-sprite.is-selected { background: transparent; box-shadow: none; }
+#building-dialog, #board-dialog {
+  position: fixed; inset: auto 0 0 0; width: 100%; max-width: none; height: auto;
+  max-height: min(46vh, 420px); margin: 0; border: 0; border-radius: 22px 22px 0 0;
+  background: rgba(14,16,22,.94); box-shadow: 0 -16px 40px rgba(0,0,0,.45); padding: 12px 16px 18px;
+}
+#building-dialog::backdrop, #board-dialog::backdrop { background: transparent; }
+.building-dialog-head, .building-dialog-icon { background: transparent; border: 0; box-shadow: none; }
+.lesson {
+  position: absolute; left: 12px; right: 12px; bottom: 72px; z-index: 14;
+  display: flex; align-items: center; gap: 10px; pointer-events: auto;
+  background: rgba(12,14,18,.78); border-radius: 18px; padding: 8px 10px 8px 8px;
+}
+.lesson[hidden] { display: none; }
+.lesson img { width: 46px; height: 58px; object-fit: cover; object-position: center 15%; border-radius: 12px; }
+.lesson small { display: block; letter-spacing: .12em; font-size: 10px; color: #b7c0ca; }
+.lesson p { margin: 0; color: #f3ead9; font-size: 14px; }
+.lesson button {
+  margin-left: auto; border: 0; border-radius: 999px; background: #8e2f36; color: #f3ead9;
+  padding: 8px 12px; min-height: 36px;
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .app { display: block; grid-template-rows: none; }
+  .world { position: absolute; inset: 0; }
+  .topbar { position: absolute; top: 8px; height: auto; background: transparent; box-shadow: none; }
+  .rail { position: absolute; bottom: 8px; height: auto; background: transparent; border: 0; }
+  .inspector { display: none !important; }
+  .lesson { bottom: 64px; }
+  .next-quest { bottom: 64px; }
+  .city-collect { top: 50px; bottom: auto; left: 12px; height: auto; }
+}

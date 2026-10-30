@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as R from './rules.js';
-import { encounterEnemies, enemyIntent } from './encounters.js';
+import { encounterEnemies, enemyIntent, bossStrike, crownPressure } from './encounters.js';
 
 const NOW = Date.UTC(2026, 9, 30, 12);
 const fresh = () => R.createState(NOW);
@@ -52,7 +52,9 @@ test('later stages use different formations, goals, and wounded boss phases', ()
   assert.equal(new Set(late.map(stage => stage.objective)).size, 3);
   assert.equal(R.STAGES.find(stage => stage.id === 12).surviveMs, 22000);
   assert.equal(R.STAGES.find(stage => stage.id === 16).surviveMs, 34000);
-  assert.equal(R.STAGES.find(stage => stage.id === 10).objective, null);
+  assert.equal(R.STAGES.find(stage => stage.id === 10).objective, 'seal');
+  assert.equal(R.STAGES.find(stage => stage.id === 20).objective, 'priority');
+  assert.equal(R.STAGES.find(stage => stage.id === 30).objective, 'priority');
   const seal = { role: 'boss', chapter: 1, stageId: 10, hp: 40, maxHp: 100 };
   assert.equal(enemyIntent({ round: 1, combatVersion: 2 }, seal).type, 'crush');
   assert.equal(enemyIntent({ round: 1, combatVersion: 2 }, { ...seal, hp: 80 }).type, 'strike');
@@ -178,4 +180,56 @@ test('the weekly tower advances on a win, ignores the campaign, and resets the f
   assert.equal(reloaded.tower.floor, 1);
   assert.equal(reloaded.tower.best, 9);
   assert.equal(reloaded.tower.week, R.towerWeek(NOW));
+});
+
+test('the seal boss soaks the first blows and closes once under half health', () => {
+  const seal = { role: 'boss', stageId: 10, hp: 100, maxHp: 100, seal: 30, sealMax: 30, sealRefilled: false };
+  assert.equal(bossStrike(seal, 12), 12);
+  assert.equal(seal.hp, 100);
+  assert.equal(seal.seal, 18);
+  seal.seal = 0;
+  seal.hp = 40;
+  bossStrike(seal, 8);
+  assert.equal(seal.hp, 32);
+  assert.equal(seal.sealRefilled, true);
+  assert.equal(seal.seal, 30);
+});
+
+test('the crown stacks a heavier third brand and the well lord falls alone', () => {
+  const battle = { marks: {} };
+  const lord = { role: 'boss', stageId: 20, hp: 40, maxHp: 100 };
+  const hero = { id: 'aldren' };
+  assert.equal(crownPressure(battle, hero, lord), 1);
+  assert.equal(crownPressure(battle, hero, lord), 1);
+  assert.equal(crownPressure(battle, hero, lord), 2);
+  const state = fresh();
+  state.battle = {
+    stageId: 30, round: 0, status: 'active', combatVersion: 2, objective: 'priority',
+    allies: [{ id: 'aldren', name: 'Aldren', hp: 200, maxHp: 200, attack: 500, armor: 0, healing: 0 }],
+    enemies: [
+      { id: 'enemy-1', name: 'Kuyu', role: 'boss', chapter: 3, stageId: 30, hp: 20, maxHp: 200, attack: 1, objective: true },
+      { id: 'enemy-2', name: 'Artık', role: 'raider', chapter: 3, stageId: 30, hp: 400, maxHp: 400, attack: 1 },
+    ],
+    starCharge: 0, log: [], reward: { gold: 5 }, rewardApplied: false, loot: null, targetId: null,
+  };
+  R.battleTurn(state, 'strike');
+  assert.equal(state.battle.status, 'won');
+  assert.ok(state.battle.enemies[1].hp > 0);
+});
+
+test('a fresh save hears Aldren first and a cleared save skips the lesson', () => {
+  const state = fresh();
+  assert.equal(R.lessonFor(state).hero, 'aldren');
+  R.advanceLesson(state);
+  assert.equal(state.tutorial, 1);
+  assert.equal(R.lessonFor(state).hero, 'lyra');
+  const saved = JSON.parse(JSON.stringify(state));
+  saved.cleared = [1];
+  delete saved.tutorial;
+  const veteran = R.restoreState(JSON.stringify(saved), NOW);
+  assert.equal(veteran.tutorial, R.LESSONS.length);
+  assert.equal(R.lessonFor(veteran), null);
+  const round = R.restoreState(JSON.stringify(fresh()), NOW);
+  assert.equal(round.tutorial, 0);
+  assert.equal(round.muted, false);
 });

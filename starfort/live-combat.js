@@ -1,5 +1,5 @@
 // Deterministic automatic combat. All times are simulation milliseconds, never wall-clock dates.
-import { combatOutcome } from './encounters.js';
+import { combatOutcome, bossStrike, crownPressure } from './encounters.js';
 export const HERO_ABILITIES = {
   aldren: {name:'Yemin Siperi',type:'shield',description:'6 saniye boyunca bütün takıma canlarının %22’si + saldırının %40’ı kadar kalkan.',cooldown:7000},
   lyra: {name:'Yıldız Fırtınası',type:'star',description:'Tüm düşmanlara %160 hasar. Hazırlanan büyüleri ve yıkımı keser.',cooldown:7000},
@@ -89,7 +89,9 @@ function record(battle,actorId,kind,label,action) {
 function damageEnemy(battle,enemy,amount) {
   if(!enemy || enemy.hp<=0) return 0;
   const marked=battle.live.enemies[enemy.id].markedUntil>battle.live.elapsedMs;
-  const damage=Math.min(enemy.hp,Math.max(1,Math.round(amount*(marked?1.25:1))));
+  const raw=Math.max(1,Math.round(amount*(marked?1.25:1)));
+  if(enemy.role==='boss' && (enemy.stageId===10 || enemy.seal>0)) return bossStrike(enemy, raw);
+  const damage=Math.min(enemy.hp, raw);
   enemy.hp-=damage;
   return damage;
 }
@@ -207,7 +209,7 @@ function enemyAttack(battle,enemy) {
     const heroes=allies.filter(hero=>hero.id!=='ward');
     const front=ward && unit.attacks%2===0 ? ward : (tank||heroes.sort((a,b)=>a.hp-b.hp)[0]);
     const chosen = (hitAll ? allies : [front]).filter(Boolean);
-    chosen.forEach(hero=>damageHero(battle,hero,enemy.attack*ratio));
+    chosen.forEach(hero=>damageHero(battle,hero,enemy.attack*ratio*(cast?.kind==='brand'?crownPressure(battle,hero,enemy):1)));
     if(cast?.kind==='siphon') {
       const foe=living(battle.enemies).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];
       if(foe) foe.hp=Math.min(foe.maxHp, foe.hp+Math.round(enemy.attack*0.45));

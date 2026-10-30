@@ -1,5 +1,5 @@
 import { createGearState, restoreGear, equipmentStats, awardFirstClearItem, FIRST_CLEAR_LOOT } from './equipment.js';
-import { encounterEnemies, enemyIntent, combatOutcome } from './encounters.js';
+import { encounterEnemies, enemyIntent, combatOutcome, bossStrike, crownPressure } from './encounters.js';
 import { initializeLiveCombat, restoreLiveCombat, advanceLiveCombat, castLiveAbility } from './live-combat.js';
 export { HERO_ABILITIES, abilityState, liveEnemyIntent } from './live-combat.js';
 export { enemyIntent, ENEMY_ROLES } from './encounters.js';
@@ -78,9 +78,9 @@ function laterStages() {
     [30, 'Yıldız Kuyusu', 'Kuyu Hükümdarı', 'boss', 'Kuyunun dibindeki yıldızsız iradeyi boz.'],
   ];
   return rows.map(([id, name, enemyName, rank, description]) => {
-    const objective = LATER_GOALS[id] || null;
+    const objective = id === 10 ? 'seal' : id === 20 || id === 30 ? 'priority' : (LATER_GOALS[id] || null);
     const surviveMs = objective === 'survive' ? SURVIVE_MS[id] : null;
-    const goal = objective === 'survive' ? ` Görev: ${Math.round(surviveMs / 1000)} saniye dayan.` : objective === 'protect' ? ' Görev: Emanet’i koru.' : objective === 'priority' ? ' Görev: işaretli hedefi indir.' : '';
+    const goal = objective === 'survive' ? ` Görev: ${Math.round(surviveMs / 1000)} saniye dayan.` : objective === 'protect' ? ' Görev: Emanet’i koru.' : objective === 'priority' ? ' Görev: işaretli hedefi indir.' : objective === 'seal' ? ' Görev: mühürü kır, sonra lordu indir.' : '';
     return {
     id, chapter: id <= 10 ? 1 : id <= 20 ? 2 : 3, name, enemyName, description: description + goal, rank, objective, surviveMs,
     enemyCount: rank === 'boss' ? 5 : 4,
@@ -137,6 +137,7 @@ export function createState(now = Date.now()) {
     lastCollected: safeNow(now), battle: null, ...createGearState(),
     oaths: [], stars: {}, starChests: [], deeds: emptyDeeds(), daily: emptyDaily(safeNow(now)),
     tower: { week: towerWeek(safeNow(now)), floor: 1, best: 0 },
+    muted: false, tutorial: 0,
   };
 }
 export const CAMPAIGN_CHAPTERS = [
@@ -146,6 +147,19 @@ export const CAMPAIGN_CHAPTERS = [
 ];
 export const towerWeek = now => Math.floor(safeNow(now) / (7 * 86400000));
 
+export const LESSONS = [
+  { hero: 'aldren', name: 'Aldren', line: 'Bu tepe sönmesin diye ayaktayız. Önce birikeni topla.' },
+  { hero: 'lyra', name: 'Lyra', line: 'Hasat Avlusu’nu bir kez yükselt. Tepede bir sancak belirecek.' },
+  { hero: 'rovan', name: 'Rovan', line: 'Kül Geçidi’ne yürü. Biz saldırırız. Sen hazır yeteneği seçersin.' },
+];
+export function lessonFor(state) {
+  const step = state?.tutorial || 0;
+  return step < LESSONS.length ? LESSONS[step] : null;
+}
+export function advanceLesson(state) {
+  state.tutorial = Math.min(LESSONS.length, (state.tutorial || 0) + 1);
+  return lessonFor(state);
+}
 export function restoreState(raw, now = Date.now()) {
   const time = safeNow(now), state = createState(time);
   try {
@@ -183,6 +197,9 @@ export function restoreState(raw, now = Date.now()) {
     state.daily = restoreDaily(saved.daily, time);
     state.tower = restoreTower(saved.tower, time);
     state.battle = restoreBattle(state, saved.battle);
+    state.muted = saved.muted === true;
+    if (integer(saved.tutorial, 0, LESSONS.length)) state.tutorial = saved.tutorial;
+    else if (state.cleared.length || state.oaths.length) state.tutorial = LESSONS.length;
   } catch { return createState(time); }
   return state;
 }
@@ -488,6 +505,10 @@ function newBattle(state, stage, combatVersion=2) {
       battle.allies.push({ id: 'ward', name: 'Emanet', hp: 140, maxHp: 140, attack: 0, armor: 8, healing: 0, color: '#c5ced6' });
       battle.log.push('Emanet seninle. Düşerse sefer biter.');
     }
+    if (stage.id === 10) {
+      const boss = battle.enemies.find(unit => unit.role === 'boss');
+      if (boss) { boss.sealMax = Math.round(boss.maxHp * 0.35); boss.seal = boss.sealMax; boss.sealRefilled = false; }
+    }
   }
   return battle;
 }
@@ -565,6 +586,7 @@ export function useHeroAbility(state,heroId) {
 }
 
 function hit(target, amount) {
+  if (target?.role === 'boss' && (target.stageId === 10 || target.seal > 0)) return bossStrike(target, amount);
   const damage = Math.min(target.hp, Math.max(1, Math.round(amount)));
   target.hp -= damage;
   return damage;
@@ -686,7 +708,8 @@ export function battleTurn(state, action) {
       const front = ward && battle.round % 2 === 1 ? ward : (tank || heroes.sort((a,b)=>a.hp-b.hp)[0]);
       const targets = intent.type==='strike'?[front]:aliveAllies();
       for(const target of targets) {
-        const damage=hit(target,enemy.attack*intent.multiplier*(tank?.id==='aldren'?.85:tank?.id==='aurelion'?.92:1)*(1-target.armor/100)*(action==='guard'?.5:1));
+        const pressure = intent.type === 'brand' ? crownPressure(battle, target, enemy) : 1;
+        const damage=hit(target,enemy.attack*intent.multiplier*pressure*(tank?.id==='aldren'?.85:tank?.id==='aurelion'?.92:1)*(1-target.armor/100)*(action==='guard'?.5:1));
         events.push(`${enemy.name}, ${target.name} için ${damage} hasar verdi.`);
       }
       frame(enemy.id,intent.type,intent.label);

@@ -4,6 +4,7 @@ import { ROLES, HERO_LORE, CAMPAIGN, storyFor } from './content.js';
 import { BUILDING_EVOLUTION } from './building-evolution.js';
 import { battleMarkup } from './battle-view.js';
 import { createBattleRunner } from './battle-runner.js';
+import { createMixer } from './audio.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -39,6 +40,7 @@ let battleSpeed=1, battleFxExpires=0;
 let activeView = 'keep', selectedBuilding = 'keep', toastTimer, scene, selectedSlot = 0, selectedArmoryHero = 'aldren', trialState = null;
 const cityLabelNodes = new Map();
 const resourcesEl = $('#resources'), navEl = $('#navigation'), inspectorEl = $('#inspector'), workspaceEl = $('#workspace'), questEl = $('#next-quest');
+const mixer = createMixer();
 const combatRunner=createBattleRunner({
   advance:tickCombat,
   canRun:()=>$('#battle-dialog').open&&!document.hidden&&(trialState||state).battle?.status==='active',
@@ -323,7 +325,7 @@ function renderBattle(fx=null) {
   if(!battle) return;
   const wasOpen=dialog.open, focused=document.activeElement;
   const focusSelector=focused?.dataset.ability?`[data-ability="${focused.dataset.ability}"]`:focused?.dataset.target?`[data-target="${focused.dataset.target}"]`:focused?.hasAttribute('data-combat-toggle')?'[data-combat-toggle]':focused?.hasAttribute('data-battle-speed')?'[data-battle-speed]':null;
-  const markup=battleMarkup({battle,trial:Boolean(trialState),fx,speed:battleSpeed,running:combatRunner.running,advice:battle.status==='lost'&&!trialState?R.nextStep(state).detail:''});
+  const markup=battleMarkup({battle,trial:Boolean(trialState),fx,speed:battleSpeed,running:combatRunner.running,advice:battle.status==='lost'&&!trialState?R.nextStep(state).detail:'',coach:!trialState&&battle.stageId===1&&state.tutorial<R.LESSONS.length});
   const previous=$('.combat-shell',dialog);
   if(wasOpen&&previous&&battle.status==='active'&&!$('.combat-outcome',previous)) {
     // Keep interactive targets and skill buttons alive while combat updates around them.
@@ -429,9 +431,31 @@ function castHeroSkill(heroId) {
   presentBattleEvents(used.events);
 }
 
+function syncAudio() {
+  mixer.setMuted(!!state.muted);
+  const fighting = state.battle?.status === 'active' && $('#battle-dialog')?.open;
+  const chapter = fighting ? (R.STAGES[state.battle.stageId - 1]?.chapter || 1) : 0;
+  mixer.scene(fighting ? `battle-${chapter}` : 'town');
+  const toggle = $('#sound-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', String(!!state.muted));
+    toggle.setAttribute('aria-label', state.muted ? 'Sesi aç' : 'Sesi kapat');
+    toggle.textContent = state.muted ? '✕' : '♪';
+  }
+}
+function renderLesson() {
+  const slot = $('#lesson');
+  if (!slot) return;
+  const lesson = !$('#battle-dialog')?.open && R.lessonFor(state);
+  slot.hidden = !lesson;
+  if (!lesson) return;
+  slot.innerHTML = `<img src="assets/${lesson.hero}.webp" alt=""><div><small>${lesson.name}</small><p>${lesson.line}</p></div><button type="button" data-lesson-next>Devam</button>`;
+}
 function render() {
   if (R.syncDaily(state)) persist();
   renderAccount(); renderResources(); renderNav(); renderPicker(); renderInspector(); renderQuest(); renderWorkspace();
+  renderLesson();
+  syncAudio();
   if ($('#board-dialog')?.open) renderBoard();
   scene?.update(state);
   if ($('#building-dialog').open) renderBuildingDialog();
@@ -443,10 +467,21 @@ function openBattle(stageId) {
   }
   if(state.battle?.status==='active')R.prepareLiveBattle(state);
   persist(); render(); renderBattle();
-  combatRunner.resume(); renderBattle();
+  const coach = stageId !== undefined && Number(stageId) === 1 && state.tutorial < R.LESSONS.length;
+  if (coach) {
+    if (state.tutorial === 2) state.tutorial = R.LESSONS.length;
+    combatRunner.pause();
+    persist();
+  } else combatRunner.resume();
+  renderBattle();
+  syncAudio();
 }
 function dispatch(action) {
   const button = action.target.closest('button'); if (!button) return;
+  mixer.resume();
+  if (!button.id || button.id !== 'sound-toggle') mixer.play('tap');
+  if (button.id === 'sound-toggle') { state.muted = !state.muted; persist(); syncAudio(); return; }
+  if (button.hasAttribute('data-lesson-next')) { R.advanceLesson(state); persist(); render(); return; }
   if(button.dataset.cityZoom) { scene?.zoomBy(Number(button.dataset.cityZoom)); return; }
   if(button.hasAttribute('data-city-labels')) { const visible=button.getAttribute('aria-pressed')!=='true'; button.setAttribute('aria-pressed',String(visible)); $('#city-labels').classList.toggle('names-hidden',!visible); return; }
   if(button.hasAttribute('data-battle-speed')) { battleSpeed=battleSpeed===1?2:1; combatRunner.setSpeed(battleSpeed); renderBattle(); return; }
@@ -482,7 +517,11 @@ function dispatch(action) {
     const upgraded = R.upgradeBuilding(state, selectedBuilding, Date.now());
     if (upgraded.ok) $('#building-dialog').close();
     const building = R.BUILDINGS.find(item => item.id === selectedBuilding);
-    if (result(upgraded, `${building.name} · Seviye ${state.buildings[selectedBuilding]} — ${BUILDING_EVOLUTION[selectedBuilding][state.buildings[selectedBuilding]-1]}`)) markRaised(selectedBuilding);
+    if (result(upgraded, `${building.name} · Seviye ${state.buildings[selectedBuilding]} — ${BUILDING_EVOLUTION[selectedBuilding][state.buildings[selectedBuilding]-1]}`)) {
+      markRaised(selectedBuilding);
+      mixer.play('upgrade');
+      if (selectedBuilding === 'farm' && state.tutorial === 1) { R.advanceLesson(state); render(); }
+    }
     return;
   }
   if (button.dataset.upgradeHero) { result(R.upgradeHero(state, button.dataset.upgradeHero), 'Kahraman güçlendi.'); return; }
@@ -504,7 +543,11 @@ function dispatch(action) {
     const origin = button.getBoundingClientRect();
     const collected = R.collect(state);
     const summary = Object.entries(collected.gain || {}).filter(([, n]) => n).map(([id, n]) => `+${number(n)} ${resourceName[id]}`).join(' · ');
-    if (result(collected, `Üretim toplandı: ${summary || 'Henüz biriken kaynak yok.'}`)) flyLoot(origin, collected.gain);
+    if (result(collected, `Üretim toplandı: ${summary || 'Henüz biriken kaynak yok.'}`)) {
+      flyLoot(origin, collected.gain);
+      if (Object.values(collected.gain || {}).some(amount => amount > 0)) mixer.play('collect');
+      if (state.tutorial === 0) { R.advanceLesson(state); render(); }
+    }
     return;
   }
   if (button.dataset.action === 'open-expedition') {
@@ -530,6 +573,7 @@ function dispatch(action) {
   if (button.dataset.retryStage) { openBattle(button.dataset.retryStage); return; }
 }
 
+document.addEventListener('pointerdown', () => mixer.resume(), { once: false });
 document.addEventListener('click', dispatch);
 $('#recenter').innerHTML = svg('keepMenu');
 let buildingBackdropDown = false;

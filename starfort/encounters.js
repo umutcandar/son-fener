@@ -40,6 +40,31 @@ function formationFor(stage) {
   if (stage.id <= 8) return formations[stage.id - 1];
   return laterFormations[stage.id];
 }
+export function bossStrike(enemy, amount) {
+  let left = Math.max(1, Math.round(amount));
+  let dealt = 0;
+  if (enemy.seal > 0) {
+    const soaked = Math.min(enemy.seal, left);
+    enemy.seal -= soaked;
+    left -= soaked;
+    dealt += soaked;
+    if (left <= 0) return dealt;
+  }
+  const damage = Math.min(enemy.hp, left);
+  enemy.hp -= damage;
+  dealt += damage;
+  if (enemy.role === 'boss' && enemy.stageId === 10 && enemy.hp > 0 && enemy.hp <= enemy.maxHp * 0.5 && !enemy.sealRefilled) {
+    enemy.sealRefilled = true;
+    enemy.seal = enemy.sealMax || Math.round(enemy.maxHp * 0.35);
+  }
+  return dealt;
+}
+export function crownPressure(battle, target, enemy) {
+  if (!enemy || enemy.stageId !== 20 || !(enemy.maxHp > 0) || enemy.hp > enemy.maxHp * 0.5) return 1;
+  if (!battle.marks) battle.marks = {};
+  battle.marks[target.id] = (battle.marks[target.id] || 0) + 1;
+  return battle.marks[target.id] >= 3 ? 2 : 1;
+}
 export function combatOutcome(battle) {
   if (!battle?.allies || !battle.enemies) return null;
   const heroes = battle.allies.filter(unit => unit.id !== 'ward');
