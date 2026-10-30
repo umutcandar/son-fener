@@ -1304,8 +1304,9 @@ dialog h2, .workspace header h2, .inspector h2 { font-size: 26px; line-height: 1
 dialog, #building-dialog, #board-dialog {
   border: 0; box-shadow: none; background-image: none;
 }
-.hero-card, .stage-card, .journal-card, .premium-card, .formation-slot, .map-node {
-  background: transparent;
+.hero-card, .stage-card, .journal-card, .premium-card, .formation-slot, .map-node,
+.stage-card.current, .hero-card.selected {
+  background: rgba(12,14,18,.42); border: 0; box-shadow: none;
 }
 .world-map { min-height: 0; margin: 0; }
 .world-map img { height: min(52vh, 420px); border-radius: 0; }
