@@ -1,0 +1,45 @@
+{
+  "method": "built-in image_gen",
+  "assets": [
+    {
+      "id": "battle-heroes-1",
+      "file": "battle-heroes-1.webp",
+      "prompt": "Use case: stylized-concept. Asset type: ONE game sprite atlas for Starfort with exactly THREE isolated full-body character sprites in one horizontal row on a TRUE TRANSPARENT alpha background. Landscape 1536x1024 layout. Three equal 512-pixel-wide columns, each character centered at x=256,768,1280. Every entire body and weapon must stay inside its own column with clear transparent gaps; NO overlaps, no text, no labels, no frames, no scenery, no ground slab, no opaque background or checkerboard. Heads at y=90 and feet at y=930, equal human scale, fully visible feet and weapons. Painterly semi-realistic premium dark medieval fantasy RPG production sprite art, detailed tangible armor and fabric, strong readable silhouette, subtle warm rim light and cool blue fill, natural anatomy. Compact combat-ready pose, three-quarter view angled slightly toward screen right for heroes; enemies angled slightly toward screen left. Preserve identity and costume from the three supplied reference portraits in exactly their left-to-right order; these references guide NEW full-body sprites, not a collage of cropped portraits. LEFT Aldren: rugged dark-haired bearded male knight, blackened gold-engraved steel armor, red cape, large shield and sword. MIDDLE Lyra: silver-haired female star mage, navy and gold long robes, blue crystal staff. RIGHT Rovan: hooded dark-haired male forest ranger, dark green cloak, leather and steel armor, curved bow.",
+      "references": [
+        "aldren",
+        "lyra",
+        "rovan"
+      ],
+      "transparent_background": true
+    },
+    {
+      "id": "battle-heroes-2",
+      "file": "battle-heroes-2.webp",
+      "prompt": "Use case: stylized-concept. Asset type: ONE game sprite atlas for Starfort with exactly THREE isolated full-body character sprites in one horizontal row on a TRUE TRANSPARENT alpha background. Landscape 1536x1024 layout. Three equal 512-pixel-wide columns, each character centered at x=256,768,1280. Every entire body and weapon must stay inside its own column with clear transparent gaps; NO overlaps, no text, no labels, no frames, no scenery, no ground slab, no opaque background or checkerboard. Heads at y=90 and feet at y=930, equal human scale, fully visible feet and weapons. Painterly semi-realistic premium dark medieval fantasy RPG production sprite art, detailed tangible armor and fabric, strong readable silhouette, subtle warm rim light and cool blue fill, natural anatomy. Compact combat-ready pose, three-quarter view angled slightly toward screen right for heroes; enemies angled slightly toward screen left. Preserve identity and costume from the three supplied reference portraits in exactly their left-to-right order; these references guide NEW full-body sprites, not a collage of cropped portraits. LEFT Mira: dark-haired female moon priestess, ivory and gold long robes, pearl crescent diadem, luminous orb and staff. MIDDLE Doran: burly red-haired bearded male warrior, dark armor and fur, heavy two-handed axe. RIGHT Vesper: short dark-haired female duelist, burgundy leather armor and purple sash, twin daggers.",
+      "references": [
+        "mira",
+        "doran",
+        "vesper"
+      ],
+      "transparent_background": true
+    },
+    {
+      "id": "battle-heroes-3",
+      "file": "battle-heroes-3.webp",
+      "prompt": "Use case: stylized-concept. Asset type: ONE game sprite atlas for Starfort with exactly THREE isolated full-body character sprites in one horizontal row on a TRUE TRANSPARENT alpha background. Landscape 1536x1024 layout. Three equal 512-pixel-wide columns, each character centered at x=256,768,1280. Every entire body and weapon must stay inside its own column with clear transparent gaps; NO overlaps, no text, no labels, no frames, no scenery, no ground slab, no opaque background or checkerboard. Heads at y=90 and feet at y=930, equal human scale, fully visible feet and weapons. Painterly semi-realistic premium dark medieval fantasy RPG production sprite art, detailed tangible armor and fabric, strong readable silhouette, subtle warm rim light and cool blue fill, natural anatomy. Compact combat-ready pose, three-quarter view angled slightly toward screen right for heroes; enemies angled slightly toward screen left. Preserve identity and costume from the three supplied reference portraits in exactly their left-to-right order; these references guide NEW full-body sprites, not a collage of cropped portraits. LEFT Eira: red braided-haired freckled female ice oracle, navy robes, white fur shoulders, ice crystal staff. MIDDLE Aurelion: silver-haired male knight, highly ornate gold plate armor, ivory cape, sun crest and greatsword. RIGHT Nyxara: long black-haired brown-skinned female eclipse sorceress, deep purple robes, crescent diadem, purple celestial staff.",
+      "references": [
+        "eira",
+        "aurelion",
+        "nyxara"
+      ],
+      "transparent_background": true
+    },
+    {
+      "id": "battle-enemies",
+      "file": "battle-enemies.webp",
+      "prompt": "Use case: stylized-concept. Asset type: ONE game sprite atlas for Starfort with exactly THREE isolated full-body character sprites in one horizontal row on a TRUE TRANSPARENT alpha background. Landscape 1536x1024 layout. Three equal 512-pixel-wide columns, each character centered at x=256,768,1280. Every entire body and weapon must stay inside its own column with clear transparent gaps; NO overlaps, no text, no labels, no frames, no scenery, no ground slab, no opaque background or checkerboard. Heads at y=90 and feet at y=930, equal human scale, fully visible feet and weapons. Painterly semi-realistic premium dark medieval fantasy RPG production sprite art, detailed tangible armor and fabric, strong readable silhouette, subtle warm rim light and cool blue fill, natural anatomy. Compact combat-ready pose, three-quarter view angled slightly toward screen right for heroes; enemies angled slightly toward screen left. Preserve identity and costume from the three supplied reference portraits in exactly their left-to-right order; these references guide NEW full-body sprites, not a collage of cropped portraits. LEFT: brutal ash raider in weathered black iron armor, enclosed helmet with narrow ember slit, ragged burgundy cape and sword. MIDDLE: tall shadow cultist, sinister empty dark hood, layered black violet robes, gnarled staff bearing a small violet crystal. RIGHT: imposing void lord boss, crowned jagged black metal armor with cool cyan fissures, long torn cloak, enormous greatsword, no blood, not grotesque.",
+      "references": [],
+      "transparent_background": true
+    }
+  ]
+}

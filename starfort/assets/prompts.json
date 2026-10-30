@@ -1,0 +1,55 @@
+{
+  "method": "built-in image_gen",
+  "assets": [
+    {
+      "id": "aldren",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy strategy RPG hero portrait for Starfort, a medieval kingdom protected by a fallen star. Painterly semi-realistic high-end game key art, intricately crafted tactile materials, expressive believable face, dramatic cool blue rim light and warm gold bounce light, smoky dark midnight background, restrained jewel colors. Portrait aspect ratio 2:3, waist-up portrait, face fully visible in upper central third, weapon and shoulder silhouette within frame. Sophisticated art direction, no cartoon or chibi or plastic look. No text, logos, border, UI, watermarks. Subject: Aldren, Ash Warden, mature dark-haired male knight with short weathered beard, calm determined face, deeply engraved blackened plate armor with antique gold edges, worn crimson cloak, scar across eyebrow, holding a broad kite shield with an eight-point star etched in metal and a sword. Ash drifts behind him.",
+      "file": "aldren.webp"
+    },
+    {
+      "id": "lyra",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy strategy RPG hero portrait for Starfort, a medieval kingdom protected by a fallen star. Painterly semi-realistic high-end game key art, intricately crafted tactile materials, expressive believable face, dramatic cool blue rim light and warm gold bounce light, smoky dark midnight background, restrained jewel colors. Portrait aspect ratio 2:3, waist-up portrait, face fully visible in upper central third, weapon and shoulder silhouette within frame. Sophisticated art direction, no cartoon or chibi or plastic look. No text, logos, border, UI, watermarks. Subject: Lyra, Star Weaver, adult woman sorceress with long windswept silver hair, piercing violet eyes, midnight indigo velvet robes with elaborate antique gold celestial embroidery, faceted turquoise crystal staff beside her face, one hand conjuring a small constellation of luminous stars. Refined strong features and commanding expression.",
+      "file": "lyra.webp"
+    },
+    {
+      "id": "rovan",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy strategy RPG hero portrait for Starfort, a medieval kingdom protected by a fallen star. Painterly semi-realistic high-end game key art, intricately crafted tactile materials, expressive believable face, dramatic cool blue rim light and warm gold bounce light, smoky dark midnight background, restrained jewel colors. Portrait aspect ratio 2:3, waist-up portrait, face fully visible in upper central third, weapon and shoulder silhouette within frame. Sophisticated art direction, no cartoon or chibi or plastic look. No text, logos, border, UI, watermarks. Subject: Rovan, Shadow Ranger, lean adult male forest tracker with short black hair under a deep moss green hood, dark stubble, sharp observant expression, layered weathered leather and dark silver armor, sculpted wooden longbow diagonally across body, fletched arrows over shoulder, faint emerald mist and branches in background.",
+      "file": "rovan.webp"
+    },
+    {
+      "id": "mira",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy strategy RPG hero portrait for Starfort, a medieval kingdom protected by a fallen star. Painterly semi-realistic high-end game key art, intricately crafted tactile materials, expressive believable face, dramatic cool blue rim light and warm gold bounce light, smoky dark midnight background, restrained jewel colors. Portrait aspect ratio 2:3, waist-up portrait, face fully visible in upper central third, weapon and shoulder silhouette within frame. Sophisticated art direction, no cartoon or chibi or plastic look. No text, logos, border, UI, watermarks. Subject: Mira, Moon Priestess, dignified adult woman with warm olive skin and long dark braided hair, luminous ivory and muted bronze ceremonial armor and layered robes, a crescent silver circlet, pale moonlight held in both hands, tranquil but resolute expression, fine gold filigree and pearl inlay, cool moonlit dust.",
+      "file": "mira.webp"
+    },
+    {
+      "id": "doran",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy strategy RPG hero portrait for Starfort, a medieval kingdom protected by a fallen star. Painterly semi-realistic high-end game key art, intricately crafted tactile materials, expressive believable face, dramatic cool blue rim light and warm gold bounce light, smoky dark midnight background, restrained jewel colors. Portrait aspect ratio 2:3, waist-up portrait, face fully visible in upper central third, weapon and shoulder silhouette within frame. Sophisticated art direction, no cartoon or chibi or plastic look. No text, logos, border, UI, watermarks. Subject: Doran, Iron Oath, rugged middle-aged red-haired male veteran with a thick braided copper beard, scarred stern face, massive battered dark iron pauldrons, ember-red woven mantle, heavy two-handed war axe with hammered steel head and worn leather grip held upright, sparks and faint forge smoke.",
+      "file": "doran.webp"
+    },
+    {
+      "id": "battlefield",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy strategy RPG battlefield environment, Starfort Ash Pass. Wide cinematic 16:9 landscape. A ruined medieval bridge and cobbled ash-covered road crosses a steep ravine toward a distant ruined fortress. Tall broken gothic pillars frame left and right sides. Deep layered mountains, desaturated pine forests and blue volumetric fog. A luminous cyan fallen star and fractured celestial halo illuminate the night sky, warm ember braziers glow in the near foreground. Painterly semi-realistic high-end game environment art, rich stone and moss textures, dramatic restrained lighting. Lower foreground is open with dark legible surfaces for UI overlay; middle has strong atmospheric depth. No people, no text, no logos, no interface or watermark.",
+      "file": "battlefield.webp"
+    },
+    {
+      "id": "vesper",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy RPG hero portrait for Starfort. Portrait 2:3, waist-up centered, face in upper third fully visible. Painterly semi-realistic detailed game illustration, expressive mature face, weathered engraved metal and rich fabrics, cinematic cool moon rim light and restrained warm bounce. Background distant gothic fortress under a starry night. Same refined medieval art direction as existing Starfort heroes. No text, UI, frame, logos, watermark, cartoon or plastic look. Subject: Vesper, a female shadow duelist, adult with deep brown skin, short swept-back dark hair, sharp watchful eyes, tailored burgundy leather coat over light dark-silver chainmail, violet silk sash, two elegant short curved daggers carried safely lowered in gloved hands, small eight-point star clasp. Calm poise, smoke-purple mist.",
+      "file": "vesper.webp"
+    },
+    {
+      "id": "eira",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy RPG hero portrait for Starfort. Portrait 2:3, waist-up centered, face in upper third fully visible. Painterly semi-realistic detailed game illustration, expressive mature face, weathered engraved metal and rich fabrics, cinematic cool moon rim light and restrained warm bounce. Background distant gothic fortress under a starry night. Same refined medieval art direction as existing Starfort heroes. No text, UI, frame, logos, watermark, cartoon or plastic look. Subject: Eira, northern frost seer, an adult woman with pale freckled skin, striking ice-blue eyes, long braided copper-red hair, navy blue robes with a white fur collar and intricate silver celestial embroidery, polished crystal-tipped staff, luminous delicate ice constellation floating beside an open hand. Intelligent serene expression, snow and mist in background.",
+      "file": "eira.webp"
+    },
+    {
+      "id": "aurelion",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy RPG hero portrait for Starfort. Portrait 2:3 waist-up, face fully visible in upper central third. Highly detailed painterly semi-realistic game art, tactile engraved metal and ornate fabric, cinematic blue moon rim light and warm brass highlights. Starry midnight gothic fortress backdrop. No text, frame, UI, logos or watermark. Match refined medieval fantasy RPG portrait art, distinct silhouette, no cartoon or plastic appearance. Subject: Aurelion, Sunfire Marshal, a powerful adult male knight with olive skin, short silver hair and neatly trimmed dark beard, stately expression, luminous antique golden plate armor decorated with subtle sun and eight-point star motifs, ivory cloak with ember-orange lining, broad ornamental greatsword held upright safely beside his shoulder. Regal, heroic, dignified. Warm sunlight crystal inset on breastplate.",
+      "file": "aurelion.webp"
+    },
+    {
+      "id": "nyxara",
+      "prompt": "Use case: stylized-concept. Asset type: original premium dark fantasy RPG hero portrait for Starfort. Portrait 2:3 waist-up, face fully visible in upper central third. Highly detailed painterly semi-realistic game art, tactile engraved metal and ornate fabric, cinematic blue moon rim light and warm brass highlights. Starry midnight gothic fortress backdrop. No text, frame, UI, logos or watermark. Match refined medieval fantasy RPG portrait art, distinct silhouette, no cartoon or plastic appearance. Subject: Nyxara, Eclipse Oracle, an adult female sorceress with deep brown skin, long flowing black hair adorned with a delicate crescent headdress, confident gaze, elegant deep violet layered robes with complex silver constellation embroidery, luminous amethyst orb floating above an open palm, tall obsidian staff with interlocking silver rings. Purple nebula mist and a distant pale moon.",
+      "file": "nyxara.webp"
+    }
+  ]
+}
