@@ -1,13 +1,14 @@
 // Painted hillside town. Spots are the empty terraces on the backdrop.
 // y is the front edge of each lot; higher on the hill paints behind.
+// Hit areas on the baked town plate. y is the foundation line.
 export const CITY_SPOTS = {
-  keep: { x: 53.0, y: 31.4, w: 16 },
-  forge: { x: 39.2, y: 55.2, w: 12 },
-  observatory: { x: 75.4, y: 53.2, w: 12 },
-  farm: { x: 15.8, y: 66.0, w: 13.5 },
-  lumber: { x: 33.4, y: 72.2, w: 13.5 },
-  quarry: { x: 80.8, y: 70.0, w: 12.5 },
-  tavern: { x: 63.4, y: 73.2, w: 13.5 },
+  keep: { x: 50.2, y: 33.5, w: 16, h: 24 },
+  forge: { x: 33.0, y: 43.0, w: 13, h: 13 },
+  observatory: { x: 72.4, y: 45.5, w: 13, h: 14 },
+  farm: { x: 20.5, y: 63.5, w: 16, h: 16 },
+  lumber: { x: 37.8, y: 66.5, w: 14, h: 14 },
+  quarry: { x: 80.6, y: 66.5, w: 13, h: 15 },
+  tavern: { x: 62.5, y: 68.5, w: 14, h: 14 },
 };
 const SMOKE_IDS = new Set(['keep', 'forge', 'farm', 'lumber', 'tavern']);
 
@@ -29,16 +30,21 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     button.style.left = `${spot.x}%`;
     button.style.top = `${spot.y}%`;
     button.style.width = `${spot.w}%`;
+    button.style.setProperty('--spot-h', `${spot.h || 14}%`);
     button.style.zIndex = String(20 + Math.round(spot.y));
     const label = document.createElement('span');
     label.className = 'city-label';
     label.innerHTML = '<span class="city-label-level"></span><span class="city-label-name"></span>';
-    const img = document.createElement('img');
-    img.alt = '';
-    img.draggable = false;
-    img.src = `assets/buildings/${id}-a.webp`;
-    button.append(label, img);
-    if (SMOKE_IDS.has(id)) {
+    button.append(label);
+    const baked = scene.classList.contains('baked');
+    if (!baked) {
+      const img = document.createElement('img');
+      img.alt = '';
+      img.draggable = false;
+      img.src = `assets/buildings/${id}-a.webp`;
+      button.append(img);
+    }
+    if (!baked && SMOKE_IDS.has(id)) {
       const smoke = document.createElement('i');
       smoke.className = 'chimney-smoke';
       smoke.setAttribute('aria-hidden', 'true');
@@ -78,15 +84,13 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     const aspect = 16 / 9;
     let w = rect.width;
     let h = w / aspect;
-    if (h < rect.height) { h = rect.height; w = h * aspect; }
+    if (h > rect.height) { h = rect.height; w = h * aspect; }
     scene.style.width = `${w}px`;
     scene.style.height = `${h}px`;
     if (reset) {
       scale = 1;
-      const short = rect.height < 520 && rect.width > rect.height;
-      if (short) scale = 0.72;
-      x = (rect.width - w * scale) / 2;
-      y = short ? -h * scale * 0.1 : rect.height * 0.46 - h * 0.5;
+      x = (rect.width - w) / 2;
+      y = (rect.height - h) / 2;
       clampPan();
       apply();
     }
@@ -96,7 +100,7 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
       const level = Math.max(1, Math.trunc(Number(state?.buildings?.[id]) || 1));
       const src = `assets/buildings/${id}-${tierOf(level)}.webp`;
       const img = button.querySelector('img');
-      if (img.getAttribute('src') !== src) img.src = src;
+      if (img && img.getAttribute('src') !== src) img.src = src;
       button.classList.toggle('is-selected', id === selected);
       button.style.zIndex = String((id === selected ? 40 : 0) + 20 + Math.round(CITY_SPOTS[id].y));
       button.setAttribute('aria-label', `${id} seviye ${level}`);

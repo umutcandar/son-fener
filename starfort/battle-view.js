@@ -23,14 +23,14 @@ function fighter(unit,index,side,battle,fx) {
   const marked=enemy&&(battle.live?.enemies[unit.id]?.markedUntil||0)>(battle.live?.elapsedMs||0);
   const acting=fx?.actorId===unit.id||fx?.actorIds?.includes(unit.id);
   const tag=enemy?'button':'div';
-  const shortName=enemy?(unit.role==='boss'?unit.name:`${unit.role==='caster'?'Büyücü':'Akıncı'} ${index+1}`):unit.name;
-  return `<${tag} data-fighter="${unit.id}" class="fighter ${shield>0?'shielded':''} ${side} fighter-${index} ${dead?'defeated':''} ${selected?'targeted':''} ${acting?'acting':''} ${change?.delta<0?'struck':''} ${change?.delta>0?'healed':''} ${unit.role==='boss'?'boss':''}" style="${spriteStyle(enemy?unit.role:unit.id)}" ${enemy?`data-target="${unit.id}" aria-pressed="${selected}" aria-label="${esc(unit.name)}, ${unit.hp} / ${unit.maxHp} can. ${esc(intent.label)}. Hedef seç." ${dead||battle.status!=='active'?'disabled':''}`:''}>
+  const shortName=unit.id==='ward'?'Emanet':enemy?(unit.objective?unit.name:unit.role==='boss'?unit.name:`${unit.role==='caster'?'Büyücü':'Akıncı'} ${index+1}`):unit.name;
+  return `<${tag} data-fighter="${unit.id}" class="fighter ${shield>0?'shielded':''} ${side} fighter-${index} ${dead?'defeated':''} ${selected?'targeted':''} ${acting?'acting':''} ${change?.delta<0?'struck':''} ${change?.delta>0?'healed':''} ${unit.role==='boss'?'boss':''} ${unit.id==='ward'?'ward':''} ${unit.objective?'priority':''}" style="${spriteStyle(enemy?unit.role:unit.id)}" ${enemy?`data-target="${unit.id}" aria-pressed="${selected}" aria-label="${esc(unit.name)}, ${unit.hp} / ${unit.maxHp} can. ${esc(intent.label)}. Hedef seç." ${dead||battle.status!=='active'?'disabled':''}`:''}>
     ${enemy&&!dead&&battle.status==='active'?`<span class="enemy-intent ${intent.danger?'danger-intent':''}" data-intent="${unit.id}">${intent.label}${intent.remaining?` · ${(intent.remaining/1000).toFixed(1)}s`:''}${intent.danger?`<i style="width:${intent.progress*100}%"></i>`:''}</span>`:''}
     ${marked?'<span class="combat-mark" title="İşaretli: %25 fazla hasar alır" aria-hidden="true">◎</span>':''}<span class="fighter-ground"></span><span class="battle-sprite" aria-hidden="true"></span>
     ${change&&(change.delta||change.shieldDelta)?`<span class="combat-number ${change.delta>0?'healing-number':!change.delta?'shield-number':''}" aria-hidden="true">${change.delta?`${change.delta>0?'+':''}${change.delta}`:`⬡ ${Math.abs(change.shieldDelta)}`}</span>`:''}
     ${acting&&fx.kind==='interrupt'?'<span class="interrupted">ENGELLENDİ</span>':''}
     <span class="fighter-label"><strong>${esc(shortName)}</strong>${health(unit)}<small>${Math.max(0,unit.hp)} / ${unit.maxHp}${shield?` <em>⬡ ${shield}</em>`:''}</small></span>
-    ${selected?'<span class="target-caption">HEDEF</span>':''}
+    ${unit.objective&&!dead?'<span class="target-caption">HEDEF</span>':selected?'<span class="target-caption">HEDEF</span>':''}
   </${tag}>`;
 }
 
@@ -50,12 +50,15 @@ export function battleMarkup({battle,trial=false,fx=null,speed=1,running=false})
   const seconds=Math.floor((battle.live?.elapsedMs||0)/1000), clock=`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
   const label=done?(battle.status==='won'?'ZAFER':'GERİ ÇEKİLME'):running?'ÇATIŞMA SÜRÜYOR':'TAKTİK MOLA';
   const affixLabel = { ash:'KÜL', brand:'DAMGA', siphon:'KUYU' }[battle.affix] || '';
-  const eyebrow = battle.towerFloor ? `YILDIZ KULESİ · ${battle.towerFloor}. KAT${affixLabel ? ' · '+affixLabel : ''}` : `BÖLGE ${String(stage.id).padStart(2,'0')} · ${trial?'EĞİTİM DENEMESİ':stage.rank==='boss'?'BÖLÜM SONU':stage.rank==='elite'?'SEÇKİN':'YILDIZ SEFERİ'}`;
+  const goal = { survive:'DAYAN', protect:'KORU', priority:'HEDEF' }[battle.objective] || '';
+  const chapter = battle.towerFloor ? ({ ash:1, brand:2, siphon:3 }[battle.affix] || 1) : (stage?.chapter || 1);
+  const eyebrow = battle.towerFloor ? `YILDIZ KULESİ · ${battle.towerFloor}. KAT${affixLabel ? ' · '+affixLabel : ''}` : `BÖLGE ${String(stage.id).padStart(2,'0')} · ${trial?'EĞİTİM DENEMESİ':stage.rank==='boss'?'BÖLÜM SONU':stage.rank==='elite'?'SEÇKİN':'YILDIZ SEFERİ'}${goal ? ' · '+goal : ''}`;
   const title = battle.towerFloor ? `Kat ${battle.towerFloor}` : stage.name;
-  return `<section class="combat-shell ${['star','eclipse','sun','frost'].includes(fx?.kind)?'star-burst':''} ${fx?.kind==='shield'?'guard-burst':''}">
+  const goalLine = battle.objective==='survive' ? '28 saniye dayan. Süre dolunca kalan saflar dağılır.' : battle.objective==='protect' ? 'Emanet’i hayatta tut. Düşerse sefer biter.' : battle.objective==='priority' ? 'İşaretli hedefi indir. Diğerleri kaçınca zafer sayılır.' : '';
+  return `<section class="combat-shell chapter-${chapter} ${['star','eclipse','sun','frost'].includes(fx?.kind)?'star-burst':''} ${fx?.kind==='shield'?'guard-burst':''}">
     <header class="combat-heading"><div><span class="eyebrow">${eyebrow}</span><h2 id="battle-title">${title}</h2></div><div class="combat-tools">${!done?`<button class="combat-pause" data-combat-toggle aria-label="${running?'Savaşı duraklat':'Savaşa devam et'}" title="${running?'Taktik mola':'Devam et'}">${running?'Ⅱ':'▶'}</button>`:''}<button class="combat-speed" data-battle-speed aria-label="Savaş hızı: ${speed} kat">${speed}×</button><button class="combat-dismiss" data-close-battle aria-label="Savaşı kapat ve duraklat">×</button></div></header>
     ${trial?'<p class="combat-trial">Ücretsiz deneme · İlerlemen ve kaynakların değişmez.</p>':''}
-    <div class="combat-arena ${battle.enemies.length>3?'large-encounter':''} ${!running&&!done?'arena-paused':''}" aria-label="Savaş alanı">
+    <div class="combat-arena chapter-${chapter} ${battle.enemies.length>3?'large-encounter':''} ${!running&&!done?'arena-paused':''}" aria-label="Savaş alanı">
       <div class="arena-vignette"></div><div class="arena-rune" aria-hidden="true">✧</div>
       <div class="round-pill"><b class="battle-clock">${clock}</b><span>${label}</span></div>
       <div class="formation-side allies">${battle.allies.map((hero,index)=>fighter(hero,index,'ally',battle,fx)).join('')}</div>
@@ -66,7 +69,8 @@ export function battleMarkup({battle,trial=false,fx=null,speed=1,running=false})
     <div class="combat-command live-command">
       ${done?`<div class="combat-rewards"><p>${trial?'Deneme tamamlandı. Kahramanın savaş tarzını gördün.':battle.status==='won'?storyFor(stage).victory:'Kahramanlarını ve ekipmanlarını geliştirerek yeniden deneyebilirsin. Kaynak kaybetmedin.'}</p>${battle.status==='won'&&!trial?`<div class="reward-chips">${Object.entries(battle.reward).map(([id,value])=>`<span>+${value} ${R.RESOURCES[id].name}</span>`).join('')}${battle.loot?`<span class="loot-chip">✧ ${R.itemById(battle.loot).name}</span>`:''}</div>`:''}</div><div class="combat-controls result-controls"><button class="combat-action attack-action" data-close-battle><b>${trial?'Mağazaya dön':'Köye dön'}</b><small>${trial?'Denemeyi bitir':'Kahramanların seni bekliyor'}</small></button>${trial?'':`<button class="combat-action defend-action" data-retry-stage="${stage.id}"><b>Yeniden savaş</b><small>Bu bölgeye tekrar gir</small></button>`}</div>`:
       `<div class="tactical-line ${threats.length?'threat-line':''}"><span>${threats.length?(heavy?'YIKIM HAZIRLANIYOR':'BÜYÜ HAZIRLANIYOR'):running?'OTOMATİK ÇATIŞMA':'TAKTİK MOLA'}</span><p>${threats.length?'Hazır bir kesme yeteneği kullan veya kalkanla takımını koru.':!running?'Savaş duraklatıldı. Hedef veya yetenek seçebilir, ▶ ile devam edebilirsin.':target?`${esc(target.name)} hedefte. Kahramanlar kendileri saldırır; hazır yeteneğe dokun.`:'Kahramanlar kendileri saldırır. Hedefi ve özel yeteneklerin zamanını sen seç.'}</p></div>
-      <div class="ability-belt" aria-label="Kahraman yetenekleri">${battle.allies.map(hero=>abilityCard(hero,battle)).join('')}</div>
+      ${goalLine?`<p class="objective-line">${goalLine}</p>`:''}
+      <div class="ability-belt" aria-label="Kahraman yetenekleri">${battle.allies.filter(hero=>R.HERO_ABILITIES[hero.id]).map(hero=>abilityCard(hero,battle)).join('')}</div>
       <div class="live-help"><span>Enerji saldırı yaptıkça ve darbe aldıkça dolar.</span><span>${target?`Odak: ${esc(target.name)}`:'Odak belirlemek için düşmana dokun.'}</span></div>`}
       <details class="combat-history"><summary>Savaş günlüğü</summary><div>${battle.log.slice(-12).map(line=>`<p>${esc(line)}</p>`).join('')}</div></details>
     </div></section>`;

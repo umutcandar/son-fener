@@ -7,10 +7,21 @@ export const CAMPAIGN = [
 export function storyFor(stage) {
   const written = CHAPTERS[stage.id - 1];
   if (written) return written;
+  const goalTactic = {
+    survive: '28 saniye dayan. Süre dolunca kalan düşmanlar dağılır.',
+    protect: 'Emanet düşünce sefer biter. Darbeleri ondan uzak tut.',
+    priority: 'İşaretli hedef düşünce diğerleri kaçar.',
+  }[stage.objective];
+  const bossTactic = stage.id === 10 ? 'Mühür Lordu yarı canın altında yıkımı daha sık hazırlar. Yıldız çağrısı bozar.'
+    : stage.id === 20 ? 'Yarı canın altında Taç öfkesi damgalar. Kalkan ağırlığı keser.'
+    : stage.id === 30 ? 'Yarı canın altında kuyu emişi takıma vurur ve hükümdarı iyileştirir.'
+    : stage.rank === 'boss' ? 'Hükümdar yıkım hazırlar. Yıldız çağrısı ya da kalkanla takımı koru.'
+    : stage.rank === 'elite' ? 'Seçkin çift kılıç hazırlar. Yıldız çağrısı yarmayı bozar.'
+    : 'Kahramanlar kendileri saldırır. Hazır yeteneği kritik anda kullan.';
   return {
     name: stage.name,
     brief: stage.description,
-    tactic: stage.rank === 'boss' ? 'Hükümdar yıkım hazırlar. Yıldız çağrısı ya da kalkanla takımı koru.' : stage.rank === 'elite' ? 'Seçkin çift kılıç hazırlar. Yıldız çağrısı yarmayı bozar.' : 'Kahramanlar kendileri saldırır. Hazır yeteneği kritik anda kullan.',
+    tactic: goalTactic || bossTactic,
     victory: stage.victory || `${stage.name} sessizleşti. Yol bir basamak daha açıldı.`,
   };
 }

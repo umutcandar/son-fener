@@ -748,7 +748,15 @@ dialog, #building-dialog, #battle-dialog {
   z-index: -1;
 }
 .city-sprite img { width:100%; height:auto; display:block; pointer-events:none; transform: translateY(2%); }
-.city-sprite.is-selected { filter:drop-shadow(0 0 10px rgba(240,212,138,.9)) drop-shadow(0 12px 8px rgba(0,0,0,.55)); }
+.city-sprite.is-selected { filter:drop-shadow(0 0 8px rgba(126,200,212,.75)) drop-shadow(0 12px 8px rgba(0,0,0,.55)); }
+.city-scene.baked .city-sprite { height: var(--spot-h, 14%); pointer-events: auto; }
+.city-scene.baked .city-sprite.is-selected { filter:none; background:rgba(126,200,212,.12); box-shadow:inset 0 0 0 2px rgba(126,200,212,.8); }
+.city-scene.baked .pond-shimmer,
+.city-scene.baked .torch-glow,
+.city-scene.baked .gate-banner,
+.city-scene.baked .garden-plot,
+.city-scene.baked .villager,
+.city-scene.baked .city-sprite::after { display:none; }
 .city-sprite .city-label {
   left:50%; top:0; right:auto; bottom:auto; max-width:none;
   transform:translate(-50%, -115%);

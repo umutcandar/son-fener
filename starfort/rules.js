@@ -1,5 +1,5 @@
 import { createGearState, restoreGear, equipmentStats, awardFirstClearItem, FIRST_CLEAR_LOOT } from './equipment.js';
-import { encounterEnemies, enemyIntent } from './encounters.js';
+import { encounterEnemies, enemyIntent, combatOutcome } from './encounters.js';
 import { initializeLiveCombat, restoreLiveCombat, advanceLiveCombat, castLiveAbility } from './live-combat.js';
 export { HERO_ABILITIES, abilityState, liveEnemyIntent } from './live-combat.js';
 export { enemyIntent, ENEMY_ROLES } from './encounters.js';
@@ -70,13 +70,16 @@ function laterStages() {
     [29, 'Kuyu Eşiği', 'Eşik Bekçisi', 'fight', 'Eşiğin önündeki son safları yar.'],
     [30, 'Yıldız Kuyusu', 'Kuyu Hükümdarı', 'boss', 'Kuyunun dibindeki yıldızsız iradeyi boz.'],
   ];
-  return rows.map(([id, name, enemyName, rank, description]) => ({
-    id, chapter: id <= 10 ? 1 : id <= 20 ? 2 : 3, name, enemyName, description, rank,
+  return rows.map(([id, name, enemyName, rank, description]) => {
+    const objective = rank === 'boss' ? null : id % 10 === 3 || id % 10 === 6 ? 'survive' : id % 10 === 7 ? 'protect' : id % 10 === 5 || id % 10 === 9 ? 'priority' : null;
+    const goal = objective === 'survive' ? ' Görev: 28 saniye dayan.' : objective === 'protect' ? ' Görev: Emanet’i koru.' : objective === 'priority' ? ' Görev: işaretli hedefi indir.' : '';
+    return {
+    id, chapter: id <= 10 ? 1 : id <= 20 ? 2 : 3, name, enemyName, description: description + goal, rank, objective,
     enemyCount: rank === 'boss' ? 5 : 4,
     recommendedPower: 980 + (id - 8) * 85,
     reward: { gold: 520 + (id - 8) * 35, wood: 210 + (id - 8) * 16, stone: 190 + (id - 8) * 14, aether: 68 + (id - 8) * 3 },
     victory: `${name} düştü. Yol bir basamak daha indi.`,
-  }));
+  }; });
 }
 
 const MAX_OFFLINE = 4 * 60 * 60 * 1000, MAX_RESOURCE = 1e9, MAX_HERO_LEVEL = 20, MAX_HERO_STARS = 5;
@@ -445,10 +448,23 @@ export function teamPower(state) {
 }
 
 function newBattle(state, stage, combatVersion=2) {
-  return { stageId: stage.id, round: 0, status: 'active', combatVersion, targetId:null,
+  const battle = { stageId: stage.id, round: 0, status: 'active', combatVersion, targetId:null,
     allies: state.team.map(id => heroStats(state, id)),
     enemies: encounterEnemies(stage,combatVersion),
     starCharge: 40, log: [`${stage.name}: Kahramanlar savaşa hazır.`], reward: clone(stage.reward), rewardApplied: false, loot: null };
+  if (stage.objective) {
+    battle.objective = stage.objective;
+    if (stage.objective === 'survive') { battle.surviveRounds = 5; battle.surviveMs = 28000; }
+    if (stage.objective === 'priority' && battle.enemies[0]) {
+      battle.enemies[0].objective = true;
+      battle.enemies[0].name = `${stage.enemyName} · Hedef`;
+    }
+    if (stage.objective === 'protect') {
+      battle.allies.push({ id: 'ward', name: 'Emanet', hp: 140, maxHp: 140, attack: 0, armor: 8, healing: 0, color: '#c5ced6' });
+      battle.log.push('Emanet seninle. Düşerse sefer biter.');
+    }
+  }
+  return battle;
 }
 
 function restoreBattle(state, saved) {
@@ -465,10 +481,6 @@ function restoreBattle(state, saved) {
       unit.hp = source.hp;
     }
   }
-  const alliesLive = battle.allies.some(unit => unit.hp > 0), enemiesLive = battle.enemies.some(unit => unit.hp > 0);
-  if ((saved.status === 'active' && (!alliesLive || !enemiesLive))
-    || (saved.status === 'won' && enemiesLive) || (saved.status === 'lost' && alliesLive)) return null;
-  battle.status = saved.status;
   battle.targetId = battle.enemies.some(enemy=>enemy.id===saved.targetId && enemy.hp>0)?saved.targetId:null;
   battle.round = saved.round;
   battle.starCharge = integer(saved.starCharge, 0, 100) ? saved.starCharge : 40;
@@ -477,6 +489,9 @@ function restoreBattle(state, saved) {
   battle.rewardApplied = saved.status !== 'active';
   battle.loot = saved.status === 'won' && saved.loot === FIRST_CLEAR_LOOT[saved.stageId] ? saved.loot : null;
   restoreLiveCombat(battle,saved.live);
+  const outcome = combatOutcome(battle);
+  if ((saved.status === 'active' && outcome) || (saved.status !== 'active' && outcome !== saved.status)) return null;
+  battle.status = saved.status;
   return battle;
 }
 
@@ -533,7 +548,8 @@ function hit(target, amount) {
 function finishBattle(state, events) {
   const battle = state.battle;
   if (battle.towerFloor) return finishTower(state, events);
-  if (battle.enemies.every(unit => unit.hp <= 0)) {
+  const outcome = combatOutcome(battle);
+  if (outcome === 'won') {
     battle.status = 'won';
     if (!battle.rewardApplied) {
       award(state, battle.reward);
@@ -551,12 +567,12 @@ function finishBattle(state, events) {
       state.stars[battle.stageId] = Math.max(state.stars[battle.stageId] || 0, battleStars(battle));
       noteDeed(state, 'battle');
     }
-    events.push('Zafer! Ganimet kaleye taşındı.');
-  } else if (battle.allies.every(unit => unit.hp <= 0)) {
+    events.push(battle.objective === 'survive' ? 'Süre doldu. Kalan saflar dağıldı.' : battle.objective === 'priority' ? 'Hedef düştü. Artıklar kaçtı.' : 'Zafer! Ganimet kaleye taşındı.');
+  } else if (outcome === 'lost') {
     battle.status = 'lost';
     if (!battle.rewardApplied) noteDeed(state, 'battle');
     battle.rewardApplied = true;
-    events.push('Takım geri çekildi. Kahramanlarını güçlendirip yeniden deneyebilirsin.');
+    events.push(battle.objective === 'protect' && battle.allies.some(unit => unit.id === 'ward' && unit.hp <= 0) && battle.allies.some(unit => unit.id !== 'ward' && unit.hp > 0) ? 'Emanet düştü. Sefer burada biter.' : 'Takım geri çekildi. Kahramanlarını güçlendirip yeniden deneyebilirsin.');
   }
   return battle.status !== 'active';
 }
@@ -590,6 +606,7 @@ export function battleTurn(state, action) {
     const strength = action === 'guard' ? 0.4 : 1;
     if (action === 'guard') { events.push('Siper alındı: Gelen hasar bu tur yarıya iner.'); frame(null,'guard','Siper alındı'); }
     for (const hero of aliveAllies()) {
+      if (hero.id === 'ward') continue;
       if (!aliveEnemies().length) break;
       const attack = hero.attack * strength;
       if (hero.id === 'mira') {
@@ -633,13 +650,16 @@ export function battleTurn(state, action) {
     for (const enemy of aliveEnemies()) {
       if (!aliveAllies().length) break;
       const intent=enemyIntent({...battle,round:battle.round-1},enemy);
-      if(action==='star' && (intent.type==='crush' || intent.type==='cleave')) {
-        events.push(`${enemy.name}: ${intent.type==='cleave'?'Çift kılıç':'Yıkım dalgası'} yıldız çağrısıyla bozuldu!`);
+      if(action==='star' && ['crush','cleave','brand','siphon'].includes(intent.type)) {
+        events.push(`${enemy.name}: ${intent.label} yıldız çağrısıyla bozuldu!`);
         frame(enemy.id,'interrupt','Yıkım engellendi');
         continue;
       }
+      const ward = battle.objective === 'protect' ? aliveAllies().find(hero => hero.id === 'ward') : null;
       const tank = aliveAllies().find(hero => hero.id === 'aldren') || aliveAllies().find(hero => hero.id === 'aurelion');
-      const targets = intent.type==='strike'?[tank || aliveAllies().sort((a,b)=>a.hp-b.hp)[0]]:aliveAllies();
+      const heroes = aliveAllies().filter(hero => hero.id !== 'ward');
+      const front = ward && battle.round % 2 === 1 ? ward : (tank || heroes.sort((a,b)=>a.hp-b.hp)[0]);
+      const targets = intent.type==='strike'?[front]:aliveAllies();
       for(const target of targets) {
         const damage=hit(target,enemy.attack*intent.multiplier*(tank?.id==='aldren'?.85:tank?.id==='aurelion'?.92:1)*(1-target.armor/100)*(action==='guard'?.5:1));
         events.push(`${enemy.name}, ${target.name} için ${damage} hasar verdi.`);
