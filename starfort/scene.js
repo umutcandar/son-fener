@@ -8,8 +8,8 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMapping = THREE.AgXToneMapping;
+  renderer.toneMappingExposure = 1.22;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
@@ -18,16 +18,16 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   const offset = new THREE.Vector3(...CITY_VIEW.offset), ray = new THREE.Raycaster(), pointer = new THREE.Vector2();
   const geometries = new Set(), materials = new Set(), textures = new Set(), geometryCache = new Map(), materialCache = new Map();
   scene.background = paintSky();
-  scene.fog = new THREE.Fog('#7d8da0', 72, 168);
+  scene.fog = new THREE.Fog('#1a3d66', 120, 260);
   function paintSky() {
     const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
     const gtx = c.getContext('2d');
     const sky = gtx.createLinearGradient(0, 0, 0, 512);
-    sky.addColorStop(0, '#070b14'); sky.addColorStop(.38, '#162234'); sky.addColorStop(.7, '#3e5168'); sky.addColorStop(1, '#7d8da0');
+    sky.addColorStop(0, '#071833'); sky.addColorStop(.34, '#1a5a9a'); sky.addColorStop(.58, '#3c92d4'); sky.addColorStop(.8, '#f0a05a'); sky.addColorStop(1, '#d26432');
     gtx.fillStyle = sky; gtx.fillRect(0, 0, 1024, 512);
-    const dust = gtx.createRadialGradient(150, 168, 8, 170, 190, 200);
-    dust.addColorStop(0, 'rgba(196, 122, 64, .22)'); dust.addColorStop(1, 'rgba(196, 122, 64, 0)');
-    gtx.fillStyle = dust; gtx.fillRect(0, 40, 420, 280);
+    const dust = gtx.createRadialGradient(120, 300, 10, 200, 340, 280);
+    dust.addColorStop(0, 'rgba(255, 170, 70, .45)'); dust.addColorStop(1, 'rgba(255, 140, 50, 0)');
+    gtx.fillStyle = dust; gtx.fillRect(0, 140, 520, 372);
     const halo = gtx.createRadialGradient(786, 86, 8, 786, 86, 64);
     halo.addColorStop(0, 'rgba(220, 230, 240, .2)'); halo.addColorStop(1, 'rgba(220, 230, 240, 0)');
     gtx.fillStyle = halo; gtx.fillRect(700, 10, 180, 160);
@@ -49,27 +49,96 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   const locations = CITY_PLOTS, projected = new THREE.Vector3();
   const hash = n => { const v = Math.sin(n * 127.1 + 17.7) * 43758.5453; return v - Math.floor(v); };
   // Procedural material detail; shared maps are freed with the scene.
+  // High-key maps so the material color stays saturated. Dark joints supply the contrast.
   function surface(kind) {
     const c = document.createElement('canvas'); c.width = c.height = 256;
-    const ctx = c.getContext('2d'); ctx.fillStyle = '#b7b7b7'; ctx.fillRect(0, 0, 256, 256);
-    for (let y = 0; y < 256; y += 4) for (let x = 0; x < 256; x += 4) {
-      const tone = Math.floor(160 + hash(x * 31 + y * 97) * 65);
-      ctx.fillStyle = `rgb(${tone},${tone},${tone})`; ctx.fillRect(x, y, 4, 4);
-    }
-    ctx.lineWidth = kind === 'roof' ? 2 : 3;
-    for (let y = 0; y < 256; y += kind === 'roof' ? 24 : 32) {
-      ctx.strokeStyle = '#777'; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(256, y); ctx.stroke();
-      for (let x = (y / 32 % 2) * 32; x < 256; x += 64) {
-        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 32); ctx.stroke();
+    const ctx = c.getContext('2d');
+    if (kind === 'roof') {
+      ctx.fillStyle = '#2a1814'; ctx.fillRect(0, 0, 256, 256);
+      for (let y = 0; y < 256; y += 16) {
+        for (let x = 0; x < 256; x += 28) {
+          const n = hash(x * 3 + y * 11);
+          const v = 214 + n * 40;
+          ctx.fillStyle = `rgb(${v},${v - 18},${v - 36})`;
+          ctx.fillRect(x + (y / 16 % 2) * 14, y, 24, 11);
+          ctx.fillStyle = '#5a3018'; ctx.fillRect(x + (y / 16 % 2) * 14, y + 11, 24, 3);
+        }
       }
-      ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, y + 3); ctx.lineTo(256, y + 3); ctx.stroke();
+    } else if (kind === 'wood') {
+      ctx.fillStyle = '#f0e2cc'; ctx.fillRect(0, 0, 256, 256);
+      for (let x = 0; x < 256; x++) {
+        const n = hash(x * 13);
+        const band = 200 + Math.floor(n * 55) - (x % 11 === 0 ? 90 : 0);
+        ctx.fillStyle = `rgb(${band + 20},${band},${band - 28})`;
+        ctx.fillRect(x, 0, 1, 256);
+      }
+      for (let i = 0; i < 5; i++) {
+        const x = 30 + hash(i + 4) * 190, y = 40 + hash(i + 8) * 160;
+        ctx.fillStyle = '#6a3a18'; ctx.beginPath(); ctx.ellipse(x, y, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (kind === 'grass') {
+      ctx.fillStyle = '#e7f0c8'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 700; i++) {
+        const x = hash(i * 5) * 256, y = hash(i * 9 + 2) * 256;
+        const g = 150 + hash(i) * 80;
+        ctx.fillStyle = `rgb(${70 + hash(i + 3) * 40},${g},${40})`;
+        ctx.fillRect(x, y, 2, 7 + hash(i + 1) * 8);
+      }
+    } else if (kind === 'plaster') {
+      ctx.fillStyle = '#f7f1e4'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 80; i++) {
+        const x = hash(i) * 256, y = hash(i + 20) * 256;
+        ctx.fillStyle = `rgba(120,80,40,${0.08 + hash(i + 3) * 0.15})`;
+        ctx.fillRect(x, y, 8 + hash(i + 4) * 18, 3);
+      }
+      ctx.strokeStyle = '#8a6844'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(20, 40); ctx.lineTo(80, 46); ctx.moveTo(140, 180); ctx.lineTo(200, 150); ctx.stroke();
+    } else {
+      ctx.fillStyle = '#3a322a'; ctx.fillRect(0, 0, 256, 256);
+      const bw = 64, bh = 32;
+      for (let row = 0; row < 8; row++) {
+        const off = (row % 2) * 32;
+        for (let col = -1; col < 5; col++) {
+          const x = col * bw + off, y = row * bh;
+          const n = hash(row * 19 + col * 7 + 3);
+          const v = 226 + n * 28;
+          ctx.fillStyle = `rgb(${v},${v - 8 - n * 10},${v - 22 - n * 16})`;
+          ctx.fillRect(x + 2, y + 2, bw - 5, bh - 5);
+          if (n > 0.72) { ctx.fillStyle = 'rgba(40,70,30,.35)'; ctx.fillRect(x + 6, y + bh - 8, 14, 4); }
+        }
+      }
     }
     const texture = new THREE.CanvasTexture(c); texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); texture.colorSpace = THREE.SRGBColorSpace;
     textures.add(texture); return texture;
   }
-  const masonry = surface('stone'), roofTiles = surface('roof');
-  const surfaceMaps = new Map([[palette.stone, masonry], [palette.edge, masonry], [palette.dark, masonry], [palette.roof, roofTiles]]);
+  const maps = { stone: surface('stone'), roof: surface('roof'), wood: surface('wood'), grass: surface('grass'), plaster: surface('plaster') };
+  const tileOf = { stone: 1.7, roof: 2.4, wood: 2.8, grass: 2.2, plaster: 1.5 };
+  const roughOf = { stone: .74, roof: .48, wood: .55, grass: .9, plaster: .68 };
+  const grassColors = new Set(['#3f9a34', '#2f8a3c', '#1f6b32', '#49a84a', '#237a34', '#3c8f38', '#2e8a38']);
+  const woodColors = new Set(['#8a4e28', '#7d5640', '#6b4330', '#3a2c24', '#5c4034', '#6b4a38', '#7a5340', '#a67c40', '#b08948']);
+  const roofColors = new Set(['#b33a2c', '#7a3040', '#7a3a34', '#7a4038', '#8d342c', '#9a3a2e']);
+  const clothColors = new Set(['#8e2f36', '#7a2830', '#7c4655']);
+  function textureKind(color) {
+    if (clothColors.has(color) || color === palette.gold || color === palette.cyan || color === palette.ember || color === palette.water) return null;
+    if (roofColors.has(color) || color === palette.roof) return 'roof';
+    if (woodColors.has(color) || color === palette.wood) return 'wood';
+    if (color === palette.plaster) return 'plaster';
+    if (grassColors.has(color) || color === palette.grass) return 'grass';
+    return 'stone';
+  }
+  function bindTriplanar(material, tile) {
+    const tileText = tile.toFixed(2);
+    material.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <uv_pars_vertex>', '#include <uv_pars_vertex>\nvarying vec3 vWPos;\nvarying vec3 vWNorm;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvWNorm = mat3(modelMatrix) * normal;');
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <uv_pars_fragment>', '#include <uv_pars_fragment>\nvarying vec3 vWPos;\nvarying vec3 vWNorm;')
+        .replace('#include <map_fragment>', `vec3 bw = abs(normalize(vWNorm));\nbw /= max(bw.x + bw.y + bw.z, 1e-4);\nfloat tile = ${tileText};\nvec4 tx = texture2D(map, vWPos.zy * tile);\nvec4 ty = texture2D(map, vWPos.xz * tile);\nvec4 tz = texture2D(map, vWPos.xy * tile);\nvec4 sampledDiffuseColor = tx * bw.x + ty * bw.y + tz * bw.z;\ndiffuseColor *= sampledDiffuseColor;`);
+    };
+    material.customProgramCacheKey = () => `triplanar-${tileText}`;
+  }
   function geometry(type) {
     if (geometryCache.has(type)) return geometryCache.get(type);
     const g = ({ box: () => new THREE.BoxGeometry(1, 1, 1), cylinder: () => new THREE.CylinderGeometry(.5, .5, 1, 24),
@@ -84,12 +153,14 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   function material(color, glow = 0) {
     const key = `${color}/${glow}`;
     if (!materialCache.has(key)) {
-      const map = surfaceMaps.get(color);
+      const kind = textureKind(color);
+      const map = kind ? maps[kind] : null;
       const brass = color === palette.gold, water = color === palette.water;
-      const m = new THREE.MeshStandardMaterial({ color, map, bumpMap: map, bumpScale: map ? .08 : 0,
-        roughness: water ? .22 : brass ? .42 : glow ? .34 : .9,
-        metalness: water ? .58 : brass ? .48 : glow ? .2 : .02,
-        emissive: glow ? color : '#000000', emissiveIntensity: glow ? Math.min(glow, .7) : 0, flatShading: true });
+      const m = new THREE.MeshStandardMaterial({ color, map, bumpMap: kind === 'stone' || kind === 'roof' ? map : null, bumpScale: kind === 'roof' ? .12 : .09,
+        roughness: water ? .15 : brass ? .34 : glow ? .32 : (kind ? roughOf[kind] : .72),
+        metalness: water ? .62 : brass ? .55 : kind === 'roof' ? .06 : glow ? .16 : .03,
+        emissive: glow ? color : '#000000', emissiveIntensity: glow ? Math.min(glow, .55) : 0, flatShading: true });
+      if (map) bindTriplanar(m, tileOf[kind]);
       materials.add(m); materialCache.set(key, m);
     }
     return materialCache.get(key);
@@ -121,13 +192,13 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       pieces.forEach(m => m.removeFromParent()); group.add(merged);
     }
   }
-  const hemisphere = new THREE.HemisphereLight('#9eb6d0', '#2e3428', .85); scene.add(hemisphere);
-  const sun = new THREE.DirectionalLight('#ffe0bf', 3.15); sun.position.set(-22, 24, 16); sun.castShadow = true;
+  const hemisphere = new THREE.HemisphereLight('#7ea4d0', '#2a1a10', .38); scene.add(hemisphere);
+  const sun = new THREE.DirectionalLight('#ffc07a', 4.6); sun.position.set(-16, 18, 12); sun.castShadow = true;
   const shadowPixels = Math.min(window.innerWidth || 1280, window.innerHeight || 800) < 760 ? 1024 : 1536;
   sun.shadow.mapSize.set(shadowPixels, shadowPixels); Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 96 });
-  sun.shadow.bias = -.00045; sun.shadow.normalBias = .04; scene.add(sun);
-  const rim = new THREE.DirectionalLight('#8fb4d4', .48); rim.position.set(16, 12, -22); scene.add(rim);
-  const fill = new THREE.DirectionalLight('#d9c7a4', .38); fill.position.set(8, 14, 28); scene.add(fill);
+  sun.shadow.bias = -.00035; sun.shadow.normalBias = .02; scene.add(sun);
+  const rim = new THREE.DirectionalLight('#6e92c8', .22); rim.position.set(18, 10, -20); scene.add(rim);
+  const fill = new THREE.DirectionalLight('#ffb060', .12); fill.position.set(10, 8, 24); scene.add(fill);
 
   function torch(g, x, y, z, animations) {
     box(g, '#393640', [.08, .55, .08], [x, y + .25, z]);

@@ -43,9 +43,11 @@ const combatRunner=createBattleRunner({
   onPause:()=>{if(!trialState)persist(); if($('#battle-dialog').open)renderBattle();},
 });
 
+let saveLabel = 'Yerel kayıt hazır';
 function persist() {
-  try { localStorage.setItem(R.STORAGE_KEY, JSON.stringify(state)); $('#save-status').textContent = 'Yerel kayıt hazır'; }
-  catch { $('#save-status').textContent = 'Kayıt alanı dolu'; }
+  try { localStorage.setItem(R.STORAGE_KEY, JSON.stringify(state)); saveLabel = 'Yerel kayıt hazır'; }
+  catch { saveLabel = 'Kayıt alanı dolu'; }
+  const status = $('#save-status'); if (status) status.textContent = saveLabel;
 }
 function notify(message) {
   const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toastTimer);
@@ -91,8 +93,20 @@ function result(action, success) { if (!action.ok) { notify(action.error); retur
 function renderResources() {
   resourcesEl.innerHTML = Object.entries(R.RESOURCES).map(([id, item]) => `<div class="resource" data-res="${id}">${svg(resourceIcon[id])}<span><b>${number(state.res[id])}</b><small>${item.name}</small></span></div>`).join('');
 }
+function renderAccount() {
+  const mark = document.querySelector('.avatar-mark');
+  if (!mark) return;
+  if (!mark.querySelector('img')) mark.innerHTML = '<img src="assets/aldren.webp" alt="Hisar muhafızı"><b></b>';
+  mark.querySelector('b').textContent = state.buildings.keep;
+  const status = $('#save-status'); if (status) status.textContent = saveLabel;
+}
 function renderNav() {
-  navEl.innerHTML = navItems.map(([id, icon, label]) => `<button class="nav-item ${activeView === id ? 'active' : ''}" data-view="${id}" aria-label="${label}" aria-current="${activeView === id ? 'page' : 'false'}">${svg(icon)}<span>${label}</span></button>`).join('') + '<div class="rail-foot">✦ &nbsp; V 0.7</div>';
+  const prodReady = Object.values(R.production(state)).some(amount => amount > 0);
+  const marchReady = state.cleared.length < R.STAGES.length && state.battle?.status !== 'active';
+  navEl.innerHTML = navItems.map(([id, icon, label]) => {
+    const dot = (id === 'keep' && prodReady) || (id === 'expedition' && marchReady);
+    return `<button class="nav-item ${activeView === id ? 'active' : ''}" data-view="${id}" aria-label="${label}" aria-current="${activeView === id ? 'page' : 'false'}">${svg(icon)}<span>${label}</span>${dot ? '<i class="nav-dot" aria-hidden="true"></i>' : ''}</button>`;
+  }).join('') + '<div class="rail-foot">✦ &nbsp; V 0.7</div>';
 }
 function renderPicker() {
   $('#building-picker').innerHTML = R.BUILDINGS.map(building => `<button class="building-choice ${selectedBuilding === building.id ? 'active' : ''}" data-building="${building.id}" aria-label="${building.name}, seviye ${state.buildings[building.id]}">${svg(building.id)}<span>${building.name.replace('Karaorman ', '').replace('Yıldız ', '').replace('Kor ', '').replace('Aytaşı ', '')}</span></button>`).join('');
@@ -353,7 +367,7 @@ function castHeroSkill(heroId) {
 }
 
 function render() {
-  renderResources(); renderNav(); renderPicker(); renderInspector(); renderQuest(); renderWorkspace();
+  renderAccount(); renderResources(); renderNav(); renderPicker(); renderInspector(); renderQuest(); renderWorkspace();
   scene?.update(state);
   if ($('#building-dialog').open) renderBuildingDialog();
 }
@@ -435,6 +449,6 @@ try {
 $('#recenter').addEventListener('click', () => { activeView = 'keep'; scene?.overview(); render(); });
 if (state.battle?.status === 'active') { R.prepareLiveBattle(state); persist(); renderBattle(); }
 render();
-setInterval(() => { const pending = $('#production-gain'); if (pending) pending.innerHTML = costHtml(R.production(state), true); renderCityProduction(); }, 3000);
+setInterval(() => { const pending = $('#production-gain'); if (pending) pending.innerHTML = costHtml(R.production(state), true); renderCityProduction(); renderNav(); }, 3000);
 document.addEventListener('visibilitychange', () => { if(document.hidden){combatRunner.pause();persist();} });
 window.addEventListener('pagehide', () => {combatRunner.pause();persist();});

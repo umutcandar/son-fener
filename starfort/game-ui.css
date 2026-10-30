@@ -534,3 +534,194 @@ dialog, #building-dialog, #battle-dialog {
   .loot-token { display: none; }
   .resource.loot-hit, .city-label.just-raised { animation: none; }
 }
+
+/* Punch: deeper metal, saturated type, round medallions. Not a copy of any other game's icons. */
+.topbar, .rail { background: #0c1018; }
+.topbar { box-shadow: inset 0 -2px 0 #e2b14a; }
+.account { order: 0; margin-left: 0; }
+.brand { order: 1; }
+.resources { order: 2; margin-left: auto; }
+.brand > span { color: #f3d48a; }
+.account .avatar-mark {
+  display: block;
+  position: relative;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid #f0d48a;
+  overflow: hidden;
+  clip-path: none;
+  background: #1a120c;
+  box-shadow: inset 0 0 0 1px #6a4c16, 0 2px 0 #5a3c12, 0 4px 8px #0008;
+}
+.account .avatar-mark img { width: 100%; height: 100%; object-fit: cover; object-position: center 16%; display: block; }
+.account .avatar-mark b {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: #c4323a;
+  border: 1px solid #f6e2a8;
+  color: #fff8ea;
+  font: 800 10px/14px var(--sans);
+  text-align: center;
+}
+.resource {
+  background: linear-gradient(180deg, #4a3418 0%, #140e0a 100%);
+  border: 2px solid #e2b14a;
+  box-shadow: inset 0 1px 0 #f8e2a8, 0 2px 0 #5c3c10;
+}
+.resource b { color: #fff6df; font-weight: 800; }
+.resource[data-res=gold] svg { color: #ffd56a; }
+.resource[data-res=wood] svg { color: #e09040; }
+.resource[data-res=stone] svg { color: #f0e6d4; }
+.resource[data-res=aether] svg { color: #8fd8ea; }
+.rail { border-top: 2px solid #e2b14a; justify-content: center; gap: 10px; }
+.nav-item {
+  position: relative;
+  flex: 0 0 62px;
+  width: 62px;
+  max-width: 62px;
+  height: auto;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: #f3e6c8;
+  gap: 2px;
+}
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  padding: 11px;
+  box-sizing: content-box;
+  border-radius: 50%;
+  border: 2px solid #f0d48a;
+  background: radial-gradient(circle at 35% 28%, #6a4e28, #1a120c 70%);
+  box-shadow: inset 0 1px 0 #f8e6b0, 0 3px 0 #5a3c12, 0 5px 8px #000a;
+  color: #f6d78a;
+}
+.nav-item.active { background: transparent; box-shadow: none; color: #fff6df; }
+.nav-item.active svg {
+  background: radial-gradient(circle at 35% 28%, #ffe7a6, #e2b14a 46%, #8a5e16);
+  color: #3a2408;
+  border-color: #fff1c2;
+}
+.nav-item span { font-size: 9px; font-weight: 750; letter-spacing: 0; color: #f0e2c4; }
+.nav-dot {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e23a3a;
+  border: 1px solid #fff4d4;
+  box-shadow: 0 1px 0 #6a1010;
+}
+.city-label {
+  min-height: 32px;
+  font-size: 14px;
+  border-width: 2px;
+  border-color: #f0d48a;
+  background: #140e0cf2;
+  box-shadow: 0 4px 0 #3a2410, 0 8px 14px #000a;
+}
+.city-label-level {
+  min-width: 26px;
+  height: 24px;
+  margin: 4px;
+  font-size: 13px;
+  line-height: 24px;
+  background: #c4323a;
+  color: #fff6ea;
+}
+.city-collect {
+  background: linear-gradient(180deg, #e25058, #9a1e28 55%, #6a1218);
+  border: 2px solid #f0d48a;
+  box-shadow: inset 0 1px 0 #ffc0c0, 0 3px 0 #4a0c10;
+}
+.city-collect.ready::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff4040;
+  border: 1px solid #fff4d4;
+}
+.city-collect { position: absolute; }
+.primary {
+  background: linear-gradient(180deg, #ee555c 0%, #c4323a 42%, #7a141c 100%);
+  border: 2px solid #f6e2a8;
+  box-shadow: inset 0 1px 0 #ffc8c8, 0 4px 0 #4a0c10;
+  color: #fff8ee;
+}
+.inspector, .next-quest, dialog, #battle-dialog {
+  background: #100e14f6;
+  border-color: #e2b14a;
+}
+.level-badge { background: #c4323a; border-color: #f6e2a8; }
+
+@media (max-width: 860px) {
+  .account > span:last-child { display: none; }
+  .account .avatar-mark { width: 40px; height: 40px; }
+  .nav-item { flex-basis: 52px; width: 52px; max-width: 52px; }
+  .nav-item svg { width: 18px; height: 18px; padding: 9px; }
+  .nav-item span { font-size: 8px; }
+  .city-label { font-size: 11px; min-height: 26px; max-width: 148px; }
+  .rail { gap: 2px; padding-left: 4px; padding-right: 4px; }
+}
+
+/* Painted screen backdrops. A dark vignette keeps titles and cards readable. */
+.app {
+  background: #070910 url("assets/bg-vista.webp") center 40% / cover no-repeat;
+}
+.topbar {
+  background:
+    linear-gradient(180deg, #070910e8, #070910cc),
+    url("assets/bg-vista.webp") center top / cover no-repeat;
+}
+.rail {
+  background:
+    linear-gradient(0deg, #070910f0, #070910c8),
+    url("assets/bg-hall.webp") center bottom / cover no-repeat;
+}
+.inspector, #building-dialog {
+  background:
+    linear-gradient(180deg, #100e14f2, #100e14ea),
+    url("assets/bg-hall.webp") center / cover no-repeat;
+}
+.workspace[data-view=heroes],
+.workspace[data-view=expedition],
+.workspace[data-view=armory],
+.workspace[data-view=shop],
+.workspace[data-view=journal] {
+  background-color: #070910;
+  background-image:
+    radial-gradient(ellipse at 50% 55%, rgba(7, 9, 16, 0) 10%, rgba(7, 9, 16, .28) 58%, rgba(7, 9, 16, .78) 100%),
+    linear-gradient(180deg, rgba(7, 9, 16, .82) 0%, rgba(7, 9, 16, .28) 9%, rgba(7, 9, 16, .05) 28%, rgba(7, 9, 16, .2) 70%, rgba(7, 9, 16, .72) 100%),
+    var(--screen-art);
+  background-size: auto, auto, cover;
+  background-position: center, center, center 30%;
+  background-repeat: no-repeat;
+}
+.workspace[data-view=heroes] { --screen-art: url("assets/bg-hall.webp"); }
+.workspace[data-view=expedition] { --screen-art: url("assets/bg-vista.webp"); }
+.workspace[data-view=armory] { --screen-art: url("assets/bg-forge.webp"); }
+.workspace[data-view=shop] { --screen-art: url("assets/bg-bazaar.webp"); }
+.workspace[data-view=journal] { --screen-art: url("assets/bg-scriptorium.webp"); }
+#battle-dialog {
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(7, 9, 16, .15), rgba(7, 9, 16, .82) 72%, #070910 100%),
+    url("assets/battlefield.webp") center 40% / cover no-repeat;
+}
+.combat-heading, .combat-command {
+  background: linear-gradient(180deg, rgba(10, 12, 18, .82), rgba(10, 12, 18, .94));
+}

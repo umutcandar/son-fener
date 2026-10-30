@@ -27,6 +27,6 @@ export const CITY_LINKS = [
 ];
 export const CITY_VIEW = { target: [0, 2.4, 5.2], offset: [22, 26, 32], halfWidth: 17.6, halfHeight: 13.4 };
 export const CITY_PALETTE = {
-  stone:'#b7a890', dark:'#3e3934', edge:'#d2c2a2', roof:'#3c4658', gold:'#d4b36a',
-  wood:'#6b4330', plaster:'#ead8bc', cyan:'#7ec8d6', ember:'#ffb15a', grass:'#4d6844', water:'#2f7594',
+  stone:'#c4a57a', dark:'#4a3b30', edge:'#ead3a4', roof:'#b33a2c', gold:'#e2b14a',
+  wood:'#8a4e28', plaster:'#f0d2a8', cyan:'#7ec8d6', ember:'#ff9a3c', grass:'#3f9a34', water:'#1d6ea0',
 };

@@ -7,11 +7,11 @@ export function buildCityEnvironment(group, {part,box,house,tower,torch,palette:
   const local=(x,y,z)=>{const g=new THREE.Group();g.position.set(x,y,z);group.add(g);return g;};
   const tree=(g,x,y,z,h=1.6)=>{
     part(g,'cylinder',p.wood,[.12,h*.65,.12],[x,y+h*.3,z]);
-    for(let j=0;j<3;j++) part(g,'cone',['#24382c','#314a36','#3e5c42'][j],[h*(.52-j*.11),h*.58,h*(.52-j*.11)],[x,y+h*(.48+j*.2),z]);
+    for(let j=0;j<3;j++) part(g,'cone',['#1f6b32','#2f8a3c','#49a84a'][j],[h*(.52-j*.11),h*.58,h*(.52-j*.11)],[x,y+h*(.48+j*.2),z]);
   };
   const hedge=(g,x,z,w,d,y)=>{
     box(g,p.edge,[w+.12,.17,d+.12],[x,y+.08,z]);
-    box(g,'#3c5344',[w,.28,d],[x,y+.26,z]);
+    box(g,'#237a34',[w,.28,d],[x,y+.26,z]);
   };
   const railing=(g,x,y,z,length,rotation=0)=>{
     const rail=new THREE.Group();rail.position.set(x,y,z);rail.rotation.y=rotation;g.add(rail);
@@ -29,11 +29,11 @@ export function buildCityEnvironment(group, {part,box,house,tower,torch,palette:
   const landH=.62,landY=-landH/2,waterH=.46,waterY=-.55;
 
   // Fields around the moat, cobbled yard under the walls. No disc, no void.
-  slab((-82+moatW0)/2,0,82+moatW0,168,landY,landH,'#46543c');
-  slab((82+moatE0)/2,0,82-moatE0,168,landY,landH,'#46543c');
-  slab(0,(-82+moatN0)/2,moatE0-moatW0,82+moatN0,landY,landH,'#4a583e');
-  slab(0,(82+moatS0)/2,moatE0-moatW0,82-moatS0,landY,landH,'#415038');
-  slab(0,(faceN+faceS)/2,faceE-faceW,faceS-faceN,-.08,.5,'#6c655b');
+  slab((-82+moatW0)/2,0,82+moatW0,168,landY,landH,p.grass);
+  slab((82+moatE0)/2,0,82-moatE0,168,landY,landH,'#2f8a3c');
+  slab(0,(-82+moatN0)/2,moatE0-moatW0,82+moatN0,landY,landH,'#1f6b32');
+  slab(0,(82+moatS0)/2,moatE0-moatW0,82-moatS0,landY,landH,'#49a84a');
+  slab(0,(faceN+faceS)/2,faceE-faceW,faceS-faceN,-.08,.5,'#9a8468');
   const westMoatX=(faceW+moatW0)/2,eastMoatX=(faceE+moatE0)/2;
   slab(westMoatX,0,moatW,moatS0-moatN0,waterY,waterH,p.water);
   slab(eastMoatX,0,moatW,moatS0-moatN0,waterY,waterH,p.water);
@@ -56,7 +56,7 @@ export function buildCityEnvironment(group, {part,box,house,tower,torch,palette:
   for(let i=0;i<7;i++){
     const x=(hash(i+80)-.5)*62, z=(hash(i+81)-.5)*62;
     if(Math.abs(x)<22&&Math.abs(z-1)<22) continue;
-    slab(x,z,3.2+hash(i+82)*5.5,2.4+hash(i+83)*4,.07,.1,i%2?'#3a4834':'#55664a');
+    slab(x,z,3.2+hash(i+82)*5.5,2.4+hash(i+83)*4,.07,.1,i%2?'#1f6b32':'#49a84a');
   }
 
   function runWall(x,z,length,alongX,outward){
@@ -135,14 +135,14 @@ export function buildCityEnvironment(group, {part,box,house,tower,torch,palette:
   box(group,p.wood,[.85,.16,.7],[8.4,.08,moatS0+3.1]);
   box(group,'#a67c40',[.9,.5,.6],[-10.2,.32,moatS0+5.4]);
 
-  const hearth=new THREE.PointLight('#ff9a45',2.1,13,2);
+  const hearth=new THREE.PointLight('#ff8a32',8,22,2);
   hearth.position.set(.35,2.5,zS+.6);
   group.add(hearth);
 
   for(let row=0;row<2;row++)for(let i=0;i<11;i++){
     const h=7+hash(i+row*40)*11, x=-46+i*9+hash(i+2)*3, z=-34-row*15-hash(i+90)*5;
-    part(group,'rock',row?'#8ea0b0':'#66788a',[11,h,9],[x,h*.26,z],hash(i)*4);
-    part(group,'cone','#e6ebea',[3,h*.15,3],[x,h*.58,z]);
+    part(group,'rock',row?'#5d7ea3':'#2c4a72',[11,h,9],[x,h*.26,z],hash(i)*4);
+    part(group,'cone','#f4f7fb',[3,h*.15,3],[x,h*.58,z]);
   }
   for(let i=0;i<14;i++){
     const x=-34+i*5.1+hash(i+20)*2, z=-22-hash(i+21)*5;
@@ -163,7 +163,7 @@ export function buildCityEnvironment(group, {part,box,house,tower,torch,palette:
     box(group,p.stone,[w+.1,.18,d+.1],[x,y-.12,z]);
     box(group,p.edge,[w+.2,.13,d+.2],[x,y-.02,z]);
     for(let ix=-Math.floor(w/1.05)/2;ix<Math.floor(w/1.05)/2;ix++)for(let iz=-Math.floor(d/1.05)/2;iz<Math.floor(d/1.05)/2;iz++){
-      box(group,(Math.round(ix+iz)*2)%3?'#8f877a':'#7c756b',[1.01,.025,1.01],[x+(ix+.5)*1.05,y+.06,z+(iz+.5)*1.05]);
+      box(group,(Math.round(ix+iz)*2)%3?'#c4a57a':'#8d7356',[1.01,.025,1.01],[x+(ix+.5)*1.05,y+.06,z+(iz+.5)*1.05]);
     }
     for(let ix=-w/2+.4;ix<w/2;ix+=1.25){
       box(group,p.stone,[.3,y+.3,.22],[x+ix,(y-.2)/2,z+d/2+.08]);
@@ -180,7 +180,7 @@ export function buildCityEnvironment(group, {part,box,house,tower,torch,palette:
       const g=local(x,y,z);
       for(const side of [-1,1]){
         turretOn(g,side*3,-2.4);
-        box(g,'#4d6848',[1.1,.06,1.7],[side*2.7,.1,.55]);
+        box(g,'#2f8a3c',[1.1,.06,1.7],[side*2.7,.1,.55]);
         for(let n=0;n<4;n++)part(g,'foliage','#8d5a6a',[.2,.2,.2],[side*2.7+(n%2)*.35-.15,.23,.15+Math.floor(n/2)*.45]);
         torch(g,side*1.3,.1,2.6,animations);
       }
