@@ -75,6 +75,16 @@
       "id": "bg-scriptorium",
       "prompt": "Original Starfort environment, no people and no readable writing. Wide night scriptorium: stone library, closed books, blank parchment on an oak table, candles, blue starlight from a round window. Painterly semi-realistic, dark lower half.",
       "file": "bg-scriptorium.webp"
+    },
+    {
+      "id": "city-backdrop",
+      "prompt": "Original Starfort city plate. Painterly night walled town, textured grass and cobbles, curtain walls, gate, mountains, one falling star. Seven flat empty flagstone pads. No text or people.",
+      "file": "city-backdrop.webp"
+    },
+    {
+      "id": "city-buildings",
+      "prompt": "Original Starfort building sprites, three tiers a/b/c for keep, farm, lumber, quarry, forge, tavern, observatory. Painterly semi-realistic, cool rim light and warm glow, isolated on flat magenta and cut out. Tier c is the grand landmark version. No floating rings, no text.",
+      "file": "buildings/*.webp"
     }
   ]
 }
