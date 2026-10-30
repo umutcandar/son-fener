@@ -844,8 +844,40 @@ dialog, #building-dialog, #battle-dialog {
 .goal-chip b { font: 600 14px/1.1 var(--serif, Georgia, serif); }
 .goal-chip span { font-size: 11px; color: #3a2408; background: linear-gradient(#ffe7a8, #e2b14a); padding: 4px 8px; border-radius: 3px; }
 .next-quest {
-  left: 16px; right: auto; bottom: 16px; width: max-content; max-width: min(420px, 46%);
-  min-height: 0; padding: 0; background: transparent; border: 0; box-shadow: none;
+  left: 12px; right: auto; bottom: 12px; width: max-content; max-width: calc(100% - 24px);
+  min-height: 0; padding: 0; gap: 8px; flex-wrap: wrap; background: transparent; border: 0; box-shadow: none;
+}
+.board-body { padding: 16px 18px 22px; display: grid; gap: 16px; }
+.board-body h3 { font-family: Cinzel, Georgia, serif; font-size: 18px; margin: 0 0 8px; }
+.oath-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.oath-list li { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid #6e5a34; background: #120e0c; }
+.oath-list small, .oath-list em { display: block; color: #cbbfa6; font-style: normal; font-size: 12px; }
+.oath-claimed { opacity: .65; }
+.star-pips { margin: 2px 0; letter-spacing: .15em; color: #6e5a34; }
+.star-pips .on { color: #f0d48a; }
+.star-rank { margin: 6px 0; letter-spacing: .12em; color: #f0d48a; font-family: Cinzel, Georgia, serif; }
+.garden-plot {
+  position: absolute; left: 23%; top: 60%; width: 8%; height: 6%;
+  background:
+    radial-gradient(circle at 20% 60%, #c4567a 0 4px, transparent 5px),
+    radial-gradient(circle at 45% 40%, #e2b14a 0 4px, transparent 5px),
+    radial-gradient(circle at 70% 65%, #d46a8a 0 4px, transparent 5px),
+    radial-gradient(circle at 60% 30%, #f2f0e4 0 3px, transparent 4px);
+  pointer-events: none;
+}
+.villager {
+  position: absolute; width: 8px; height: 14px; border-radius: 4px 4px 2px 2px;
+  background: #6a2430; box-shadow: 0 8px 0 #2a241c; pointer-events: none;
+  offset-path: path('M 80 520 C 200 480, 360 360, 500 300');
+  animation: villager-walk 28s linear infinite;
+}
+.villager.v2 { background: #2a4060; animation-duration: 36s; animation-delay: -12s; }
+.villager.v3 { background: #3a5a32; animation-duration: 32s; animation-delay: -20s; }
+@keyframes villager-walk {
+  0% { left: 46%; top: 76%; }
+  40% { left: 50%; top: 55%; }
+  70% { left: 54%; top: 42%; }
+  100% { left: 48%; top: 78%; }
 }
 .world-heading, .world-help, .building-picker, .city-collect, .world:before { display: none; }
 .city-controls [data-city-labels] { display: none; }

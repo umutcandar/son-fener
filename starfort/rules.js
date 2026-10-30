@@ -45,7 +45,28 @@ export const STAGES = [
   { id: 8, name: 'Yıldızsız Taht', description: 'Karanlığın kalbindeki son yemini boz.', enemyName: 'Boşluk Şövalyesi', enemyCount: 5, recommendedPower: 920, reward: { gold: 500, wood: 220, stone: 200, aether: 65 } },
 ];
 
-const MAX_OFFLINE = 4 * 60 * 60 * 1000, MAX_RESOURCE = 1e9, MAX_HERO_LEVEL = 20;
+const MAX_OFFLINE = 4 * 60 * 60 * 1000, MAX_RESOURCE = 1e9, MAX_HERO_LEVEL = 20, MAX_HERO_STARS = 5;
+export const OATHS = [
+  { id: 'collect', name: 'İlk hasat', detail: 'Biriken üretimi topla.', reward: { gold: 80, wood: 40 } },
+  { id: 'farm', name: 'Avluyu yükselt', detail: 'Hasat Avlusu’nu 2. seviyeye çıkar.', reward: { wood: 60, stone: 30 } },
+  { id: 'hero', name: 'Yemini güçlendir', detail: 'Bir kahramanı geliştir.', reward: { gold: 40, aether: 15 } },
+  { id: 'march', name: 'Geçidi tut', detail: 'Kül Geçidi’ni kazan.', reward: { gold: 100, stone: 40 } },
+  { id: 'arm', name: 'Kuşan', detail: 'Bir kahramana ekipman tak.', reward: { gold: 70, wood: 30 } },
+  { id: 'keep', name: 'Kaleyi yükselt', detail: 'Yıldız Kalesi’ni 2. seviyeye çıkar.', reward: { wood: 40, stone: 50, aether: 8 } },
+  { id: 'chapel', name: 'Şapele yürü', detail: 'Kırık Şapel’i kazan.', reward: { gold: 120, aether: 20 } },
+];
+export const LOGIN_REWARDS = [
+  { gold: 50 }, { wood: 40 }, { stone: 30 }, { gold: 80, wood: 20 },
+  { aether: 10 }, { gold: 100, stone: 40 }, { gold: 150, wood: 60, aether: 15 },
+];
+export const DAILY_TASKS = [
+  { id: 'collect', name: 'Üretimi topla', need: 1, reward: { gold: 40 } },
+  { id: 'upgrade', name: 'Bir yapı veya kahraman geliştir', need: 1, reward: { wood: 30, stone: 20 } },
+  { id: 'battle', name: 'Bir seferi bitir', need: 1, reward: { gold: 50, aether: 8 } },
+];
+const utcDay = now => { const date = new Date(now); return `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`; };
+const emptyDaily = now => ({ stamp: utcDay(now), lastLogin: '', streak: 0, tasks: { collect: 0, upgrade: 0, battle: 0 }, claimedTasks: [] });
+const emptyDeeds = () => ({ collects: 0, upgrades: 0, battles: 0 });
 const buildingById = id => BUILDINGS.find(item => item.id === id);
 const heroById = id => ALL_HEROES.find(item => item.id === id);
 const stageById = id => STAGES.find(item => item.id === id);
@@ -69,6 +90,7 @@ export function createState(now = Date.now()) {
     heroes: Object.fromEntries(HEROES.filter(hero => !hero.unlockStage).map(hero => [hero.id, { level: 1 }])),
     team: ['aldren', 'lyra', 'rovan'], cleared: [], selectedStage: 1,
     lastCollected: safeNow(now), battle: null, ...createGearState(),
+    oaths: [], stars: {}, starChests: [], deeds: emptyDeeds(), daily: emptyDaily(safeNow(now)),
   };
 }
 
@@ -88,13 +110,25 @@ export function restoreState(raw, now = Date.now()) {
     // Only contiguous victories unlock the next chapter; ignore holes in damaged saves.
     while (Array.isArray(saved.cleared) && saved.cleared.includes(nextStage(state)) && state.cleared.length < STAGES.length) state.cleared.push(nextStage(state));
     for (const hero of HEROES.filter(item => unlocked(state, item))) {
-      const level = saved.heroes?.[hero.id]?.level;
-      state.heroes[hero.id] = { level: integer(level, 1, MAX_HERO_LEVEL) ? level : 1 };
+      const savedHero = saved.heroes?.[hero.id];
+      const heroState = { level: integer(savedHero?.level, 1, MAX_HERO_LEVEL) ? savedHero.level : 1 };
+      if (integer(savedHero?.stars, 1, MAX_HERO_STARS)) heroState.stars = savedHero.stars;
+      state.heroes[hero.id] = heroState;
     }
     if (validTeam(state, saved.team)) state.team = [...saved.team];
     if (integer(saved.selectedStage, 1, Math.min(STAGES.length, nextStage(state)))) state.selectedStage = saved.selectedStage;
     if (timestamp(saved.lastCollected)) state.lastCollected = Math.min(time, saved.lastCollected);
     restoreGear(state,saved);
+    state.oaths = OATHS.map(oath => oath.id).filter(id => Array.isArray(saved.oaths) && saved.oaths.includes(id));
+    state.stars = {};
+    for (const stage of STAGES) {
+      const earned = saved.stars?.[stage.id];
+      if (integer(earned, 1, 3)) state.stars[stage.id] = earned;
+    }
+    state.starChests = STAGES.map(stage => stage.id).filter(id => Array.isArray(saved.starChests) && saved.starChests.includes(id));
+    state.deeds = emptyDeeds();
+    for (const key of Object.keys(state.deeds)) if (integer(saved.deeds?.[key], 0, 100000)) state.deeds[key] = saved.deeds[key];
+    state.daily = restoreDaily(saved.daily, time);
     state.battle = restoreBattle(state, saved.battle);
   } catch { return createState(time); }
   return state;
@@ -118,6 +152,7 @@ export function collect(state, now = Date.now()) {
   for (const id of Object.keys(gain)) gain[id] = Math.min(gain[id], MAX_RESOURCE - state.res[id]);
   award(state, gain);
   state.lastCollected = now;
+  noteDeed(state, 'collect', now);
   return { ok: true, gain };
 }
 
@@ -140,6 +175,7 @@ export function upgradeBuilding(state, id, now = state.lastCollected) {
   collect(state, now);
   pay(state, cost);
   state.buildings[id]++;
+  noteDeed(state, 'upgrade', now);
   return { ok: true };
 }
 
@@ -157,6 +193,7 @@ export function upgradeHero(state, id) {
   if (!canPay(state, cost)) return fail('Yeterli kaynak yok.');
   pay(state, cost);
   state.heroes[id].level++;
+  noteDeed(state, 'upgrade');
   return { ok: true };
 }
 
@@ -174,9 +211,125 @@ export function setTeam(state, ids) {
 
 export function heroStats(state, id) {
   const hero = heroById(id), level = state.heroes[id].level, gear = equipmentStats(state,id);
-  const maxHp = Math.round(hero.hp * (1 + (level - 1) * 0.12) * (1 + (state.buildings.tavern - 1) * 0.04)) + gear.hp;
+  const starMod = 1 + (state.heroes[id].stars || 0) * 0.08;
+  const maxHp = Math.round(hero.hp * (1 + (level - 1) * 0.12) * (1 + (state.buildings.tavern - 1) * 0.04) * starMod) + gear.hp;
   return { id, name: hero.name, color: hero.color, hp: maxHp, maxHp, armor:gear.armor, healing:gear.healing,
-    attack: Math.round(hero.attack * (1 + (level - 1) * 0.15) * (1 + (state.buildings.forge - 1) * 0.05)) + gear.attack };
+    attack: Math.round(hero.attack * (1 + (level - 1) * 0.15) * (1 + (state.buildings.forge - 1) * 0.05) * starMod) + gear.attack };
+}
+export function heroStarCost(state, id) {
+  if (!state.heroes[id]) return null;
+  const rank = state.heroes[id].stars || 0;
+  return { gold: 120 * (rank + 1), aether: 12 * (rank + 1) };
+}
+export function raiseHeroStar(state, id) {
+  if (!state.heroes[id] || !unlocked(state, heroById(id))) return fail('Bu kahraman henüz katılmadı.');
+  if (activeBattle(state)) return fail('Önce devam eden savaşı tamamla.');
+  const rank = state.heroes[id].stars || 0;
+  if (rank >= MAX_HERO_STARS) return fail('Kahraman en yüksek yıldızda.');
+  const cost = heroStarCost(state, id);
+  if (!canPay(state, cost)) return fail('Yeterli kaynak yok.');
+  pay(state, cost);
+  state.heroes[id].stars = rank + 1;
+  return { ok: true, stars: state.heroes[id].stars };
+}
+
+function restoreDaily(saved, now) {
+  const daily = emptyDaily(now);
+  if (!saved || typeof saved !== 'object') return daily;
+  if (typeof saved.stamp === 'string' && /^\d{4}-\d{1,2}-\d{1,2}$/.test(saved.stamp)) daily.stamp = saved.stamp;
+  if (typeof saved.lastLogin === 'string' && saved.lastLogin.length < 16) daily.lastLogin = saved.lastLogin;
+  if (integer(saved.streak, 0, 9999)) daily.streak = saved.streak;
+  for (const key of Object.keys(daily.tasks)) if (integer(saved.tasks?.[key], 0, 100000)) daily.tasks[key] = saved.tasks[key];
+  daily.claimedTasks = DAILY_TASKS.map(task => task.id).filter(id => Array.isArray(saved.claimedTasks) && saved.claimedTasks.includes(id));
+  return daily;
+}
+export function syncDaily(state, now = Date.now()) {
+  const day = utcDay(safeNow(now));
+  if (!state.daily || state.daily.stamp === day) return false;
+  state.daily.stamp = day;
+  state.daily.tasks = { collect: 0, upgrade: 0, battle: 0 };
+  state.daily.claimedTasks = [];
+  return true;
+}
+function noteDeed(state, kind, now = Date.now()) {
+  if (!state.daily || !state.deeds) return;
+  syncDaily(state, now);
+  if (state.deeds[kind === 'collect' ? 'collects' : kind === 'upgrade' ? 'upgrades' : 'battles'] < 100000) {
+    state.deeds[kind === 'collect' ? 'collects' : kind === 'upgrade' ? 'upgrades' : 'battles']++;
+  }
+  if (state.daily.tasks[kind] < 100000) state.daily.tasks[kind]++;
+}
+function oathMet(state, id) {
+  if (id === 'collect') return state.deeds.collects > 0;
+  if (id === 'farm') return state.buildings.farm >= 2;
+  if (id === 'hero') return Object.values(state.heroes).some(hero => hero.level >= 2);
+  if (id === 'march') return state.cleared.includes(1);
+  if (id === 'arm') return Object.values(state.loadouts || {}).some(slots => slots && Object.keys(slots).length > 0);
+  if (id === 'keep') return state.buildings.keep >= 2;
+  if (id === 'chapel') return state.cleared.includes(2);
+  return false;
+}
+export function currentOath(state) {
+  return OATHS.find(oath => !state.oaths?.includes(oath.id)) || null;
+}
+export function oathStatus(state, id) {
+  if (!OATHS.some(oath => oath.id === id)) return 'unknown';
+  if (state.oaths?.includes(id)) return 'claimed';
+  if (currentOath(state)?.id !== id) return 'later';
+  return oathMet(state, id) ? 'ready' : 'open';
+}
+export function claimOath(state, id) {
+  const oath = OATHS.find(item => item.id === id);
+  const next = currentOath(state);
+  if (!oath || !next || next.id !== id) return fail('Önce sıradaki yemini tamamla.');
+  if (state.oaths.includes(id)) return fail('Bu yemin zaten alındı.');
+  if (!oathMet(state, id)) return fail('Yemin henüz tamamlanmadı.');
+  if (activeBattle(state)) return fail('Önce devam eden savaşı tamamla.');
+  state.oaths.push(id);
+  award(state, oath.reward);
+  return { ok: true, reward: { ...oath.reward } };
+}
+export function claimLogin(state, now = Date.now()) {
+  const time = safeNow(now);
+  syncDaily(state, time);
+  const day = utcDay(time);
+  if (state.daily.lastLogin === day) return fail('Bugünün armağanı alındı.');
+  const yesterday = utcDay(time - 86400000);
+  state.daily.streak = state.daily.lastLogin === yesterday ? Math.min(9999, state.daily.streak + 1) : 1;
+  state.daily.lastLogin = day;
+  const reward = LOGIN_REWARDS[(state.daily.streak - 1) % LOGIN_REWARDS.length];
+  award(state, reward);
+  return { ok: true, reward: { ...reward }, streak: state.daily.streak };
+}
+export function claimDailyTask(state, id, now = Date.now()) {
+  syncDaily(state, now);
+  const task = DAILY_TASKS.find(item => item.id === id);
+  if (!task) return fail('Bilinmeyen günlük iş.');
+  if (state.daily.claimedTasks.includes(id)) return fail('Bu işin ödülü alındı.');
+  if ((state.daily.tasks[id] || 0) < task.need) return fail('Günlük iş henüz bitmedi.');
+  if (activeBattle(state)) return fail('Önce devam eden savaşı tamamla.');
+  state.daily.claimedTasks.push(id);
+  award(state, task.reward);
+  return { ok: true, reward: { ...task.reward } };
+}
+export function battleStars(battle) {
+  if (!battle || battle.status !== 'won') return 0;
+  let stars = 1;
+  if (battle.allies?.every(unit => unit.hp > 0)) stars++;
+  const fast = battle.live ? battle.live.elapsedMs <= 75000 : battle.round <= 6;
+  if (fast) stars++;
+  return stars;
+}
+export function claimStarChest(state, stageId) {
+  const stage = stageById(stageId);
+  if (!stage) return fail('Bilinmeyen bölge.');
+  if ((state.stars?.[stageId] || 0) < 3) return fail('Sandık için üç yıldız gerekli.');
+  if (state.starChests.includes(stageId)) return fail('Yıldız sandığı zaten alındı.');
+  if (activeBattle(state)) return fail('Önce devam eden savaşı tamamla.');
+  state.starChests.push(stageId);
+  const reward = { gold: 60 + stageId * 20, aether: 4 + stageId };
+  award(state, reward);
+  return { ok: true, reward };
 }
 
 export function teamPower(state) {
@@ -288,10 +441,13 @@ function finishBattle(state, events) {
         events.push(`${hero.name}, kalenin yeminlilerine katıldı.`);
       }
       battle.rewardApplied = true;
+      state.stars[battle.stageId] = Math.max(state.stars[battle.stageId] || 0, battleStars(battle));
+      noteDeed(state, 'battle');
     }
     events.push('Zafer! Ganimet kaleye taşındı.');
   } else if (battle.allies.every(unit => unit.hp <= 0)) {
     battle.status = 'lost';
+    if (!battle.rewardApplied) noteDeed(state, 'battle');
     battle.rewardApplied = true;
     events.push('Takım geri çekildi. Kahramanlarını güçlendirip yeniden deneyebilirsin.');
   }

@@ -83,9 +83,10 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     scene.style.height = `${h}px`;
     if (reset) {
       scale = 1;
-      x = (rect.width - w) / 2;
       const short = rect.height < 520 && rect.width > rect.height;
-      y = short ? -h * 0.08 : rect.height * 0.46 - h * 0.5;
+      if (short) scale = 0.72;
+      x = (rect.width - w * scale) / 2;
+      y = short ? -h * scale * 0.1 : rect.height * 0.46 - h * 0.5;
       clampPan();
       apply();
     }

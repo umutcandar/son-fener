@@ -177,7 +177,7 @@ function heroCard(hero) {
   return `<article class="hero-card ${inTeam ? 'selected' : ''} ${unlocked ? '' : 'locked'}" style="--hero:${hero.color}">
     <div class="hero-portrait">${heroPortrait(hero)}<span class="role-tag">${ROLES[hero.role]}</span><span class="hero-level">${unlocked ? 'SEV. '+level : 'KİLİTLİ'}</span><div class="portrait-title"><small>${hero.title}</small><h3>${hero.name}</h3></div></div>
     <div class="hero-card-content"><p>${HERO_LORE[hero.id]}</p><div class="hero-stats"><span>⚔ ${attack} saldırı</span><span>♡ ${hp} can</span></div><div class="skill">${R.HERO_ABILITIES[hero.id].name}: ${R.HERO_ABILITIES[hero.id].description}</div>
-    ${unlocked ? `<button class="${inTeam ? 'secondary' : 'primary'}" data-team="${hero.id}" ${state.battle?.status === 'active' ? 'disabled' : ''}>${state.team[selectedSlot] === hero.id ? 'Bu konumda' : `${selectedSlot + 1}. konuma ${inTeam ? 'taşı' : 'al'}`}</button><div class="cost-list">${costHtml(cost)}</div><button class="secondary" data-upgrade-hero="${hero.id}" ${canUpgrade ? '' : 'disabled'}>${level >= 20 ? 'En yüksek seviye' : 'Kahramanı geliştir'}</button><button class="text-button wide" data-armory-hero="${hero.id}">Ekipmanlarını düzenle</button>` : `<div class="unlock-note">${svg('expedition')} ${R.STAGES[hero.unlockStage - 1].name} zaferiyle katılır</div>`}</div></article>`;
+    ${unlocked ? `<p class="star-rank" aria-label="${state.heroes[hero.id].stars || 0} yıldız">${'✦'.repeat(state.heroes[hero.id].stars || 0)}${'✧'.repeat(5 - (state.heroes[hero.id].stars || 0))}</p><button class="${inTeam ? 'secondary' : 'primary'}" data-team="${hero.id}" ${state.battle?.status === 'active' ? 'disabled' : ''}>${state.team[selectedSlot] === hero.id ? 'Bu konumda' : `${selectedSlot + 1}. konuma ${inTeam ? 'taşı' : 'al'}`}</button><div class="cost-list">${costHtml(cost)}</div><button class="secondary" data-upgrade-hero="${hero.id}" ${canUpgrade ? '' : 'disabled'}>${level >= 20 ? 'En yüksek seviye' : 'Kahramanı geliştir'}</button><div class="cost-list">${costHtml(R.heroStarCost(state, hero.id))}</div><button class="secondary" data-hero-star="${hero.id}" ${(state.heroes[hero.id].stars || 0) >= 5 || state.battle?.status === 'active' || Object.entries(R.heroStarCost(state, hero.id)).some(([rid, amount]) => state.res[rid] < amount) ? 'disabled' : ''}>${(state.heroes[hero.id].stars || 0) >= 5 ? 'En yüksek yıldız' : 'Yıldız yükselt'}</button><button class="text-button wide" data-armory-hero="${hero.id}">Ekipmanlarını düzenle</button>` : `<div class="unlock-note">${svg('expedition')} ${R.STAGES[hero.unlockStage - 1].name} zaferiyle katılır</div>`}</div></article>`;
 }
 
 function heroPortrait(hero) {
@@ -222,10 +222,33 @@ function renderInspector() {
   inspectorEl.innerHTML = `<div class="building-details"><div class="section-head"><small>KÖY YÖNETİMİ</small><span class="level-badge">SEVİYE ${level}</span></div><div class="building-portrait">${svg(building.id)}</div><h2>${building.name}</h2><p class="building-description">${building.description}</p><div class="stat-line"><span>Gelişim</span><b>${level} / ${building.maxLevel}</b></div>${building.production ? `<div class="stat-line"><span>Üretim hızı</span><b>${number(building.production.perMinute * level * (1 + (state.buildings.keep - 1) * .05))} ${resourceName[building.production.resource]} / dk</b></div>` : `<div class="stat-line"><span>Köy etkisi</span><b>${building.id === 'keep' ? '+%5 üretim / seviye' : building.id === 'forge' ? '+%5 saldırı / seviye' : '+%4 can / seviye'}</b></div>`}<div class="cost-list">${costHtml(cost)}</div><button class="primary wide" data-upgrade-building="${building.id}" ${blocked ? 'disabled' : ''}>${level >= building.maxLevel ? 'En yüksek seviye' : `Yapıyı geliştir · ${number(cost.gold || 0)} altın`}</button>${buildingProduction(building)}</div><div class="squad-block"><div class="squad-heading"><h3>Kahramanlar</h3><button class="text-button" data-view="heroes">Dizilimi düzenle</button></div><div class="squad">${team.map(hero => `<div class="squad-member">${heroPortrait(hero)}<span>${hero.name}</span><small>Lv.${state.heroes[hero.id].level}</small></div>`).join('')}</div><div class="team-power"><span>Dizilim gücü</span><strong>${number(R.teamPower(state))} ✦</strong></div></div><p class="inspector-note">Yapılar yükseldikçe görünüşleri değişir. Üretim çevrimdışı olarak en çok 4 saat birikir.</p>`;
 }
 function renderQuest() {
+  const oath = R.currentOath(state);
   const active = state.battle?.status === 'active';
   const stage = active ? R.STAGES[state.battle.stageId - 1] : R.STAGES[state.cleared.length];
-  if (!stage) { questEl.innerHTML = `<button class="goal-chip" data-action="open-expedition"><small>SINIR TAMAM</small><b>Seferleri yeniden aç</b></button>`; return; }
-  questEl.innerHTML = `<button class="goal-chip" data-action="${active ? 'resume-battle' : 'open-expedition'}"><small>${active ? 'SAVAŞ SÜRÜYOR' : 'SIRADAKİ'}</small><b>${stage.name}</b><span>${active ? 'Savaşa dön' : 'Seferi aç'}</span></button>`;
+  const march = !stage
+    ? `<button class="goal-chip" data-action="open-expedition"><small>SINIR TAMAM</small><b>Seferler</b><span>Aç</span></button>`
+    : `<button class="goal-chip" data-action="${active ? 'resume-battle' : 'open-expedition'}"><small>${active ? 'SAVAŞ' : 'SEFER'}</small><b>${stage.name}</b><span>${active ? 'Dön' : 'Aç'}</span></button>`;
+  const oathChip = oath
+    ? `<button class="goal-chip" ${R.oathStatus(state, oath.id) === 'ready' ? `data-claim-oath="${oath.id}"` : 'data-open-board'}><small>YEMİN ${state.oaths.length + 1}/${R.OATHS.length}</small><b>${oath.name}</b><span>${R.oathStatus(state, oath.id) === 'ready' ? 'Ödülü al' : 'Bak'}</span></button>`
+    : '';
+  questEl.innerHTML = `${oathChip}${march}<button class="goal-chip daily-chip" data-open-board><small>GÜNLÜK</small><b>${state.daily.streak ? `${state.daily.streak}. gün` : 'Armağan'}</b><span>Aç</span></button>`;
+}
+function renderBoard() {
+  const dayKey = (() => { const date = new Date(); return `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`; })();
+  const canLogin = state.daily.lastLogin !== dayKey;
+  $('#board-content').innerHTML = `<header class="building-dialog-head"><div><span class="eyebrow">KÖYÜN İŞLERİ</span><h2 id="board-title">Yeminler ve günlük</h2></div><button class="icon-button" data-close-board aria-label="Panoyu kapat">×</button></header>
+    <div class="board-body">
+      <section><h3>İlk yeminler</h3><ol class="oath-list">${R.OATHS.map(oath => {
+        const status = R.oathStatus(state, oath.id);
+        return `<li class="oath-${status}"><span><b>${oath.name}</b><small>${oath.detail}</small></span>${status === 'ready' ? `<button class="primary" data-claim-oath="${oath.id}">Ödülü al</button>` : `<em>${status === 'claimed' ? 'Alındı' : status === 'open' ? 'Sürüyor' : 'Sırada'}</em>`}</li>`;
+      }).join('')}</ol></section>
+      <section><h3>Günlük armağan</h3><p>Seri: ${state.daily.streak || 0} gün. Yedinci gün en dolu çanta.</p><button class="primary" data-claim-login ${canLogin ? '' : 'disabled'}>${canLogin ? 'Bugünün armağanını al' : 'Bugün alındı'}</button></section>
+      <section><h3>Günlük işler</h3><ul class="oath-list">${R.DAILY_TASKS.map(task => {
+        const done = (state.daily.tasks[task.id] || 0) >= task.need;
+        const taken = state.daily.claimedTasks.includes(task.id);
+        return `<li><span><b>${task.name}</b><small>${Math.min(task.need, state.daily.tasks[task.id] || 0)} / ${task.need}</small></span>${taken ? '<em>Alındı</em>' : `<button class="primary" data-daily-task="${task.id}" ${done ? '' : 'disabled'}>Ödülü al</button>`}</li>`;
+      }).join('')}</ul></section>
+    </div>`;
 }
 function renderHeroes() {
   const chosen = state.team.map(id => R.HEROES.find(hero => hero.id === id));
@@ -242,7 +265,9 @@ function renderExpedition() {
     <div class="progress-banner"><span>${state.cleared.length} / 8 bölge temizlendi</span><div class="progress-track"><span style="width:${state.cleared.length / 8 * 100}%"></span></div><span>Takım gücü ${number(R.teamPower(state))}</span></div>
     <div class="stage-list">${R.STAGES.map(stage => {
       const done = state.cleared.includes(stage.id), locked = stage.id > next, resume = state.battle?.status === 'active' && state.battle.stageId === stage.id;
-      return `<article class="stage-card ${done ? 'done' : stage.id === next ? 'current' : 'locked'}"><div class="stage-number">${done ? '✓' : String(stage.id).padStart(2, '0')}</div><div><span class="eyebrow">${CHAPTERS[stage.id-1].name}</span><h3>${stage.name}</h3><p>${stage.description} · ${stage.enemyCount} düşman · Önerilen güç ${stage.recommendedPower}</p><div class="cost-list">${costHtml(stage.reward, true)}</div>${R.FIRST_CLEAR_LOOT[stage.id]?`<p class="loot-preview">${svg('forge')} İlk zafer: ${R.itemById(R.FIRST_CLEAR_LOOT[stage.id]).name}${done?' · Alındı':''}</p>`:''}</div><button class="${done ? 'secondary' : 'primary'}" ${resume ? 'data-action="resume-battle"' : `data-stage="${stage.id}"`} ${locked || (state.battle?.status === 'active' && !resume) ? 'disabled' : ''}>${resume ? 'Savaşa dön' : done ? 'Yeniden oyna' : locked ? 'Kilitli' : 'Savaşa gir'}</button></article>`;
+      const stars = state.stars[stage.id] || 0;
+      const chest = stars >= 3 && !state.starChests.includes(stage.id);
+      return `<article class="stage-card ${done ? 'done' : stage.id === next ? 'current' : 'locked'}"><div class="stage-number">${done ? '✓' : String(stage.id).padStart(2, '0')}</div><div><span class="eyebrow">${CHAPTERS[stage.id-1].name}</span><h3>${stage.name}</h3><p class="star-pips" aria-label="${stars} yıldız">${[1,2,3].map(n => `<i class="${n <= stars ? 'on' : ''}">✦</i>`).join('')}</p><p>${stage.description} · ${stage.enemyCount} düşman · Önerilen güç ${stage.recommendedPower}</p><div class="cost-list">${costHtml(stage.reward, true)}</div>${R.FIRST_CLEAR_LOOT[stage.id]?`<p class="loot-preview">${svg('forge')} İlk zafer: ${R.itemById(R.FIRST_CLEAR_LOOT[stage.id]).name}${done?' · Alındı':''}</p>`:''}${chest ? `<button class="secondary" data-star-chest="${stage.id}">Üç yıldız sandığı</button>` : ''}</div><button class="${done ? 'secondary' : 'primary'}" ${resume ? 'data-action="resume-battle"' : `data-stage="${stage.id}"`} ${locked || (state.battle?.status === 'active' && !resume) ? 'disabled' : ''}>${resume ? 'Savaşa dön' : done ? 'Yeniden oyna' : locked ? 'Kilitli' : 'Savaşa gir'}</button></article>`;
     }).join('')}</div>`;
 }
 
@@ -397,7 +422,9 @@ function castHeroSkill(heroId) {
 }
 
 function render() {
+  if (R.syncDaily(state)) persist();
   renderAccount(); renderResources(); renderNav(); renderPicker(); renderInspector(); renderQuest(); renderWorkspace();
+  if ($('#board-dialog')?.open) renderBoard();
   scene?.update(state);
   if ($('#building-dialog').open) renderBuildingDialog();
 }
@@ -443,6 +470,13 @@ function dispatch(action) {
     return;
   }
   if (button.dataset.upgradeHero) { result(R.upgradeHero(state, button.dataset.upgradeHero), 'Kahraman güçlendi.'); return; }
+  if (button.dataset.heroStar) { result(R.raiseHeroStar(state, button.dataset.heroStar), 'Kahramanın yıldızı parladı. Gücü arttı.'); return; }
+  if (button.dataset.claimOath) { result(R.claimOath(state, button.dataset.claimOath), 'Yemin ödülü kasaya girdi.'); return; }
+  if (button.hasAttribute('data-claim-login')) { result(R.claimLogin(state), 'Günün armağanı alındı.'); return; }
+  if (button.dataset.dailyTask) { result(R.claimDailyTask(state, button.dataset.dailyTask), 'Günlük ödül alındı.'); return; }
+  if (button.dataset.starChest) { result(R.claimStarChest(state, Number(button.dataset.starChest)), 'Yıldız sandığı açıldı.'); return; }
+  if (button.hasAttribute('data-open-board')) { renderBoard(); if (!$('#board-dialog').open) $('#board-dialog').showModal(); return; }
+  if (button.hasAttribute('data-close-board')) { $('#board-dialog').close(); return; }
   if (button.dataset.selectSlot !== undefined) { selectedSlot = Number(button.dataset.selectSlot); renderHeroes(); return; }
   if (button.dataset.team) {
     const id = button.dataset.team, team = [...state.team], previousIndex = team.indexOf(id);
