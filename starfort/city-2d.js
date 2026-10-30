@@ -1,12 +1,13 @@
 // Painted city. Presentation only: building ids and levels still come from the save.
+// Bases sit on the quay pads of the wide gothic panorama.
 export const CITY_SPOTS = {
-  observatory: { x: 27, y: 47, w: 17 },
-  keep: { x: 56, y: 44, w: 22 },
-  forge: { x: 22, y: 64, w: 18 },
-  tavern: { x: 50, y: 66, w: 16 },
-  quarry: { x: 78, y: 63, w: 17 },
-  farm: { x: 30, y: 84, w: 22 },
-  lumber: { x: 70, y: 84, w: 22 },
+  farm: { x: 9, y: 86, w: 12 },
+  lumber: { x: 23, y: 86, w: 12 },
+  forge: { x: 37, y: 85, w: 12 },
+  tavern: { x: 51, y: 86, w: 11 },
+  quarry: { x: 64, y: 85, w: 12 },
+  observatory: { x: 78, y: 84, w: 12 },
+  keep: { x: 91, y: 83, w: 15 },
 };
 
 const tierOf = level => (level <= 2 ? 'a' : level <= 5 ? 'b' : 'c');
@@ -55,7 +56,7 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
   function zoomAt(clientX, clientY, nextScale) {
     const rect = stage.getBoundingClientRect();
     const px = clientX - rect.left, py = clientY - rect.top;
-    const next = Math.min(2.8, Math.max(0.85, nextScale));
+    const next = Math.min(2.6, Math.max(0.38, nextScale));
     const k = next / scale;
     x = px - (px - x) * k;
     y = py - (py - y) * k;
@@ -67,12 +68,23 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     const rect = stage.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) return;
     const aspect = 16 / 9;
-    let w = rect.width, h = w / aspect;
-    if (h < rect.height * 0.92) { h = rect.height * 0.92; w = h * aspect; }
-    if (rect.width < 760) { w = Math.max(w, rect.width * 1.65); h = w / aspect; }
+    const short = rect.width > rect.height && rect.height < 520;
+    const minW = rect.width * (short ? 1.7 : 1.18);
+    let w = Math.max(rect.height * aspect, minW);
+    let h = w / aspect;
+    if (h < rect.height) { h = rect.height; w = h * aspect; }
     scene.style.width = `${w}px`;
     scene.style.height = `${h}px`;
-    if (reset) { scale = 1; x = (rect.width - w) / 2; y = (rect.height - h) / 2; clampPan(); apply(); }
+    if (reset) {
+      scale = short ? 0.78 : 1;
+      const sw = w * scale;
+      const sh = h * scale;
+      const focusY = short ? 0.7 : 0.64;
+      x = short ? -sw * 0.02 : rect.width * 0.5 - sw * 0.5;
+      y = rect.height * 0.56 - sh * focusY;
+      clampPan();
+      apply();
+    }
   }
   function update(state) {
     for (const [id, button] of buttons) {

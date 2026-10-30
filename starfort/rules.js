@@ -190,7 +190,7 @@ function newBattle(state, stage, combatVersion=2) {
   return { stageId: stage.id, round: 0, status: 'active', combatVersion, targetId:null,
     allies: state.team.map(id => heroStats(state, id)),
     enemies: encounterEnemies(stage,combatVersion),
-    starCharge: 40, log: [`${stage.name}: Yeminliler savaşa hazır.`], reward: clone(stage.reward), rewardApplied: false, loot: null };
+    starCharge: 40, log: [`${stage.name}: Kahramanlar savaşa hazır.`], reward: clone(stage.reward), rewardApplied: false, loot: null };
 }
 
 function restoreBattle(state, saved) {

@@ -30,7 +30,8 @@ const iconPaths = {
 const svg = (name, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name] || iconPaths.star}</svg>`;
 const resourceIcon = { gold: 'coin', wood: 'wood', stone: 'stone', aether: 'star' };
 const resourceName = { gold: 'Altın', wood: 'Kereste', stone: 'Taş', aether: 'Yıldız özü' };
-const navItems = [ ['keep', 'keep', 'Hisar'], ['heroes', 'heroes', 'Yeminliler'], ['expedition', 'expedition', 'Seferler'], ['armory', 'forge', 'Cephanelik'], ['shop', 'shop', 'Mağaza'], ['journal', 'journal', 'Kronik'] ];
+const navItems = [ ['keep', 'keep', 'Köy'], ['heroes', 'heroes', 'Kahramanlar'], ['expedition', 'expedition', 'Seferler'], ['armory', 'forge', 'Cephanelik'], ['shop', 'shop', 'Mağaza'], ['journal', 'journal', 'Kronik'] ];
+const sourceBuilding = { gold: 'farm', wood: 'lumber', stone: 'quarry', aether: 'observatory' };
 let state;
 try { state = R.restoreState(localStorage.getItem(R.STORAGE_KEY)); } catch { state = R.createState(); }
 let battleSpeed=1, battleFxExpires=0;
@@ -91,14 +92,15 @@ function markRaised(id) {
 }
 function result(action, success) { if (!action.ok) { notify(action.error); return false; } if (success) notify(success); persist(); render(); return true; }
 function renderResources() {
-  resourcesEl.innerHTML = Object.entries(R.RESOURCES).map(([id, item]) => `<div class="resource" data-res="${id}">${svg(resourceIcon[id])}<span><b>${number(state.res[id])}</b><small>${item.name}</small></span></div>`).join('');
+  resourcesEl.innerHTML = Object.entries(R.RESOURCES).map(([id, item]) => `<div class="resource" data-res="${id}">${svg(resourceIcon[id])}<span><b>${number(state.res[id])}</b><small>${item.name}</small></span><button type="button" class="res-plus" data-building="${sourceBuilding[id]}" aria-label="${item.name} yapısını aç">+</button></div>`).join('');
 }
 function renderAccount() {
   const mark = document.querySelector('.avatar-mark');
   if (!mark) return;
-  if (!mark.querySelector('img')) mark.innerHTML = '<img src="assets/aldren.webp" alt="Hisar muhafızı"><b></b>';
+  if (!mark.querySelector('img')) mark.innerHTML = '<img src="assets/aldren.webp" alt="Köy muhafızı"><b></b>';
   mark.querySelector('b').textContent = state.buildings.keep;
   const status = $('#save-status'); if (status) status.textContent = saveLabel;
+  const power = $('#power-chip'); if (power) power.textContent = `✦ ${number(R.teamPower(state))}`;
 }
 function renderNav() {
   const prodReady = Object.values(R.production(state)).some(amount => amount > 0);
@@ -110,7 +112,7 @@ function renderNav() {
 }
 function renderPicker() {
   $('#building-picker').innerHTML = R.BUILDINGS.map(building => `<button class="building-choice ${selectedBuilding === building.id ? 'active' : ''}" data-building="${building.id}" aria-label="${building.name}, seviye ${state.buildings[building.id]}">${svg(building.id)}<span>${building.name.replace('Karaorman ', '').replace('Yıldız ', '').replace('Kor ', '').replace('Aytaşı ', '')}</span></button>`).join('');
-  $('#keep-caption').textContent = `Kale seviyesi ${state.buildings.keep}`;
+  $('#keep-caption').textContent = `Köy seviyesi ${state.buildings.keep}`;
   for (const building of R.BUILDINGS) {
     let label = cityLabelNodes.get(building.id);
     if (!label) {
@@ -137,7 +139,7 @@ function costHtml(cost, reward = false) {
 }
 
 function buildingProduction() {
-  return `<div class="production-box"><div class="production-top"><strong>Hisarın üretimi</strong><small>En çok 4 saat</small></div><div class="cost-list" id="production-gain">${costHtml(R.production(state), true)}</div><button class="secondary wide" data-collect>Biriken kaynakları topla</button></div>`;
+  return `<div class="production-box"><div class="production-top"><strong>Köyün üretimi</strong><small>En çok 4 saat</small></div><div class="cost-list" id="production-gain">${costHtml(R.production(state), true)}</div><button class="secondary wide" data-collect>Biriken kaynakları topla</button></div>`;
 }
 
 function heroCard(hero) {
@@ -190,7 +192,7 @@ function renderInspector() {
   const building = R.BUILDINGS.find(item => item.id === selectedBuilding) || R.BUILDINGS[0], level = state.buildings[building.id], cost = R.upgradeCost(state, building.id);
   const blocked = level >= building.maxLevel || (building.id !== 'keep' && level >= state.buildings.keep + 1) || Object.entries(cost).some(([id, amount]) => state.res[id] < amount) || state.battle?.status === 'active';
   const team = state.team.map(id => R.HEROES.find(hero => hero.id === id));
-  inspectorEl.innerHTML = `<div class="building-details"><div class="section-head"><small>KALE YÖNETİMİ</small><span class="level-badge">SEVİYE ${level}</span></div><div class="building-portrait">${svg(building.id)}</div><h2>${building.name}</h2><p class="building-description">${building.description}</p><div class="stat-line"><span>Gelişim</span><b>${level} / ${building.maxLevel}</b></div>${building.production ? `<div class="stat-line"><span>Üretim hızı</span><b>${number(building.production.perMinute * level * (1 + (state.buildings.keep - 1) * .05))} ${resourceName[building.production.resource]} / dk</b></div>` : `<div class="stat-line"><span>Hisar etkisi</span><b>${building.id === 'keep' ? '+%5 üretim / seviye' : building.id === 'forge' ? '+%5 saldırı / seviye' : '+%4 can / seviye'}</b></div>`}<div class="cost-list">${costHtml(cost)}</div><button class="primary wide" data-upgrade-building="${building.id}" ${blocked ? 'disabled' : ''}>${level >= building.maxLevel ? 'En yüksek seviye' : `Yapıyı geliştir · ${number(cost.gold || 0)} altın`}</button>${buildingProduction(building)}</div><div class="squad-block"><div class="squad-heading"><h3>Yeminliler</h3><button class="text-button" data-view="heroes">Dizilimi düzenle</button></div><div class="squad">${team.map(hero => `<div class="squad-member">${heroPortrait(hero)}<span>${hero.name}</span><small>Lv.${state.heroes[hero.id].level}</small></div>`).join('')}</div><div class="team-power"><span>Dizilim gücü</span><strong>${number(R.teamPower(state))} ✦</strong></div></div><p class="inspector-note">Yapılar yükseldikçe görünüşleri değişir. Üretim çevrimdışı olarak en çok 4 saat birikir.</p>`;
+  inspectorEl.innerHTML = `<div class="building-details"><div class="section-head"><small>KÖY YÖNETİMİ</small><span class="level-badge">SEVİYE ${level}</span></div><div class="building-portrait">${svg(building.id)}</div><h2>${building.name}</h2><p class="building-description">${building.description}</p><div class="stat-line"><span>Gelişim</span><b>${level} / ${building.maxLevel}</b></div>${building.production ? `<div class="stat-line"><span>Üretim hızı</span><b>${number(building.production.perMinute * level * (1 + (state.buildings.keep - 1) * .05))} ${resourceName[building.production.resource]} / dk</b></div>` : `<div class="stat-line"><span>Köy etkisi</span><b>${building.id === 'keep' ? '+%5 üretim / seviye' : building.id === 'forge' ? '+%5 saldırı / seviye' : '+%4 can / seviye'}</b></div>`}<div class="cost-list">${costHtml(cost)}</div><button class="primary wide" data-upgrade-building="${building.id}" ${blocked ? 'disabled' : ''}>${level >= building.maxLevel ? 'En yüksek seviye' : `Yapıyı geliştir · ${number(cost.gold || 0)} altın`}</button>${buildingProduction(building)}</div><div class="squad-block"><div class="squad-heading"><h3>Kahramanlar</h3><button class="text-button" data-view="heroes">Dizilimi düzenle</button></div><div class="squad">${team.map(hero => `<div class="squad-member">${heroPortrait(hero)}<span>${hero.name}</span><small>Lv.${state.heroes[hero.id].level}</small></div>`).join('')}</div><div class="team-power"><span>Dizilim gücü</span><strong>${number(R.teamPower(state))} ✦</strong></div></div><p class="inspector-note">Yapılar yükseldikçe görünüşleri değişir. Üretim çevrimdışı olarak en çok 4 saat birikir.</p>`;
 }
 function renderQuest() {
   const active = state.battle?.status === 'active';
@@ -200,7 +202,7 @@ function renderQuest() {
 }
 function renderHeroes() {
   const chosen = state.team.map(id => R.HEROES.find(hero => hero.id === id));
-  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KÜL GECESİNDEN SAĞ KALANLAR</span><h2>Yıldız Yeminlileri</h2><p>Bir kalkan. Bir kıvılcım. Birlikte tutulan bir yemin.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KÜL GECESİNDEN SAĞ KALANLAR</span><h2>Kahramanlar</h2><p>Bir kalkan. Bir kıvılcım. Birlikte tutulan bir yemin.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
     <div class="team-editor"><div><span class="eyebrow">SAVAŞ DİZİLİMİ</span><p>Konumu seç, ardından kahramanı yerleştir.</p></div><strong>${number(R.teamPower(state))}<small>TAKIM GÜCÜ</small></strong></div>
     <div class="formation">${chosen.map((hero, index) => `<button class="formation-slot ${selectedSlot === index ? 'active' : ''}" data-select-slot="${index}" aria-pressed="${selectedSlot === index}">${heroPortrait(hero)}<span><small>${String(index+1).padStart(2,'0')} · ${ROLES[hero.role]}</small><b>${hero.name}</b></span><span class="slot-marker">${selectedSlot === index ? '✦' : '+'}</span></button>`).join('')}</div>
     ${state.battle?.status === 'active' ? '<p class="inline-note">Dizilimi değiştirmek için devam eden savaşı tamamla.</p>' : ''}<div class="hero-grid">${R.HEROES.map(heroCard).join('')}</div>`;
@@ -208,7 +210,7 @@ function renderHeroes() {
 
 function renderExpedition() {
   const next = Math.min(state.cleared.length + 1, R.STAGES.length), currentStage = R.STAGES[next-1], chapter = CHAPTERS[next-1];
-  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KUZEY SINIRI · BİRİNCİ BÖLÜM</span><h2>Küllerden doğan yol</h2><p>Hisarın ışığını karanlığın unuttuğu topraklara taşı.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KUZEY SINIRI · BİRİNCİ BÖLÜM</span><h2>Küllerden doğan yol</h2><p>Köyün ışığını karanlığın unuttuğu topraklara taşı.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
     <div class="campaign-hero"><div><span class="eyebrow">${String(next).padStart(2,'0')} / 08 · ${chapter.name}</span><h3>${currentStage.name}</h3><p>${chapter.brief}</p><span class="tactic">${chapter.tactic}</span></div></div>
     <div class="progress-banner"><span>${state.cleared.length} / 8 bölge temizlendi</span><div class="progress-track"><span style="width:${state.cleared.length / 8 * 100}%"></span></div><span>Takım gücü ${number(R.teamPower(state))}</span></div>
     <div class="stage-list">${R.STAGES.map(stage => {
@@ -218,7 +220,7 @@ function renderExpedition() {
 }
 
 function renderJournal() {
-  workspaceEl.innerHTML = `<header><div><span class="eyebrow">HİSAR ARŞİVİ</span><h2>Kül Gecesi kronikleri</h2><p>Kazandığın her sefer, kaybolmuş dünyanın bir parçasını geri getirir.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KÖY ARŞİVİ</span><h2>Kül Gecesi kronikleri</h2><p>Kazandığın her sefer, kaybolmuş dünyanın bir parçasını geri getirir.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
   <div class="journal-prologue"><span class="eyebrow">BAŞLANGIÇ</span><h3>Gökyüzü kırıldığında</h3><p>Yıldızlar düştüğünde krallar surlarını yükseltti. Sabah olmadı. Şimdi vadinin ortasında tek bir hisar parlıyor. İçindeki çekirdek, karanlığı uzakta tutuyor; her gece biraz daha zorlanarak.</p><p>Senin yeminin, bu ışığın sönmesine izin vermemek.</p></div>
   <div class="journal-grid">${CHAPTERS.map((chapter,index) => `<article class="journal-card ${state.cleared.includes(index+1) ? 'done' : ''}"><span class="eyebrow">${String(index+1).padStart(2,'0')} · ${R.STAGES[index].name}</span><h3>${chapter.name}</h3><p>${state.cleared.includes(index+1) ? chapter.victory : 'Bu kayıt, bölge kurtarıldığında günlüğe eklenecek.'}</p><span class="level-badge">${state.cleared.includes(index+1) ? 'KAYDA GEÇTİ' : 'KEŞFEDİLMEDİ'}</span></article>`).join('')}</div>`;
 }
@@ -234,7 +236,7 @@ function itemArt(item) {
 function renderArmory() {
   if(!state.heroes[selectedArmoryHero]) selectedArmoryHero=state.team[0];
   const hero=R.HEROES.find(hero=>hero.id===selectedArmoryHero), stats=R.heroStats(state,hero.id), gear=R.equipmentStats(state,hero.id);
-  workspaceEl.innerHTML=`<header><div><span class="eyebrow">KOR DEMİRHANESİ · SEVİYE ${state.buildings.forge}</span><h2>Yeminlilerin cephaneliği</h2><p>Ekipman üret, sefer ganimetini kuşan ve kahramanının gücünü değiştir.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML=`<header><div><span class="eyebrow">KOR DEMİRHANESİ · SEVİYE ${state.buildings.forge}</span><h2>Kahramanların cephaneliği</h2><p>Ekipman üret, sefer ganimetini kuşan ve kahramanının gücünü değiştir.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
     <div class="armory-heroes" aria-label="Ekipman kahramanı">${R.HEROES.filter(hero=>state.heroes[hero.id]).map(hero=>`<button class="armory-hero ${selectedArmoryHero===hero.id?'active':''}" data-armory-hero="${hero.id}" aria-pressed="${selectedArmoryHero===hero.id}">${heroPortrait(hero)}<span>${hero.name}</span></button>`).join('')}</div>
     <section class="loadout-summary"><div><span class="eyebrow">${hero.title}</span><h3>${hero.name}</h3><p>⚔ ${stats.attack} saldırı · ♡ ${stats.maxHp} can · %${gear.armor} zırh · +${gear.healing} şifa</p></div><div class="loadout-slots">${Object.entries(R.SLOTS).map(([slot,label])=>{const item=R.itemById(state.loadouts[hero.id]?.[slot]);return `<div class="loadout-slot"><small>${label}</small>${item?`${itemArt(item)}<strong>${item.name}</strong><button class="text-button" data-unequip="${slot}" ${state.battle?.status==='active'?'disabled':''}>Çıkar</button>`:'<span class="empty-slot">+</span><strong>Boş konum</strong>'}</div>`;}).join('')}</div></section>
     <p class="armory-tip">${state.battle?.status==='active'?'Ekipman değiştirmek ve üretmek için devam eden savaşı tamamla. ':''}İlk sefer zaferleri ekipman kazandırır. Şifa bonusu yalnızca iyileştirme yeteneği olan kahramanlarda etkilidir. Aynı eşyanın bir kopyası tek kahramana takılabilir.</p>
@@ -246,10 +248,10 @@ function renderArmory() {
     }).join('')}</div>`;
 }
 function renderShop() {
-  workspaceEl.innerHTML=`<header><div><span class="eyebrow">YILDIZ PAZARI</span><h2>Efsanevi yeminler</h2><p>Özel kahramanların yeteneklerini eğitim savaşında keşfet.</p></div><button class="secondary" data-close-view>Hisara dön</button></header>
+  workspaceEl.innerHTML=`<header><div><span class="eyebrow">YILDIZ PAZARI</span><h2>Efsanevi yeminler</h2><p>Özel kahramanların yeteneklerini eğitim savaşında keşfet.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
     <div class="shop-status"><strong>Mağaza önizlemesi</strong><span>Gerçek para satışı henüz açık değil. Eğitim denemeleri ücretsizdir ve ilerlemeni değiştirmez.${state.battle?.status==='active'?' Önce devam eden seferini tamamla.':''}</span></div>
     <div class="premium-grid">${R.SPECIAL_HEROES.map(hero=>`<article class="premium-card"><div class="premium-portrait">${heroPortrait(hero)}<span class="premium-seal">EFSANEVİ</span><div class="portrait-title"><small>${hero.title}</small><h3>${hero.name}</h3></div></div><div class="premium-copy"><span class="eyebrow">${ROLES[hero.role]} · ÖZEL KAHRAMAN</span><h3>${hero.name}</h3><p>${hero.description}</p><p class="skill">${R.HERO_ABILITIES[hero.id].name}: ${R.HERO_ABILITIES[hero.id].description}</p><div class="hero-stats"><span>Seviye 1 · ⚔ ${hero.attack} saldırı</span><span>♡ ${hero.hp} can</span></div><p class="trial-note">Denemede takımının ortalama seviyesine uyarlanır.</p><button class="primary wide" data-trial="${hero.id}" ${state.battle?.status==='active'?'disabled':''}>Eğitim savaşında dene</button><button class="secondary wide" disabled>Satış henüz açık değil</button></div></article>`).join('')}</div>
-    <div class="shop-armory"><div><span class="eyebrow">HİSAR USTALARININ ESERLERİ</span><h3>Gücünü kendin döv</h3><p>9 silah, zırh ve tılsım. Seferlerden kazan veya oyun içi kaynaklarla üret.</p></div><button class="secondary" data-view="armory">Cephaneliğe git →</button></div>`;
+    <div class="shop-armory"><div><span class="eyebrow">KÖY USTALARININ ESERLERİ</span><h3>Gücünü kendin döv</h3><p>9 silah, zırh ve tılsım. Seferlerden kazan veya oyun içi kaynaklarla üret.</p></div><button class="secondary" data-view="armory">Cephaneliğe git →</button></div>`;
 }
 
 function renderWorkspace() {

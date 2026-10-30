@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#12161f">
   <meta name="description" content="Starfort: yıldızın etrafında kaleni yükselt, kahramanlarını topla ve karanlığa karşı savaş.">
-  <title>Starfort — Yıldız Hisarı</title>
+  <title>Starfort — Yıldız Köyü</title>
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="art.css">
@@ -16,15 +16,19 @@
 <body>
   <div class="app">
     <header class="topbar">
+      <div class="account">
+        <span class="avatar-mark">A</span>
+        <span class="player-meta">Köy Muhafızı<small id="save-status">Yerel kayıt hazır</small></span>
+        <b class="power-chip" id="power-chip">✦ 0</b>
+      </div>
       <a class="brand" href="./" aria-label="Starfort ana ekran"><img src="icon.svg" alt=""><span>STARFORT<small>YILDIZIN SON MUHAFIZLARI</small></span></a>
       <div class="resources" id="resources" aria-label="Kaynaklar"></div>
-      <div class="account"><span class="avatar-mark">A</span><span>Hisar Muhafızı<small id="save-status">Yerel kayıt hazır</small></span></div>
     </header>
     <nav class="rail" aria-label="Ana menü" id="navigation"></nav>
     <main class="world" id="world">
-      <div class="world-heading"><div><span class="eyebrow">KUZEY SINIRI · YILDIZ VADİSİ</span><h1>Yıldız Hisarı</h1><p>Bir yıldızın çevresinde yükselen krallığın.</p></div><button class="icon-button" id="recenter" aria-label="Şehrin tamamını göster" title="Şehrin tamamını göster"></button></div>
+      <div class="world-heading"><div><span class="eyebrow">KUZEY SINIRI · YILDIZ VADİSİ</span><h1>Yıldız Köyü</h1><p>Fırtına altındaki karanlık krallığın.</p></div><button class="icon-button" id="recenter" aria-label="Şehrin tamamını göster" title="Şehrin tamamını göster"></button></div>
       <div class="city-viewport">
-      <div id="city-stage" class="city-stage" aria-label="Yıldız Hisarı. Binalara dokunarak geliştir, haritayı sürükleyerek gez.">
+      <div id="city-stage" class="city-stage" aria-label="Yıldız Köyü. Binalara dokunarak geliştir, haritayı sürükleyerek gez.">
         <div id="city-scene" class="city-scene">
           <img class="city-backdrop" src="assets/city-backdrop.webp" alt="">
           <div id="city-labels" class="city-labels" aria-label="Şehirdeki binalar"></div>
@@ -43,11 +47,18 @@
     <aside class="inspector" id="inspector" aria-label="Kale yönetimi"></aside>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="rotate-lock" role="status">
+    <div class="rotate-card">
+      <span class="rotate-phone" aria-hidden="true"></span>
+      <strong>Telefonu yatay çevir</strong>
+      <p>Köy manzarası yatay ekranda oynanır.</p>
+    </div>
+  </div>
   <dialog id="building-dialog" aria-labelledby="building-title"><div id="building-content"></div></dialog>
   <dialog id="battle-dialog" aria-labelledby="battle-title"><div id="battle-content"></div></dialog>
   <script>
     if (location.protocol === 'file:') {
-      document.body.innerHTML = '<main style="max-width:560px;margin:15vh auto;padding:28px;font-family:system-ui"><h1>Starfort</h1><p>Oyunu yerel önizleme adresinden aç.</p><a style="display:inline-block;padding:14px 22px;background:#d3b986;color:#151d29" href="http://127.0.0.1:8767/starfort/">Yıldız Hisarı’na gir →</a><p style="color:#a0aab2">Sunucu kapalıysa proje klasöründe çalıştır:<br><code>python3 -m http.server 8767 --bind 127.0.0.1</code></p></main>';
+      document.body.innerHTML = '<main style="max-width:560px;margin:15vh auto;padding:28px;font-family:system-ui"><h1>Starfort</h1><p>Oyunu yerel önizleme adresinden aç.</p><a style="display:inline-block;padding:14px 22px;background:#d3b986;color:#151d29" href="http://127.0.0.1:8767/starfort/">Yıldız Köyü’ne gir →</a><p style="color:#a0aab2">Sunucu kapalıysa proje klasöründe çalıştır:<br><code>python3 -m http.server 8767 --bind 127.0.0.1</code></p></main>';
     } else { const script = document.createElement('script'); script.type = 'module'; script.src = 'app.js'; document.body.append(script); }
   </script>
 </body>

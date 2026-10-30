@@ -745,3 +745,192 @@ dialog, #building-dialog, #battle-dialog {
   pointer-events:auto;
   z-index:2;
 }
+.city-stage { background:#070910; }
+
+.account { gap: 8px; }
+.player-meta { display: flex; flex-direction: column; line-height: 1.15; font-size: 12px; color: #f6efe2; }
+.power-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid #e2b14a;
+  background: linear-gradient(180deg, #3a2814, #140e0a);
+  color: #ffe7a8;
+  font: 800 11px/1.2 var(--sans);
+  box-shadow: inset 0 1px 0 #f8e2a8, 0 1px 0 #5a3c12;
+  white-space: nowrap;
+}
+.resource { position: relative; gap: 6px; padding-right: 8px; border-radius: 14px; }
+.res-plus {
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  padding: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe7a8, #e2b14a 46%, #8a5a16);
+  color: #3a2408;
+  font: 800 14px/16px var(--sans);
+  box-shadow: inset 0 1px 0 #fff1c4, 0 1px 0 #5a3c12;
+  flex: none;
+}
+
+.rotate-lock { display: none; }
+.rotate-card {
+  width: min(320px, calc(100% - 48px));
+  padding: 28px 22px 24px;
+  text-align: center;
+  color: #f6efe2;
+  background: linear-gradient(180deg, #1a140e, #0c1018);
+  border: 2px solid #e2b14a;
+  box-shadow: inset 0 1px 0 #f8e2a8, 0 16px 40px #000c;
+}
+.rotate-card strong { display: block; font: 22px/1.2 var(--serif, Georgia, serif); color: #f3d48a; }
+.rotate-card p { margin: 8px 0 0; color: #cbbfa6; font-size: 13px; }
+.rotate-phone {
+  display: block;
+  width: 42px;
+  height: 68px;
+  margin: 0 auto 16px;
+  border: 2px solid #f0d48a;
+  border-radius: 6px;
+  position: relative;
+  transform: rotate(90deg);
+  box-shadow: 0 0 0 6px #e2b14a22;
+}
+.rotate-phone:before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 10px;
+  height: 2px;
+  transform: translateX(-50%);
+  background: #f0d48a;
+  border-radius: 2px;
+}
+
+@media (orientation: portrait) and (max-width: 700px) {
+  .rotate-lock {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    align-items: center;
+    justify-content: center;
+    background:
+      linear-gradient(180deg, #070910e6, #070910f2),
+      url("assets/city-backdrop.webp") center 40% / cover no-repeat;
+  }
+}
+
+/* Phones are played sideways: a short wide stage, HUD on top, nav along the bottom. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .app {
+    min-height: 0;
+    height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 48px minmax(0, 1fr) 46px;
+    overflow: hidden;
+    padding: 0;
+  }
+  .topbar {
+    grid-column: 1;
+    grid-row: 1;
+    height: 48px;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 4px 8px;
+    gap: 8px;
+  }
+  .brand { display: none; }
+  .account { order: 0; margin: 0; flex: none; }
+  .account .avatar-mark { display: block; width: 36px; height: 36px; }
+  .player-meta { display: none; }
+  .power-chip { font-size: 10px; padding: 2px 6px; }
+  .resources {
+    order: 1;
+    flex: 1 1 auto;
+    flex-basis: auto;
+    margin-left: auto;
+    justify-content: flex-end;
+    gap: 4px;
+    min-width: 0;
+  }
+  .resource {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 148px;
+    padding: 2px 4px 2px 6px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+  .resource small { display: none; }
+  .resource b { font-size: 12px; }
+  .resource svg { width: 14px; height: 14px; }
+  .res-plus { width: 16px; height: 16px; font-size: 12px; line-height: 14px; }
+  .rail {
+    position: relative;
+    grid-row: 3;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: 46px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    gap: 2px;
+    padding: 2px 6px;
+    border: 0;
+    border-top: 1px solid #6e5a34;
+  }
+  .rail-foot { display: none; }
+  .nav-item {
+    flex: 1 1 0;
+    width: auto;
+    max-width: none;
+    height: 42px;
+    gap: 0;
+  }
+  .nav-item svg { width: 14px; height: 14px; padding: 5px; }
+  .nav-item span { font-size: 8px; line-height: 1.1; }
+  .nav-dot { top: 2px; right: 18%; }
+  .app.panel-open { grid-template-columns: minmax(0, 1fr); }
+  .world, .app.panel-open .world {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: auto;
+    min-height: 0;
+    min-width: 0;
+    width: auto;
+    flex: none;
+  }
+  .workspace { inset: 0; width: auto; overflow: auto; }
+  .hero-grid { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+  .hero-portrait { height: 88px; }
+  .hero-card p, .workspace header p, .team-editor p { display: none; }
+  .team-editor { margin-bottom: 8px; padding: 6px 8px; }
+  .formation { margin-bottom: 8px; }
+  .world:before, .world-heading, .world-help, .building-picker, .next-quest, .world-caption { display: none; }
+  .city-viewport { inset: 0; }
+  .city-collect {
+    left: 8px;
+    right: auto;
+    top: auto;
+    bottom: 8px;
+    max-width: 210px;
+    padding: 6px 8px;
+  }
+  .city-controls { top: 8px; right: 8px; }
+  .city-controls button { min-width: 30px; min-height: 28px; font-size: 16px; }
+  .inspector { display: none; }
+  .workspace { padding: 12px 14px 16px; }
+  .workspace header h2 { font-size: 22px; margin: 2px 0; }
+  .workspace header { margin-bottom: 10px; }
+  .toast { bottom: 56px; }
+  .city-label { font-size: 11px; min-height: 22px; }
+  .city-label-level { min-width: 18px; height: 18px; line-height: 18px; font-size: 11px; }
+}
