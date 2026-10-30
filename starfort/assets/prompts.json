@@ -78,12 +78,12 @@
     },
     {
       "id": "city-backdrop",
-      "prompt": "Original Starfort city plate. Wide gloomy gothic fortress panorama along a black canal, not an island. Storm twilight, blood-orange horizon, mist, falling star, torchlit quay with seven empty flagstone pads. Venetian pointed arches and gilded tracery on heavy dark stone. No text or people.",
+      "prompt": "Original Starfort town plate. High-angle terraced hillside town filling the frame, curtain wall, roads, plazas, small houses, mountains, dusk. Seven pale lots recolored to cobble. No text or people.",
       "file": "city-backdrop.webp"
     },
     {
       "id": "city-buildings",
-      "prompt": "Original Starfort building sprites, three tiers a/b/c for keep, farm, lumber, quarry, forge, tavern, observatory. Gloomy majestic gothic stone with pointed arches, torchlight and restrained gilding, isolated on flat magenta and cut out. Tier c is the landmark spire version. No floating rings, no text.",
+      "prompt": "Original Starfort isometric building sprites, tiers a/b/c. High three-quarter view matching the hillside town, each already grand at tier a, with its own terrace, steps and contact shadow, cut from magenta. Tier c grows upward. No text.",
       "file": "buildings/*.webp"
     }
   ]

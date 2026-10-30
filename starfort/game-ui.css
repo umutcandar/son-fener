@@ -735,7 +735,7 @@ dialog, #building-dialog, #battle-dialog {
 .city-sprite {
   position:absolute; padding:0; margin:0; border:0; background:transparent;
   transform:translate(-50%, -100%);
-  filter:drop-shadow(0 10px 6px rgba(0,0,0,.5));
+  filter:none;
 }
 .city-sprite img { width:100%; height:auto; display:block; pointer-events:none; }
 .city-sprite.is-selected { filter:drop-shadow(0 0 10px rgba(240,212,138,.9)) drop-shadow(0 12px 8px rgba(0,0,0,.55)); }

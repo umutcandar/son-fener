@@ -1,13 +1,13 @@
-// Painted city. Presentation only: building ids and levels still come from the save.
-// Bases sit on the quay pads of the wide gothic panorama.
+// Painted hillside town. Spots are the empty terraces on the backdrop.
+// y is the front edge of each lot; higher on the hill paints behind.
 export const CITY_SPOTS = {
-  farm: { x: 9, y: 86, w: 12 },
-  lumber: { x: 23, y: 86, w: 12 },
-  forge: { x: 37, y: 85, w: 12 },
-  tavern: { x: 51, y: 86, w: 11 },
-  quarry: { x: 64, y: 85, w: 12 },
-  observatory: { x: 78, y: 84, w: 12 },
-  keep: { x: 91, y: 83, w: 15 },
+  keep: { x: 62.0, y: 34.2, w: 10 },
+  forge: { x: 37.4, y: 50.2, w: 11 },
+  observatory: { x: 69.6, y: 51.4, w: 12 },
+  farm: { x: 12.2, y: 71.4, w: 15 },
+  lumber: { x: 31.0, y: 76.0, w: 14 },
+  quarry: { x: 80.2, y: 78.0, w: 13.5 },
+  tavern: { x: 54.4, y: 79.4, w: 14 },
 };
 
 const tierOf = level => (level <= 2 ? 'a' : level <= 5 ? 'b' : 'c');
@@ -28,6 +28,7 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     button.style.left = `${spot.x}%`;
     button.style.top = `${spot.y}%`;
     button.style.width = `${spot.w}%`;
+    button.style.zIndex = String(20 + Math.round(spot.y));
     const label = document.createElement('span');
     label.className = 'city-label';
     label.innerHTML = '<span class="city-label-level"></span><span class="city-label-name"></span>';
@@ -68,20 +69,16 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     const rect = stage.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) return;
     const aspect = 16 / 9;
-    const short = rect.width > rect.height && rect.height < 520;
-    const minW = rect.width * (short ? 1.7 : 1.18);
-    let w = Math.max(rect.height * aspect, minW);
+    let w = rect.width;
     let h = w / aspect;
     if (h < rect.height) { h = rect.height; w = h * aspect; }
     scene.style.width = `${w}px`;
     scene.style.height = `${h}px`;
     if (reset) {
-      scale = short ? 0.78 : 1;
-      const sw = w * scale;
-      const sh = h * scale;
-      const focusY = short ? 0.7 : 0.64;
-      x = short ? -sw * 0.02 : rect.width * 0.5 - sw * 0.5;
-      y = rect.height * 0.56 - sh * focusY;
+      scale = 1;
+      x = (rect.width - w) / 2;
+      const short = rect.height < 520 && rect.width > rect.height;
+      y = short ? -h * 0.15 : rect.height * 0.5 - h * 0.56;
       clampPan();
       apply();
     }
@@ -93,6 +90,7 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
       const img = button.querySelector('img');
       if (img.getAttribute('src') !== src) img.src = src;
       button.classList.toggle('is-selected', id === selected);
+      button.style.zIndex = String((id === selected ? 40 : 0) + 20 + Math.round(CITY_SPOTS[id].y));
       button.setAttribute('aria-label', `${id} seviye ${level}`);
     }
   }
