@@ -25,7 +25,7 @@ export function openGuide(o){
  if(!document.getElementById('guideCss')){const s=document.createElement('style');s.id='guideCss';s.textContent=css;document.head.appendChild(s)}
  const root=document.createElement('div');root.id='guide';root.innerHTML=`<canvas></canvas>
   <div class="gtop"><div class="gtt"><b>🔦 ${tx('ui.gd_t')}</b><span>${tx('ui.gd_sub')}</span></div><button class="gx" aria-label="x">✕</button></div>
-  <div class="gst"><div>⚓ <i class="pip"></i><i class="pip"></i><i class="pip"></i></div><div>🪨 <i class="pip"></i><i class="pip"></i><i class="pip"></i></div><div>⏳ <b class="gtm">${TIME}</b></div></div>
+  <div class="gst"><div>🏘️ <i class="pip"></i><i class="pip"></i><i class="pip"></i></div><div>🪨 <i class="pip"></i><i class="pip"></i><i class="pip"></i></div><div>⏳ <b class="gtm">${TIME}</b></div></div>
   <div class="ghint" style="display:none">${tx('ui.gd_hint')}</div>`;
  document.body.appendChild(root);requestAnimationFrame(()=>root.classList.add('on'));
  const cv=root.querySelector('canvas'),x=cv.getContext('2d');const dpr=Math.min(2,devicePixelRatio||1);let W=0,H=0,cx=0,cy=0,R=0;

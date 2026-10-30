@@ -12,13 +12,13 @@ export const KINDS={
  fisher:{n:'Değirmen',ic:'🌾',req:1,res:'fish',perW:3,cost:{wood:25},d:'Çiftçiler herkesi doyurur.'},
  wood:{n:'Oduncu',ic:'🪓',req:1,res:'wood',perW:3.6,cost:{fish:20},d:'Oduncular kasaba ağaçlarından kereste keser.'},
  mine:{n:'Kristal Madeni',ic:'🔮',req:1,res:'crys',perW:1.6,cost:{wood:30,fish:10},d:'Madenciler Hisarı besleyen ışık kristalini çıkarır.'},
- yard:{n:'Talimhane',ic:'🎖️',req:2,cost:{wood:80,fish:40},d:'Ordu mızrakçısı eğitilir, araba donanımı yapılır. Araba ustaları eğitimi hızlandırır.',job:'Araba ustası'},
- pearl:{n:'İnci Çiftliği',ic:'🦪',req:1,res:'gems',perW:.012,cost:{wood:220,fish:160},only:'mercan',d:'Yalnızca Kızıl Tepe. Madenciler kayadan inci taşı çıkarır — inciler elmasa dönüşür.',job:'İnci dalgıcı'},
+ yard:{n:'Talimhane',ic:'🎖️',req:2,cost:{wood:80,fish:40},d:'Ordu askeri eğitilir, araba donanımı yapılır. Araba ustaları eğitimi hızlandırır.',job:'Araba ustası'},
+ pearl:{n:'Mücevher Ocağı',ic:'💎',req:1,res:'gems',perW:.012,cost:{wood:220,fish:160},only:'mercan',d:'Yalnızca Kızıl Tepe. Madenciler kayadan ham mücevher çıkarır — mücevherler elmasa dönüşür.',job:'Mücevher madencisi'},
  forge:{n:'Kor Ocağı',ic:'🌋',req:1,res:'crys',perW:3.4,cost:{wood:320,crys:90},only:'volkan',d:'Yalnızca Kül Kasabası. Lavdan kristal döker; her seviye orduya +%3 güç verir.',job:'Dökümcü'},
- lab:{n:'Gözlemevi',ic:'🔭',req:3,cost:{wood:150,crys:60},d:'Araştırma ağacı: ekonomi, hisar ve donanma.'},
+ lab:{n:'Gözlemevi',ic:'🔭',req:3,cost:{wood:150,crys:60},d:'Araştırma ağacı: ekonomi, hisar ve ordu.'},
  tower:{n:'Gözcü Kulesi',ic:'🏰',job:'Gözcü',req:4,cost:{wood:260,crys:90},d:'Haydut konvoylarını uzaktan görür. Her seviye ordu saldırısı +%3, konvoy ganimeti +%8.'},
 };
-export const JOB={fisher:'Çiftçi',wood:'Oduncu',mine:'Madenci',yard:'Araba ustası',pearl:'İnci dalgıcı',forge:'Dökümcü'};
+export const JOB={fisher:'Çiftçi',wood:'Oduncu',mine:'Madenci',yard:'Araba ustası',pearl:'Mücevher madencisi',forge:'Dökümcü'};
 export const FENER_MAX=7;
 // ---------- adalar ----------
 export const ISLANDS={
@@ -52,9 +52,9 @@ export const HEROES=[
  {id:'ela',n:'Ela Çark',ic:'⚙️',img:'ela',r:1,role:'Usta',p:42,sk:{n:'Hızlı Kızak',t:'train',v:.12,d:'Eğitim hızı'}},
  {id:'ali',n:'Hisarlı Ali',ic:'🏮',img:'ali',r:1,role:'Mızrakçı',p:40,sk:{n:'Hisar Işığı',t:'night',v:.10,d:'Duman Gecesi kristal ihtiyacı (azalma)'}},
  {id:'sisnur',n:'Duman Kraliçesi Nur',ic:'🌫️',img:'sisnur',r:3,season:1,role:'Duman Komutanı',p:125,sk:{n:'Duman Perdesi',t:'hp',v:.2,d:'Ordu dayanıklılığı'}},
- {id:'selin',n:'Kızıl Selin',ic:'⛰️',img:'selin',r:3,role:'Dalgıç Savaşçı',p:118,sk:{n:'Kızıl Damar',t:'crys',v:.18,d:'Kristal üretimi'}},
+ {id:'selin',n:'Kızıl Selin',ic:'⛰️',img:'selin',r:3,role:'Keşif Savaşçısı',p:118,sk:{n:'Kızıl Damar',t:'crys',v:.18,d:'Kristal üretimi'}},
  {id:'lale',n:'Fırtına Lale',ic:'🌩️',img:'lale',r:2,role:'Fırtınacı',p:70,sk:{n:'Fırtına Çağrısı',t:'atk',v:.1,d:'Ordu saldırısı'}},
- {id:'baris',n:'Enkazcı Barış',ic:'🪝',img:'baris',r:1,role:'Enkaz Avcısı',p:41,sk:{n:'Sağlam Kanca',t:'wood',v:.1,d:'Kereste üretimi'}}];
+ {id:'baris',n:'Enkazcı Barış',ic:'🪝',img:'baris',r:1,role:'Yıkıntı Avcısı',p:41,sk:{n:'Sağlam Kanca',t:'wood',v:.1,d:'Kereste üretimi'}}];
 export const NPC={n:'Topçubaşı Yusuf',img:'yusuf'};
 export const RARITY={3:{n:'Efsanevi',odds:5},2:{n:'Epik',odds:25},1:{n:'Nadir',odds:70}};
 export const PITY=40,PITY2=80;
@@ -69,18 +69,18 @@ export const TECH=[
  {id:'net',br:'Ekonomi',n:'Sağlam Ağlar',ic:'🕸️',d:'Tahıl ve kereste +15%/sv',max:5},
  {id:'cut',br:'Ekonomi',n:'Kristal Kesme',ic:'💠',d:'Kristal üretimi +15%/sv',max:5,req:{net:1}},
  {id:'store',br:'Ekonomi',n:'Geniş Ambar',ic:'📦',d:'Bina depolama +25%/sv',max:3,req:{net:2}},
- {id:'raft',br:'Ekonomi',n:'Sal Rotaları',ic:'🛶',d:'Sallar −10%/sv daha sık gelir',max:3,req:{cut:2}},
+ {id:'raft',br:'Ekonomi',n:'Göç Yolları',ic:'🐴',d:'Göçmen arabaları −10%/sv daha sık gelir',max:3,req:{cut:2}},
  {id:'offl',br:'Ekonomi',n:'Gece Vardiyası',ic:'🌙',d:'Çevrimdışı kazanç +10%/sv',max:3,req:{store:1}},
  {id:'lens',br:'Hisar',n:'Büyük Mercek',ic:'🔆',d:'Hisar tüketimi −10%/sv',max:5},
  {id:'ward',br:'Hisar',n:'Duman Kalkanı',ic:'🛡️',d:'Duman Gecesi kristal ihtiyacı −8%/sv',max:5,req:{lens:1}},
  {id:'beam',br:'Hisar',n:'Arındırıcı Hüzme',ic:'✨',d:'Dumandan arındırma −15%/sv',max:3,req:{lens:2}},
  {id:'build',br:'Hisar',n:'Hızlı İnşaat',ic:'🏗️',d:'Yükseltme süresi −8%/sv',max:5,req:{ward:1}},
  {id:'glow',br:'Hisar',n:'Parlak Gece',ic:'🌟',d:'Duman Gecesini püskürtünce +5💎/sv',max:3,req:{ward:3}},
- {id:'harp',br:'Donanma',n:'Çelik Tüfek',ic:'🎯',d:'Ordu saldırısı +10%/sv',max:5},
- {id:'hull',br:'Donanma',n:'Meşe Gövde',ic:'🪵',d:'Ordu dayanıklılığı +10%/sv',max:5,req:{harp:1}},
- {id:'drill',br:'Donanma',n:'Talim',ic:'🥁',d:'Eğitim süresi −10%/sv',max:3,req:{hull:1}},
- {id:'loot',br:'Donanma',n:'Ganimet Ağları',ic:'🪙',d:'Savaş ganimeti +10%/sv',max:3,req:{harp:2}},
- {id:'krak',br:'Donanma',n:'Zorba Avcısı',ic:'👹',d:'Zorba Avı hasarı +10%/sv',max:5,req:{hull:3}},
+ {id:'harp',br:'Ordu',n:'Çelik Tüfek',ic:'🎯',d:'Ordu saldırısı +10%/sv',max:5},
+ {id:'hull',br:'Ordu',n:'Meşe Kalkan',ic:'🪵',d:'Ordu dayanıklılığı +10%/sv',max:5,req:{harp:1}},
+ {id:'drill',br:'Ordu',n:'Talim',ic:'🥁',d:'Eğitim süresi −10%/sv',max:3,req:{hull:1}},
+ {id:'loot',br:'Ordu',n:'Ganimet Arabaları',ic:'🪙',d:'Savaş ganimeti +10%/sv',max:3,req:{harp:2}},
+ {id:'krak',br:'Ordu',n:'Zorba Avcısı',ic:'👹',d:'Zorba Avı hasarı +10%/sv',max:5,req:{hull:3}},
  {id:'tact',br:'Harp Akademisi',n:'Duman Taktikleri',ic:'🗺️',d:'Tüm savaşlarda saldırı +5%/sv',max:5,req:{harp:3}},
  {id:'bulw',br:'Harp Akademisi',n:'Demir Siper',ic:'🧱',d:'Tüm savaşlarda dayanıklılık +5%/sv',max:5,req:{hull:3}},
  {id:'quar',br:'Harp Akademisi',n:'Kışla Kuyruğu',ic:'📋',d:'Eğitim kuyruğuna +1 sıra/sv',max:2,req:{drill:1}},
@@ -154,7 +154,7 @@ export const QUESTS=[
  {c:2,go:'b:lab',t:'İlk araştırmayı bitir',f:techSum,n:1,r:{gems:40}},
  {c:2,go:'heroes',t:'Bir komutanı Sv5 yap',f:heroMaxLv,n:5,r:{crys:60}},
  {c:2,go:'fener',t:'Duman Gecesini 2 kez püskürt',f:S=>S.st.repel,n:2,r:{gems:30}},
- {c:2,go:'b:yard',t:'Toplam 50 mızrakçı eğit',f:S=>S.st.trained,n:50,r:{fish:200}},
+ {c:2,go:'b:yard',t:'Toplam 50 asker eğit',f:S=>S.st.trained,n:50,r:{fish:200}},
  {c:2,go:'map',t:'5 kasaba kurtar',f:S=>S.stage-1,n:5,r:{gems:50},say:'Ufukta bir atol görünüyor… pembe kumlu, sahipsiz.'},
  // 4
  {c:3,go:'islands',t:'Kızıl Tepe’yi sahiplen',f:S=>S.isl.mercan?.own?1:0,n:1,r:{gems:50}},
@@ -425,7 +425,7 @@ export function guideState(S,now){const d=dayIst(now);S.guide=S.guide||{d,n:0,t:
 // hits: limana yaklaştıran isabet (0..3), perf: tam huzme ortası isabet sayısı
 export const guideReward=(S,hits,perf)=>{const f=S.fener.lv,h=Math.max(0,Math.min(GUIDE_HITS,hits|0)),p=Math.max(0,Math.min(h,perf|0));
  if(h<GUIDE_HITS)return{fish:20+f*10};const r={fish:60+f*45,wood:60+f*45,crys:10+f*8+p*(4+f*2)};if(p>=GUIDE_HITS)r.gems=3;return r};
-export function claimGuide(S,hits,perf,now){const g=guideState(S,now);if(!g.ready)return{err:'Kayıp araba henüz görünmedi'};const z=S.guide,win=hits>=GUIDE_HITS;
+export function claimGuide(S,hits,perf,now){const g=guideState(S,now);if(!g.ready)return{err:'Kayıp kervan henüz görünmedi'};const z=S.guide,win=hits>=GUIDE_HITS;
  z.n++;z.t=now+GUIDE_CD;const rw=guideReward(S,hits,perf);addRes(S,rw);let surv=0;if(win){z.tot++;z.best=Math.max(z.best,perf|0);if(S.surv<cap(S)){S.surv++;surv=1}dailyInc(S,'collect',1,now)}return{win,rw,surv}}
 
 // ---------- Fener Görünümleri (sadece kozmetik, güç vermez) ----------
