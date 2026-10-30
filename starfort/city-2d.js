@@ -1,14 +1,15 @@
 // Painted hillside town. Spots are the empty terraces on the backdrop.
 // y is the front edge of each lot; higher on the hill paints behind.
 export const CITY_SPOTS = {
-  keep: { x: 62.0, y: 34.2, w: 10 },
-  forge: { x: 37.4, y: 50.2, w: 11 },
-  observatory: { x: 69.6, y: 51.4, w: 12 },
-  farm: { x: 12.2, y: 71.4, w: 15 },
-  lumber: { x: 31.0, y: 76.0, w: 14 },
-  quarry: { x: 80.2, y: 78.0, w: 13.5 },
-  tavern: { x: 54.4, y: 79.4, w: 14 },
+  keep: { x: 53.0, y: 31.4, w: 16 },
+  forge: { x: 39.2, y: 55.2, w: 12 },
+  observatory: { x: 75.4, y: 53.2, w: 12 },
+  farm: { x: 15.8, y: 66.0, w: 13.5 },
+  lumber: { x: 33.4, y: 72.2, w: 13.5 },
+  quarry: { x: 80.8, y: 70.0, w: 12.5 },
+  tavern: { x: 63.4, y: 73.2, w: 13.5 },
 };
+const SMOKE_IDS = new Set(['keep', 'forge', 'farm', 'lumber', 'tavern']);
 
 const tierOf = level => (level <= 2 ? 'a' : level <= 5 ? 'b' : 'c');
 
@@ -37,6 +38,12 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
     img.draggable = false;
     img.src = `assets/buildings/${id}-a.webp`;
     button.append(label, img);
+    if (SMOKE_IDS.has(id)) {
+      const smoke = document.createElement('i');
+      smoke.className = 'chimney-smoke';
+      smoke.setAttribute('aria-hidden', 'true');
+      button.append(smoke);
+    }
     sprites.append(button);
     buttons.set(id, button);
   }
@@ -78,7 +85,7 @@ export function createCity2D(stage, { onSelect = () => {} } = {}) {
       scale = 1;
       x = (rect.width - w) / 2;
       const short = rect.height < 520 && rect.width > rect.height;
-      y = short ? -h * 0.15 : rect.height * 0.5 - h * 0.56;
+      y = short ? -h * 0.08 : rect.height * 0.46 - h * 0.5;
       clampPan();
       apply();
     }

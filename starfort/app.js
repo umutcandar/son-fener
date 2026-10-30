@@ -84,11 +84,18 @@ function flyLoot(origin, gain) {
   }
 }
 function markRaised(id) {
-  if (!motionOK()) return;
-  const label = cityLabelNodes.get(id);
-  if (!label) return;
-  label.classList.add('just-raised');
-  setTimeout(() => label.classList.remove('just-raised'), 900);
+  const sprite = document.querySelector(`.city-sprite[data-building="${id}"]`);
+  if (!sprite || !motionOK()) return;
+  sprite.classList.add('is-raising');
+  for (let i = 0; i < 5; i++) {
+    const spark = document.createElement('i');
+    spark.className = 'raise-spark';
+    spark.style.left = `${18 + i * 14}%`;
+    spark.style.animationDelay = `${i * 80}ms`;
+    sprite.append(spark);
+    spark.addEventListener('animationend', () => spark.remove());
+  }
+  setTimeout(() => sprite.classList.remove('is-raising'), 1400);
 }
 function result(action, success) { if (!action.ok) { notify(action.error); return false; } if (success) notify(success); persist(); render(); return true; }
 function renderResources() {
@@ -121,7 +128,7 @@ function renderPicker() {
       cityLabelNodes.set(building.id, label);
     }
     const spot = CITY_SPOTS[building.id];
-    if (spot) { label.closest('.city-sprite').style.zIndex = selectedBuilding === building.id ? '3' : '1'; }
+    if (spot) label.closest('.city-sprite').style.zIndex = String((selectedBuilding === building.id ? 40 : 0) + 20 + Math.round(spot.y));
     label.querySelector('.city-label-level').textContent = state.buildings[building.id];
     label.querySelector('.city-label-name').textContent = building.name.replace('Karaorman ', '').replace('Yıldız Rasathanesi', 'Rasathane').replace('Kor ', '');
     label.classList.toggle('selected', selectedBuilding === building.id);
@@ -131,8 +138,28 @@ function renderPicker() {
 function renderCityProduction() {
   const gain = R.production(state);
   const total = Object.values(gain).reduce((sum, n) => sum+n, 0);
-  $('#city-production').textContent = total ? Object.entries(gain).filter(([,n])=>n).map(([id,n])=>`${number(n)} ${resourceName[id]}`).join(' · ') : 'Kaynaklar birikiyor';
-  $('.city-collect').classList.toggle('ready', total > 0);
+  const summary = $('#city-production');
+  if (summary) summary.textContent = total ? Object.entries(gain).filter(([,n])=>n).map(([id,n])=>`${number(n)} ${resourceName[id]}`).join(' · ') : 'Kaynaklar birikiyor';
+  $('.city-collect')?.classList.toggle('ready', total > 0);
+  for (const building of R.BUILDINGS) {
+    const sprite = document.querySelector(`.city-sprite[data-building="${building.id}"]`);
+    if (!sprite) continue;
+    const amount = building.production ? gain[building.production.resource] : 0;
+    let bubble = sprite.querySelector('.town-bubble');
+    if (amount > 0) {
+      if (!bubble) {
+        bubble = document.createElement('button');
+        bubble.type = 'button';
+        bubble.className = 'town-bubble';
+        bubble.setAttribute('data-collect', '');
+        bubble.innerHTML = '<span></span>';
+        sprite.append(bubble);
+      }
+      bubble.hidden = false;
+      bubble.querySelector('span').textContent = `+${number(amount)}`;
+      bubble.setAttribute('aria-label', `${building.name} üretimini topla`);
+    } else if (bubble) bubble.hidden = true;
+  }
 }
 function costHtml(cost, reward = false) {
   return Object.entries(cost || {}).map(([id, amount]) => `<span class="cost ${!reward && state.res[id] < amount ? 'short' : ''}" title="${resourceName[id]}">${svg(resourceIcon[id])}${reward ? '+' : ''}${number(amount)}</span>`).join('');
@@ -197,8 +224,8 @@ function renderInspector() {
 function renderQuest() {
   const active = state.battle?.status === 'active';
   const stage = active ? R.STAGES[state.battle.stageId - 1] : R.STAGES[state.cleared.length];
-  if (!stage) { questEl.innerHTML = '<div class="quest-seal">✦</div><div class="quest-copy"><small>KUZEY SINIRI KURTARILDI</small><h3>Yemin yerine getirildi</h3><p>Sekiz bölge temizlendi. Seferleri yeniden oynayabilirsin.</p></div><button class="primary" data-action="open-expedition">Seferler</button>'; return; }
-  questEl.innerHTML = `<div class="quest-seal">${svg('expedition')}</div><div class="quest-copy"><small>${active ? 'DEVAM EDEN SAVAŞ' : 'SIRADAKİ SEFER'}</small><h3>${stage.name}</h3><p>${active ? 'Savaş sürüyor; yeminlilerini yönet.' : `${stage.description} · Önerilen güç ${stage.recommendedPower}`}</p></div><button class="primary" data-action="${active ? 'resume-battle' : 'open-expedition'}">${active ? 'Savaşa dön' : 'Seferi aç'} ${svg('expedition')}</button>`;
+  if (!stage) { questEl.innerHTML = `<button class="goal-chip" data-action="open-expedition"><small>SINIR TAMAM</small><b>Seferleri yeniden aç</b></button>`; return; }
+  questEl.innerHTML = `<button class="goal-chip" data-action="${active ? 'resume-battle' : 'open-expedition'}"><small>${active ? 'SAVAŞ SÜRÜYOR' : 'SIRADAKİ'}</small><b>${stage.name}</b><span>${active ? 'Savaşa dön' : 'Seferi aç'}</span></button>`;
 }
 function renderHeroes() {
   const chosen = state.team.map(id => R.HEROES.find(hero => hero.id === id));
@@ -397,7 +424,15 @@ function dispatch(action) {
   if(button.dataset.unequip) { result(R.unequipItem(state,selectedArmoryHero,button.dataset.unequip),'Ekipman çantaya alındı.'); return; }
   if(button.dataset.trial) { if(state.battle?.status==='active') return notify('Önce devam eden savaşı tamamla.'); trialState=R.createHeroTrial(state,button.dataset.trial); renderBattle(); combatRunner.resume(); renderBattle(); return; }
   if (button.dataset.view) { activeView = button.dataset.view; render(); return; }
-  if (button.dataset.building) { openBuilding(button.dataset.building); return; }
+  if (button.dataset.building) {
+    if (button.classList.contains('city-sprite') && motionOK()) {
+      button.classList.remove('is-tapped');
+      void button.offsetWidth;
+      button.classList.add('is-tapped');
+    }
+    openBuilding(button.dataset.building);
+    return;
+  }
   if (button.hasAttribute('data-close-building')) { $('#building-dialog').close(); return; }
   if (button.dataset.upgradeBuilding) {
     selectedBuilding = button.dataset.upgradeBuilding;
