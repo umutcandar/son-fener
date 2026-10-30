@@ -440,3 +440,10 @@ export const SKINS=[
 ];
 export const skinOf=S=>SKINS.find(x=>x.id===S.skin&&x.f(S)>=x.n)||SKINS[0];
 export function setSkin(S,id){const k=SKINS.find(x=>x.id===id);if(!k)return'Yok';if(k.f(S)<k.n)return'Kilitli';S.skin=id;return null}
+
+// Saldırı öncesi tahmini güç (keşif + seçilen birlik). a: benim dizilim, b: keşfedilen düşman, beat: tip→yendiği tip, tier: birlik kademesi.
+export function warPow(a,b,beat,tier,types){let p=0;const tot=types.reduce((x,k)=>x+(+(b[k]||0)),0)||1;for(const t of types){const n=+(a[t]||0),bt=+(b[beat[t]]||0);p+=n*(1+.3*((+(tier||{})[t]||1)-1))*(1+.25*bt/tot)}return Math.round(p)}
+export function warOdds(me,en,beat,tier,types){const etot=types.reduce((x,k)=>x+(+(en[k]||0)),0),mtot=types.reduce((x,k)=>x+(+(me[k]||0)),0);
+ const big=types.slice().sort((x,y)=>(+(en[y]||0))-(+(en[x]||0)))[0],ctr=types.find(t=>beat[t]===big);
+ const m=warPow(me,en,beat,tier,types),e=warPow(en,me,beat,tier,types),q=m/Math.max(1,e);
+ const v=mtot<1?'lo':etot<1?'hi':q>=1.3?'hi':q>=.9?'mid':'lo';return {me:m,en:e,v,empty:etot<1,big,ctr}}

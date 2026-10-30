@@ -1888,5 +1888,6 @@
  "o.w_odds": "Kekuatan ~{0} vs ~{1}",
  "o.w_odds_hi": "Kamu lebih kuat",
  "o.w_odds_mid": "Seimbang",
- "o.w_odds_lo": "Berisiko — perkuat dulu"
+ "o.w_odds_lo": "Berisiko — perkuat dulu",
+ "o.w_hint_empty": "Tidak ada pasukan bertahan — target mudah."
 }

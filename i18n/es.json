@@ -1888,5 +1888,6 @@
  "o.w_odds": "Poder ~{0} vs ~{1}",
  "o.w_odds_hi": "Eres más fuerte",
  "o.w_odds_mid": "Pelea pareja",
- "o.w_odds_lo": "Arriesgado: fortalécete antes"
+ "o.w_odds_lo": "Arriesgado: fortalécete antes",
+ "o.w_hint_empty": "No se ven defensores: objetivo fácil."
 }

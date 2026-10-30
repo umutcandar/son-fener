@@ -1888,5 +1888,6 @@
  "o.w_odds": "Power ~{0} vs ~{1}",
  "o.w_odds_hi": "You're stronger",
  "o.w_odds_mid": "Even fight",
- "o.w_odds_lo": "Risky — grow first"
+ "o.w_odds_lo": "Risky — grow first",
+ "o.w_hint_empty": "No defenders spotted — easy target."
 }
