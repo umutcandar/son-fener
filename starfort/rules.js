@@ -35,15 +35,49 @@ export const SPECIAL_HEROES = [
 ];
 export const ALL_HEROES = [...HEROES,...SPECIAL_HEROES];
 export const STAGES = [
-  { id: 1, name: 'Kül Geçidi', description: 'Kaleye yaklaşan ilk akıncıları durdur.', enemyName: 'Kül Akıncısı', enemyCount: 3, recommendedPower: 250, reward: { gold: 120, wood: 60, stone: 35, aether: 12 } },
-  { id: 2, name: 'Kırık Şapel', description: 'Mira’yı gölge kuşatmasından kurtar.', enemyName: 'Gölge Müridi', enemyCount: 3, recommendedPower: 310, reward: { gold: 160, wood: 70, stone: 50, aether: 18 } },
-  { id: 3, name: 'Karaorman', description: 'Yıldız yolunu kapatan avcıları yen.', enemyName: 'Diken Avcısı', enemyCount: 4, recommendedPower: 380, reward: { gold: 190, wood: 100, stone: 65, aether: 22 } },
-  { id: 4, name: 'Demir Kapı', description: 'Doran’ın son direnişine yetiş.', enemyName: 'Demir Lejyoner', enemyCount: 4, recommendedPower: 450, reward: { gold: 230, wood: 110, stone: 90, aether: 28 } },
-  { id: 5, name: 'Sessiz Mahzen', description: 'Uyandırılan ölülerin yürüyüşünü kes.', enemyName: 'Mahzen Bekçisi', enemyCount: 4, recommendedPower: 540, reward: { gold: 280, wood: 130, stone: 110, aether: 35 } },
-  { id: 6, name: 'Ayaz Surları', description: 'Kuzeyin donmuş kalesine ulaş.', enemyName: 'Ayaz Şövalyesi', enemyCount: 5, recommendedPower: 650, reward: { gold: 330, wood: 150, stone: 135, aether: 42 } },
-  { id: 7, name: 'Tutulma Kulesi', description: 'Tutulmayı besleyen muhafızları dağıt.', enemyName: 'Tutulma Muhafızı', enemyCount: 5, recommendedPower: 780, reward: { gold: 400, wood: 180, stone: 160, aether: 50 } },
-  { id: 8, name: 'Yıldızsız Taht', description: 'Karanlığın kalbindeki son yemini boz.', enemyName: 'Boşluk Şövalyesi', enemyCount: 5, recommendedPower: 920, reward: { gold: 500, wood: 220, stone: 200, aether: 65 } },
+  { id: 1, chapter: 1, name: 'Kül Geçidi', description: 'Kaleye yaklaşan ilk akıncıları durdur.', enemyName: 'Kül Akıncısı', enemyCount: 3, recommendedPower: 250, reward: { gold: 120, wood: 60, stone: 35, aether: 12 } },
+  { id: 2, chapter: 1, name: 'Kırık Şapel', description: 'Mira’yı gölge kuşatmasından kurtar.', enemyName: 'Gölge Müridi', enemyCount: 3, recommendedPower: 310, reward: { gold: 160, wood: 70, stone: 50, aether: 18 } },
+  { id: 3, chapter: 1, name: 'Karaorman', description: 'Yıldız yolunu kapatan avcıları yen.', enemyName: 'Diken Avcısı', enemyCount: 4, recommendedPower: 380, reward: { gold: 190, wood: 100, stone: 65, aether: 22 } },
+  { id: 4, chapter: 1, name: 'Demir Kapı', description: 'Doran’ın son direnişine yetiş.', enemyName: 'Demir Lejyoner', enemyCount: 4, recommendedPower: 450, reward: { gold: 230, wood: 110, stone: 90, aether: 28 } },
+  { id: 5, chapter: 1, name: 'Sessiz Mahzen', description: 'Uyandırılan ölülerin yürüyüşünü kes.', enemyName: 'Mahzen Bekçisi', enemyCount: 4, recommendedPower: 540, reward: { gold: 280, wood: 130, stone: 110, aether: 35 } },
+  { id: 6, chapter: 1, name: 'Ayaz Surları', description: 'Kuzeyin donmuş kalesine ulaş.', enemyName: 'Ayaz Şövalyesi', enemyCount: 5, recommendedPower: 650, reward: { gold: 330, wood: 150, stone: 135, aether: 42 } },
+  { id: 7, chapter: 1, name: 'Tutulma Kulesi', description: 'Tutulmayı besleyen muhafızları dağıt.', enemyName: 'Tutulma Muhafızı', enemyCount: 5, recommendedPower: 780, reward: { gold: 400, wood: 180, stone: 160, aether: 50 } },
+  { id: 8, chapter: 1, name: 'Yıldızsız Taht', description: 'Karanlığın kalbindeki son yemini boz.', enemyName: 'Boşluk Şövalyesi', enemyCount: 5, recommendedPower: 920, reward: { gold: 500, wood: 220, stone: 200, aether: 65 } },
+  ...laterStages(),
 ];
+function laterStages() {
+  const rows = [
+    [9, 'Kül Kalıntısı', 'Kül Artığı', 'elite', 'Tahttan kaçan seçkin artığı durdur.'],
+    [10, 'Kuzey Mührü', 'Mühür Bekçisi', 'boss', 'Kuzey kapısının son mührünü kır.'],
+    [11, 'Taç Yolu', 'Harabe Akıncısı', 'fight', 'Batı yolunu kesen ilk safları dağıt.'],
+    [12, 'Kırık Avlu', 'Avlu Nöbetçisi', 'fight', 'Çökmüş avludaki nöbeti boz.'],
+    [13, 'Çan Kulesi', 'Çan Müridi', 'fight', 'Çan kulesindeki büyücüleri sustur.'],
+    [14, 'Paslı Köprü', 'Köprü Akıncısı', 'fight', 'Köprüyü tutan safları yar.'],
+    [15, 'Seçkin Muhafız', 'Taç Seçkini', 'elite', 'Kırık tacın seçkinlerini durdur.'],
+    [16, 'Kör Şapel', 'Kör Rahip', 'fight', 'Işıksız şapelin ayinini kes.'],
+    [17, 'Zincir Avlusu', 'Zincirli', 'fight', 'Zincire vurulmuş safları boz.'],
+    [18, 'Kızıl Sundurma', 'Sundurma Nöbetçisi', 'fight', 'Sundurmadaki bekçileri indir.'],
+    [19, 'Taç Kapısı', 'Kapı Lejyoneri', 'fight', 'Taç kapısının önünü aç.'],
+    [20, 'Kırık Taç', 'Taçsı Hükümdar', 'boss', 'Kırık tacın sahibini tahtından indir.'],
+    [21, 'Kuyu Yokuşu', 'Kuyu Akıncısı', 'fight', 'Yıldız kuyusuna inen yokuşu temizle.'],
+    [22, 'İlk Halka', 'Halka Nöbetçisi', 'fight', 'Kuyunun ilk halkasını geç.'],
+    [23, 'Fısıltı Basamağı', 'Fısıltı Büyücüsü', 'fight', 'Basamaklardaki fısıltıyı kes.'],
+    [24, 'Cam Köprü', 'Cam Muhafız', 'fight', 'Cam köprüdeki safları dağıt.'],
+    [25, 'Kuyu Seçkinleri', 'Kuyu Seçkini', 'elite', 'Kuyunun seçkin nöbetini boz.'],
+    [26, 'Derin Sahanlık', 'Sahanlık Bekçisi', 'fight', 'Derindeki sahanlığı aç.'],
+    [27, 'Yankı Odası', 'Yankı Müridi', 'fight', 'Yankıyı büyüyle besleyenleri sustur.'],
+    [28, 'Son Halka', 'Halka Şövalyesi', 'fight', 'Son halkayı tutan şövalyeleri yen.'],
+    [29, 'Kuyu Eşiği', 'Eşik Bekçisi', 'fight', 'Eşiğin önündeki son safları yar.'],
+    [30, 'Yıldız Kuyusu', 'Kuyu Hükümdarı', 'boss', 'Kuyunun dibindeki yıldızsız iradeyi boz.'],
+  ];
+  return rows.map(([id, name, enemyName, rank, description]) => ({
+    id, chapter: id <= 10 ? 1 : id <= 20 ? 2 : 3, name, enemyName, description, rank,
+    enemyCount: rank === 'boss' ? 5 : 4,
+    recommendedPower: 980 + (id - 8) * 85,
+    reward: { gold: 520 + (id - 8) * 35, wood: 210 + (id - 8) * 16, stone: 190 + (id - 8) * 14, aether: 68 + (id - 8) * 3 },
+    victory: `${name} düştü. Yol bir basamak daha indi.`,
+  }));
+}
 
 const MAX_OFFLINE = 4 * 60 * 60 * 1000, MAX_RESOURCE = 1e9, MAX_HERO_LEVEL = 20, MAX_HERO_STARS = 5;
 export const OATHS = [
@@ -91,8 +125,15 @@ export function createState(now = Date.now()) {
     team: ['aldren', 'lyra', 'rovan'], cleared: [], selectedStage: 1,
     lastCollected: safeNow(now), battle: null, ...createGearState(),
     oaths: [], stars: {}, starChests: [], deeds: emptyDeeds(), daily: emptyDaily(safeNow(now)),
+    tower: { week: towerWeek(safeNow(now)), floor: 1, best: 0 },
   };
 }
+export const CAMPAIGN_CHAPTERS = [
+  { id: 1, name: 'Kül Yolu', land: 'Kuzey sınırı' },
+  { id: 2, name: 'Kırık Taç', land: 'Batı harabeleri' },
+  { id: 3, name: 'Yıldız Kuyusu', land: 'Güney uçurumu' },
+];
+export const towerWeek = now => Math.floor(safeNow(now) / (7 * 86400000));
 
 export function restoreState(raw, now = Date.now()) {
   const time = safeNow(now), state = createState(time);
@@ -129,6 +170,7 @@ export function restoreState(raw, now = Date.now()) {
     state.deeds = emptyDeeds();
     for (const key of Object.keys(state.deeds)) if (integer(saved.deeds?.[key], 0, 100000)) state.deeds[key] = saved.deeds[key];
     state.daily = restoreDaily(saved.daily, time);
+    state.tower = restoreTower(saved.tower, time);
     state.battle = restoreBattle(state, saved.battle);
   } catch { return createState(time); }
   return state;
@@ -331,6 +373,65 @@ export function claimStarChest(state, stageId) {
   award(state, reward);
   return { ok: true, reward };
 }
+function restoreTower(saved, now) {
+  const week = towerWeek(now);
+  const best = integer(saved?.best, 0, 500) ? saved.best : 0;
+  if (saved && integer(saved.week, 0, 1e9) && saved.week === week) {
+    return { week, floor: integer(saved.floor, 1, 500) ? saved.floor : 1, best };
+  }
+  return { week, floor: 1, best };
+}
+function towerEnemies(floor) {
+  const count = 3 + (floor % 5 === 0 ? 2 : floor % 3 === 0 ? 1 : 0);
+  const hp = Math.round(70 * 1.12 ** (floor - 1));
+  const attack = Math.round(11 * 1.08 ** (floor - 1));
+  return Array.from({ length: count }, (_, index) => {
+    const role = floor % 10 === 0 && index === 0 ? 'boss' : floor % 5 === 0 && index === 0 ? 'elite' : index % 2 ? 'caster' : 'raider';
+    const scaledHp = Math.round(hp * (role === 'boss' ? 1.65 : role === 'elite' ? 1.4 : role === 'caster' ? 0.8 : 1));
+    const scaledAttack = Math.round(attack * (role === 'boss' ? 1.15 : role === 'elite' ? 1.1 : role === 'caster' ? 0.85 : 1));
+    const name = role === 'boss' ? `Kule Efendisi ${floor}` : role === 'elite' ? `Kule Seçkini ${floor}` : `Kule Nöbetçisi ${index + 1}`;
+    return { id: `enemy-${index + 1}`, name, role, hp: scaledHp, maxHp: scaledHp, attack: scaledAttack };
+  });
+}
+export function towerReward(floor) {
+  return { gold: 30 + floor * 18, wood: 10 + floor * 6, aether: 2 + Math.floor(floor / 2) };
+}
+export function startTower(state, now = Date.now()) {
+  if (activeBattle(state)) return fail('Devam eden bir savaş var.');
+  if (!validTeam(state, state.team)) return fail('Üç kahramanlık takımını tamamla.');
+  const tower = restoreTower(state.tower, now);
+  state.tower = tower;
+  const battle = newBattle(state, STAGES[0]);
+  battle.towerFloor = tower.floor;
+  battle.enemies = towerEnemies(tower.floor);
+  battle.reward = towerReward(tower.floor);
+  battle.log = [`Yıldız Kulesi ${tower.floor}. kat: nöbetçiler hazır.`];
+  state.battle = battle;
+  return { ok: true, floor: tower.floor };
+}
+function finishTower(state, events) {
+  const battle = state.battle;
+  const won = battle.enemies.every(unit => unit.hp <= 0);
+  const lost = battle.allies.every(unit => unit.hp <= 0);
+  if (won) {
+    battle.status = 'won';
+    if (!battle.rewardApplied) {
+      award(state, battle.reward);
+      const tower = state.tower || { week: towerWeek(Date.now()), floor: battle.towerFloor, best: 0 };
+      tower.best = Math.max(tower.best || 0, battle.towerFloor);
+      tower.floor = battle.towerFloor + 1;
+      state.tower = tower;
+      battle.rewardApplied = true;
+      noteDeed(state, 'battle');
+      events.push(`Yıldız Kulesi ${battle.towerFloor}. kat düştü. Sıradaki kat açıldı.`);
+    }
+  } else if (lost) {
+    battle.status = 'lost';
+    battle.rewardApplied = true;
+    events.push('Kule bu hafta burada seni bekliyor. Kaynak kaybetmedin.');
+  }
+  return battle.status !== 'active';
+}
 
 export function teamPower(state) {
   return Math.round(state.team.reduce((sum, id) => {
@@ -347,6 +448,7 @@ function newBattle(state, stage, combatVersion=2) {
 }
 
 function restoreBattle(state, saved) {
+  if (saved?.towerFloor) return null;
   if (!saved || !integer(saved.stageId, 1, Math.min(STAGES.length, nextStage(state)))
     || !['active', 'won', 'lost'].includes(saved.status) || !integer(saved.round, 0, 100)) return null;
   // Existing in-progress battles retain the original enemies and attack rules.
@@ -426,6 +528,7 @@ function hit(target, amount) {
 
 function finishBattle(state, events) {
   const battle = state.battle;
+  if (battle.towerFloor) return finishTower(state, events);
   if (battle.enemies.every(unit => unit.hp <= 0)) {
     battle.status = 'won';
     if (!battle.rewardApplied) {
@@ -526,8 +629,8 @@ export function battleTurn(state, action) {
     for (const enemy of aliveEnemies()) {
       if (!aliveAllies().length) break;
       const intent=enemyIntent({...battle,round:battle.round-1},enemy);
-      if(action==='star' && intent.type==='crush') {
-        events.push(`${enemy.name}: Yıkım dalgası yıldız çağrısıyla bozuldu!`);
+      if(action==='star' && (intent.type==='crush' || intent.type==='cleave')) {
+        events.push(`${enemy.name}: ${intent.type==='cleave'?'Çift kılıç':'Yıkım dalgası'} yıldız çağrısıyla bozuldu!`);
         frame(enemy.id,'interrupt','Yıkım engellendi');
         continue;
       }

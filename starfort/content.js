@@ -1,4 +1,19 @@
 // World writing and encounter guidance, kept separate from the economy and save schema.
+export const CAMPAIGN = [
+  { id: 1, name: 'Kül Yolu', land: 'Kuzey sınırı', brief: 'Kül geçidinden yıldızsız tahta, sonra kuzey mührüne.' },
+  { id: 2, name: 'Kırık Taç', land: 'Batı harabeleri', brief: 'Çökmüş bir krallığın safları hâlâ bir taht bekliyor.' },
+  { id: 3, name: 'Yıldız Kuyusu', land: 'Güney uçurumu', brief: 'Kuyunun dibinde sönmeyi reddeden bir irade var.' },
+];
+export function storyFor(stage) {
+  const written = CHAPTERS[stage.id - 1];
+  if (written) return written;
+  return {
+    name: stage.name,
+    brief: stage.description,
+    tactic: stage.rank === 'boss' ? 'Hükümdar yıkım hazırlar. Yıldız çağrısı ya da kalkanla takımı koru.' : stage.rank === 'elite' ? 'Seçkin çift kılıç hazırlar. Yıldız çağrısı yarmayı bozar.' : 'Kahramanlar kendileri saldırır. Hazır yeteneği kritik anda kullan.',
+    victory: stage.victory || `${stage.name} sessizleşti. Yol bir basamak daha açıldı.`,
+  };
+}
 export const ROLES = { tank: 'Muhafız', mage: 'Büyücü', ranger: 'İzci', healer: 'Şifacı', fighter: 'Savaşçı', assassin: 'Suikastçı' };
 export const HERO_LORE = {
   aldren: 'Kül Gecesi’nde kuzey kapısını son ana kadar tutan muhafız. Kırılan kalkanındaki yıldız, terk etmediği yeminin izi.',

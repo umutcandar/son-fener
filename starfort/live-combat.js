@@ -11,7 +11,7 @@ export const HERO_ABILITIES = {
   nyxara: {name:'Tam Tutulma',type:'eclipse',description:'Tüm düşmanlara %160 hasar; verdiği toplam hasarın %20’si kadar kendini iyileştirir.',cooldown:7000},
 };
 const periods={aldren:3000,lyra:3200,rovan:2600,mira:3100,doran:2900,vesper:2400,eira:3200,aurelion:3000,nyxara:3100};
-const enemyPeriod=enemy=>enemy.role==='boss'?4200:enemy.role==='caster'?3900:3500;
+const enemyPeriod=enemy=>enemy.role==='boss'?4200:enemy.role==='elite'?4000:enemy.role==='caster'?3900:3500;
 const living=units=>units.filter(unit=>unit.hp>0);
 const clamp=(value,min,max,fallback)=>Number.isFinite(value)?Math.min(max,Math.max(min,value)):fallback;
 const fail=error=>({ok:false,error,events:[]});
@@ -44,7 +44,7 @@ export function restoreLiveCombat(battle,saved) {
     unit.stunnedUntil=clamp(source.stunnedUntil,0,t+1800,0);
     unit.markedUntil=clamp(source.markedUntil,0,t+6000,0);
     const cast=source.casting;
-    if(cast && ((cast.kind==='crush'&&enemy.role==='boss')||(cast.kind==='volley'&&enemy.role==='caster'))
+    if(cast && ((cast.kind==='crush'&&enemy.role==='boss')||(cast.kind==='cleave'&&enemy.role==='elite')||(cast.kind==='volley'&&enemy.role==='caster'))
       && Number.isFinite(cast.startedAt) && Number.isFinite(cast.endsAt) && cast.startedAt>=0
       && cast.startedAt<=t && cast.endsAt>=t && cast.endsAt<=t+2400) {
       unit.casting={kind:cast.kind,startedAt:cast.startedAt,endsAt:cast.endsAt};
@@ -63,7 +63,7 @@ export function liveEnemyIntent(battle,enemy) {
   const unit=battle.live?.enemies[enemy.id], t=battle.live?.elapsedMs||0;
   if(!unit) return {label:'Otomatik saldırı',danger:false};
   if(unit.stunnedUntil>t) return {label:'Sersemledi',danger:false,remaining:unit.stunnedUntil-t};
-  if(unit.casting) return {label:unit.casting.kind==='crush'?'Yıkım hazırlanıyor':'Gölge yağmuru',danger:true,remaining:Math.max(0,unit.casting.endsAt-t),progress:(t-unit.casting.startedAt)/(unit.casting.endsAt-unit.casting.startedAt)};
+  if(unit.casting) return {label:unit.casting.kind==='crush'?'Yıkım hazırlanıyor':unit.casting.kind==='cleave'?'Çift kılıç hazırlanıyor':'Gölge yağmuru',danger:true,remaining:Math.max(0,unit.casting.endsAt-t),progress:(t-unit.casting.startedAt)/(unit.casting.endsAt-unit.casting.startedAt)};
   return {label:enemy.role==='boss'?'Ağır kesiş':enemy.role==='caster'?'Gölge oku':'Ön safa saldırı',danger:false};
 }
 
@@ -168,18 +168,19 @@ function enemyAttack(battle,enemy) {
   const cast=unit.casting;
   if(!cast) {
     unit.attacks++;
-    const kind=enemy.role==='boss'&&unit.attacks%3===0?'crush':enemy.role==='caster'&&unit.attacks%2===0?'volley':null;
+    const kind=enemy.role==='boss'&&unit.attacks%3===0?'crush':enemy.role==='elite'&&unit.attacks%3===0?'cleave':enemy.role==='caster'&&unit.attacks%2===0?'volley':null;
     if(kind) {
-      const duration=kind==='crush'?2400:1500;
+      const duration=kind==='crush'?2400:kind==='cleave'?1800:1500;
       unit.casting={kind,startedAt:now,endsAt:now+duration}; unit.nextAt=now+duration;
-      return record(battle,enemy.id,'windup',`${enemy.name} · ${kind==='crush'?'Yıkım hazırlanıyor!':'Gölge yağmuru hazırlanıyor!'}`,()=>{});
+      return record(battle,enemy.id,'windup',`${enemy.name} · ${kind==='crush'?'Yıkım hazırlanıyor!':kind==='cleave'?'Çift kılıç hazırlanıyor!':'Gölge yağmuru hazırlanıyor!'}`,()=>{});
     }
   }
   unit.casting=null; unit.nextAt=now+enemyPeriod(enemy);
-  return record(battle,enemy.id,cast?.kind||'strike',`${enemy.name} · ${cast?.kind==='crush'?'Yıkım dalgası':cast?'Gölge yağmuru':'Saldırı'}`,()=>{
+  return record(battle,enemy.id,cast?.kind||'strike',`${enemy.name} · ${cast?.kind==='crush'?'Yıkım dalgası':cast?.kind==='cleave'?'Çift kılıç':cast?'Gölge yağmuru':'Saldırı'}`,()=>{
     const allies=living(battle.allies), tank=allies.find(hero=>hero.id==='aldren')||allies.find(hero=>hero.id==='aurelion');
     const targets=cast?allies:[tank||allies.sort((a,b)=>a.hp-b.hp)[0]];
-    targets.forEach(hero=>damageHero(battle,hero,enemy.attack*(cast?.kind==='crush'?1.3:cast?.kind==='volley'?.75:1)));
+    const ratio=cast?.kind==='crush'?1.3:cast?.kind==='cleave'?0.6:cast?.kind==='volley'?0.75:1;
+    targets.forEach(hero=>damageHero(battle,hero,enemy.attack*ratio));
   });
 }
 

@@ -1,6 +1,6 @@
 import * as R from './rules.js';
 import { createCity2D, CITY_SPOTS } from './city-2d.js';
-import { ROLES, HERO_LORE, CHAPTERS } from './content.js';
+import { ROLES, HERO_LORE, CAMPAIGN, storyFor } from './content.js';
 import { BUILDING_EVOLUTION } from './building-evolution.js';
 import { battleMarkup } from './battle-view.js';
 import { createBattleRunner } from './battle-runner.js';
@@ -33,6 +33,7 @@ const resourceName = { gold: 'Altın', wood: 'Kereste', stone: 'Taş', aether: '
 const navItems = [ ['keep', 'keep', 'Köy'], ['heroes', 'heroes', 'Kahramanlar'], ['expedition', 'expedition', 'Seferler'], ['armory', 'forge', 'Cephanelik'], ['shop', 'shop', 'Mağaza'], ['journal', 'journal', 'Kronik'] ];
 const sourceBuilding = { gold: 'farm', wood: 'lumber', stone: 'quarry', aether: 'observatory' };
 let state;
+let campaignChapter = 1;
 try { state = R.restoreState(localStorage.getItem(R.STORAGE_KEY)); } catch { state = R.createState(); }
 let battleSpeed=1, battleFxExpires=0;
 let activeView = 'keep', selectedBuilding = 'keep', toastTimer, scene, selectedSlot = 0, selectedArmoryHero = 'aldren', trialState = null;
@@ -259,22 +260,28 @@ function renderHeroes() {
 }
 
 function renderExpedition() {
-  const next = Math.min(state.cleared.length + 1, R.STAGES.length), currentStage = R.STAGES[next-1], chapter = CHAPTERS[next-1];
-  workspaceEl.innerHTML = `<header><div><span class="eyebrow">KUZEY SINIRI · BİRİNCİ BÖLÜM</span><h2>Küllerden doğan yol</h2><p>Köyün ışığını karanlığın unuttuğu topraklara taşı.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
-    <div class="campaign-hero"><div><span class="eyebrow">${String(next).padStart(2,'0')} / 08 · ${chapter.name}</span><h3>${currentStage.name}</h3><p>${chapter.brief}</p><span class="tactic">${chapter.tactic}</span></div></div>
-    <div class="progress-banner"><span>${state.cleared.length} / 8 bölge temizlendi</span><div class="progress-track"><span style="width:${state.cleared.length / 8 * 100}%"></span></div><span>Takım gücü ${number(R.teamPower(state))}</span></div>
-    <div class="stage-list">${R.STAGES.map(stage => {
-      const done = state.cleared.includes(stage.id), locked = stage.id > next, resume = state.battle?.status === 'active' && state.battle.stageId === stage.id;
+  const nextId = Math.min(state.cleared.length + 1, R.STAGES.length);
+  const nextStage = R.STAGES[nextId - 1];
+  if (!CAMPAIGN.some(chapter => chapter.id === campaignChapter)) campaignChapter = nextStage?.chapter || 1;
+  const chapter = CAMPAIGN[campaignChapter - 1];
+  const nodes = R.STAGES.filter(stage => stage.chapter === campaignChapter);
+  const focus = nodes.find(stage => stage.id === nextId) || nodes[0];
+  const tale = storyFor(focus);
+  workspaceEl.innerHTML = `<header><div><span class="eyebrow">${chapter.land.toUpperCase()}</span><h2>${chapter.name}</h2><p>${chapter.brief}</p></div><button class="secondary" data-close-view>Köye dön</button></header>
+    <div class="world-map"><img src="assets/world-map.webp" alt=""><div class="map-chapters">${CAMPAIGN.map(item => `<button class="${item.id === campaignChapter ? 'active' : ''}" data-chapter="${item.id}">${item.name}<small>${item.land}</small></button>`).join('')}</div><div class="map-nodes">${nodes.map(stage => {
+      const done = state.cleared.includes(stage.id), locked = stage.id > nextId, current = stage.id === nextId;
       const stars = state.stars[stage.id] || 0;
-      const chest = stars >= 3 && !state.starChests.includes(stage.id);
-      return `<article class="stage-card ${done ? 'done' : stage.id === next ? 'current' : 'locked'}"><div class="stage-number">${done ? '✓' : String(stage.id).padStart(2, '0')}</div><div><span class="eyebrow">${CHAPTERS[stage.id-1].name}</span><h3>${stage.name}</h3><p class="star-pips" aria-label="${stars} yıldız">${[1,2,3].map(n => `<i class="${n <= stars ? 'on' : ''}">✦</i>`).join('')}</p><p>${stage.description} · ${stage.enemyCount} düşman · Önerilen güç ${stage.recommendedPower}</p><div class="cost-list">${costHtml(stage.reward, true)}</div>${R.FIRST_CLEAR_LOOT[stage.id]?`<p class="loot-preview">${svg('forge')} İlk zafer: ${R.itemById(R.FIRST_CLEAR_LOOT[stage.id]).name}${done?' · Alındı':''}</p>`:''}${chest ? `<button class="secondary" data-star-chest="${stage.id}">Üç yıldız sandığı</button>` : ''}</div><button class="${done ? 'secondary' : 'primary'}" ${resume ? 'data-action="resume-battle"' : `data-stage="${stage.id}"`} ${locked || (state.battle?.status === 'active' && !resume) ? 'disabled' : ''}>${resume ? 'Savaşa dön' : done ? 'Yeniden oyna' : locked ? 'Kilitli' : 'Savaşa gir'}</button></article>`;
-    }).join('')}</div>`;
+      return `<button class="map-node ${stage.rank || 'fight'} ${done ? 'done' : ''} ${current ? 'current' : ''}" data-stage="${stage.id}" ${locked || (state.battle?.status === 'active' && state.battle.stageId !== stage.id) ? 'disabled' : ''}><b>${stage.id}</b><span>${stage.name}</span><i>${'✦'.repeat(stars)}</i></button>`;
+    }).join('')}</div></div>
+    <div class="progress-banner"><span>${state.cleared.length} / ${R.STAGES.length} bölge</span><div class="progress-track"><span style="width:${state.cleared.length / R.STAGES.length * 100}%"></span></div><span>Takım gücü ${number(R.teamPower(state))}</span></div>
+    <article class="stage-card current"><div class="stage-number">${String(focus.id).padStart(2,'0')}</div><div><span class="eyebrow">${focus.rank === 'boss' ? 'BÖLÜM SONU' : focus.rank === 'elite' ? 'SEÇKİN' : 'SEFER'}</span><h3>${focus.name}</h3><p>${tale.brief}</p><span class="tactic">${tale.tactic}</span><div class="cost-list">${costHtml(focus.reward, true)}</div></div><button class="primary" ${state.battle?.stageId === focus.id ? 'data-action="resume-battle"' : `data-stage="${focus.id}"`} ${focus.id > nextId || (state.battle?.status === 'active' && state.battle.stageId !== focus.id) ? 'disabled' : ''}>${state.battle?.stageId === focus.id ? 'Savaşa dön' : focus.id < nextId ? 'Yeniden oyna' : 'Savaşa gir'}</button></article>
+    <section class="tower-card"><div><span class="eyebrow">HAFTALIK</span><h3>Yıldız Kulesi</h3><p>Bu hafta ${state.tower.floor}. kat. Rekor ${state.tower.best}. Katlar her hafta sıfırlanır, rekor kalır.</p></div><button class="primary" data-start-tower ${state.battle?.status === 'active' ? 'disabled' : ''}>Kuleye gir</button></section>`;
 }
 
 function renderJournal() {
   workspaceEl.innerHTML = `<header><div><span class="eyebrow">KÖY ARŞİVİ</span><h2>Kül Gecesi kronikleri</h2><p>Kazandığın her sefer, kaybolmuş dünyanın bir parçasını geri getirir.</p></div><button class="secondary" data-close-view>Köye dön</button></header>
   <div class="journal-prologue"><span class="eyebrow">BAŞLANGIÇ</span><h3>Gökyüzü kırıldığında</h3><p>Yıldızlar düştüğünde krallar surlarını yükseltti. Sabah olmadı. Şimdi vadinin ortasında tek bir hisar parlıyor. İçindeki çekirdek, karanlığı uzakta tutuyor; her gece biraz daha zorlanarak.</p><p>Senin yeminin, bu ışığın sönmesine izin vermemek.</p></div>
-  <div class="journal-grid">${CHAPTERS.map((chapter,index) => `<article class="journal-card ${state.cleared.includes(index+1) ? 'done' : ''}"><span class="eyebrow">${String(index+1).padStart(2,'0')} · ${R.STAGES[index].name}</span><h3>${chapter.name}</h3><p>${state.cleared.includes(index+1) ? chapter.victory : 'Bu kayıt, bölge kurtarıldığında günlüğe eklenecek.'}</p><span class="level-badge">${state.cleared.includes(index+1) ? 'KAYDA GEÇTİ' : 'KEŞFEDİLMEDİ'}</span></article>`).join('')}</div>`;
+  <div class="journal-grid">${R.STAGES.map(stage => { const tale = storyFor(stage); const done = state.cleared.includes(stage.id); return `<article class="journal-card ${done ? 'done' : ''}"><span class="eyebrow">${String(stage.id).padStart(2,'0')} · ${CAMPAIGN[stage.chapter-1].name}</span><h3>${tale.name}</h3><p>${done ? tale.victory : 'Bu kayıt, bölge kurtarıldığında günlüğe eklenecek.'}</p><span class="level-badge">${done ? 'KAYDA GEÇTİ' : 'KEŞFEDİLMEDİ'}</span></article>`; }).join('')}</div>`;
 }
 
 function itemStats(item) {
@@ -493,6 +500,15 @@ function dispatch(action) {
   }
   if (button.dataset.action === 'open-expedition') { activeView = 'expedition'; render(); return; }
   if (button.dataset.action === 'resume-battle') { openBattle(); return; }
+  if (button.dataset.chapter) { campaignChapter = Number(button.dataset.chapter); activeView = 'expedition'; render(); return; }
+  if (button.hasAttribute('data-start-tower')) {
+    const started = R.startTower(state);
+    if (!started.ok) return notify(started.error);
+    R.prepareLiveBattle(state);
+    persist(); render(); renderBattle();
+    combatRunner.resume();
+    return;
+  }
   if (button.dataset.stage) { openBattle(button.dataset.stage); return; }
   if (button.dataset.closeView !== undefined) { activeView = 'keep'; render(); return; }
   if (button.dataset.closeBattle !== undefined) { closeBattle(); render(); return; }
