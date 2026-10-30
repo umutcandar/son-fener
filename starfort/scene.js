@@ -13,12 +13,35 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#91afbb');
-  scene.fog = new THREE.Fog('#91afbb', 57, 110);
   const camera = new THREE.OrthographicCamera(-16, 16, 12, -12, .1, 180);
   const target = new THREE.Vector3(...CITY_VIEW.target), goal = target.clone();
   const offset = new THREE.Vector3(...CITY_VIEW.offset), ray = new THREE.Raycaster(), pointer = new THREE.Vector2();
   const geometries = new Set(), materials = new Set(), textures = new Set(), geometryCache = new Map(), materialCache = new Map();
+  scene.background = paintSky();
+  scene.fog = new THREE.Fog('#7d8da0', 72, 168);
+  function paintSky() {
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+    const gtx = c.getContext('2d');
+    const sky = gtx.createLinearGradient(0, 0, 0, 512);
+    sky.addColorStop(0, '#070b14'); sky.addColorStop(.38, '#162234'); sky.addColorStop(.7, '#3e5168'); sky.addColorStop(1, '#7d8da0');
+    gtx.fillStyle = sky; gtx.fillRect(0, 0, 1024, 512);
+    const dust = gtx.createRadialGradient(150, 168, 8, 170, 190, 200);
+    dust.addColorStop(0, 'rgba(196, 122, 64, .22)'); dust.addColorStop(1, 'rgba(196, 122, 64, 0)');
+    gtx.fillStyle = dust; gtx.fillRect(0, 40, 420, 280);
+    const halo = gtx.createRadialGradient(786, 86, 8, 786, 86, 64);
+    halo.addColorStop(0, 'rgba(220, 230, 240, .2)'); halo.addColorStop(1, 'rgba(220, 230, 240, 0)');
+    gtx.fillStyle = halo; gtx.fillRect(700, 10, 180, 160);
+    gtx.fillStyle = '#e7eef8'; gtx.beginPath(); gtx.arc(786, 86, 20, 0, Math.PI * 2); gtx.fill();
+    gtx.fillStyle = '#121a2c'; gtx.beginPath(); gtx.arc(798, 78, 16, 0, Math.PI * 2); gtx.fill();
+    gtx.fillStyle = 'rgba(236, 232, 214, .92)';
+    for (const [x, y] of [[92, 40], [168, 88], [246, 34], [318, 76], [404, 28], [488, 96], [560, 42], [688, 30], [860, 52], [940, 96], [196, 124], [530, 118]]) gtx.fillRect(x, y, 2, 2);
+    gtx.fillStyle = '#f7f3e6'; gtx.fillRect(612, 46, 3, 3);
+    gtx.strokeStyle = 'rgba(186, 214, 232, .75)'; gtx.lineWidth = 1.4;
+    gtx.beginPath(); gtx.moveTo(628, 38); gtx.lineTo(548, 96); gtx.stroke();
+    gtx.fillStyle = 'rgba(214, 224, 232, .12)';
+    for (const [x, y, w, h] of [[240, 168, 150, 22], [520, 198, 200, 26], [760, 156, 120, 18]]) { gtx.beginPath(); gtx.ellipse(x, y, w, h, 0, 0, Math.PI * 2); gtx.fill(); }
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; textures.add(tex); return tex;
+  }
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const models = new Map(), levels = new Map(), worldAnimations = [];
   const palette = CITY_PALETTE;
@@ -62,8 +85,11 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
     const key = `${color}/${glow}`;
     if (!materialCache.has(key)) {
       const map = surfaceMaps.get(color);
-      const m = new THREE.MeshStandardMaterial({ color, map, bumpMap: map, bumpScale: map ? .065 : 0, roughness: .84, metalness: glow ? .22 : .08,
-        emissive: glow ? color : '#000000', emissiveIntensity: glow, flatShading: true });
+      const brass = color === palette.gold, water = color === palette.water;
+      const m = new THREE.MeshStandardMaterial({ color, map, bumpMap: map, bumpScale: map ? .08 : 0,
+        roughness: water ? .22 : brass ? .42 : glow ? .34 : .9,
+        metalness: water ? .58 : brass ? .48 : glow ? .2 : .02,
+        emissive: glow ? color : '#000000', emissiveIntensity: glow ? Math.min(glow, .7) : 0, flatShading: true });
       materials.add(m); materialCache.set(key, m);
     }
     return materialCache.get(key);
@@ -95,11 +121,13 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       pieces.forEach(m => m.removeFromParent()); group.add(merged);
     }
   }
-  const hemisphere = new THREE.HemisphereLight('#e0eced', '#6e785b', 1.7); scene.add(hemisphere);
-  const sun = new THREE.DirectionalLight('#ffe2b5', 2.5); sun.position.set(-16, 28, 14); sun.castShadow = true;
-  sun.shadow.mapSize.set(1536, 1536); Object.assign(sun.shadow.camera, { left: -19, right: 19, top: 19, bottom: -19, near: 1, far: 75 });
-  sun.shadow.bias = -.0005; sun.shadow.normalBias = .035; scene.add(sun);
-  const rim = new THREE.DirectionalLight('#a9d3df', .9); rim.position.set(10, 8, -12); scene.add(rim);
+  const hemisphere = new THREE.HemisphereLight('#9eb6d0', '#2e3428', .85); scene.add(hemisphere);
+  const sun = new THREE.DirectionalLight('#ffe0bf', 3.15); sun.position.set(-22, 24, 16); sun.castShadow = true;
+  const shadowPixels = Math.min(window.innerWidth || 1280, window.innerHeight || 800) < 760 ? 1024 : 1536;
+  sun.shadow.mapSize.set(shadowPixels, shadowPixels); Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 96 });
+  sun.shadow.bias = -.00045; sun.shadow.normalBias = .04; scene.add(sun);
+  const rim = new THREE.DirectionalLight('#8fb4d4', .48); rim.position.set(16, 12, -22); scene.add(rim);
+  const fill = new THREE.DirectionalLight('#d9c7a4', .38); fill.position.set(8, 14, 28); scene.add(fill);
 
   function torch(g, x, y, z, animations) {
     box(g, '#393640', [.08, .55, .08], [x, y + .25, z]);
@@ -148,7 +176,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
         windowPane(g, x, 1.5, 1.025, .64);
       }
       for (const x of [-1.18, 1.18]) {
-        box(g, '#613447', [.28, .82, .07], [x, 1.35, 1.23]);
+        box(g, '#8e2f36', [.28, .82, .07], [x, 1.35, 1.23]);
         part(g, 'crystal', palette.gold, [.13, .2, .04], [x, 1.4, 1.275]);
       }
       tower(g, 0, -.9, 3.5 + tier * .2, .63);
@@ -173,7 +201,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       for (let i = 0; i < 4; i++) { const b = box(sails, '#c9bfa6', [.13, .65, .045], [0, .34, 0]); b.rotation.z = i * Math.PI / 2; b.position.set(-Math.sin(b.rotation.z) * .34, Math.cos(b.rotation.z) * .34, 0); }
       animations.push({ type: 'mill', object: sails });
     } else if (id === 'lumber') {
-      house(g, -.15, -.25, 1.25, .8, .95, '#425746');
+      house(g, -.15, -.25, 1.25, .8, .95, '#5c4034');
       for (let i = 0; i < 7; i++) { const log = part(g, 'cylinder', i % 2 ? '#98734d' : '#765a40', [.23, 1.1, .23], [-.55 + (i % 4) * .28, .18 + Math.floor(i / 4) * .22, .73]); log.rotation.x = Math.PI / 2; }
       box(g, palette.wood, [.7, .1, .5], [1, .56, .1]); box(g, palette.wood, [.13, .55, .13], [1, .28, .1]);
       part(g, 'cylinder', '#a2aab0', [.52, .045, .52], [1, .69, .1]).rotation.x = Math.PI / 2;
@@ -186,7 +214,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       for (let i = 0; i < 3; i++) part(g, 'crystal', '#9ac6d7', [.17, .45, .17], [.55 + i * .18, .85, -.15 + i * .1], i, .15);
       torch(g, -.78, .1, .8, animations);
     } else if (id === 'forge') {
-      house(g, -.2, -.2, 1.45, .9, 1.1, '#4b4852');
+      house(g, -.2, -.2, 1.45, .9, 1.1, '#3f3a38');
       box(g, palette.dark, [.5, 1.85, .5], [.52, .96, -.43]); box(g, palette.edge, [.62, .16, .6], [.52, 1.9, -.43]);
       box(g, '#222a38', [.53, .53, .1], [-.15, .42, .4]);
       part(g, 'box', '#ff9856', [.38, .32, .12], [-.15, .38, .43], 0, .9);
@@ -194,7 +222,7 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
       part(g, 'pyramid', '#9298a2', [.35, .18, .28], [1.08, .63, .7]).rotation.z = -Math.PI / 2;
       torch(g, -.95, .1, .6, animations);
     } else if (id === 'tavern') {
-      house(g, 0, -.15, 1.65, 1.2, 1.15, '#6c3d50');
+      house(g, 0, -.15, 1.65, 1.2, 1.15, '#7a3040');
       box(g, palette.wood, [1.9, .12, .65], [0, .13, .68]);
       for (const x of [-.7, .7]) box(g, palette.wood, [.08, .86, .08], [x, .56, .88]);
       part(g, 'roof', '#96604f', [1.9, .35, .65], [0, .95, .72]);
@@ -223,15 +251,15 @@ export function createScene(canvas, { onSelect = () => {}, onProject = () => {} 
   glowGradient.addColorStop(0, '#fff'); glowGradient.addColorStop(.12, '#c2f2ff'); glowGradient.addColorStop(.4, '#69bcd455'); glowGradient.addColorStop(1, '#69bcd400');
   glowCtx.fillStyle = glowGradient; glowCtx.fillRect(0, 0, 64, 64);
   const glowMap = new THREE.CanvasTexture(glowCanvas); textures.add(glowMap);
-  const auraMaterial = new THREE.SpriteMaterial({ map: glowMap, color: '#7ce5ff', transparent: true, opacity: .7, blending: THREE.AdditiveBlending, depthWrite: false }); materials.add(auraMaterial);
+  const auraMaterial = new THREE.SpriteMaterial({ map: glowMap, color: '#d7eef4', transparent: true, opacity: .42, blending: THREE.AdditiveBlending, depthWrite: false }); materials.add(auraMaterial);
   const aura = new THREE.Sprite(auraMaterial); aura.position.set(locations.keep.x, locations.keep.y + 4.6, locations.keep.z); aura.scale.set(2.3, 2.3, 1); scene.add(aura);
-  const crystalLight = new THREE.PointLight('#72d5ff', 7, 8, 2); crystalLight.position.copy(aura.position); scene.add(crystalLight);
-  const moteGeo = new THREE.BufferGeometry(), motePositions = new Float32Array(70 * 3);
-  for (let i = 0; i < 70; i++) { motePositions[i*3] = (hash(i+400)-.5)*18; motePositions[i*3+1] = .8+hash(i+500)*6; motePositions[i*3+2] = (hash(i+600)-.5)*18; }
+  const crystalLight = new THREE.PointLight('#9fd7e4', 3.2, 8, 2); crystalLight.position.copy(aura.position); scene.add(crystalLight);
+  const moteGeo = new THREE.BufferGeometry(), motePositions = new Float32Array(22 * 3);
+  for (let i = 0; i < 22; i++) { motePositions[i*3] = (hash(i+400)-.5)*16; motePositions[i*3+1] = 4.2+hash(i+500)*4.5; motePositions[i*3+2] = (hash(i+600)-.5)*16; }
   moteGeo.setAttribute('position', new THREE.BufferAttribute(motePositions,3)); geometries.add(moteGeo);
-  const moteMat = new THREE.PointsMaterial({ map: glowMap, size: .12, color: '#c1dddc', transparent:true, opacity:.7, depthWrite:false, blending:THREE.AdditiveBlending }); materials.add(moteMat);
+  const moteMat = new THREE.PointsMaterial({ map: glowMap, size: .07, color: '#efe6d4', transparent:true, opacity:.4, depthWrite:false, blending:THREE.AdditiveBlending }); materials.add(moteMat);
   const motes = new THREE.Points(moteGeo,moteMat); scene.add(motes);
-  const selectionMaterial = new THREE.MeshBasicMaterial({ color: '#8ce8e4', transparent: true, opacity: .6, depthWrite: false }); materials.add(selectionMaterial);
+  const selectionMaterial = new THREE.MeshBasicMaterial({ color: '#e4c98a', transparent: true, opacity: .7, depthWrite: false }); materials.add(selectionMaterial);
   const selection = new THREE.Mesh(geometry('ring'), selectionMaterial); selection.rotation.x = -Math.PI / 2; selection.position.y = .18; scene.add(selection);
   function removeModel(g) { g.traverse(o => { if (o.geometry?.userData.starfortMerged) { o.geometry.dispose(); geometries.delete(o.geometry); } }); g.removeFromParent(); }
   function update(state) {

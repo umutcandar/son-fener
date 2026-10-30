@@ -1,0 +1,536 @@
+/* Chrome matched to the painted portraits: night navy, antique brass, claret, parchment.
+   Star-cyan is reserved for the core and astral magic. Hero paintings are not restyled. */
+
+:root {
+  --bg: #12161f;
+  --panel: #171d28;
+  --panel2: #222a38;
+  --line: #3c4656;
+  --text: #f3ead9;
+  --muted: #b3a898;
+  --gold: #d4b36a;
+  --brass: #c6a15a;
+  --brass-bright: #e6d3a1;
+  --claret: #8e2f36;
+  --claret-deep: #5c1c24;
+  --aqua: #9ec4cf;
+  --serif: Georgia, 'Palatino Linotype', Palatino, 'Times New Roman', serif;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body { background: var(--bg); color: var(--text); font: 14px/1.45 var(--sans); }
+
+.app {
+  position: relative;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #10151e;
+  padding: 0;
+}
+
+.topbar, .rail { background: #141922; }
+.topbar {
+  order: 1;
+  flex: none;
+  height: auto;
+  min-height: 58px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 14px 9px;
+  border: 0;
+  box-shadow: inset 0 -1px 0 var(--brass);
+  z-index: 8;
+}
+.brand { min-width: 0; gap: 10px; }
+.brand img { width: 32px; height: 38px; }
+.brand > span { font: 22px/1 var(--serif); letter-spacing: .22em; color: var(--brass-bright); }
+.brand small { color: #9a8b72; letter-spacing: .16em; }
+.account { margin-left: auto; color: var(--parchment, var(--text)); }
+.avatar-mark {
+  background: #2a2218;
+  border: 1px solid var(--brass);
+  color: var(--brass-bright);
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+}
+.account small { color: #9a8b72; }
+
+.resources { flex: 1 1 320px; justify-content: flex-end; gap: 6px; }
+.resource {
+  min-width: 0;
+  gap: 7px;
+  padding: 4px 10px 4px 7px;
+  border: 1px solid #6e5a34;
+  border-right: 1px solid #6e5a34;
+  border-radius: 3px;
+  background: #10151c;
+  box-shadow: inset 0 1px 0 #3a3226, inset 0 -2px 0 #07090d;
+}
+.resource:last-child { border-right: 1px solid #6e5a34; }
+.resource svg { width: 18px; height: 18px; }
+.resource[data-res=gold] svg { color: #e6d3a1; }
+.resource[data-res=wood] svg { color: #c4895a; }
+.resource[data-res=stone] svg { color: #d5cdc0; }
+.resource[data-res=aether] svg { color: #9ec4cf; }
+.resource b { font: 600 15px/1.1 var(--sans); color: #f6efe2; }
+.resource small { color: #b3a898; font-size: 10px; letter-spacing: .02em; }
+.resource.loot-hit { animation: plate-tap .4s ease; }
+
+.rail {
+  order: 3;
+  position: relative;
+  left: auto; right: auto; bottom: auto;
+  flex: none;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: calc(68px + env(safe-area-inset-bottom));
+  padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+  border: 0;
+  border-top: 1px solid var(--brass);
+  box-shadow: inset 0 1px 0 #2a2418;
+  z-index: 9;
+  background: #141922;
+}
+.nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 112px;
+  height: auto;
+  gap: 3px;
+  border-radius: 3px;
+  color: #b3a898;
+  font-size: 10px;
+  letter-spacing: .03em;
+  background: transparent;
+}
+.nav-item svg { width: 22px; height: 22px; }
+.nav-item.active {
+  color: #f6e7c8;
+  background: #2a2318;
+  box-shadow: inset 0 -2px 0 var(--brass), inset 0 0 0 1px #6e5a34;
+}
+.nav-item.active:before { content: none; }
+.nav-item:active { transform: translateY(1px); }
+.rail-foot { display: none; }
+
+.world {
+  order: 2;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  position: relative;
+  background: #1a2433;
+}
+.world:before {
+  height: 92px;
+  background: linear-gradient(#10161f 0%, rgba(16, 22, 31, .72) 58%, transparent 100%);
+}
+.city-viewport { inset: 0; }
+.world-heading { top: 12px; left: 14px; right: 14px; }
+.world-heading .eyebrow, .eyebrow { color: var(--brass); letter-spacing: .18em; }
+.world h1 {
+  font-size: 28px;
+  margin: 3px 0;
+  color: #f6efe2;
+  text-shadow: 0 2px 0 #10161f;
+  letter-spacing: -.02em;
+}
+.world-heading p { color: #e4d8c4; text-shadow: 0 1px 0 #10161f; font-size: 12px; }
+.icon-button, .city-controls button, .combat-tools button, .battle-close {
+  background: #171d28;
+  border: 1px solid #6e5a34;
+  color: var(--brass-bright);
+  border-radius: 3px;
+}
+.icon-button:hover, .city-controls button:hover { background: #2a2318; }
+
+.city-controls { top: 78px; right: 14px; gap: 6px; }
+.city-controls button { min-width: 38px; min-height: 36px; background: #171d28ee; color: var(--brass-bright); }
+
+.city-collect {
+  left: 14px;
+  top: 86px;
+  max-width: 230px;
+  padding: 8px 12px 9px;
+  background: var(--claret);
+  color: #f6e7c8;
+  border: 1px solid var(--brass-bright);
+  border-radius: 3px;
+  text-align: left;
+  box-shadow: inset 0 1px 0 #c45a62, 0 3px 0 var(--claret-deep);
+}
+.city-collect span { font-weight: 650; letter-spacing: .01em; }
+.city-collect small { color: #f0d0c4; }
+.city-collect.ready { border-color: #f6efe2; }
+.city-collect:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 #c45a62, 0 1px 0 var(--claret-deep); }
+
+.world-help {
+  top: auto;
+  bottom: 168px;
+  left: 14px;
+  background: #121820d8;
+  border: 1px solid #6e5a3488;
+  color: #d9d0c0;
+  font-size: 11px;
+  padding: 5px 8px;
+}
+
+.city-label {
+  min-height: 26px;
+  padding: 0 9px 0 0;
+  gap: 7px;
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: #141922ee;
+  color: #f6efe2;
+  box-shadow: 0 6px 14px #0008;
+  font: 12px/1 var(--serif);
+}
+.city-label:before {
+  background: #141922;
+  border-top-color: var(--brass);
+  border-left-color: var(--brass);
+}
+.city-label:hover, .city-label.selected {
+  border-color: var(--brass-bright);
+  background: #2a2318f4;
+  color: #f6efe2;
+  z-index: 3;
+}
+.city-label-level {
+  min-width: 22px;
+  margin: 3px;
+  align-self: center;
+  height: 20px;
+  border: 0;
+  border-right: 0;
+  background: var(--claret);
+  color: #f6e7c8;
+  clip-path: polygon(50% 0, 100% 18%, 100% 72%, 50% 100%, 0 72%, 0 18%);
+  font: 700 11px/20px var(--serif);
+}
+.city-label.just-raised { border-color: var(--brass-bright); background: #3a2a22f2; }
+
+.building-picker { left: 14px; right: 14px; bottom: 92px; gap: 6px; }
+.building-choice {
+  min-height: 42px;
+  padding: 6px 4px;
+  border-radius: 3px;
+  border: 1px solid #5c5346;
+  background: #171d28ea;
+  color: #d9d0c0;
+  font-size: 10px;
+}
+.building-choice svg { width: 16px; height: 16px; color: var(--brass); }
+.building-choice:hover, .building-choice.active {
+  border-color: var(--brass-bright);
+  color: #f6e7c8;
+  background: #2a2318f2;
+  box-shadow: inset 0 -2px 0 var(--claret);
+}
+.building-choice:active { transform: translateY(1px); }
+
+.next-quest {
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  min-height: 0;
+  padding: 10px 12px;
+  gap: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--brass);
+  background: #171d28f4;
+  box-shadow: inset 0 0 0 3px #10151e, 0 10px 24px #0008;
+}
+.next-quest .quest-seal {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  background: var(--claret);
+  border: 1px solid var(--brass-bright);
+  color: #f6e7c8;
+  transform: none;
+  border-radius: 2px;
+}
+.next-quest h3 { font-size: 20px; margin: 2px 0; color: #f6efe2; }
+.next-quest p { font-size: 12px; color: #cbbfa8; }
+.next-quest .primary { flex-shrink: 0; }
+
+.primary, .secondary, .danger, .combat-action, .star-action {
+  border-radius: 3px;
+  min-height: 46px;
+  font-weight: 650;
+  letter-spacing: .01em;
+}
+.primary {
+  color: #f6e7c8;
+  background: linear-gradient(180deg, #a3434a 0%, #7c242c 58%, #641c22 100%);
+  border: 1px solid var(--brass-bright);
+  box-shadow: inset 0 1px 0 #d07a80, 0 3px 0 var(--claret-deep);
+  text-shadow: 0 1px 0 #3d1216;
+}
+.primary:hover:not(:disabled) { filter: none; background: linear-gradient(180deg, #b45058 0%, #8e2f36 58%, #701f26 100%); }
+.primary:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 #d07a80, 0 1px 0 var(--claret-deep); }
+.secondary {
+  background: #1c2533;
+  border: 1px solid #6e5a34;
+  color: #f0e6d4;
+  box-shadow: inset 0 1px 0 #314056;
+}
+.secondary:hover:not(:disabled) { background: #283246; }
+.secondary:active:not(:disabled) { transform: translateY(1px); }
+.danger { background: #4a2424; color: #f6e7c8; border: 1px solid #8e2f36; }
+
+.inspector {
+  position: absolute;
+  z-index: 6;
+  top: 96px;
+  right: 14px;
+  bottom: 82px;
+  left: auto;
+  width: 300px;
+  margin: 0;
+  padding: 16px 16px 18px;
+  overflow: auto;
+  border: 1px solid var(--brass);
+  border-left-width: 1px;
+  border-radius: 3px;
+  background: #171d28f6;
+  box-shadow: inset 0 0 0 4px #10151e, inset 0 0 0 5px #6e5a34, 0 16px 36px #000a;
+  display: block;
+}
+.inspector h2 { font: 26px/1.15 var(--serif); color: #f6efe2; }
+.section-head small { color: var(--brass); letter-spacing: .18em; }
+.level-badge {
+  background: var(--claret);
+  color: #f6e7c8;
+  border: 1px solid var(--brass-bright);
+  border-radius: 2px;
+  letter-spacing: .12em;
+  padding: 4px 8px;
+}
+.building-portrait:before {
+  border-color: var(--brass);
+  background: linear-gradient(160deg, #2a3344, #141922);
+}
+.building-portrait svg { color: var(--brass-bright); }
+.building-description, .inspector-note { color: #cbbfa8; }
+.stat-line { border-color: #3c4656; }
+.stat-line b { color: #f3ead9; }
+.stat-line em { color: #9ec4cf; }
+.production-box {
+  background: #121820;
+  border: 1px solid #5c5346;
+  border-radius: 3px;
+}
+.squad-member {
+  background: #121820;
+  border: 1px solid #6e5a34;
+  border-radius: 3px;
+}
+.squad-member span { background: #10151c; }
+.squad-member small { background: #6e2430cc; color: #f6e7c8; border: 1px solid #e6d3a188; }
+.team-power strong { color: var(--brass-bright); }
+.text-button { color: var(--brass-bright); }
+
+.workspace {
+  background: #121820;
+  padding: 22px 22px 32px;
+}
+.workspace header h2, .workspace h2 { letter-spacing: -.02em; color: #f6efe2; }
+.hero-card, .stage-card, .journal-card, .item-card, .premium-card, .formation-slot, .loadout-slot, .armory-hero {
+  border-radius: 3px;
+  border-color: #6e5a34;
+  background: #171d28;
+  box-shadow: inset 0 0 0 1px #10151e;
+}
+.hero-card.selected, .formation-slot.active, .armory-hero.active, .stage-card.current {
+  border-color: var(--brass-bright);
+  box-shadow: inset 0 0 0 1px #10151e, inset 0 -2px 0 var(--claret);
+}
+.role-tag {
+  background: #6e2430;
+  border: 1px solid var(--brass-bright);
+  color: #f6e7c8;
+  letter-spacing: .12em;
+}
+.hero-level {
+  background: #141922;
+  border: 1px solid var(--brass);
+  color: var(--brass-bright);
+}
+.portrait-title h3 { text-shadow: 0 2px 0 #10161f; }
+.hero-stats span {
+  padding: 3px 7px;
+  border: 1px solid #5c5346;
+  background: #121820;
+  border-radius: 2px;
+}
+.hero-card .skill, .premium-copy .skill { color: var(--brass-bright); }
+.campaign-hero, .journal-prologue { border-color: #6e5a34; }
+.progress-banner { background: #1c2533; border-left: 2px solid var(--brass); }
+.stage-number { border-color: var(--brass); color: var(--brass-bright); }
+.toast {
+  background: #171d28;
+  border: 1px solid var(--brass);
+  color: #f6efe2;
+  border-radius: 3px;
+  bottom: 86px;
+}
+
+dialog, #building-dialog, #battle-dialog {
+  background: #121820;
+  border: 1px solid var(--brass);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 4px #10151e, inset 0 0 0 5px #6e5a34, 0 24px 70px #000c;
+}
+.building-dialog-head, .combat-heading, .battle-header {
+  background: #171d28;
+  border-bottom: 1px solid var(--brass);
+}
+.building-dialog-icon {
+  background: #2a2218;
+  border: 1px solid var(--brass);
+  color: var(--brass-bright);
+}
+.building-levels span { background: #121820; border-color: #3c4656; border-radius: 2px; }
+.building-levels span.built { background: #3a2a22; border-color: var(--brass); color: var(--brass-bright); }
+.evolution-note { background: #1c2533; border-color: #5c5346; }
+.upgrade-reason { color: #e4d8c4; }
+
+#battle-dialog { border-radius: 4px; }
+.combat-heading h2 { color: #f6efe2; }
+.round-pill {
+  background: #141922ee;
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  color: #f6efe2;
+}
+.fighter-label {
+  background: linear-gradient(90deg, #121820b0, #121820f2, #121820b0);
+  border-bottom: 1px solid var(--brass);
+}
+.combat-command {
+  background: #171d28;
+  border-top: 1px solid var(--brass);
+}
+.tactical-line { border-bottom-color: #3c4656; }
+.attack-action {
+  background: linear-gradient(180deg, #a3434a, #7c242c 60%, #641c22);
+  border-color: var(--brass-bright);
+  color: #f6e7c8;
+}
+.defend-action {
+  background: #243044;
+  border-color: #6e5a34;
+  color: #f0e6d4;
+}
+.astral-action {
+  background: #1b333c;
+  border-color: #7f9aa8;
+  color: #d5e8ee;
+}
+.hero-ability {
+  background: #1a2230;
+  border: 1px solid #5c5346;
+  border-radius: 3px;
+}
+.hero-ability.skill-ready {
+  border-color: var(--brass-bright);
+  background: #2a261c;
+  box-shadow: inset 0 0 0 1px #6e5a34;
+}
+.skill-ready .ability-copy > b { color: var(--brass-bright); }
+.skill-ready .ability-energy > i { background: linear-gradient(90deg, #8a6230, #e6d3a1); }
+.skill-ready .ability-status { color: var(--brass-bright); }
+.ability-energy > i, .astral-track i, .fighter-health i { background: linear-gradient(90deg, #4e6e78, #c9ddd4); }
+.enemy .fighter-health i { background: linear-gradient(90deg, #8e2f36, #e0b08a); }
+.reward-chips > span { background: #1c2830; border-color: #5c5346; border-radius: 2px; }
+.reward-chips .loot-chip { background: #3a2a22; border-color: var(--brass); color: var(--brass-bright); }
+.combat-outcome > span, .combat-outcome h3 { color: var(--brass-bright); text-shadow: 0 2px 0 #10161f; }
+
+.loot-token {
+  position: fixed;
+  z-index: 80;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  color: var(--brass-bright);
+  filter: drop-shadow(0 1px 0 #10161f);
+}
+.loot-token svg { width: 22px; height: 22px; }
+
+@keyframes plate-tap {
+  40% { transform: scale(1.05); }
+}
+
+@media (min-width: 861px) {
+  .next-quest, .building-picker { right: 330px; }
+  .city-controls { right: 330px; }
+  .world-help { bottom: 168px; }
+}
+
+@media (max-width: 860px) {
+  .brand > span { font-size: 18px; letter-spacing: .16em; }
+  .brand small, .account .avatar-mark { display: none; }
+  .account > span:last-child { display: block; font-size: 10px; }
+  .resources { flex-basis: 100%; justify-content: space-between; }
+  .resource { flex: 1; padding: 4px 6px; }
+  .resource b { font-size: 13px; }
+  .resource small { font-size: 9px; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
+  .world h1 { font-size: 24px; }
+  .world-heading p { font-size: 11px; }
+  .city-collect { top: 78px; max-width: 168px; }
+  .city-controls { top: 78px; right: 10px; }
+  .world-help, .building-picker { display: none; }
+  .next-quest { bottom: 168px; left: 8px; right: 8px; padding: 8px 10px; }
+  .next-quest h3 { font-size: 16px; }
+  .next-quest p { font-size: 10px; }
+  .next-quest .quest-seal { display: none; }
+  .next-quest .primary { padding: 8px 10px; min-height: 40px; font-size: 12px; }
+  .inspector {
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: calc(68px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: none;
+    padding: 8px 10px 8px;
+  }
+  .inspector .squad-heading, .inspector .team-power, .inspector .inspector-note { display: none; }
+  .inspector .squad { margin: 6px 0 0; }
+  .inspector .squad-member span { display: none; }
+  .inspector .building-description,
+  .inspector .stat-line,
+  .inspector .cost-list,
+  .inspector .production-box,
+  .inspector .inspector-note,
+  .inspector .building-portrait { display: none; }
+  .inspector h2 { font-size: 18px; margin: 0 0 6px; text-align: left; }
+  .inspector .section-head { margin: 0 0 2px; }
+  .inspector .primary { min-height: 40px; }
+  .inspector .squad-member .character-art { height: 52px; width: 100%; }
+  .workspace { padding: 16px 12px 24px; }
+  .workspace header h2 { font-size: 26px; }
+  .toast { bottom: calc(78px + env(safe-area-inset-bottom)); }
+  .nav-item { font-size: 9px; max-width: none; }
+  .panel-open .world { min-height: 0; }
+}
+
+@media (max-width: 380px) {
+  .resource small { display: none; }
+  .building-choice span { font-size: 7px; }
+  .brand > span { letter-spacing: .1em; font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loot-token { display: none; }
+  .resource.loot-hit, .city-label.just-raised { animation: none; }
+}

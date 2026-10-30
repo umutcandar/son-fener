@@ -27,7 +27,7 @@ const iconPaths = {
   wood: '<path d="m5 4 14 16M8 7l3-3M11 10l4-4M14 13l3-3M17 16l3-3"/>',
   stone: '<path d="m12 3 8 4v10l-8 4-8-4V7zM4 7l8 5 8-5M12 12v9"/>',
 };
-const svg = (name, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name] || iconPaths.star}</svg>`;
+const svg = (name, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name] || iconPaths.star}</svg>`;
 const resourceIcon = { gold: 'coin', wood: 'wood', stone: 'stone', aether: 'star' };
 const resourceName = { gold: 'Altın', wood: 'Kereste', stone: 'Taş', aether: 'Yıldız özü' };
 const navItems = [ ['keep', 'keep', 'Hisar'], ['heroes', 'heroes', 'Yeminliler'], ['expedition', 'expedition', 'Seferler'], ['armory', 'forge', 'Cephanelik'], ['shop', 'shop', 'Mağaza'], ['journal', 'journal', 'Kronik'] ];
@@ -50,6 +50,42 @@ function persist() {
 function notify(message) {
   const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+const motionOK = () => !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function flyLoot(origin, gain) {
+  if (!motionOK() || !origin) return;
+  for (const [id, amount] of Object.entries(gain || {})) {
+    if (!amount) continue;
+    const target = document.querySelector(`.resource[data-res="${id}"]`);
+    if (!target) continue;
+    const end = target.getBoundingClientRect();
+    const count = Math.min(4, Math.max(2, Math.ceil(amount / 80)));
+    for (let i = 0; i < count; i++) {
+      const token = document.createElement('span');
+      token.className = 'loot-token';
+      token.innerHTML = svg(resourceIcon[id]);
+      token.style.left = `${origin.left + origin.width / 2}px`;
+      token.style.top = `${origin.top + origin.height / 2}px`;
+      document.body.append(token);
+      const dx = end.left + end.width / 2 - (origin.left + origin.width / 2) + (i - (count - 1) / 2) * 14;
+      const dy = end.top + end.height / 2 - (origin.top + origin.height / 2);
+      const anim = token.animate([
+        { transform: 'translate(-50%, -50%) scale(.55)', opacity: 0 },
+        { transform: `translate(calc(-50% + ${dx * .25}px), calc(-50% - 28px)) scale(1)`, opacity: 1, offset: .35 },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.4)`, opacity: .05 },
+      ], { duration: 620 + i * 45, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
+      anim.onfinish = () => token.remove();
+    }
+    target.classList.add('loot-hit');
+    setTimeout(() => target.classList.remove('loot-hit'), 420);
+  }
+}
+function markRaised(id) {
+  if (!motionOK()) return;
+  const label = cityLabelNodes.get(id);
+  if (!label) return;
+  label.classList.add('just-raised');
+  setTimeout(() => label.classList.remove('just-raised'), 900);
 }
 function result(action, success) { if (!action.ok) { notify(action.error); return false; } if (success) notify(success); persist(); render(); return true; }
 function renderResources() {
@@ -351,7 +387,7 @@ function dispatch(action) {
     const upgraded = R.upgradeBuilding(state, selectedBuilding, Date.now());
     if (upgraded.ok) $('#building-dialog').close();
     const building = R.BUILDINGS.find(item => item.id === selectedBuilding);
-    result(upgraded, `${building.name} · Seviye ${state.buildings[selectedBuilding]} — ${BUILDING_EVOLUTION[selectedBuilding][state.buildings[selectedBuilding]-1]}`);
+    if (result(upgraded, `${building.name} · Seviye ${state.buildings[selectedBuilding]} — ${BUILDING_EVOLUTION[selectedBuilding][state.buildings[selectedBuilding]-1]}`)) markRaised(selectedBuilding);
     return;
   }
   if (button.dataset.upgradeHero) { result(R.upgradeHero(state, button.dataset.upgradeHero), 'Kahraman güçlendi.'); return; }
@@ -362,7 +398,13 @@ function dispatch(action) {
     else team[selectedSlot] = id;
     result(R.setTeam(state, team), 'Savaş dizilimi güncellendi.'); return;
   }
-  if (button.hasAttribute('data-collect')) { const collected = R.collect(state); result(collected, `Üretim toplandı: ${Object.entries(collected.gain).filter(([, n]) => n).map(([id, n]) => `+${number(n)} ${resourceName[id]}`).join(' · ') || 'Henüz biriken kaynak yok.'}`); return; }
+  if (button.hasAttribute('data-collect')) {
+    const origin = button.getBoundingClientRect();
+    const collected = R.collect(state);
+    const summary = Object.entries(collected.gain || {}).filter(([, n]) => n).map(([id, n]) => `+${number(n)} ${resourceName[id]}`).join(' · ');
+    if (result(collected, `Üretim toplandı: ${summary || 'Henüz biriken kaynak yok.'}`)) flyLoot(origin, collected.gain);
+    return;
+  }
   if (button.dataset.action === 'open-expedition') { activeView = 'expedition'; render(); return; }
   if (button.dataset.action === 'resume-battle') { openBattle(); return; }
   if (button.dataset.stage) { openBattle(button.dataset.stage); return; }
