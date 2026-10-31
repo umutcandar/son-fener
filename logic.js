@@ -23,7 +23,7 @@ export const FENER_MAX=7;
 // ---------- adalar ----------
 export const ISLANDS={
  home:{n:'Hisar Kasabası',ic:'🏰',d:'Ana üs. Büyük Hisar burada.',kinds:Object.keys(KINDS).filter(k=>!KINDS[k].only)},
- mercan:{n:'Kızıl Tepe',ic:'⛰️',d:'Sığ, bereketli sular. Tahıl +50%, kereste +20%.',kinds:['hut','fisher','pearl','wood'],bonus:{fish:1.5,wood:1.2},unlock:4,cost:{wood:300,fish:200}},
+ mercan:{n:'Kızıl Tepe',ic:'⛰️',d:'Verimli kızıl topraklar. Tahıl +50%, kereste +20%.',kinds:['hut','fisher','pearl','wood'],bonus:{fish:1.5,wood:1.2},unlock:4,cost:{wood:300,fish:200}},
  volkan:{n:'Kül Kasabası',ic:'🌋',d:'Sönmüş volkan, kristal damarları. Kristal +60%.',kinds:['hut','forge','mine','wood'],bonus:{crys:1.6},unlock:8,cost:{wood:800,crys:300}},
 };
 export const gridOf=(S,id)=>id===S.cur?S.g:(S.isl[id]&&S.isl[id].g)||{};
@@ -44,7 +44,7 @@ export const isSafe=(S,k)=>ring(k)<=safeR(S);
 export const TROOPS={tayfa:{n:'Mızrakçı',ic:'🎖️',atk:10,hp:40,cost:{fish:8,wood:4},t:2},zipkin:{n:'Tüfekçiler',ic:'🎯',atk:14,hp:28,cost:{fish:10,wood:6},t:3},topcu:{n:'Topçular',ic:'💣',atk:19,hp:18,cost:{fish:12,wood:8,crys:1},t:4}};
 // sk.t: atk/hp/loot -> takımda (ilk 3) iken; fish/train/night -> sahipken çalışır
 export const HEROES=[
- {id:'kaan',n:'Kara Kaan',ic:'🏴‍☠️',img:'kaan',r:3,role:'Topçular',p:120,sk:{n:'Top Yağmuru',t:'atk',v:.15,d:'Ordu saldırısı'}},
+ {id:'kaan',n:'Kara Kaan',ic:'🗡️',img:'kaan',r:3,role:'Topçular',p:120,sk:{n:'Top Yağmuru',t:'atk',v:.15,d:'Ordu saldırısı'}},
  {id:'mei',n:'Mei Rüzgar',ic:'🔭',img:'mei',r:3,role:'Gözcü',p:115,sk:{n:'Keskin Dürbün',t:'hp',v:.18,d:'Ordu dayanıklılığı'}},
  {id:'tunc',n:'Tunç Tüfek',ic:'🎯',img:'tunc',r:2,role:'Tüfekçiler',p:72,sk:{n:'İlk Darbe',t:'atk',v:.08,d:'Ordu saldırısı'}},
  {id:'deniz',n:'Sınır Al',ic:'🌾',img:'deniz',r:2,role:'Mızrakçı',p:66,sk:{n:'Bereketli Ağ',t:'fish',v:.12,d:'Tahıl üretimi'}},
@@ -66,7 +66,7 @@ export function upGear(S,id){const lv=S.gear[id]||0;if(lv>=GEAR_MAX)return'En ü
 export const gearSum=S=>Object.values(S.gear).reduce((a,b)=>a+b,0);
 // ---------- araştırma ağacı (3 dal, 15 düğüm) ----------
 export const TECH=[
- {id:'net',br:'Ekonomi',n:'Sağlam Ağlar',ic:'🕸️',d:'Tahıl ve kereste +15%/sv',max:5},
+ {id:'net',br:'Ekonomi',n:'Sağlam Ambarlar',ic:'🌾',d:'Tahıl ve kereste +15%/sv',max:5},
  {id:'cut',br:'Ekonomi',n:'Kristal Kesme',ic:'💠',d:'Kristal üretimi +15%/sv',max:5,req:{net:1}},
  {id:'store',br:'Ekonomi',n:'Geniş Ambar',ic:'📦',d:'Bina depolama +25%/sv',max:3,req:{net:2}},
  {id:'raft',br:'Ekonomi',n:'Göç Yolları',ic:'🐴',d:'Göçmen arabaları −10%/sv daha sık gelir',max:3,req:{cut:2}},
@@ -87,7 +87,7 @@ export const TECH=[
  {id:'mob',br:'Harp Akademisi',n:'Seferberlik',ic:'📯',d:'Eğitim maliyeti −5%/sv',max:3,req:{quar:1}}];
 const T_=(S,id)=>S.tech[id]||0;
 export const techReqOK=(S,T)=>!T.req||Object.entries(T.req).every(([id,l])=>T_(S,id)>=l);
-export const FOES={ghost:{n:'Duman Hayaletleri',ic:'👻',img:'ghost'},octo:{n:'Duman Ahtapotu',ic:'🐺',img:'octo'},crab:{n:'Kabuklu Dev',ic:'🦀',img:'crab'},reef:{n:'Kızıl Muhafız',ic:'⛰️',img:'reef'},kraken:{n:'Derin Zorba',ic:'👹',img:'kraken'}};
+export const FOES={ghost:{n:'Duman Hayaletleri',ic:'👻',img:'ghost'},octo:{n:'Duman Kurdu',ic:'🐺',img:'octo'},crab:{n:'Zırhlı Dev',ic:'🛡️',img:'crab'},reef:{n:'Kızıl Muhafız',ic:'⛰️',img:'reef'},kraken:{n:'Derin Zorba',ic:'👹',img:'kraken'}};
 export const ISL=['Kartal Kayası','Tuz Kasabası','Yıkık Çarşı','Kızıl Vadi','Kurukafa Burnu','Fırtına Tepesi','Yosun Kasabası','Sessiz Ova','Kırık Direk','Eski Hisar'];
 export const islandName=n=>ISL[(n-1)%ISL.length]+(n>ISL.length?' '+(Math.floor((n-1)/ISL.length)+1):'');
 export const stageFoe=n=>n%5===0?'kraken':n%3===0?'crab':n%2?'ghost':'octo';
@@ -95,7 +95,7 @@ export const stagePower=n=>Math.round(260*Math.pow(1.32,n-1));
 
 // ---------- Canlı etkinlikler: haftalık dönen takvim (İstanbul saati, UTC+3 sabit) ----------
 const IST=3*36e5;
-export const BONUS=[{id:'kraken',ic:'👹',days:[6,0],h:[0,24],mul:1.5},{id:'convoy',ic:'🏴‍☠️',days:[3],h:[0,24],mul:2},{id:'fog',ic:'🌫️',days:[0,1,2,3,4,5,6],h:[20,23],mul:.5}];
+export const BONUS=[{id:'kraken',ic:'👹',days:[6,0],h:[0,24],mul:1.5},{id:'convoy',ic:'🗡️',days:[3],h:[0,24],mul:2},{id:'fog',ic:'🌫️',days:[0,1,2,3,4,5,6],h:[20,23],mul:.5}];
 // t anında (ms) aktif etkinlik id kümesi
 export function bonusOn(t=Date.now()){const d=new Date(t+IST),w=d.getUTCDay(),h=d.getUTCHours();const o={};for(const e of BONUS)if(e.days.includes(w)&&h>=e.h[0]&&h<e.h[1])o[e.id]=1;return o}
 // önümüzdeki n gün için oturumlar [{id,ic,start,end}] (ms, gerçek UTC zaman damgası)
@@ -121,7 +121,7 @@ export function reefFight(S,now,rng){if(!reefOpen(S))return{err:'locked'};const 
 export const CHAPTERS=[
  {n:'İlk Işık',say:['Uyan evlat! Duman bu gece yine geldi. Ben Hisarcı Yusuf — kırk yıldır bu hisarı yakarım.','Kale sancağını dik, kristal çıkar, halkını doyur. Surlar düşerse duman her şeyi yutar.']},
  {n:'Talimhane',say:['Kasaba nefes alıyor. Ama ufuktaki kasabalarda hâlâ insanlar dumana hapsolmuş.','Bir talimhane kur, mızrakçı eğit. Komutanlar ışığın peşinden gelir — onları çağır.']},
- {n:'Gözlemevi',say:['Eski gözlemevi planlarını buldum! Yıldızlar dumanın sırrını saklıyor olabilir.','Araştırma ağacını büyüt: ekonomi, hisar ve donanma. Her dal bir yol.']},
+ {n:'Gözlemevi',say:['Eski gözlemevi planlarını buldum! Yıldızlar dumanın sırrını saklıyor olabilir.','Araştırma ağacını büyüt: ekonomi, hisar ve ordu. Her dal bir yol.']},
  {n:'Yeni Ufuklar',say:['Kızıl Tepe dumandan kurtuldu ve sahipsiz. Bereketli topraklar orada!','Kendi kasaban gibi kur, birleştir, büyüt. Bir de… derinlerden bir Zorba sesi geliyor.']},
  {n:'Kül ve Işık',say:['Kül Kasabası’nın kristal damarları hisarı daha da parlatır.','Ama dikkat: duman güçleniyor. Ordunu donat, komutanlarını yükselt.']},
  {n:'Derin Sınır',say:['Son hisar sensin evlat. Dumanın kalbine giden yol açılıyor.','Hisarı en üst seviyeye çıkar — sınırın bütün ışığını geri getir.']}];
@@ -147,7 +147,7 @@ export const QUESTS=[
  {c:1,go:'merge',t:'Sv3 bir bina yap',f:topLv,n:3,r:{crys:60}},
  {c:1,go:'heroes',t:'Bir komutan çağır',f:S=>S.st.recruit,n:1,r:{gems:30}},
  {c:1,go:'gear',t:'Arabaya 1 donanım yap',f:gearSum,n:1,r:{wood:120}},
- {c:1,go:'map',t:'3 kasaba kurtar',f:S=>S.stage-1,n:3,r:{gems:30,wood:200},say:'Kurtardığın her kasaba, kıyımıza yeni insanlar getiriyor.'},
+ {c:1,go:'map',t:'3 kasaba kurtar',f:S=>S.stage-1,n:3,r:{gems:30,wood:200},say:'Kurtardığın her kasaba, kapılarımıza yeni insanlar getiriyor.'},
  // 3
  {c:2,go:'fener',t:'Hisarı Sv3 yap',f:S=>S.fener.lv,n:3,r:{gems:30}},
  {c:2,go:'build:lab',t:'Gözlemevi kur',f:S=>count(S,'lab'),n:1,r:{crys:80}},
@@ -155,7 +155,7 @@ export const QUESTS=[
  {c:2,go:'heroes',t:'Bir komutanı Sv5 yap',f:heroMaxLv,n:5,r:{crys:60}},
  {c:2,go:'fener',t:'Duman Gecesini 2 kez püskürt',f:S=>S.st.repel,n:2,r:{gems:30}},
  {c:2,go:'b:yard',t:'Toplam 50 asker eğit',f:S=>S.st.trained,n:50,r:{fish:200}},
- {c:2,go:'map',t:'5 kasaba kurtar',f:S=>S.stage-1,n:5,r:{gems:50},say:'Ufukta bir atol görünüyor… pembe kumlu, sahipsiz.'},
+ {c:2,go:'map',t:'5 kasaba kurtar',f:S=>S.stage-1,n:5,r:{gems:50},say:'Ufukta bir tepe kalesi görünüyor… kızıl topraklı, sahipsiz.'},
  // 4
  {c:3,go:'islands',t:'Kızıl Tepe’yi sahiplen',f:S=>S.isl.mercan?.own?1:0,n:1,r:{gems:50}},
  {c:3,go:'islands',t:'Kızıl Tepe’de 4 bina kur',f:S=>islB(S,'mercan'),n:4,r:{wood:350,fish:150}},
