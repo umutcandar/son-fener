@@ -39,7 +39,7 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
  function tap(a,b){const o=hit(a,b);sel=o;const cd=$('wcard');if(!o){cd.classList.remove('on');return}ctx.SFX&&ctx.SFX.tap();tcx=o.x;tcy=o.y;tz=Math.max(tz,4);
   let h='';if(o.k==='i')h=`<b>${o.me?'🏠 ':''}${o.name}</b><small>${o.clan?'['+o.clan+'] · ':''}${tx('ui.w_lv',[o.lv])}${o.shield?' · 🛡️ '+tx('ui.w_shield'):''}</small>`+(o.me?'':`<button id="watk" ${o.shield?'disabled':''}>⚔️ ${tx('ui.w_attack')}</button>`);
   else if(o.k==='f')h=`<b>🏰 ${tx('ui.w_fort')} [${o.clan}]</b><small>${tx('ui.w_lv',[o.lv])} · ❤️ ${Math.round(o.hp*100)}%${o.attacked?' · 🔥 '+tx('ui.w_under'):''}</small><button id="watk">⚔️ ${tx('ui.w_rally')}</button>`;
-  else if(o.k==='c')h=`<b>${o.kind==='pirate'?'🏴‍☠️':'👾'} ${tx('ui.w_lv',[o.lv])}</b><small>⚔️ ${o.pw||'?'}</small><button id="watk">🐎 ${tx('ui.w_send')}</button>`;
+  else if(o.k==='c')h=`<b>${o.kind==='pirate'?'🗡️':'👾'} ${tx('ui.w_lv',[o.lv])}</b><small>⚔️ ${o.pw||'?'}</small><button id="watk">🐎 ${tx('ui.w_send')}</button>`;
   else h=`<b>🏰 ${tx('ui.w_ruin')}</b><small>${tx('ui.w_ruin_d')}</small><button id="watk">🐎 ${tx('ui.w_send')}</button>`;
   cd.innerHTML=h;cd.classList.add('on');const bt=$('watk');if(bt)bt.onclick=()=>{close();if(O.world.state){const st=O.world.state();st.sel={x:(o.x-5)/10,y:(o.y-5)/10}}ctx.after&&ctx.after()}}
  // çizim yardımcıları
