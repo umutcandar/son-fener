@@ -1916,5 +1916,14 @@
  "mail.wb_last_t": "The final blow is yours!",
  "mail.wb_last": "You slew a T{0} world boss with {1} damage. Loot and gem reward attached.",
  "mail.wb_kill_t": "World boss slain",
- "mail.wb_kill": "{1} slew the T{0} world boss you fought. Your share is attached."
+ "mail.wb_kill": "{1} slew the T{0} world boss you fought. Your share is attached.",
+ "o.wb_n_hit1": "1 fighter hit it",
+ "o.wb_call": "Rally clan",
+ "o.wb_call_d": "Clanmates who hit a called boss deal +10% damage, plus +10% for each other clanmate on it (max +50%).",
+ "o.wb_called": "📯 Clan rally by {0} · 👥 {1} clanmates · ⚔️ +{2}% damage",
+ "o.wb_call_ok": "Your clan has been called to the boss!",
+ "o.wb_march_dead": "This boss fell while your army was marching. It will turn back; your daily attempt is not used.",
+ "o.wb_e_called": "Your clan already called this boss",
+ "o.wb_e_calls": "Your clan used all 3 boss calls this round",
+ "o.wb_noclan": "Join a clan to rally it against bosses"
 }

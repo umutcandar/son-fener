@@ -1916,5 +1916,14 @@
  "mail.wb_last_t": "Der Todesstoß gehört dir!",
  "mail.wb_last": "Du hast einen S{0}-Weltboss mit {1} Schaden besiegt. Beute und Juwelen anbei.",
  "mail.wb_kill_t": "Weltboss besiegt",
- "mail.wb_kill": "{1} hat den S{0}-Weltboss besiegt, den du bekämpft hast. Dein Anteil anbei."
+ "mail.wb_kill": "{1} hat den S{0}-Weltboss besiegt, den du bekämpft hast. Dein Anteil anbei.",
+ "o.wb_n_hit1": "1 Kämpfer griff an",
+ "o.wb_call": "Clan rufen",
+ "o.wb_call_d": "Clanmitglieder verursachen am gerufenen Boss +10 % Schaden, +10 % je weiterem Clanmitglied (max. +50 %).",
+ "o.wb_called": "📯 Clan-Ruf von {0} · 👥 {1} Mitglieder · ⚔️ +{2} % Schaden",
+ "o.wb_call_ok": "Dein Clan wurde zum Boss gerufen!",
+ "o.wb_march_dead": "Der Boss fiel, während deine Armee marschierte. Sie kehrt um; dein Tagesversuch bleibt erhalten.",
+ "o.wb_e_called": "Dein Clan hat diesen Boss bereits gerufen",
+ "o.wb_e_calls": "Dein Clan hat alle 3 Boss-Rufe dieser Runde genutzt",
+ "o.wb_noclan": "Tritt einem Clan bei, um ihn gegen Bosse zu rufen"
 }

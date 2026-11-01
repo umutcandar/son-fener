@@ -449,4 +449,6 @@ export function warOdds(me,en,beat,tier,types){const etot=types.reduce((x,k)=>x+
  const v=mtot<1?'lo':etot<1?'hi':q>=1.3?'hi':q>=.9?'mid':'lo';return {me:m,en:e,v,empty:etot<1,big,ctr}}
 // b45: Dünya bossu vuruş tahmini — sunucudaki sf_wb_hit ile aynı kural (8 tur, oyuncu canı güç×4, 3. turda beceri ×1.5, boss 4. turda ×1.6)
 export const WB={hpMul:4,rounds:8};
-export function wbEst(pw,b){pw=Math.max(50,+pw||0);let hp=pw*WB.hpMul,d=0;for(let r=1;r<=WB.rounds&&hp>0;r++){d+=pw*(r%3?1:1.5);if(d>=b.hp)break;hp-=b.pw*(r%4?1:1.6)}return Math.round(Math.min(d,b.hp))}
+// b46: klan çağrısı bonusu — sunucudaki sf_wb_cb ile aynı: çağrılmışsa +%10 taban, bossa vuran her diğer klan arkadaşı +%10, en çok +%50
+export const wbClanPct=(called,others)=>called?Math.min(50,10+10*Math.max(0,others|0)):0;
+export function wbEst(pw,b,cb=0){pw=Math.max(50,+pw||0);const ap=Math.round(pw*(100+(+cb||0))/100);let hp=pw*WB.hpMul,d=0;for(let r=1;r<=WB.rounds&&hp>0;r++){d+=ap*(r%3?1:1.5);if(d>=b.hp)break;hp-=b.pw*(r%4?1:1.6)}return Math.round(Math.min(d,b.hp))}

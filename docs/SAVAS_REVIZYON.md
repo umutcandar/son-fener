@@ -138,3 +138,10 @@ Her bina seviyesi görsel olarak değişmelidir (kademe: 1–5, 6–10, …).
 - Liste/kart (sheet) + kanvas haritada boss çizimi.
 - Sefer haritası denizden karaya: arazi zemin, fethedilen kasaba kale, sıradaki hedef düşman portresi, ilerisi duman, boss durakları 👑, gemi yerine süvari.
 - Kalan deniz/fener/ada ifadeleri temizlendi (11 dil).
+
+## b46 — Klan boss çağrısı + yolda düşen boss uyarısı (1 Kas 2026)
+- `world_boss_call(p_id)`: klan üyesi canlı bir bossu klan hedefi ilan eder (boss başına dilimde 1, klan başına dilimde en çok 3 çağrı). Klan sohbetine 📯 uyarısı düşer.
+- Çağrılmış bossa vuran klan üyeleri: +%10 taban, aynı bossa bu dilimde vuran/yürüyen her diğer klan arkadaşı için +%10, en çok +%50 (`sf_wb_cb`, `sf_wb_hit` içinde sunucuda). Oyuncu canı değişmez. Kural istemcide `logic.js` → `wbClanPct`, `wbEst(pw,b,cb)`.
+- `world_bosses` artık `clan`, `calls`, boss başına `call` (çağıran), `cn` (vuran klan üyesi), `cb` (benim bonusum) döner. Kanvasta çağrılmış boss 📯 etiketli.
+- Seferim yoldayken boss düşerse kartta ve sefer listesinde uyarı + bir kez bildirim: ordu döner, günlük hak gitmez (b45 kuralı).
+- "1 fighters" çoğul hatası düzeltildi (11 dil). Sunucu: supabase/world_boss_b46.sql.

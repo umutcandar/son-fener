@@ -1916,5 +1916,14 @@
  "mail.wb_last_t": "O golpe final é seu!",
  "mail.wb_last": "Você abateu um chefe mundial N{0} com {1} de dano. Saque e gemas anexados.",
  "mail.wb_kill_t": "Chefe mundial abatido",
- "mail.wb_kill": "{1} abateu o chefe mundial N{0} que você enfrentou. Sua parte está anexada."
+ "mail.wb_kill": "{1} abateu o chefe mundial N{0} que você enfrentou. Sua parte está anexada.",
+ "o.wb_n_hit1": "1 guerreiro atacou",
+ "o.wb_call": "Chamar o clã",
+ "o.wb_call_d": "Membros do clã causam +10% de dano no chefe chamado, +10% por cada outro membro nele (máx. +50%).",
+ "o.wb_called": "📯 Chamado do clã por {0} · 👥 {1} membros · ⚔️ +{2}% dano",
+ "o.wb_call_ok": "Seu clã foi chamado para o chefe!",
+ "o.wb_march_dead": "O chefe caiu enquanto seu exército marchava. Ele voltará; sua tentativa diária não é gasta.",
+ "o.wb_e_called": "Seu clã já chamou este chefe",
+ "o.wb_e_calls": "Seu clã usou as 3 chamadas de chefe desta rodada",
+ "o.wb_noclan": "Entre em um clã para chamá-lo contra chefes"
 }

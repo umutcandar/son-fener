@@ -1916,5 +1916,14 @@
  "mail.wb_last_t": "¡El golpe final es tuyo!",
  "mail.wb_last": "Derribaste a un jefe mundial N{0} con {1} de daño. Botín y gemas adjuntos.",
  "mail.wb_kill_t": "Jefe mundial abatido",
- "mail.wb_kill": "{1} derribó al jefe mundial N{0} que atacaste. Tu parte va adjunta."
+ "mail.wb_kill": "{1} derribó al jefe mundial N{0} que atacaste. Tu parte va adjunta.",
+ "o.wb_n_hit1": "1 guerrero lo atacó",
+ "o.wb_call": "Llamar al clan",
+ "o.wb_call_d": "Los miembros del clan hacen +10 % de daño al jefe llamado, +10 % por cada compañero más (máx. +50 %).",
+ "o.wb_called": "📯 Llamada del clan de {0} · 👥 {1} miembros · ⚔️ +{2} % daño",
+ "o.wb_call_ok": "¡Tu clan ha sido llamado al jefe!",
+ "o.wb_march_dead": "El jefe cayó mientras tu ejército marchaba. Regresará; tu intento diario no se gasta.",
+ "o.wb_e_called": "Tu clan ya llamó a este jefe",
+ "o.wb_e_calls": "Tu clan usó sus 3 llamadas de jefe en esta ronda",
+ "o.wb_noclan": "Únete a un clan para llamarlo contra los jefes"
 }

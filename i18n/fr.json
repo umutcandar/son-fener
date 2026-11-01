@@ -1657,7 +1657,7 @@
  "o.w_mypw": "Toi ⚔️ {0}",
  "o.w_est": "Victoire ~{0}%",
  "o.w_march": "Envoyer la armée",
- "o.w_qfull": "Armée en frontière",
+ "o.w_qfull": "Armée en marche",
  "o.w_empty": "Haute frontière",
  "o.w_reloc": "Déménager ici ({0} 💎)",
  "o.w_reloc_ok": "Confirmer : dépenser {0} 💎",
@@ -1916,5 +1916,14 @@
  "mail.wb_last_t": "Le coup final est à toi !",
  "mail.wb_last": "Tu as abattu un boss mondial N{0} avec {1} dégâts. Butin et gemmes joints.",
  "mail.wb_kill_t": "Boss mondial abattu",
- "mail.wb_kill": "{1} a abattu le boss mondial N{0} que tu as combattu. Ta part est jointe."
+ "mail.wb_kill": "{1} a abattu le boss mondial N{0} que tu as combattu. Ta part est jointe.",
+ "o.wb_n_hit1": "1 combattant l’a frappé",
+ "o.wb_call": "Appeler le clan",
+ "o.wb_call_d": "Les membres du clan infligent +10 % de dégâts au boss appelé, +10 % par autre membre engagé (max +50 %).",
+ "o.wb_called": "📯 Appel du clan par {0} · 👥 {1} membres · ⚔️ +{2} % dégâts",
+ "o.wb_call_ok": "Ton clan a été appelé au boss !",
+ "o.wb_march_dead": "Ce boss est tombé pendant ta marche. Ton armée fera demi-tour ; ta tentative du jour n’est pas utilisée.",
+ "o.wb_e_called": "Ton clan a déjà appelé ce boss",
+ "o.wb_e_calls": "Ton clan a utilisé ses 3 appels de boss pour cette manche",
+ "o.wb_noclan": "Rejoins un clan pour l’appeler contre les boss"
 }

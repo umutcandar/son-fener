@@ -1916,5 +1916,14 @@
  "mail.wb_last_t": "Son darbe senin!",
  "mail.wb_last": "K{0} dünya bossunu {1} hasarla sen devirdin. Ganimet ve elmas ödülü ekte.",
  "mail.wb_kill_t": "Dünya bossu devrildi",
- "mail.wb_kill": "Saldırdığın K{0} dünya bossunu {1} devirdi. Katılım ödülün ekte."
+ "mail.wb_kill": "Saldırdığın K{0} dünya bossunu {1} devirdi. Katılım ödülün ekte.",
+ "o.wb_n_hit1": "1 savaşçı vurdu",
+ "o.wb_call": "Klanı çağır",
+ "o.wb_call_d": "Çağrılan bossa vuran klan üyeleri +%10 hasar alır; aynı bossa vuran her klan arkadaşı +%10 daha (en çok +%50).",
+ "o.wb_called": "📯 Klan çağrısı: {0} · 👥 {1} klan üyesi · ⚔️ +%{2} hasar",
+ "o.wb_call_ok": "Klan bossa çağrıldı!",
+ "o.wb_march_dead": "Ordun yoldayken bu boss düştü. Ordu geri dönecek; günlük hakkın gitmez.",
+ "o.wb_e_called": "Klanın bu bossu zaten çağırdı",
+ "o.wb_e_calls": "Klanın bu turdaki 3 boss çağrısını kullandı",
+ "o.wb_noclan": "Bosslara karşı klanını çağırmak için bir klana katıl"
 }

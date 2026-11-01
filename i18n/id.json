@@ -1916,5 +1916,14 @@
  "mail.wb_last_t": "Pukulan akhir milikmu!",
  "mail.wb_last": "Kamu menumbangkan bos dunia T{0} dengan {1} damage. Jarahan dan permata terlampir.",
  "mail.wb_kill_t": "Bos dunia tumbang",
- "mail.wb_kill": "{1} menumbangkan bos dunia T{0} yang kamu lawan. Bagianmu terlampir."
+ "mail.wb_kill": "{1} menumbangkan bos dunia T{0} yang kamu lawan. Bagianmu terlampir.",
+ "o.wb_n_hit1": "1 petarung menyerang",
+ "o.wb_call": "Panggil klan",
+ "o.wb_call_d": "Anggota klan memberi +10% damage ke bos yang dipanggil, +10% per anggota lain yang ikut (maks +50%).",
+ "o.wb_called": "📯 Panggilan klan oleh {0} · 👥 {1} anggota · ⚔️ +{2}% damage",
+ "o.wb_call_ok": "Klanmu dipanggil ke bos!",
+ "o.wb_march_dead": "Bos tumbang saat pasukanmu berbaris. Pasukan akan kembali; jatah harianmu tidak terpakai.",
+ "o.wb_e_called": "Klanmu sudah memanggil bos ini",
+ "o.wb_e_calls": "Klanmu sudah memakai 3 panggilan bos ronde ini",
+ "o.wb_noclan": "Gabung klan untuk memanggilnya melawan bos"
 }

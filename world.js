@@ -6,7 +6,7 @@ let AD=null,C=null;const WIM={};const wimg=n=>{if(!WIM[n]){const i=new Image();i
 function rng(s){return()=>(s=(s*16807)%2147483647)/2147483647}
 // Canlı adaptör: __online.world (world_me + world_view). Hücre → dünya birimi ×10. Kamplar kendi türüyle çizilir.
 export function liveAdapter(){const O=window.__online,WA=O.world,CS=10,D={me:null,isl:[],camps:[],mar:[],boss:[],size:1200};let ok=false;
- const mapB=bb=>{D.boss=(bb?.list||[]).map(b=>({id:'b'+b.id,bid:b.id,x:b.x*CS+5,y:b.y*CS+5,t:b.t,hp:b.hp,max:b.max,dead:!!b.dead,pw:b.pw}))};
+ const mapB=bb=>{D.boss=(bb?.list||[]).map(b=>({id:'b'+b.id,bid:b.id,x:b.x*CS+5,y:b.y*CS+5,t:b.t,hp:b.hp,max:b.max,dead:!!b.dead,pw:b.pw,call:!!b.call}))};
  const map=(v,me)=>{D.size=(me.n||120)*CS;D.isl=(v.isl||[]).map(i=>({id:i.id,x:i.x*CS+5,y:i.y*CS+5,lv:i.lv||1,name:i.nick||'?',clan:i.tag||'',clanColor:i.me||i.mate?'#4fa3e0':i.cid?`hsl(${(parseInt(String(i.cid).replace(/\D/g,'').slice(0,6)||'0')*47)%360} 70% 55%)`:'#bbb',shield:!!i.sh,me:!!i.me,mate:!!i.mate}));
   D.camps=(v.camps||[]).map(c=>({id:'c'+c.x+'_'+c.y,x:c.x*CS+5,y:c.y*CS+5,lv:c.lvl,kind:c.k,pw:c.pw}));
   const ms=[...(v.marches||[]),...((me.marches||[]).filter(m=>!m.done).map(m=>({fx:me.x,fy:me.y,tx:m.tx,ty:m.ty,t0:m.t0||m.sent||Date.now()-1e3,t1:m.arrive,me:1})))];const seen=new Set();
@@ -86,7 +86,7 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
   x.fillStyle='rgba(0,0,0,.35)';x.beginPath();x.ellipse(px,py+s*.5,s*1.1,s*.38,0,0,7);x.fill();
   if(wok(im)){const h=s*3.2,w=h*im.naturalWidth/im.naturalHeight;x.save();if(o.dead){x.filter='grayscale(1) brightness(.45)'}x.drawImage(im,px-w/2,py+s*.6-h,w,h);x.restore()}
   if(k>.5){const bw=Math.max(34,s*2.4),bx=px-bw/2,by=py+s*.85;x.fillStyle='rgba(0,0,0,.7)';x.fillRect(bx-1,by-1,bw+2,6);x.fillStyle=o.dead?'#666':'#ff3b30';x.fillRect(bx,by,bw*Math.max(0,o.hp/Math.max(1,o.max)),4);
-   x.font='800 10px system-ui';x.textAlign='center';x.textBaseline='alphabetic';x.lineWidth=3;x.strokeStyle='#000';const lb=(o.dead?'💀 ':'👹 ')+tx('o.wb_tier',[o.t]);x.strokeText(lb,px,by+16);x.fillStyle='#ffb3a8';x.fillText(lb,px,by+16)}}
+   x.font='800 10px system-ui';x.textAlign='center';x.textBaseline='alphabetic';x.lineWidth=3;x.strokeStyle='#000';const lb=(o.dead?'💀 ':o.call?'📯 ':'👹 ')+tx('o.wb_tier',[o.t]);x.strokeText(lb,px,by+16);x.fillStyle='#ffb3a8';x.fillText(lb,px,by+16)}}
  function ship(px,py,s,ang,col,t){{const im=wimg('t_cav2');if(wok(im)){const w=s*2.6,h=w*im.naturalHeight/im.naturalWidth;x.save();x.translate(px,py);if(Math.cos(ang)<0)x.scale(-1,1);x.fillStyle=col+'66';x.beginPath();x.ellipse(0,h*.35,w*.45,w*.12,0,0,7);x.fill();x.drawImage(im,-w/2,h*.45-h,w,h);x.restore();return}}x.save();x.translate(px,py+Math.sin(t*3+px)*1);x.rotate(ang);x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.moveTo(-s*1.6,0);x.lineTo(-s*.4,-s*.35);x.lineTo(-s*.4,s*.35);x.fill();
   x.fillStyle='#6b4423';x.beginPath();x.moveTo(s*.9,0);x.lineTo(s*.3,-s*.38);x.lineTo(-s*.7,-s*.32);x.lineTo(-s*.7,s*.32);x.lineTo(s*.3,s*.38);x.fill();x.fillStyle='#f4ecd8';x.fillRect(-s*.15,-s*.55,s*.3,s*1.1);x.fillStyle=col;x.fillRect(-s*.15,-s*.12,s*.3,s*.24);x.restore()}
  let last=performance.now();
