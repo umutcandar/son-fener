@@ -451,4 +451,6 @@ export function warOdds(me,en,beat,tier,types){const etot=types.reduce((x,k)=>x+
 export const WB={hpMul:4,rounds:8};
 // b46: klan çağrısı bonusu — sunucudaki sf_wb_cb ile aynı: çağrılmışsa +%10 taban, bossa vuran her diğer klan arkadaşı +%10, en çok +%50
 export const wbClanPct=(called,others)=>called?Math.min(50,10+10*Math.max(0,others|0)):0;
+// b47: boss toplu seferi bonusu — sunucudaki sf_wb_rp ile aynı: ek üye başına +%5, en çok +%30 (güç = üyelerin güç toplamı)
+export const wbRallyPct=n=>Math.min(30,5*Math.max(0,(n|0)-1));
 export function wbEst(pw,b,cb=0){pw=Math.max(50,+pw||0);const ap=Math.round(pw*(100+(+cb||0))/100);let hp=pw*WB.hpMul,d=0;for(let r=1;r<=WB.rounds&&hp>0;r++){d+=ap*(r%3?1:1.5);if(d>=b.hp)break;hp-=b.pw*(r%4?1:1.6)}return Math.round(Math.min(d,b.hp))}
