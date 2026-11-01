@@ -2,19 +2,20 @@
 // Toplu akış (batch) sunucu koordinatlarını sağladığında: window.__sfWorld.setAdapter({me(),islands(),marches(),forts(),ruins(),attack?(id)})
 // Şekil: island {id,x,y,lv,name,clan,clanColor,shield(bool|ms),me?} · march {id,from:[x,y],to:[x,y],t0,t1,mine?,rally?}
 // fort {id,x,y,lv,clan,clanColor,hp(0..1),attacked(bool),r} · ruin {id,x,y,owner?} · koordinatlar 0..1000 dünya birimi.
-let AD=null,C=null;const WIM={};const wimg=n=>{if(!WIM[n]){const i=new Image();i.decoding='async';i.src='img/a/'+n+'.webp';WIM[n]=i}return WIM[n]};const wok=i=>i.complete&&i.naturalWidth>0;
+let AD=null,C=null;const WIM={};const wimg=n=>{if(!WIM[n]){const i=new Image();i.decoding='async';i.src='img/a/'+n+'.webp';WIM[n]=i}return WIM[n]};const wok=i=>i.complete&&i.naturalWidth>0;const BIM={},bimg=t=>{const n=['','crab','octo','ghost','reef','kraken'][t]||'crab';if(!BIM[n]){const i=new Image();i.decoding='async';i.src='img/f_'+n+'.webp';BIM[n]=i}return BIM[n]};
 function rng(s){return()=>(s=(s*16807)%2147483647)/2147483647}
 // Canlı adaptör: __online.world (world_me + world_view). Hücre → dünya birimi ×10. Kamplar kendi türüyle çizilir.
-export function liveAdapter(){const O=window.__online,WA=O.world,CS=10,D={me:null,isl:[],camps:[],mar:[],size:1200};let ok=false;
+export function liveAdapter(){const O=window.__online,WA=O.world,CS=10,D={me:null,isl:[],camps:[],mar:[],boss:[],size:1200};let ok=false;
+ const mapB=bb=>{D.boss=(bb?.list||[]).map(b=>({id:'b'+b.id,bid:b.id,x:b.x*CS+5,y:b.y*CS+5,t:b.t,hp:b.hp,max:b.max,dead:!!b.dead,pw:b.pw}))};
  const map=(v,me)=>{D.size=(me.n||120)*CS;D.isl=(v.isl||[]).map(i=>({id:i.id,x:i.x*CS+5,y:i.y*CS+5,lv:i.lv||1,name:i.nick||'?',clan:i.tag||'',clanColor:i.me||i.mate?'#4fa3e0':i.cid?`hsl(${(parseInt(String(i.cid).replace(/\D/g,'').slice(0,6)||'0')*47)%360} 70% 55%)`:'#bbb',shield:!!i.sh,me:!!i.me,mate:!!i.mate}));
   D.camps=(v.camps||[]).map(c=>({id:'c'+c.x+'_'+c.y,x:c.x*CS+5,y:c.y*CS+5,lv:c.lvl,kind:c.k,pw:c.pw}));
   const ms=[...(v.marches||[]),...((me.marches||[]).filter(m=>!m.done).map(m=>({fx:me.x,fy:me.y,tx:m.tx,ty:m.ty,t0:m.t0||m.sent||Date.now()-1e3,t1:m.arrive,me:1})))];const seen=new Set();
   D.mar=ms.filter(m=>{const k=[m.fx,m.fy,m.tx,m.ty,m.t1].join();if(seen.has(k))return false;seen.add(k);return true}).map((m,i)=>({id:'m'+i,from:[m.fx*CS+5,m.fy*CS+5],to:[m.tx*CS+5,m.ty*CS+5],t0:m.t0,t1:m.t1,mine:!!m.me}));
   const mi=D.isl.find(i=>i.me);D.me=mi||{id:'me',x:me.x*CS+5,y:me.y*CS+5,lv:1,name:'',me:true};ok=true};
- const load=async()=>{try{const me=await WA.me(),R=15,v=await WA.view(me.x-R,me.y-R,2*R+1,2*R+1);map(v||{},me||{})}catch(e){console.warn('world live',e)}};
- const A={live:true,ready:load(),me:()=>D.me||{x:600,y:600,lv:1,name:'',me:true},islands:()=>D.isl,camps:()=>D.camps,forts:()=>[],ruins:()=>[],marches:()=>D.mar,get size(){return D.size},refresh:load,
+ const load=async()=>{try{const me=await WA.me(),R=15,v=await WA.view(me.x-R,me.y-R,2*R+1,2*R+1);map(v||{},me||{});if(WA.bosses)mapB(await WA.bosses())}catch(e){console.warn('world live',e)}};
+ const A={live:true,ready:load(),me:()=>D.me||{x:600,y:600,lv:1,name:'',me:true},islands:()=>D.isl,camps:()=>D.camps,bosses:()=>D.boss,forts:()=>[],ruins:()=>[],marches:()=>D.mar,get size(){return D.size},refresh:load,
   attack:o=>{}};
- WA.on&&WA.on(t=>{if(t==='march'||t==='battle'||t==='view')load()});return A}
+ WA.on&&WA.on((t,d)=>{if(t==='bosses')mapB(d);else if(t==='march'||t==='battle'||t==='view')load()});return A}
 const $=i=>document.getElementById(i);
 function fmtT(ms){ms=Math.max(0,ms/1e3|0);const m=ms/60|0,s=ms%60;return m+':'+String(s).padStart(2,'0')}
 export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefers-reduced-motion: reduce)').matches;const O=window.__online;if(!(O&&O.on&&O.world))return null;if(!AD)AD=liveAdapter();if(AD.ready)await AD.ready;let rt=AD.live?setInterval(()=>AD.refresh(),5000):0;
@@ -35,10 +36,11 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
  cv.onwheel=e=>{e.preventDefault();tz=Math.max(.7,Math.min(8,tz*(e.deltaY<0?1.15:.87)))};
  $('wcl').onclick=close;$('whome').onclick=()=>{tcx=me.x;tcy=me.y;tz=3};
  function close(){alive=false;clearInterval(rt);el.classList.remove('on');removeEventListener('resize',rs);ctx.SFX&&ctx.SFX.tap()}
- function hit(a,b){const all=[...AD.forts().map(o=>({...o,k:'f',rr:16+o.lv*2})),...AD.islands().map(o=>({...o,k:'i',rr:10+o.lv*.6})),...AD.ruins().map(o=>({...o,k:'r',rr:12})),...(AD.camps?AD.camps():[]).map(o=>({...o,k:'c',rr:12}))];const[wx,wy]=s2w(a,b),k=fit()*cz;let best=null,bd=1e9;for(const o of all){const d=Math.hypot(o.x-wx,o.y-wy)*k;if(d<Math.max(22,o.rr*k)&&d<bd){bd=d;best=o}}return best}
+ function hit(a,b){const all=[...AD.forts().map(o=>({...o,k:'f',rr:16+o.lv*2})),...AD.islands().map(o=>({...o,k:'i',rr:10+o.lv*.6})),...AD.ruins().map(o=>({...o,k:'r',rr:12})),...(AD.camps?AD.camps():[]).map(o=>({...o,k:'c',rr:12})),...(AD.bosses?AD.bosses():[]).map(o=>({...o,k:'b',rr:16+o.t*2}))];const[wx,wy]=s2w(a,b),k=fit()*cz;let best=null,bd=1e9;for(const o of all){const d=Math.hypot(o.x-wx,o.y-wy)*k;if(d<Math.max(22,o.rr*k)&&d<bd){bd=d;best=o}}return best}
  function tap(a,b){const o=hit(a,b);sel=o;const cd=$('wcard');if(!o){cd.classList.remove('on');return}ctx.SFX&&ctx.SFX.tap();tcx=o.x;tcy=o.y;tz=Math.max(tz,4);
   let h='';if(o.k==='i')h=`<b>${o.me?'🏠 ':''}${o.name}</b><small>${o.clan?'['+o.clan+'] · ':''}${tx('ui.w_lv',[o.lv])}${o.shield?' · 🛡️ '+tx('ui.w_shield'):''}</small>`+(o.me?'':`<button id="watk" ${o.shield?'disabled':''}>⚔️ ${tx('ui.w_attack')}</button>`);
   else if(o.k==='f')h=`<b>🏰 ${tx('ui.w_fort')} [${o.clan}]</b><small>${tx('ui.w_lv',[o.lv])} · ❤️ ${Math.round(o.hp*100)}%${o.attacked?' · 🔥 '+tx('ui.w_under'):''}</small><button id="watk">⚔️ ${tx('ui.w_rally')}</button>`;
+  else if(o.k==='b')h=`<b>${o.dead?'💀':'👹'} ${[tx('o.wb_n1'),tx('o.wb_n2'),tx('o.wb_n3'),tx('o.wb_n4'),tx('o.wb_n5')][Math.max(1,Math.min(5,o.t))-1]} · ${tx('o.wb_tier',[o.t])}</b><small>❤️ ${Math.round(100*o.hp/Math.max(1,o.max))}% · ⚔️ ${o.pw}</small>`+(o.dead?'':`<button id="watk">🐎 ${tx('o.wb_go')}</button>`);
   else if(o.k==='c')h=`<b>${o.kind==='pirate'?'🗡️':'👾'} ${tx('ui.w_lv',[o.lv])}</b><small>⚔️ ${o.pw||'?'}</small><button id="watk">🐎 ${tx('ui.w_send')}</button>`;
   else h=`<b>🏰 ${tx('ui.w_ruin')}</b><small>${tx('ui.w_ruin_d')}</small><button id="watk">🐎 ${tx('ui.w_send')}</button>`;
   cd.innerHTML=h;cd.classList.add('on');const bt=$('watk');if(bt)bt.onclick=()=>{close();if(O.world.state){const st=O.world.state();st.sel={x:(o.x-5)/10,y:(o.y-5)/10}}ctx.after&&ctx.after()}}
@@ -79,6 +81,12 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
   if(o.kind==='pirate'){x.fillStyle='#3a2416';x.beginPath();x.moveTo(s,0);x.lineTo(s*.5,s*.4);x.lineTo(-s,s*.4);x.lineTo(-s*1.1,0);x.fill();x.strokeStyle='#2a1a0e';x.lineWidth=1.2;x.beginPath();x.moveTo(0,s*.1);x.lineTo(0,-s*1.2);x.stroke();x.fillStyle='#111';x.beginPath();x.moveTo(0,-s*1.15);x.lineTo(s*.75,-s*.95+Math.sin(t*4)*s*.06);x.lineTo(0,-s*.7);x.fill();x.fillStyle='#eee';x.beginPath();x.arc(s*.28,-s*.92,s*.1,0,7);x.fill()}
   else{const g=x.createRadialGradient(0,-s*.3,0,0,-s*.3,s*1.2);g.addColorStop(0,'rgba(190,160,255,.75)');g.addColorStop(1,'rgba(120,90,200,0)');x.fillStyle=g;x.beginPath();x.arc(0,-s*.3,s*1.2,0,7);x.fill();x.fillStyle='#dfe';x.globalAlpha=.85;x.beginPath();x.arc(0,-s*.4+Math.sin(t*2)*s*.1,s*.4,3.14,0);x.lineTo(s*.4,s*.1);x.lineTo(-s*.4,s*.1);x.fill();x.globalAlpha=1;x.fillStyle='#226';x.fillRect(-s*.18,-s*.5,s*.1,s*.1);x.fillRect(s*.08,-s*.5,s*.1,s*.1)}
   if(s>8){x.font='800 9px system-ui';x.fillStyle='#ffe38a';x.textAlign='center';x.fillText(tx('ui.w_lv',[o.lv]),0,s*.95)}x.restore()}
+ // b44: dünya bossu — dev sprite, kırmızı nabız halkası, can çubuğu
+ function boss(px,py,s,o,t,k){const im=bimg(o.t);if(!o.dead){const ph=(t*.8)%1;x.strokeStyle=`rgba(255,59,48,${.7*(1-ph)})`;x.lineWidth=2.5;x.beginPath();x.ellipse(px,py+s*.5,s*(1+ph*.9),s*(.38+ph*.32),0,0,7);x.stroke()}
+  x.fillStyle='rgba(0,0,0,.35)';x.beginPath();x.ellipse(px,py+s*.5,s*1.1,s*.38,0,0,7);x.fill();
+  if(wok(im)){const h=s*3.2,w=h*im.naturalWidth/im.naturalHeight;x.save();if(o.dead){x.filter='grayscale(1) brightness(.45)'}x.drawImage(im,px-w/2,py+s*.6-h,w,h);x.restore()}
+  if(k>.5){const bw=Math.max(34,s*2.4),bx=px-bw/2,by=py+s*.85;x.fillStyle='rgba(0,0,0,.7)';x.fillRect(bx-1,by-1,bw+2,6);x.fillStyle=o.dead?'#666':'#ff3b30';x.fillRect(bx,by,bw*Math.max(0,o.hp/Math.max(1,o.max)),4);
+   x.font='800 10px system-ui';x.textAlign='center';x.textBaseline='alphabetic';x.lineWidth=3;x.strokeStyle='#000';const lb=(o.dead?'💀 ':'👹 ')+tx('o.wb_tier',[o.t]);x.strokeText(lb,px,by+16);x.fillStyle='#ffb3a8';x.fillText(lb,px,by+16)}}
  function ship(px,py,s,ang,col,t){{const im=wimg('t_cav2');if(wok(im)){const w=s*2.6,h=w*im.naturalHeight/im.naturalWidth;x.save();x.translate(px,py);if(Math.cos(ang)<0)x.scale(-1,1);x.fillStyle=col+'66';x.beginPath();x.ellipse(0,h*.35,w*.45,w*.12,0,0,7);x.fill();x.drawImage(im,-w/2,h*.45-h,w,h);x.restore();return}}x.save();x.translate(px,py+Math.sin(t*3+px)*1);x.rotate(ang);x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.moveTo(-s*1.6,0);x.lineTo(-s*.4,-s*.35);x.lineTo(-s*.4,s*.35);x.fill();
   x.fillStyle='#6b4423';x.beginPath();x.moveTo(s*.9,0);x.lineTo(s*.3,-s*.38);x.lineTo(-s*.7,-s*.32);x.lineTo(-s*.7,s*.32);x.lineTo(s*.3,s*.38);x.fill();x.fillStyle='#f4ecd8';x.fillRect(-s*.15,-s*.55,s*.3,s*1.1);x.fillStyle=col;x.fillRect(-s*.15,-s*.12,s*.3,s*.24);x.restore()}
  let last=performance.now();
@@ -98,13 +106,14 @@ export async function openWorld(ctx){C=ctx;const tx=ctx.tx,RM=matchMedia('(prefe
    const sx=p0+(p1-p0)*u,sy=q0+(q1-q0)*u,ss=Math.max(8,Math.min(14,5*k));ship(sx,sy,ss,Math.atan2(q1-q0,p1-p0),col,t);
    if(k>.5){const lb='⏱ '+fmtT(m.t1-now);x.font='700 10px system-ui';const w=x.measureText(lb).width+10;x.fillStyle='rgba(10,20,30,.75)';x.beginPath();x.roundRect(sx-w/2,sy-ss-18,w,14,7);x.fill();x.fillStyle=col;x.textAlign='center';x.textBaseline='middle';x.fillText(lb,sx,sy-ss-11)}}
   // varlıklar (y'ye göre sırala)
-  const ents=[...fs.map(o=>['f',o]),...is.map(o=>['i',o]),...rs_.map(o=>['r',o]),...(AD.camps?AD.camps():[]).map(o=>['c',o])].sort((a,b)=>a[1].y-b[1].y);
+  const ents=[...fs.map(o=>['f',o]),...is.map(o=>['i',o]),...rs_.map(o=>['r',o]),...(AD.camps?AD.camps():[]).map(o=>['c',o]),...(AD.bosses?AD.bosses():[]).map(o=>['b',o])].sort((a,b)=>a[1].y-b[1].y);
   for(const[ty,o]of ents){const[p,q]=w2s(o.x,o.y);if(p<-80||q<-80||p>W+80||q>H+80)continue;
    if(ty==='i'){const s=Math.max(4,(5+o.lv*.35)*k*1.3);if(k<.45&&!o.me){x.fillStyle=o.clanColor||'#ccc';x.beginPath();x.arc(p,q,3,0,7);x.fill();continue}keep(p,q,s,o,t);banner(p,q+s*.75,o,k)}
    else if(ty==='f'){const s=(9+o.lv*1.3)*k*.9;fort(p,q,s,o,t);if(o.attacked){const ph=(t*1.2)%1;x.strokeStyle=`rgba(255,60,40,${1-ph})`;x.lineWidth=3;x.beginPath();x.arc(p,q,s*(1.4+ph*1.2),0,7);x.stroke();
      x.font='800 12px system-ui';x.textAlign='center';x.fillStyle='#fff';x.strokeStyle='#a00';x.lineWidth=3;const lb='⚠️ '+tx('ui.w_under');x.strokeText(lb,p,q-s*2.1);x.fillText(lb,p,q-s*2.1)}
      if(k>1.1){x.font='800 11px system-ui';x.fillStyle=o.clanColor;x.textAlign='center';x.fillText('🏰 ['+o.clan+'] '+tx('ui.w_lv',[o.lv]),p,q+s*1.15)}}
    else if(ty==='c'){const s=Math.max(8,9*k);camp(p,q,s,o,t)}
+   else if(ty==='b'){const s=Math.max(10,(8+o.t*1.6)*k);boss(p,q,s,o,t,k)}
    else{const s=8*k*.9;ruin(p,q,s,t);if(k>1.3){x.font='700 10px system-ui';x.fillStyle='#ffe9a8';x.textAlign='center';x.fillText('🏰 '+tx('ui.w_ruin'),p,q+s*.9)}}
    if(sel&&sel.id===o.id){x.strokeStyle='#ffe38a';x.lineWidth=2;x.beginPath();x.arc(p,q,22+3*Math.sin(t*6),0,7);x.stroke()}}
   requestAnimationFrame(frame)}
