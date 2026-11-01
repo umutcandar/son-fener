@@ -399,7 +399,7 @@ function burst(pos,c,n=10,sp=2.5,e){for(let k=0;k<n;k++){const m=new THREE.Mesh(
 // ---------- UI YARDIMCI ----------
 const fmt=n=>{n=Math.floor(n);const d=(v,s)=>(v>=100?Math.floor(v):v.toFixed(1)).toString().replace('.',DEC).replace(DEC+'0','')+s;return n>=1e9?d(n/1e9,tx('ui.u_b')):n>=1e6?d(n/1e6,tx('ui.u_m')):n>=1e4?d(n/1e3,tx('ui.u_k')):n.toLocaleString(locale)};
 const fmtT=s=>{s=Math.max(0,Math.ceil(s));const m=Math.floor(s/60),h=Math.floor(m/60);return h?`${tx('ui.sa_dk',[h,m%60])}`:m?`${m}:${String(s%60).padStart(2,'0')}`:tx('ui.sec_s',[s])};
-const IMGR={fish:1,wood:1,crys:1,gems:1};const RI=r=>IMGR[r]?`<img class="ri" src="img/i_${r}.webp" alt="">`:RIC[r];
+const IMGR={fish:'grain',wood:'wood',crys:'crys',gems:'gems'};const RI=r=>IMGR[r]?`<img class="ri" src="img/i_${IMGR[r]}.webp" alt="">`:RIC[r];
 const have=r=>r==='gems'?S.gems:r==='ticket'?S.tickets:S.res[r];
 const costStr=c=>Object.entries(c).filter(([r,v])=>v).map(([r,v])=>`<span class="cs" style="color:${have(r)>=v?'#fff':'#ff8a8a'}">${RI(r)}${fmt(v)}</span>`).join(' ');
 const rwStr=c=>Object.entries(c).filter(([r,v])=>v).map(([r,v])=>`<span class="cs">${RI(r)}${fmt(v)}</span>`).join(' ');
