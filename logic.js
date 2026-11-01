@@ -447,3 +447,6 @@ export function warOdds(me,en,beat,tier,types){const etot=types.reduce((x,k)=>x+
  const big=types.slice().sort((x,y)=>(+(en[y]||0))-(+(en[x]||0)))[0],ctr=types.find(t=>beat[t]===big);
  const m=warPow(me,en,beat,tier,types),e=warPow(en,me,beat,tier,types),q=m/Math.max(1,e);
  const v=mtot<1?'lo':etot<1?'hi':q>=1.3?'hi':q>=.9?'mid':'lo';return {me:m,en:e,v,empty:etot<1,big,ctr}}
+// b45: Dünya bossu vuruş tahmini — sunucudaki sf_wb_hit ile aynı kural (8 tur, oyuncu canı güç×4, 3. turda beceri ×1.5, boss 4. turda ×1.6)
+export const WB={hpMul:4,rounds:8};
+export function wbEst(pw,b){pw=Math.max(50,+pw||0);let hp=pw*WB.hpMul,d=0;for(let r=1;r<=WB.rounds&&hp>0;r++){d+=pw*(r%3?1:1.5);if(d>=b.hp)break;hp-=b.pw*(r%4?1:1.6)}return Math.round(Math.min(d,b.hp))}
