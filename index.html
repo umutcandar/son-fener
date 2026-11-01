@@ -185,6 +185,19 @@ body.fadeIn #app,body.fadeIn canvas{animation:gIn .7s ease both}@keyframes gIn{f
 @keyframes impf{from{transform:scale(.3);opacity:1}to{transform:scale(1.4);opacity:0}}@keyframes impr{from{transform:scale(.4);opacity:1}to{transform:scale(2.6);opacity:0}}@keyframes imps{to{transform:translate(var(--x),var(--y)) rotate(200deg) scale(.3);opacity:0}}
 .cball{position:fixed;z-index:59;width:12px;height:12px;margin:-6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#888,#111);box-shadow:0 0 8px #ffb347;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.imp,.cball{display:none}#battle .waves,.sea .ship{animation:none}}
+.sea.land{background:radial-gradient(ellipse at 50% 50%,transparent 40%,#0a0604cc 100%),linear-gradient(#2a1a0e55,#1a0e0899),url(img/a/world_tile.webp) 0 0/150px!important;border-color:#5a3a1c!important}
+.sea.land .route path{stroke:#e8d6a8;stroke-width:2;opacity:.45}
+.sea.land .route path.done{stroke:#ff5a3c;stroke-width:3;stroke-dasharray:none;opacity:.9}
+.sea.land .node .kp{width:38px;display:block;margin:-6px auto -2px;filter:drop-shadow(0 2px 2px #000a)}
+.sea.land .node .fl{position:absolute;top:-6px;right:-4px;font-size:12px}
+.sea.land .node .fo{display:block;width:46px;height:46px;border-radius:50%;overflow:hidden;border:3px solid #ff4a2a;background:radial-gradient(#5a1a10,#1a0806);box-shadow:0 0 0 2px #000,0 0 14px #ff3b30;animation:fpulse 1.2s ease-in-out infinite}
+.sea.land .node .fo img{width:100%;height:120%;object-fit:cover;object-position:top}
+.sea.land .node.cur{animation:none}
+.sea.land .fd{width:28px;height:18px;background:radial-gradient(#6e6a66,#2e2a28);box-shadow:8px -4px 0 -2px #4e4a46,-6px -3px 0 -3px #5a5652;opacity:.9}
+.sea.land .node.fog.boss .fd{background:radial-gradient(#8a3a2a,#3a1410);box-shadow:8px -4px 0 -2px #6a2a1e,-6px -3px 0 -3px #7a3020}
+.sea.land .node .bk{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 0 3px #ff3b30)}
+.sea.land .ship{width:34px;height:auto;position:absolute;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 2px #000a)}
+@keyframes fpulse{0%,100%{box-shadow:0 0 0 2px #000,0 0 8px #ff3b30}50%{box-shadow:0 0 0 2px #000,0 0 20px #ff6a3c}}
 
 /* v8 savaş sahnesi */
 #bsc{flex:1;width:100%;min-height:0;display:block}

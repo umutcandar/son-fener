@@ -132,3 +132,9 @@ Her bina seviyesi görsel olarak değişmelidir (kademe: 1–5, 6–10, …).
 - Diziliş 3×3 (`city_form`): ön sırada Abordajcı +%5, arka sırada Zıpkıncı/Topçu +%10; ızgaradaki kaptan kendi hattına +%8 (diğer roller +%3). Etkin kademe `sf_war_tiers` içinde (0,3 = 1 kademe) → saldırı, savunma, garnizon hepsinde.
 - Kancalar: `__online.city.{list,state,sync,on,open,upgrade,keys}`, `__online.army.{lines,info}`.
 - Ertelendi: Akıncı (Gemi Tezgahı) hattı — savaş motoru değişikliği gerekir.
+
+## b44 — Dünya bossları + kara sefer haritası (1 Kas 2026)
+- Dünya haritasında 2 saatte bir yenilenen 9 ortak boss (K1–K5, merkez sektör daha güçlü). Ortak can; herkes vurur, asker kaybı yok, ganimet hasara göre postayla; son darbeye 💎, tüm katılanlara 🔮+💎. Günde 12 boss seferi, aynı anda 1 boss seferi. Sunucu tarafı: supabase/world_boss.sql (world_bosses, world_attack_boss, sf_wb_hit, world_resolve boss dalı).
+- Liste/kart (sheet) + kanvas haritada boss çizimi.
+- Sefer haritası denizden karaya: arazi zemin, fethedilen kasaba kale, sıradaki hedef düşman portresi, ilerisi duman, boss durakları 👑, gemi yerine süvari.
+- Kalan deniz/fener/ada ifadeleri temizlendi (11 dil).
