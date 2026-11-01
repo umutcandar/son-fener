@@ -145,3 +145,9 @@ Her bina seviyesi görsel olarak değişmelidir (kademe: 1–5, 6–10, …).
 - `world_bosses` artık `clan`, `calls`, boss başına `call` (çağıran), `cn` (vuran klan üyesi), `cb` (benim bonusum) döner. Kanvasta çağrılmış boss 📯 etiketli.
 - Seferim yoldayken boss düşerse kartta ve sefer listesinde uyarı + bir kez bildirim: ordu döner, günlük hak gitmez (b45 kuralı).
 - "1 fighters" çoğul hatası düzeltildi (11 dil). Sunucu: supabase/world_boss_b46.sql.
+
+## b47 — Boss'a karşı klan toplu seferi (1 Kas 2026)
+- `world_boss_rally_start(p_id, 60|300)`: klan üyesi canlı bossa toplu sefer açar (klan başına aynı anda 1 toplanan sefer, en çok 10 kişi). Klan sohbetine 🚩 uyarısı düşer. `world_boss_rally_join(p_rally)`: aynı klandan katılım.
+- Toplanma bitince `world_resolve` → `sf_wb_rally_launch` liderin ordusunu yola çıkarır; boss ölmüşse/dilim değişmişse sefer iptal, hak gitmez. Her üye 1 günlük hak kullanır.
+- Vuruşta güçler toplanır (üye başına en az 50), +%5/ek üye (en çok +%30, `logic.js` → `wbRallyPct`) + klan çağrı bonusu; hasar ve ganimet güç payına göre bölünür, her üyeye kendi payıyla posta. Son vuruş ödülü lidere. Toplu sefer üyeleri çağrı bonusunu iki kez şişirmez (`sf_wb_cb`).
+- Boss listesinde satır rozetleri: 📯 +%, 🚩 n/10 ⏳/🐎 süre, ✅ katıldım, 🐎 seferim. Rapor satırında 🚩 ×n · senin payın · ⚔️ +%. Sunucu: supabase/world_boss_b47.sql.

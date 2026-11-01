@@ -1925,5 +1925,16 @@
  "o.wb_march_dead": "Ordun yoldayken bu boss düştü. Ordu geri dönecek; günlük hakkın gitmez.",
  "o.wb_e_called": "Klanın bu bossu zaten çağırdı",
  "o.wb_e_calls": "Klanın bu turdaki 3 boss çağrısını kullandı",
- "o.wb_noclan": "Bosslara karşı klanını çağırmak için bir klana katıl"
+ "o.wb_noclan": "Bosslara karşı klanını çağırmak için bir klana katıl",
+ "o.wb_rally": "Toplu sefer",
+ "o.wb_rally_d": "Klan arkadaşların tek orduda birleşir: güçler toplanır, her ek üye +%5 (en çok +%30). Her üye 1 günlük hak kullanır; hasar ve ganimet güce göre paylaşılır.",
+ "o.wb_rally_on": "{0} toplu sefer açtı · 👥 {1}/10 · ⚔️ +%{2}",
+ "o.wb_rally_gather": "{0} sonra yola çıkar",
+ "o.wb_rally_march": "Toplu ordu yolda · {0} sonra varır",
+ "o.wb_rally_est": "ortak vuruş ≈ {0}",
+ "o.wb_join": "Sefere katıl",
+ "o.wb_joined": "Seferdesin",
+ "o.wb_rally_ok": "Toplu sefer açıldı! Klan arkadaşların katılabilir.",
+ "o.wb_join_ok": "Toplu sefere katıldın!",
+ "o.wb_rally_rep": "×{0} · payın {1}"
 }

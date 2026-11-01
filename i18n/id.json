@@ -1925,5 +1925,16 @@
  "o.wb_march_dead": "Bos tumbang saat pasukanmu berbaris. Pasukan akan kembali; jatah harianmu tidak terpakai.",
  "o.wb_e_called": "Klanmu sudah memanggil bos ini",
  "o.wb_e_calls": "Klanmu sudah memakai 3 panggilan bos ronde ini",
- "o.wb_noclan": "Gabung klan untuk memanggilnya melawan bos"
+ "o.wb_noclan": "Gabung klan untuk memanggilnya melawan bos",
+ "o.wb_rally": "Serbuan bersama",
+ "o.wb_rally_d": "Anggota klan bergabung jadi satu pasukan: kekuatan dijumlah, +5% per anggota tambahan (maks +30%). Tiap anggota memakai 1 jatah harian; damage dan jarahan dibagi sesuai kekuatan.",
+ "o.wb_rally_on": "Serbuan {0} · 👥 {1}/10 · ⚔️ +{2}%",
+ "o.wb_rally_gather": "Berangkat dalam {0}",
+ "o.wb_rally_march": "Pasukan gabungan berbaris · tiba dalam {0}",
+ "o.wb_rally_est": "serangan gabungan ≈ {0}",
+ "o.wb_join": "Ikut serbuan",
+ "o.wb_joined": "Kamu ikut",
+ "o.wb_rally_ok": "Serbuan dimulai! Anggota klan bisa ikut.",
+ "o.wb_join_ok": "Kamu ikut serbuan!",
+ "o.wb_rally_rep": "×{0} · bagianmu {1}"
 }

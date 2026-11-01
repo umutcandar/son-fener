@@ -1925,5 +1925,16 @@
  "o.wb_march_dead": "Der Boss fiel, während deine Armee marschierte. Sie kehrt um; dein Tagesversuch bleibt erhalten.",
  "o.wb_e_called": "Dein Clan hat diesen Boss bereits gerufen",
  "o.wb_e_calls": "Dein Clan hat alle 3 Boss-Rufe dieser Runde genutzt",
- "o.wb_noclan": "Tritt einem Clan bei, um ihn gegen Bosse zu rufen"
+ "o.wb_noclan": "Tritt einem Clan bei, um ihn gegen Bosse zu rufen",
+ "o.wb_rally": "Boss-Sammelangriff",
+ "o.wb_rally_d": "Clanmitglieder vereinen sich zu einer Armee: Macht addiert sich, +5 % je weiterem Mitglied (max. +30 %). Jedes Mitglied nutzt 1 Tagesversuch; Schaden und Beute nach Macht geteilt.",
+ "o.wb_rally_on": "Sammelangriff von {0} · 👥 {1}/10 · ⚔️ +{2} %",
+ "o.wb_rally_gather": "Bricht in {0} auf",
+ "o.wb_rally_march": "Sammelarmee marschiert · Ankunft in {0}",
+ "o.wb_rally_est": "gemeinsamer Treffer ≈ {0}",
+ "o.wb_join": "Beitreten",
+ "o.wb_joined": "Du bist dabei",
+ "o.wb_rally_ok": "Sammelangriff gestartet! Clanmitglieder können beitreten.",
+ "o.wb_join_ok": "Du bist dem Sammelangriff beigetreten!",
+ "o.wb_rally_rep": "×{0} · dein Anteil {1}"
 }

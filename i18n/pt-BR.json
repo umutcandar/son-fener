@@ -1925,5 +1925,16 @@
  "o.wb_march_dead": "O chefe caiu enquanto seu exército marchava. Ele voltará; sua tentativa diária não é gasta.",
  "o.wb_e_called": "Seu clã já chamou este chefe",
  "o.wb_e_calls": "Seu clã usou as 3 chamadas de chefe desta rodada",
- "o.wb_noclan": "Entre em um clã para chamá-lo contra chefes"
+ "o.wb_noclan": "Entre em um clã para chamá-lo contra chefes",
+ "o.wb_rally": "Ataque conjunto",
+ "o.wb_rally_d": "Membros do clã formam um só exército: o poder se soma, +5% por membro extra (máx. +30%). Cada membro usa 1 tentativa diária; dano e espólio divididos pelo poder.",
+ "o.wb_rally_on": "Ataque de {0} · 👥 {1}/10 · ⚔️ +{2}%",
+ "o.wb_rally_gather": "Parte em {0}",
+ "o.wb_rally_march": "Exército conjunto em marcha · chega em {0}",
+ "o.wb_rally_est": "golpe conjunto ≈ {0}",
+ "o.wb_join": "Entrar",
+ "o.wb_joined": "Você está dentro",
+ "o.wb_rally_ok": "Ataque iniciado! Membros do clã podem entrar.",
+ "o.wb_join_ok": "Você entrou no ataque!",
+ "o.wb_rally_rep": "×{0} · sua parte {1}"
 }

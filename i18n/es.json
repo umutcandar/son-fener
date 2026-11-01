@@ -1925,5 +1925,16 @@
  "o.wb_march_dead": "El jefe cayó mientras tu ejército marchaba. Regresará; tu intento diario no se gasta.",
  "o.wb_e_called": "Tu clan ya llamó a este jefe",
  "o.wb_e_calls": "Tu clan usó sus 3 llamadas de jefe en esta ronda",
- "o.wb_noclan": "Únete a un clan para llamarlo contra los jefes"
+ "o.wb_noclan": "Únete a un clan para llamarlo contra los jefes",
+ "o.wb_rally": "Asalto conjunto",
+ "o.wb_rally_d": "Tus compañeros forman un solo ejército: el poder se suma, +5 % por miembro extra (máx. +30 %). Cada miembro usa 1 intento diario; daño y botín se reparten según el poder.",
+ "o.wb_rally_on": "Asalto de {0} · 👥 {1}/10 · ⚔️ +{2} %",
+ "o.wb_rally_gather": "Sale en {0}",
+ "o.wb_rally_march": "Ejército conjunto en marcha · llega en {0}",
+ "o.wb_rally_est": "golpe conjunto ≈ {0}",
+ "o.wb_join": "Unirse",
+ "o.wb_joined": "Estás dentro",
+ "o.wb_rally_ok": "¡Asalto iniciado! Tus compañeros pueden unirse.",
+ "o.wb_join_ok": "¡Te uniste al asalto!",
+ "o.wb_rally_rep": "×{0} · tu parte {1}"
 }

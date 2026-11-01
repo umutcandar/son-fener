@@ -1925,5 +1925,16 @@
  "o.wb_march_dead": "This boss fell while your army was marching. It will turn back; your daily attempt is not used.",
  "o.wb_e_called": "Your clan already called this boss",
  "o.wb_e_calls": "Your clan used all 3 boss calls this round",
- "o.wb_noclan": "Join a clan to rally it against bosses"
+ "o.wb_noclan": "Join a clan to rally it against bosses",
+ "o.wb_rally": "Boss rally",
+ "o.wb_rally_d": "Clanmates merge into one army: power adds up, +5% per extra member (max +30%). Each member uses 1 daily attempt; damage and loot are shared by power.",
+ "o.wb_rally_on": "{0}’s rally · 👥 {1}/10 · ⚔️ +{2}%",
+ "o.wb_rally_gather": "Marches out in {0}",
+ "o.wb_rally_march": "Rally army marching · arrives in {0}",
+ "o.wb_rally_est": "combined hit ≈ {0}",
+ "o.wb_join": "Join rally",
+ "o.wb_joined": "You’re in",
+ "o.wb_rally_ok": "Rally started! Clanmates can join now.",
+ "o.wb_join_ok": "You joined the rally!",
+ "o.wb_rally_rep": "×{0} · your share {1}"
 }

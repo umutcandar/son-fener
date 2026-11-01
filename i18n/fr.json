@@ -1925,5 +1925,16 @@
  "o.wb_march_dead": "Ce boss est tombé pendant ta marche. Ton armée fera demi-tour ; ta tentative du jour n’est pas utilisée.",
  "o.wb_e_called": "Ton clan a déjà appelé ce boss",
  "o.wb_e_calls": "Ton clan a utilisé ses 3 appels de boss pour cette manche",
- "o.wb_noclan": "Rejoins un clan pour l’appeler contre les boss"
+ "o.wb_noclan": "Rejoins un clan pour l’appeler contre les boss",
+ "o.wb_rally": "Ralliement",
+ "o.wb_rally_d": "Les membres du clan forment une seule armée : la puissance s’additionne, +5 % par membre en plus (max +30 %). Chaque membre utilise 1 tentative du jour ; dégâts et butin partagés selon la puissance.",
+ "o.wb_rally_on": "Ralliement de {0} · 👥 {1}/10 · ⚔️ +{2} %",
+ "o.wb_rally_gather": "Départ dans {0}",
+ "o.wb_rally_march": "Armée ralliée en marche · arrivée dans {0}",
+ "o.wb_rally_est": "coup commun ≈ {0}",
+ "o.wb_join": "Rejoindre",
+ "o.wb_joined": "Tu y es",
+ "o.wb_rally_ok": "Ralliement lancé ! Les membres du clan peuvent rejoindre.",
+ "o.wb_join_ok": "Tu as rejoint le ralliement !",
+ "o.wb_rally_rep": "×{0} · ta part {1}"
 }
