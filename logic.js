@@ -119,7 +119,7 @@ export function reefFight(S,now,rng){if(!reefOpen(S))return{err:'locked'};const 
  let rw=null;if(res.win){rw={...REEF.st[i].rw};const u=rw.ush||0;delete rw.ush;addRes(S,rw);if(u){S.ush=(S.ush||0)+u;rw.ush=u}S.reef={n:i+1};S.st.wins++;dailyInc(S,'battle',1,now);addXP(S,REEF.st[i].boss?80:30)}return{res,rw,lost,i,boss:!!REEF.st[i].boss}}
 // ---------- bölümler + hikâye + görevler ----------
 export const CHAPTERS=[
- {n:'İlk Işık',say:['Uyan evlat! Duman bu gece yine geldi. Ben Hisarcı Yusuf — kırk yıldır bu hisarı yakarım.','Kale sancağını dik, kristal çıkar, halkını doyur. Surlar düşerse duman her şeyi yutar.']},
+ {n:'İlk Işık',say:['Uyan evlat! Duman bu gece yine geldi. Ben Topçubaşı Yusuf — kırk yıldır bu hisarı korurum.','Kale sancağını dik, kristal çıkar, halkını doyur. Surlar düşerse duman her şeyi yutar.']},
  {n:'Talimhane',say:['Kasaba nefes alıyor. Ama ufuktaki kasabalarda hâlâ insanlar dumana hapsolmuş.','Bir talimhane kur, mızrakçı eğit. Komutanlar ışığın peşinden gelir — onları çağır.']},
  {n:'Gözlemevi',say:['Eski gözlemevi planlarını buldum! Yıldızlar dumanın sırrını saklıyor olabilir.','Araştırma ağacını büyüt: ekonomi, hisar ve ordu. Her dal bir yol.']},
  {n:'Yeni Ufuklar',say:['Kızıl Tepe dumandan kurtuldu ve sahipsiz. Bereketli topraklar orada!','Kendi kasaban gibi kur, birleştir, büyüt. Bir de… derinlerden bir Zorba sesi geliyor.']},
